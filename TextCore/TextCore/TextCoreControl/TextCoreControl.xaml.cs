@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.DirectX.Controls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
+using Microsoft.WindowsAPICodePack.DirectX.WindowsImagingComponent;
 
 namespace TextCoreControl
 {
@@ -24,6 +25,21 @@ namespace TextCoreControl
         {
             document.LoadFile(fullFilePath);
             RenderHost.InvalidateVisual();
+        }
+
+        public void Rasterize()
+        {
+            System.Windows.Media.Imaging.BitmapSource bitmap = displayManager.Rasterize();
+            RasterHost.Source = bitmap;
+            RasterHost.Visibility = System.Windows.Visibility.Visible;
+            RenderHost.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+
+        public void UnRasterize()
+        {
+            RenderHost.Visibility = System.Windows.Visibility.Visible;
+            RasterHost.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private Document document;

@@ -28,9 +28,67 @@ namespace TextCoreControl
             this.nextOrdinal = nextOrdinal;
         }
 
-        public void Draw(HwndRenderTarget renderTarget, SolidColorBrush foregroundBrush)
+        public void Draw(RenderTarget renderTarget, SolidColorBrush foregroundBrush)
         {
             renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
+        }
+
+        public void DrawInverted(RenderTarget renderTarget, 
+            Document document, 
+            int selectionBeginOrdinal,
+            int selectionEndOrdinal, 
+            SolidColorBrush foregroundBrush,
+            SolidColorBrush backgrondBrush
+            )
+        {
+            SolidColorBrush invertedWhite = renderTarget.CreateSolidColorBrush(new ColorF(1f, 1f, 1f));
+            if (this.BeginOrdinal > selectionBeginOrdinal && this.NextOrdinal < selectionEndOrdinal)
+            {
+                // Fully selected line.
+                renderTarget.DrawTextLayout(this.position, this.textLayout, invertedWhite);
+            }
+            else
+            {
+                float xBegin = -1;
+                if (this.BeginOrdinal < selectionBeginOrdinal && this.NextOrdinal > selectionBeginOrdinal)
+                {
+                    // line contains begin 
+                    xBegin = this.CharPosition(document, selectionBeginOrdinal);
+                    RectF leftRect = new RectF(this.position.X, this.position.Y, xBegin, this.position.Y + this.Height);
+                    renderTarget.PushAxisAlignedClip(leftRect, AntiAliasMode.PerPrimitive);
+                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
+                    renderTarget.PopAxisAlignedClip();
+                }
+
+                float xEnd = -1;
+                if (this.beginOrdinal < selectionEndOrdinal && this.nextOrdinal > selectionEndOrdinal)
+                {
+                    // line contains end
+                    xEnd = this.CharPosition(document, selectionEndOrdinal);
+                    RectF rightRect = new RectF(this.position.X + xEnd, this.position.Y, this.position.X + this.Width, this.position.Y + this.Height);
+                    renderTarget.PushAxisAlignedClip(rightRect, AntiAliasMode.PerPrimitive);
+                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
+                    renderTarget.PopAxisAlignedClip();
+                }
+
+                if (xBegin == -1 && xEnd == -1)
+                {
+                    // This line is completely outside selection
+                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
+                }
+                else
+                {
+                    RectF rightRect = new RectF(xBegin == -1 ? this.position.X : this.position.X + xBegin, 
+                        this.position.Y, 
+                        xEnd == -1 ? this.position.X + this.Width : this.position.X + xEnd,
+                        this.position.Y + this.Height);
+                    renderTarget.PushAxisAlignedClip(rightRect, AntiAliasMode.PerPrimitive);
+              
+                    renderTarget.DrawTextLayout(this.position, this.textLayout, invertedWhite);
+
+                    renderTarget.PopAxisAlignedClip();
+                }
+            }
         }
 
         public void HitTest(Point2F position, out uint offset)

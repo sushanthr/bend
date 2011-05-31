@@ -10,199 +10,49 @@ namespace TextCoreControl
         public SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             defaultForegroundBrush = renderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
+            defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
-            this.renderTarget = renderTarget;
+            defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 0.5f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
         }
 
-        /// <summary>
-        ///     Redraws a line going out of selection
-        /// </summary>
-        /// <param name="visualLines"></param>
-        /// <param name="newSelectionBeginOrdinal"></param>
-        /// <param name="newSelectionEndOrdinal"></param>
-        private void DrawClearSelection(ArrayList visualLines, int newSelectionBeginOrdinal, int newSelectionEndOrdinal)
+        public void DrawSelection(
+            int oldSelectionBegin,
+            int oldSelectionEnd,
+            ArrayList visualLines,
+            Document document, 
+            RenderTarget renderTarget)
         {
-            if (selectionBeginOrdinal != Document.UNDEFINED_ORDINAL &&
-               selectionEndOrdinal != Document.UNDEFINED_ORDINAL &&
-               selectionBeginOrdinal != selectionEndOrdinal)
+            
+            // Wipe out background for lines going out of selection.
+            for (int k = 0; k < visualLines.Count; k++)
             {
-                lock (renderTarget)
+                VisualLine visualLine = (VisualLine)visualLines[k];
+                bool oldSelection = (visualLine.BeginOrdinal < oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
+                    (visualLine.BeginOrdinal > oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
+
+                bool currentSelection = (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
+                    (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
+
+                Point2F position = visualLine.Position;
+                if (oldSelection && !currentSelection)
                 {
-                    renderTarget.BeginDraw();
-
-                    // Wipe all selected lines.
-                    for (int i = 0; i < visualLines.Count; i++)
-                    {
-                        VisualLine visualLine = (VisualLine)visualLines[i];
-                        bool currentSelection = (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
-                            (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
-                        bool futureSelection = (visualLine.BeginOrdinal < newSelectionBeginOrdinal && visualLine.NextOrdinal > newSelectionBeginOrdinal) ||
-                            (visualLine.BeginOrdinal > newSelectionBeginOrdinal && visualLine.BeginOrdinal < newSelectionEndOrdinal);
-
-                        Point2F position = visualLine.Position;
-                        if (currentSelection && !futureSelection)
-                        {
-                            renderTarget.FillRectangle(
-                                             new RectF(position.X - 2, position.Y - 2, position.X + visualLine.Width + 2, position.Y + visualLine.Height + 2),
-                                             renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1)));
-                            visualLine.Draw(renderTarget, defaultForegroundBrush);
-                        }
-                    }
-
-                    renderTarget.EndDraw();
+                    renderTarget.FillRectangle(
+                                        new RectF(position.X - 2, position.Y - 2, position.X + visualLine.Width + 2, position.Y + visualLine.Height + 2),
+                                        renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1)));
                 }
             }
-        }
-
-        private void BuildSelectionGeometry(ArrayList visualLines, Document document)
-        {
+               
             if (selectionBeginOrdinal != Document.UNDEFINED_ORDINAL &&
                 selectionEndOrdinal != Document.UNDEFINED_ORDINAL &&
                 selectionBeginOrdinal != selectionEndOrdinal)
             {
-                lock (renderTarget)
-                {
-                    renderTarget.BeginDraw();
-
-                    // Find selection begin
-                    bool finishedDrawing = false;
-                    int i = 0;
-                    for (; i < visualLines.Count; i++)
-                    {
-                        VisualLine visualLine = (VisualLine)visualLines[i];
-                        if (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal)
-                        {
-                            Point2F position = visualLine.Position;
-
-                            float xBeginPos = visualLine.CharPosition(document, selectionBeginOrdinal);
-                            float xEndPos;
-                            if (visualLine.NextOrdinal > selectionEndOrdinal)
-                            {
-                                finishedDrawing = true;
-                                xEndPos = visualLine.CharPosition(document, selectionEndOrdinal);
-                            }
-                            else
-                            {
-                                // Selection continues to next line.
-                                xEndPos = position.X + visualLine.Width;
-                            }
-
-                            // wipe
-                            renderTarget.FillRectangle(
-                                         new RectF(position.X - 2, position.Y - 2, position.X + visualLine.Width + 2, position.Y + visualLine.Height + 2),
-                                         renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1)));
-
-                            RoundedRect roundedRect = new RoundedRect(new RectF(
-                                position.X + xBeginPos - 1,
-                                position.Y - 1,
-                                xEndPos + 1,
-                                position.Y + visualLine.Height + 1),
-                                /*radiusX*/ 2, /*radiusY*/ 2);
-                            renderTarget.FillRoundedRectangle(roundedRect, defaultSelectionBrush);
-
-                            if (!finishedDrawing)
-                            {
-                                RectF squareEdge = new RectF(
-                                    position.X + xBeginPos + 4 - 1,
-                                    position.Y - 1,
-                                    xEndPos + 1,
-                                    position.Y + visualLine.Height + 1);
-                                renderTarget.FillRectangle(squareEdge, defaultSelectionBrush);
-                            }
-
-                            break;
-                        }
-                    }
-
-                    if (!finishedDrawing)
-                    {
-                        i++;
-
-                        // Highlight lines in between
-                        for (; i < visualLines.Count; i++)
-                        {
-                            VisualLine visualLine = (VisualLine)visualLines[i];
-                            if (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.NextOrdinal < selectionEndOrdinal)
-                            {
-                                Point2F position = visualLine.Position;
-                                RectF squareEdge = new RectF(
-                                    position.X - 1,
-                                    position.Y - 1,
-                                    position.X + visualLine.Width + 1,
-                                    position.Y + visualLine.Height + 1);
-                                renderTarget.FillRectangle(squareEdge, defaultSelectionBrush);
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        // Highlight the last line
-                        if (i < visualLines.Count)
-                        {
-                            VisualLine visualLine = (VisualLine)visualLines[i];
-                            if (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.NextOrdinal >= selectionEndOrdinal)
-                            {
-                                Point2F position = visualLine.Position;
-                                float xEndPos = visualLine.CharPosition(document, selectionEndOrdinal);
-
-                                // wipe
-                                renderTarget.FillRectangle(
-                                             new RectF(xEndPos, position.Y - 2, renderTarget.Size.Width, position.Y + visualLine.Height + 2),
-                                             renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1)));
-
-                                RoundedRect roundedRect = new RoundedRect(new RectF(
-                                     position.X - 1,
-                                     position.Y - 1,
-                                     xEndPos + 1,
-                                     position.Y + visualLine.Height + 1),
-                                    /*radiusX*/ 2, /*radiusY*/ 2);
-                                renderTarget.FillRoundedRectangle(roundedRect, defaultSelectionBrush);
-
-
-                                RectF squareEdge = new RectF(
-                                    position.X - 1,
-                                    position.Y - 1,
-                                    xEndPos - 4 + 1,
-                                    position.Y + visualLine.Height + 1);
-                                renderTarget.FillRectangle(squareEdge, defaultSelectionBrush);
-                            }
-                        }
-                    }
-
-                    // redraw lines.
-                    for (int j = 0; j < visualLines.Count; j++)
-                    {
-                        VisualLine visualLine = (VisualLine)visualLines[j];
-                        if ((visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
-                            (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal))
-                        {
-                            visualLine.Draw(renderTarget, defaultForegroundBrush);
-                        }
-                    }
-
-                    renderTarget.EndDraw();
-                }
-            }
-        }
-        
-        public void DrawSelection(ArrayList visualLines, Document document)
-        {
-            if (selectionBeginOrdinal != Document.UNDEFINED_ORDINAL &&
-                selectionEndOrdinal != Document.UNDEFINED_ORDINAL &&
-                selectionBeginOrdinal != selectionEndOrdinal)
-            {
-                PathGeometry selectionGeometry = this.d2dFactory.CreatePathGeometry();
-                
-                GeometrySink geometrySink = selectionGeometry.Open();      
-                Geometry tempGeometry = null;
+                System.Collections.Generic.List<Geometry> geometryList = new System.Collections.Generic.List<Geometry>();
 
                 // Find selection begin
                 bool finishedDrawing = false;
-                int i = 0;
+                int i = 0, firstLine = 0, lastLine = visualLines.Count - 1;
                 for (; i < visualLines.Count; i++)
                 {
                     VisualLine visualLine = (VisualLine)visualLines[i];
@@ -216,11 +66,14 @@ namespace TextCoreControl
                         {
                             finishedDrawing = true;
                             xEndPos = visualLine.CharPosition(document, selectionEndOrdinal);
+                            firstLine = i;
+                            lastLine = i;
                         }
                         else
                         {
                             // Selection continues to next line.
                             xEndPos = position.X + visualLine.Width;
+                            firstLine = i;
                         }
 
                         RoundedRect roundedRect = new RoundedRect(new RectF(
@@ -229,21 +82,7 @@ namespace TextCoreControl
                             xEndPos + 1,
                             position.Y + visualLine.Height + 1),
                             /*radiusX*/ 2, /*radiusY*/ 2);
-                        if (tempGeometry == null)
-                        {
-                            tempGeometry = d2dFactory.CreateRoundedRectangleGeometry(roundedRect);
-                        }
-                        tempGeometry.CombineWithGeometry(d2dFactory.CreateRoundedRectangleGeometry(roundedRect), CombineMode.Union, geometrySink);
-                       
-                        if (!finishedDrawing)
-                        {
-                            RectF squareEdge = new RectF(
-                                position.X + xBeginPos + 4 - 1,
-                                position.Y - 1,
-                                xEndPos + 1,
-                                position.Y + visualLine.Height + 1);
-            //                tempGeometry.CombineWithGeometry(d2dFactory.CreateRectangleGeometry(squareEdge), CombineMode.Union, geometrySink);
-                        }
+                        geometryList.Add(d2dFactory.CreateRoundedRectangleGeometry(roundedRect));
 
                         break;
                     }
@@ -260,16 +99,12 @@ namespace TextCoreControl
                         if (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.NextOrdinal < selectionEndOrdinal)
                         {
                             Point2F position = visualLine.Position;
-                            RectF squareEdge = new RectF(
+                            RoundedRect roundedRect = new RoundedRect(new RectF(
                                 position.X - 1,
                                 position.Y - 1,
                                 position.X + visualLine.Width + 1,
-                                position.Y + visualLine.Height + 1);
-                            if (tempGeometry == null)
-                            {
-                                tempGeometry = d2dFactory.CreateRectangleGeometry(squareEdge);
-                            }
-                //            tempGeometry.CombineWithGeometry(d2dFactory.CreateRectangleGeometry(squareEdge), CombineMode.Union, geometrySink);
+                                position.Y + visualLine.Height + 1), 2.0f, 2.0f);
+                            geometryList.Add(d2dFactory.CreateRoundedRectangleGeometry(roundedRect));
                         }
                         else
                         {
@@ -292,61 +127,92 @@ namespace TextCoreControl
                                  xEndPos + 1,
                                  position.Y + visualLine.Height + 1),
                                 /*radiusX*/ 2, /*radiusY*/ 2);
-                            if (tempGeometry == null)
-                            {
-                                tempGeometry = d2dFactory.CreateRoundedRectangleGeometry(roundedRect);
-                            }
-                            //tempGeometry.CombineWithGeometry(d2dFactory.CreateRoundedRectangleGeometry(roundedRect), CombineMode.Union, geometrySink);
-      
-                            RectF squareEdge = new RectF(
-                                position.X - 1,
-                                position.Y - 1,
-                                xEndPos - 4 + 1,
-                                position.Y + visualLine.Height + 1);
-                            //tempGeometry.CombineWithGeometry(d2dFactory.CreateRectangleGeometry(squareEdge), CombineMode.Union, geometrySink);
+                            geometryList.Add(d2dFactory.CreateRoundedRectangleGeometry(roundedRect));
+                            lastLine = i;
                         }
                     }
                 }
 
-                geometrySink.Close();
-
-                lock (renderTarget)
+                if (geometryList.Count != 0)
                 {
-                    renderTarget.BeginDraw();
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionBrush, 2.0f);
-                    renderTarget.EndDraw();
-                }
+                    GeometryGroup selectionGeometry = this.d2dFactory.CreateGeometryGroup(FillMode.Winding, geometryList);
+   
+                    // Wipe out background outside selection background for the selected lines.
+                    RectF bounds = new RectF(
+                        0,
+                        ((VisualLine)visualLines[firstLine]).Position.Y - 2,
+                        renderTarget.Size.Width,
+                        ((VisualLine)visualLines[lastLine]).Position.Y + ((VisualLine)visualLines[lastLine]).Height + 2);
 
-                geometrySink.Dispose();
+                    renderTarget.PushAxisAlignedClip(bounds, AntiAliasMode.PerPrimitive);
+                    renderTarget.DrawGeometry(selectionGeometry, defaultBackgroundBrush, float.MaxValue);
+                    renderTarget.PopAxisAlignedClip();
+                       
+                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 1.0f);
+                    renderTarget.FillGeometry(selectionGeometry, defaultSelectionBrush);
+
+                    // Draw content layer.
+                    for (int j = firstLine; j <= lastLine; j++)
+                    {
+                        ((VisualLine)visualLines[j]).DrawInverted(renderTarget,
+                            document, 
+                            selectionBeginOrdinal,
+                            selectionEndOrdinal, 
+                            defaultForegroundBrush,
+                            defaultBackgroundBrush
+                            );
+                    }
+                }
+            }
+
+            // Redraw content for lines going out of selection.
+            for (int k = 0; k < visualLines.Count; k++)
+            {
+                VisualLine visualLine = (VisualLine)visualLines[k];
+                bool oldSelection = (visualLine.BeginOrdinal < oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
+                    (visualLine.BeginOrdinal > oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
+
+                bool currentSelection = (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
+                    (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
+
+                Point2F position = visualLine.Position;
+                if (oldSelection && !currentSelection)
+                {
+                    visualLine.Draw(renderTarget, defaultForegroundBrush);
+                }
             }
         }
 
-        public void ResetSelection(int beginOrdinal, ArrayList visualLines, Document document)
+        public void ResetSelection(int beginOrdinal, ArrayList visualLines, Document document, RenderTarget renderTarget)
         {
-            this.DrawClearSelection(visualLines, Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL);
+            int oldSelectionBegin = this.selectionBeginOrdinal;
+            int oldSelectionEnd = this.selectionEndOrdinal;
+
             this.selectionBeginOrdinal = beginOrdinal;
             this.selectionEndOrdinal = beginOrdinal;
-            this.DrawSelection(visualLines, document);
+
+            this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, renderTarget);
         }
 
         public int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
 
-        public void ExpandSelection(int includeOrdinal, ArrayList visualLines, Document document)
+        public void ExpandSelection(int includeOrdinal, ArrayList visualLines, Document document, RenderTarget renderTarget)
         {
+            int oldSelectionBeginOrdinal = this.selectionBeginOrdinal;
+            int oldSelectionEndOrdinal = this.selectionEndOrdinal;
+
             if (this.leftToRightSelection)
             {
                 if (includeOrdinal < this.selectionBeginOrdinal)
                 {
                     // Switching from left to right to right to left.
                     this.leftToRightSelection = false;
-                    this.DrawClearSelection(visualLines, includeOrdinal, selectionBeginOrdinal);
                     this.selectionEndOrdinal = this.selectionBeginOrdinal;
                     this.selectionBeginOrdinal = includeOrdinal;
                 }
                 else
                 {
                     // Either shorten or lengthen selection.
-                    this.DrawClearSelection(visualLines, this.selectionBeginOrdinal, includeOrdinal);
                     this.selectionEndOrdinal = includeOrdinal;
                 }
             }
@@ -356,19 +222,17 @@ namespace TextCoreControl
                 {
                     // Switching from right to left to left to right.
                     this.leftToRightSelection = true;
-                    this.DrawClearSelection(visualLines, this.selectionEndOrdinal, includeOrdinal);
                     this.selectionBeginOrdinal = this.selectionEndOrdinal;
                     this.selectionEndOrdinal = includeOrdinal;
                 }
                 else
                 {
                     // Either shorten or lengthen selection.
-                    this.DrawClearSelection(visualLines, includeOrdinal, this.selectionEndOrdinal);
                     this.selectionBeginOrdinal = includeOrdinal;
                 }
             }
 
-            this.DrawSelection(visualLines, document);
+            this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, renderTarget);
         }
 
         public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
@@ -376,9 +240,10 @@ namespace TextCoreControl
         int selectionBeginOrdinal;
         int selectionEndOrdinal;
         bool leftToRightSelection;
-        HwndRenderTarget renderTarget;
         SolidColorBrush defaultForegroundBrush;
+        SolidColorBrush defaultBackgroundBrush;
         SolidColorBrush defaultSelectionBrush;
+        SolidColorBrush defaultSelectionOutlineBrush;
         D2DFactory d2dFactory;
     }
 }
