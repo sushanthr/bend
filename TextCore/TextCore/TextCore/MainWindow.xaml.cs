@@ -24,6 +24,7 @@ namespace TextCore
         public MainWindow()
         {
             InitializeComponent();
+            this.tilted = false;
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
@@ -35,5 +36,23 @@ namespace TextCore
                 TextEditor.LoadFile(FilePath.Text);
             }
         }
+
+        private void button2_Click(object sender, RoutedEventArgs e)
+        {
+            if (!this.tilted)
+            {
+                this.tilted = true;
+                TextEditor.Rasterize();
+                tiltPanel.RenderTransform = new RotateTransform(5, this.tiltPanel.RenderSize.Width / 2, this.tiltPanel.RenderSize.Height / 2);
+            }
+            else
+            {
+                this.tilted = false;
+                TextEditor.UnRasterize();
+                tiltPanel.RenderTransform = null;
+            }
+        }
+
+        bool tilted;
     }
 }
