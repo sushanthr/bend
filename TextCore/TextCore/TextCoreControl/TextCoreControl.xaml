@@ -9,6 +9,5 @@
     <Grid>
         <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam"/>
         <Image Name="RasterHost"></Image>
-        
     </Grid>
 </UserControl>

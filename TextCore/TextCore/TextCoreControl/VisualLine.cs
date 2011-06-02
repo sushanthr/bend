@@ -134,17 +134,13 @@ namespace TextCoreControl
 
         public float CharPosition(Document document, int ordinal)
         {
+            // get local text position.
+            uint localPosition = 0;
             int tempOrdinal = this.beginOrdinal;
-            float xPos = 0;
-            foreach (ClusterMetrics cm in this.textLayout.ClusterMetrics) 
-            {
-                if (tempOrdinal == ordinal)
-                    break;
+            while (tempOrdinal != ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
 
-                xPos += cm.Width;
-                tempOrdinal = document.NextOrdinal(tempOrdinal);
-            }
-            return xPos;
+            HitTestInfo hitTestInfo = textLayout.HitTestTextPosition(localPosition, /*isTrailingHit*/false);
+            return hitTestInfo.Location.X;
         }
 
         private Point2F position;
