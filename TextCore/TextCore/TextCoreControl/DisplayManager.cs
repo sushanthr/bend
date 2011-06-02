@@ -144,7 +144,7 @@ namespace TextCoreControl
             for (int i = 0; i < this.visualLines.Count; i++)
             {
                 VisualLine visualLine = (VisualLine)this.visualLines[i];
-                visualLine.Draw(renderTarget, defaultForegroundBrush);
+                visualLine.Draw(renderTarget);
             }
 
             selectionManager.DrawSelection(

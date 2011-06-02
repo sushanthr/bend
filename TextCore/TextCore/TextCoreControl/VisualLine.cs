@@ -10,7 +10,11 @@ namespace TextCoreControl
 {
     public class VisualLine
     {
-        public VisualLine(DWriteFactory dwriteFactory, string lineText, TextFormat defaultFormat, int beginOrdinal, int nextOrdinal)
+        public VisualLine(DWriteFactory dwriteFactory, 
+            string lineText, 
+            TextFormat defaultFormat, 
+            int beginOrdinal, 
+            int nextOrdinal)
         {
             textLayout = dwriteFactory.CreateTextLayout(lineText, 
                 defaultFormat, 
@@ -28,67 +32,16 @@ namespace TextCoreControl
             this.nextOrdinal = nextOrdinal;
         }
 
-        public void Draw(RenderTarget renderTarget, SolidColorBrush foregroundBrush)
+        public void Draw(RenderTarget renderTarget)
         {
-            renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
+            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
+            renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush);
         }
 
-        public void DrawInverted(RenderTarget renderTarget, 
-            Document document, 
-            int selectionBeginOrdinal,
-            int selectionEndOrdinal, 
-            SolidColorBrush foregroundBrush,
-            SolidColorBrush backgrondBrush
-            )
+        public void DrawWhite(RenderTarget renderTarget)
         {
-            SolidColorBrush invertedWhite = renderTarget.CreateSolidColorBrush(new ColorF(1f, 1f, 1f));
-            if (this.BeginOrdinal > selectionBeginOrdinal && this.NextOrdinal < selectionEndOrdinal)
-            {
-                // Fully selected line.
-                renderTarget.DrawTextLayout(this.position, this.textLayout, invertedWhite);
-            }
-            else
-            {
-                float xBegin = -1;
-                if (this.BeginOrdinal < selectionBeginOrdinal && this.NextOrdinal > selectionBeginOrdinal)
-                {
-                    // line contains begin 
-                    xBegin = this.CharPosition(document, selectionBeginOrdinal);
-                    RectF leftRect = new RectF(this.position.X, this.position.Y, xBegin, this.position.Y + this.Height);
-                    renderTarget.PushAxisAlignedClip(leftRect, AntiAliasMode.PerPrimitive);
-                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
-                    renderTarget.PopAxisAlignedClip();
-                }
-
-                float xEnd = -1;
-                if (this.beginOrdinal < selectionEndOrdinal && this.nextOrdinal > selectionEndOrdinal)
-                {
-                    // line contains end
-                    xEnd = this.CharPosition(document, selectionEndOrdinal);
-                    RectF rightRect = new RectF(this.position.X + xEnd, this.position.Y, this.position.X + this.Width, this.position.Y + this.Height);
-                    renderTarget.PushAxisAlignedClip(rightRect, AntiAliasMode.PerPrimitive);
-                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
-                    renderTarget.PopAxisAlignedClip();
-                }
-
-                if (xBegin == -1 && xEnd == -1)
-                {
-                    // This line is completely outside selection
-                    renderTarget.DrawTextLayout(this.position, this.textLayout, foregroundBrush);
-                }
-                else
-                {
-                    RectF rightRect = new RectF(xBegin == -1 ? this.position.X : this.position.X + xBegin, 
-                        this.position.Y, 
-                        xEnd == -1 ? this.position.X + this.Width : this.position.X + xEnd,
-                        this.position.Y + this.Height);
-                    renderTarget.PushAxisAlignedClip(rightRect, AntiAliasMode.PerPrimitive);
-              
-                    renderTarget.DrawTextLayout(this.position, this.textLayout, invertedWhite);
-
-                    renderTarget.PopAxisAlignedClip();
-                }
-            }
+            SolidColorBrush whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
+            renderTarget.DrawTextLayout(this.position, this.textLayout, whiteBrush);
         }
 
         public void HitTest(Point2F position, out uint offset)
@@ -104,6 +57,86 @@ namespace TextCoreControl
                 // snap right
                 offset = hitTestInfo.Metrics.TextPosition + hitTestInfo.Metrics.Length;
             }
+        }
+
+        public float CharPosition(Document document, int ordinal)
+        {
+            // get local text position.
+            uint localPosition = 0;
+            int tempOrdinal = this.beginOrdinal;
+            while (tempOrdinal != ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
+
+            HitTestInfo hitTestInfo = textLayout.HitTestTextPosition(localPosition, /*isTrailingHit*/false);
+            return hitTestInfo.Location.X;
+        }
+
+        public List<RectF> GetRangeRectangles(Document document, int beginOrdinal, int endOrdinal)
+        {
+            List<RectF> rangeRectangles = new List<RectF>();
+
+            if (beginOrdinal < this.nextOrdinal && endOrdinal > this.beginOrdinal)
+            {
+                // there is some intersection between line and range, inspect further.
+                uint localBegin = 0;
+                int tempOrdinal = this.beginOrdinal;
+                if (this.beginOrdinal < beginOrdinal)
+                {   while (tempOrdinal != beginOrdinal)
+                    {
+                        tempOrdinal = document.NextOrdinal(tempOrdinal);
+                        localBegin++;
+                    }
+                }
+
+                uint localEnd = 0;
+                while (tempOrdinal != endOrdinal && tempOrdinal != this.nextOrdinal)
+                {
+                    tempOrdinal = document.NextOrdinal(tempOrdinal);
+                    localEnd++;
+                }
+
+                HitTestMetrics[] hitTestMetrics = textLayout.HitTestTextRange(localBegin, localEnd, position.X, position.Y);
+
+                // Merge all the mergeable rectangles to create a compact rectangle list.
+                if (hitTestMetrics.Length > 0)
+                {
+                    RectF previousRectangle = new RectF(hitTestMetrics[0].Left,
+                        hitTestMetrics[0].Top,
+                        hitTestMetrics[0].Left + hitTestMetrics[0].Width,
+                        hitTestMetrics[0].Top + hitTestMetrics[0].Height);
+
+                    for (int i = 0; i < hitTestMetrics.Length; i++)
+                    {
+                        RectF hitRectangle = new RectF(hitTestMetrics[i].Left,
+                            hitTestMetrics[i].Top,
+                            hitTestMetrics[i].Left + hitTestMetrics[i].Width,
+                            hitTestMetrics[i].Top + hitTestMetrics[i].Height);
+
+                        if (previousRectangle.Right + 2 > hitRectangle.Left && previousRectangle.Left < hitRectangle.Left)
+                        {
+                            // Simply merge the rectangle with the previous
+                            previousRectangle.Right = hitRectangle.Right;
+
+                            // Expand height
+                            previousRectangle.Top = hitRectangle.Top < previousRectangle.Top ? hitRectangle.Top : previousRectangle.Top;
+                            previousRectangle.Bottom = hitRectangle.Bottom > previousRectangle.Bottom ? hitRectangle.Bottom : previousRectangle.Bottom;
+                        }
+                        else
+                        {
+                            // If we are the last prevent adding the last rectangle twice.
+                            if (i + 1 <  hitTestMetrics.Length)
+                                rangeRectangles.Add(previousRectangle);
+
+                            previousRectangle = hitRectangle;
+                        }
+
+                        previousRectangle = hitRectangle;
+                    }
+
+                    rangeRectangles.Add(previousRectangle);
+                }
+            }
+
+            return rangeRectangles;
         }
 
         public float Height
@@ -130,17 +163,6 @@ namespace TextCoreControl
         public int NextOrdinal
         {
             get { return this.nextOrdinal; }
-        }
-
-        public float CharPosition(Document document, int ordinal)
-        {
-            // get local text position.
-            uint localPosition = 0;
-            int tempOrdinal = this.beginOrdinal;
-            while (tempOrdinal != ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
-
-            HitTestInfo hitTestInfo = textLayout.HitTestTextPosition(localPosition, /*isTrailingHit*/false);
-            return hitTestInfo.Location.X;
         }
 
         private Point2F position;
