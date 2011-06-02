@@ -45,13 +45,9 @@ namespace TextCoreControl
         {
             if (hwndRenderTarget != null)
             {
-                lock (hwndRenderTarget)
-                {
-                    // Resize the render target to the actual host size
-                    hwndRenderTarget.Resize(new SizeU((uint)(renderHost.ActualWidth), (uint)(renderHost.ActualHeight)));
-
-                    this.EnsureVisualLinesAndUpdateCaret();
-                }
+                // Resize the render target to the actual host size
+                hwndRenderTarget.Resize(new SizeU((uint)(renderHost.ActualWidth), (uint)(renderHost.ActualHeight)));
+                this.EnsureVisualLinesAndUpdateCaret();
             }
         }
 
@@ -93,7 +89,7 @@ namespace TextCoreControl
    
                 this.textLayoutBuilder = new TextLayoutBuilder(defaultTextFormat, /*autoWrap*/true);
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
-                this.caret = new Caret(this.hwndRenderTarget, defaultTextFormat.FontSize * 1.3f);
+                this.caret = new Caret(this.hwndRenderTarget, (int)(defaultTextFormat.FontSize * 1.3f));
             }
         }
 
@@ -132,13 +128,10 @@ namespace TextCoreControl
             if (hwndRenderTarget.IsOccluded)
                 return;
 
-            lock (hwndRenderTarget)
-            { 
-                hwndRenderTarget.BeginDraw();
-                this.RenderToRenderTarget(hwndRenderTarget);
-                hwndRenderTarget.Flush();
-                hwndRenderTarget.EndDraw();
-            }
+            hwndRenderTarget.BeginDraw();
+            this.RenderToRenderTarget(hwndRenderTarget);
+            hwndRenderTarget.Flush();
+            hwndRenderTarget.EndDraw();
         }
 
         private void RenderToRenderTarget(RenderTarget renderTarget)
@@ -198,12 +191,9 @@ namespace TextCoreControl
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
                             this.caret.MoveCaret(vl, this.document, selectionBeginOrdinal);
 
-                            lock (this.hwndRenderTarget)
-                            {
-                                this.hwndRenderTarget.BeginDraw();
-                                this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
-                                this.hwndRenderTarget.EndDraw();
-                            }
+                            this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.hwndRenderTarget.EndDraw();
                         }
                     }
                     break;
@@ -229,13 +219,10 @@ namespace TextCoreControl
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
                             this.caret.MoveCaret(vl, this.document, selectionEndOrdinal);
-
-                            lock (this.hwndRenderTarget)
-                            {
-                                this.hwndRenderTarget.BeginDraw();
-                                this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.hwndRenderTarget);
-                                this.hwndRenderTarget.EndDraw();
-                            }
+                            
+                            this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.hwndRenderTarget);
+                            this.hwndRenderTarget.EndDraw();
                         }
                     }
                     break;
@@ -299,32 +286,29 @@ namespace TextCoreControl
         {
             IntPtr hBitmap = IntPtr.Zero;
 
-            lock (this.hwndRenderTarget)
-            {
-                hwndRenderTarget.BeginDraw();
+            hwndRenderTarget.BeginDraw();
 
-                IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
-                IntPtr compatibleDC = CreateCompatibleDC(windowDC);
+            IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
+            IntPtr compatibleDC = CreateCompatibleDC(windowDC);
 
-                int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width);
-                int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height);
-                hBitmap = CreateCompatibleBitmap(windowDC,
-                    nWidth,
-                    nHeight);
+            int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width);
+            int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height);
+            hBitmap = CreateCompatibleBitmap(windowDC,
+                nWidth,
+                nHeight);
 
-                IntPtr hOld = SelectObject(compatibleDC, hBitmap);
-                //	blit bits from screen to target buffer
-                BitBlt(compatibleDC, 0, 0, nWidth, nHeight, windowDC, 0, 0, TernaryRasterOperations.SRCCOPY);
-                //	de-select bitmap	
-                SelectObject(compatibleDC, hOld);
+            IntPtr hOld = SelectObject(compatibleDC, hBitmap);
+            //	blit bits from screen to target buffer
+            BitBlt(compatibleDC, 0, 0, nWidth, nHeight, windowDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+            //	de-select bitmap	
+            SelectObject(compatibleDC, hOld);
 
-                //	free DCs	
-                DeleteDC(compatibleDC);
-                hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
+            //	free DCs	
+            DeleteDC(compatibleDC);
+            hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
 
-                hwndRenderTarget.EndDraw();
-            }
-
+            hwndRenderTarget.EndDraw();
+           
             System.Windows.Media.Imaging.BitmapSource bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                  hBitmap,
                  IntPtr.Zero,
