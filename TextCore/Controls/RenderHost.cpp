@@ -114,6 +114,19 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 			MouseHandler(xPos, yPos, msg, (int) wParam);
 		}
 		break;
+	case WM_CHAR:
+	    if (KeyHandler != nullptr)
+		{
+			KeyHandler((int) wParam, (int) lParam);
+		}
+		break;
+	case WM_SETFOCUS:
+	case WM_KILLFOCUS:
+	    if (OtherHandler != nullptr)
+		{
+			OtherHandler(msg, (int) wParam, (int) lParam);
+		}
+		break;
 	}
 
     handled = false;

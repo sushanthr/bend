@@ -12,6 +12,8 @@ namespace  Microsoft { namespace WindowsAPICodePack { namespace DirectX { namesp
 
 public delegate void RenderHandler();
 public delegate void MouseHandler(int x, int y, int type, int flags);
+public delegate void KeyHandler(int charCode, int lParam);
+public delegate void OtherHandler(int type, int wparam, int lparam);
 
 public ref class RenderHost : public HwndHost
 {
@@ -43,5 +45,7 @@ protected:
 public: 
     RenderHandler^ Render;
 	MouseHandler^ MouseHandler;
+	KeyHandler^ KeyHandler;
+	OtherHandler^ OtherHandler;
 };
 } } } }

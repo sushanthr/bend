@@ -165,6 +165,12 @@ namespace TextCoreControl
             get { return this.nextOrdinal; }
         }
 
+        public void OrdinalShift(int shiftBeginOrdinal, int shift)
+        {
+            if (beginOrdinal > shiftBeginOrdinal) beginOrdinal += shift;
+            if (nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
+        }
+
         private Point2F position;
         private TextLayout textLayout;
         private float height;

@@ -26,9 +26,10 @@ namespace TextCoreControl
         {
             this.caretHeight = defaultHeight;
             windowHandle = renderTarget.WindowHandle;
-
+          
             CreateCaret(windowHandle, 0, 1, caretHeight);
-            ShowCaret(windowHandle);
+            SetCaretPos(0, 0);
+            this.isCaretVisible = false;
         }
 
         ~Caret()
@@ -37,7 +38,21 @@ namespace TextCoreControl
             DestroyCaret();
         }
 
-        public void MoveCaret(VisualLine visualLine, Document document, int ordinal)
+        public void OnGetFocus()
+        {
+            if (!isCaretVisible)
+                ShowCaret(windowHandle);
+            isCaretVisible = true;
+        }
+
+        public void OnLostFocus()
+        {
+            if (isCaretVisible)
+                HideCaret(windowHandle);
+            isCaretVisible = false;
+        }
+
+        public void MoveCaretVisual(VisualLine visualLine, Document document, int ordinal)
         {
             float x = visualLine.CharPosition(document, ordinal);
             if (visualLine.Height != caretHeight)
@@ -51,6 +66,18 @@ namespace TextCoreControl
             this.ordinal = ordinal;
         }
 
+        public void MoveCaretOrdinal(Document document, int shift)
+        {
+            if (shift > 0)
+            {
+                ordinal = document.NextOrdinal(ordinal, (uint)shift);
+            }
+            else
+            {
+                ordinal = document.PreviousOrdinal(ordinal, (uint)(-1 * shift));
+            }
+        }
+
         public int Ordinal
         {
             get { return this.ordinal; }
@@ -58,6 +85,7 @@ namespace TextCoreControl
 
         int ordinal;
         int caretHeight;
+        bool isCaretVisible;
         IntPtr windowHandle;
     }
 }

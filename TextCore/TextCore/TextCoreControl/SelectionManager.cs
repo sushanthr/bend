@@ -200,6 +200,12 @@ namespace TextCoreControl
 
         public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
 
+        public void OrdinalShift(int beginOrdinal, int shift)
+        {
+            if (selectionBeginOrdinal > beginOrdinal) selectionBeginOrdinal += shift;
+            if (selectionEndOrdinal > beginOrdinal) selectionEndOrdinal += shift;
+        }
+
         int selectionBeginOrdinal;
         int selectionEndOrdinal;
         bool leftToRightSelection;
