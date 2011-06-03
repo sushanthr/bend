@@ -70,12 +70,23 @@ namespace TextCoreControl
                 int visualLineStartIndex = 0;
                 for (int i = 0; i < visualLines.Count; i++)
                 {
-                    if (((VisualLine)visualLines[i]).BeginOrdinal < beginOrdinal &&
-                        ((VisualLine)visualLines[i]).NextOrdinal > beginOrdinal)
+                    if (visualLines[i] == null)
+                    {
+                        visualLineStartIndex = (i > 0 ? i-- : 0);
+                        break;
+                    }
+
+                    if (((VisualLine)visualLines[i]).BeginOrdinal <= beginOrdinal &&
+                        ((VisualLine)visualLines[i]).NextOrdinal >= beginOrdinal)
                     {
                         visualLineStartIndex = i;
                         break;
                     }
+                }
+
+                if (this.pageBeginOrdinal == Document.BEFOREBEGIN_ORDINAL)
+                {
+                    this.pageBeginOrdinal = this.document.FirstOrdinal();
                 }
 
                 int changeStart, changeEnd;
@@ -92,7 +103,13 @@ namespace TextCoreControl
         {
             for (int i = 0; i < visualLines.Count; i++)
             {
-                ((VisualLine)visualLines[i]).OrdinalShift(beginOrdinal, shift);
+                VisualLine vl = (VisualLine)visualLines[i];
+                vl.OrdinalShift(beginOrdinal, shift);
+
+                if (vl.BeginOrdinal == Document.BEFOREBEGIN_ORDINAL)
+                {
+                    visualLines[i] = null;
+                }
             }
 
             if (this.selectionManager != null)
@@ -100,8 +117,8 @@ namespace TextCoreControl
                 this.selectionManager.OrdinalShift(beginOrdinal, shift);
             }
 
-            if (this.pageBeginOrdinal > beginOrdinal) this.pageBeginOrdinal += shift;
-            if (this.pageEndOrdinal > beginOrdinal) this.pageEndOrdinal += shift;
+            if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL ) this.pageBeginOrdinal += shift;
+            if (this.pageEndOrdinal > beginOrdinal && this.pageEndOrdinal != Document.UNDEFINED_ORDINAL ) this.pageEndOrdinal += shift;
         }
 
         [DllImport("user32.dll")]
@@ -184,7 +201,8 @@ namespace TextCoreControl
             {
                 if (this.caret.Ordinal > document.FirstOrdinal())
                 {
-                    document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal, 1), 1);
+                    document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                    this.caret.MoveCaretOrdinal(this.document, -1);
                 }
             }
             else
@@ -254,7 +272,7 @@ namespace TextCoreControl
             }
             else
             {
-                if (this.visualLines.Count > visualLineStartIndex)
+                if (this.visualLines.Count > visualLineStartIndex && this.visualLines[visualLineStartIndex] != null)
                 {
                     ordinal = ((VisualLine)this.visualLines[visualLineStartIndex]).BeginOrdinal;
                     y = ((VisualLine)this.visualLines[visualLineStartIndex]).Position.Y;
@@ -281,7 +299,7 @@ namespace TextCoreControl
                     changeStartIndex = changeEndIndex;
                 }
 
-                if (visualLineStartIndex + 1 >= this.visualLines.Count)
+                if (visualLineStartIndex + 1 > this.visualLines.Count)
                 {
                     this.visualLines.Add(visualLine);
                     visualLineStartIndex++;
@@ -290,7 +308,7 @@ namespace TextCoreControl
                 {
                     this.visualLines[visualLineStartIndex] = visualLine;
                     visualLineStartIndex++;
-                    if (!forceRelayout)
+                    if (!forceRelayout && visualLineStartIndex < this.visualLines.Count)
                     {
                         if (visualLine.NextOrdinal == ((VisualLine)this.visualLines[visualLineStartIndex]).BeginOrdinal)
                         {

@@ -8,6 +8,7 @@ namespace TextCoreControl
     public class Document
     {
         public const int UNDEFINED_ORDINAL = int.MaxValue;
+        public const int BEFOREBEGIN_ORDINAL = -1;
 
         public Document()
         {
@@ -45,7 +46,7 @@ namespace TextCoreControl
         {
             ordinal -= (int)offset;
             if (ordinal < 0)
-                return UNDEFINED_ORDINAL;
+                return BEFOREBEGIN_ORDINAL;
             return ordinal;
         }
 
@@ -67,9 +68,10 @@ namespace TextCoreControl
         {
             fileContents = fileContents.Remove(ordinal, length);
 
+            ordinal = this.PreviousOrdinal(ordinal);
             if (this.OrdinalShift != null)
             {
-                this.OrdinalShift(ordinal, length);
+                this.OrdinalShift(ordinal, - length);
             }
 
             if (this.ContentChange != null)

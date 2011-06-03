@@ -167,8 +167,8 @@ namespace TextCoreControl
 
         public void OrdinalShift(int shiftBeginOrdinal, int shift)
         {
-            if (beginOrdinal > shiftBeginOrdinal) beginOrdinal += shift;
-            if (nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
+            if (beginOrdinal != Document.UNDEFINED_ORDINAL && beginOrdinal > shiftBeginOrdinal) beginOrdinal += shift;
+            if (nextOrdinal  != Document.UNDEFINED_ORDINAL && nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
         }
 
         private Point2F position;
