@@ -30,12 +30,12 @@ namespace TextCoreControl
             for (int k = 0; k < visualLines.Count; k++)
             {
                 VisualLine visualLine = (VisualLine)visualLines[k];
-                bool oldSelection = (visualLine.BeginOrdinal < oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
-                    (visualLine.BeginOrdinal > oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
+                bool oldSelection = (visualLine.BeginOrdinal <= oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
+                    (visualLine.BeginOrdinal >= oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
                 oldSelection = oldSelection && oldSelectionBegin != oldSelectionEnd;
 
-                bool currentSelection = (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
-                    (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
+                bool currentSelection = (visualLine.BeginOrdinal <= selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
+                    (visualLine.BeginOrdinal >= selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
                 currentSelection = currentSelection && selectionBeginOrdinal != selectionEndOrdinal;
 
                 if (oldSelection || currentSelection)
@@ -58,8 +58,8 @@ namespace TextCoreControl
                 {
                     VisualLine visualLine = (VisualLine)visualLines[k];
    
-                    bool currentSelection = (visualLine.BeginOrdinal < selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
-                        (visualLine.BeginOrdinal > selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
+                    bool currentSelection = (visualLine.BeginOrdinal <= selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
+                        (visualLine.BeginOrdinal >= selectionBeginOrdinal && visualLine.BeginOrdinal <= selectionEndOrdinal);
                     currentSelection = currentSelection && selectionBeginOrdinal != selectionEndOrdinal;
 
                     if (currentSelection)
