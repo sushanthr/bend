@@ -38,8 +38,7 @@ namespace TextCoreControl
                     if (document.CharacterAt(tempNextOrdinal) != '\n')
                     {
                         lineText += letter;
-                        lineText += '\n';
-                        nextOrdinal = document.NextOrdinal(tempNextOrdinal);
+                        nextOrdinal = tempNextOrdinal;
                         break;
                     }
                 }

@@ -60,7 +60,8 @@ namespace TextCoreControl
 
             if (this.ContentChange != null)
             {
-                this.ContentChange(ordinal, ordinal + content.Length);
+                int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
+                this.ContentChange(ordinal, endOrdinal);
             }
         }
 
@@ -76,7 +77,8 @@ namespace TextCoreControl
 
             if (this.ContentChange != null)
             {
-                this.ContentChange(ordinal, ordinal);
+                int endOrdinal = this.NextOrdinal(ordinal);
+                this.ContentChange(ordinal, endOrdinal);
             }
         }
 

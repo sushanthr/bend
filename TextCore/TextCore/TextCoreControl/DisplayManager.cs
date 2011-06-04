@@ -26,7 +26,6 @@ namespace TextCoreControl
             document.OrdinalShift += this.Document_OrdinalShift;
 
             this.d2dFactory = D2DFactory.CreateFactory();
-            defaultBackgroundColor = new ColorF(1, 1, 1, 1);
         }
 
         #region Event Handling
@@ -67,20 +66,18 @@ namespace TextCoreControl
             }
             else
             {
-                int visualLineStartIndex = 0;
+                int visualLineStartIndex = -1;
                 for (int i = 0; i < visualLines.Count; i++)
                 {
-                    if (visualLines[i] == null)
+                    VisualLine vl = (VisualLine)visualLines[i];
+                    if (vl.BeginOrdinal == Document.BEFOREBEGIN_ORDINAL ||
+                        vl.BeginOrdinal <= beginOrdinal && vl.NextOrdinal >= beginOrdinal)
                     {
-                        visualLineStartIndex = (i > 0 ? i-- : 0);
-                        break;
-                    }
-
-                    if (((VisualLine)visualLines[i]).BeginOrdinal <= beginOrdinal &&
-                        ((VisualLine)visualLines[i]).NextOrdinal >= beginOrdinal)
-                    {
-                        visualLineStartIndex = i;
-                        break;
+                        visualLines[i] = null;
+                        if (visualLineStartIndex == -1)
+                        {
+                            visualLineStartIndex = i;
+                        }
                     }
                 }
 
@@ -89,11 +86,12 @@ namespace TextCoreControl
                     this.pageBeginOrdinal = this.document.FirstOrdinal();
                 }
 
+                visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
                 int changeStart, changeEnd;
                 this.UpdateVisualLinesAndCaret(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
 
                 hwndRenderTarget.BeginDraw();
-                this.RenderToRenderTarget(hwndRenderTarget);
+                this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
             }
@@ -105,11 +103,6 @@ namespace TextCoreControl
             {
                 VisualLine vl = (VisualLine)visualLines[i];
                 vl.OrdinalShift(beginOrdinal, shift);
-
-                if (vl.BeginOrdinal == Document.BEFOREBEGIN_ORDINAL)
-                {
-                    visualLines[i] = null;
-                }
             }
 
             if (this.selectionManager != null)
@@ -236,6 +229,7 @@ namespace TextCoreControl
 
                 // Default rendering options
                 defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
+                defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
                 defaultTextFormat = dwriteFactory.CreateTextFormat("Consolas", 14);
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
@@ -308,7 +302,7 @@ namespace TextCoreControl
                 {
                     this.visualLines[visualLineStartIndex] = visualLine;
                     visualLineStartIndex++;
-                    if (!forceRelayout && visualLineStartIndex < this.visualLines.Count)
+                    if (!forceRelayout && visualLineStartIndex < this.visualLines.Count && this.visualLines[visualLineStartIndex] != null)
                     {
                         if (visualLine.NextOrdinal == ((VisualLine)this.visualLines[visualLineStartIndex]).BeginOrdinal)
                         {
@@ -319,13 +313,24 @@ namespace TextCoreControl
                 }
             }
 
+            // Remove any trailing lines.
+            for (int d = changeEndIndex; d < this.visualLines.Count; d++)
+            {
+                if (this.visualLines[d] == null)
+                {
+                    // everything after this must go.
+                    this.visualLines.RemoveRange(d, this.visualLines.Count - d);
+                    break;
+                }
+            }
+
             // Update caret
             if (this.caret != null &&  this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
             {
                 for (int i = 0; i < this.visualLines.Count; i++)
                 {
                     VisualLine vl = (VisualLine)this.visualLines[i];
-                    if (vl.BeginOrdinal < this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
+                    if (vl.BeginOrdinal <= this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
                     {
                         this.caret.MoveCaretVisual(vl, this.document, this.caret.Ordinal);
                         break;
@@ -341,19 +346,30 @@ namespace TextCoreControl
                 return;
 
             hwndRenderTarget.BeginDraw();
-            this.RenderToRenderTarget(hwndRenderTarget);
+            this.RenderToRenderTarget(hwndRenderTarget, /*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1);
             hwndRenderTarget.Flush();
             hwndRenderTarget.EndDraw();
         }
 
-        private void RenderToRenderTarget(RenderTarget renderTarget)
+        private void RenderToRenderTarget(RenderTarget renderTarget, int redrawBegin, int redrawEnd)
         {
-            renderTarget.Clear(defaultBackgroundColor);
-
+            RectF wipeBounds;
+            if (redrawBegin == 0 && redrawEnd == visualLines.Count - 1)
+            {
+                renderTarget.Clear(defaultBackgroundBrush.Color);
+            }
+            else
+            {
+                VisualLine beginLine = (VisualLine)this.visualLines[redrawBegin];
+                VisualLine endLine = (VisualLine)this.visualLines[redrawEnd];
+                wipeBounds = new RectF(0.0f, beginLine.Position.Y, renderTarget.Size.Width, endLine.Position.Y + endLine.Height);
+                renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
+            }
+            
             int selectionBeginOrdinal = this.selectionManager.GetSelectionBeginOrdinal();
             int selectionEndOrdinal = this.selectionManager.GetSelectionEndOrdinal();
 
-            for (int i = 0; i < this.visualLines.Count; i++)
+            for (int i = redrawBegin; i <= redrawEnd; i++)
             {
                 VisualLine visualLine = (VisualLine)this.visualLines[i];
                 visualLine.Draw(renderTarget);
@@ -448,6 +464,8 @@ namespace TextCoreControl
 
             hwndRenderTarget.BeginDraw();
 
+            this.RenderToRenderTarget(hwndRenderTarget, 0, this.visualLines.Count - 1);
+
             IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
             IntPtr compatibleDC = CreateCompatibleDC(windowDC);
 
@@ -483,7 +501,7 @@ namespace TextCoreControl
         DWriteFactory                dwriteFactory;
         D2DFactory                   d2dFactory;
         HwndRenderTarget             hwndRenderTarget;
-        ColorF                       defaultBackgroundColor;
+        SolidColorBrush              defaultBackgroundBrush;
         SolidColorBrush              defaultForegroundBrush;
         SolidColorBrush              defaultSelectionBrush;
         TextFormat                   defaultTextFormat;
