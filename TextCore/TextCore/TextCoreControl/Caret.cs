@@ -55,7 +55,7 @@ namespace TextCoreControl
         public void MoveCaretVisual(VisualLine visualLine, Document document, int ordinal)
         {
             float x = visualLine.CharPosition(document, ordinal);
-            if (visualLine.Height != caretHeight)
+            if ((int)visualLine.Height != caretHeight || ordinal == 0)
             {
                 this.caretHeight = (int) visualLine.Height;
                 CreateCaret(windowHandle, 0, 1, caretHeight);

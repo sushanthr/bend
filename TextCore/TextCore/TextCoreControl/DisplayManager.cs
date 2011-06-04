@@ -110,6 +110,11 @@ namespace TextCoreControl
                 this.selectionManager.OrdinalShift(beginOrdinal, shift);
             }
 
+            if (this.caret.Ordinal >= beginOrdinal)
+            {
+                this.caret.MoveCaretOrdinal(this.document, shift);
+            }
+
             if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL ) this.pageBeginOrdinal += shift;
             if (this.pageEndOrdinal > beginOrdinal && this.pageEndOrdinal != Document.UNDEFINED_ORDINAL ) this.pageEndOrdinal += shift;
         }
@@ -195,13 +200,11 @@ namespace TextCoreControl
                 if (this.caret.Ordinal > document.FirstOrdinal())
                 {
                     document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal), 1);
-                    this.caret.MoveCaretOrdinal(this.document, -1);
                 }
             }
             else
             {
                 int insertOrdinal = this.caret.Ordinal;
-                this.caret.MoveCaretOrdinal(this.document, 1);
                 document.InsertStringAfter(insertOrdinal, key.ToString());
             }
         }
