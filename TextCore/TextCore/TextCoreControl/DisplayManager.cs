@@ -20,6 +20,7 @@ namespace TextCoreControl
             this.renderHost = renderHost;
             renderHost.Loaded += new RoutedEventHandler(RenderHost_Loaded);
             renderHost.SizeChanged += new SizeChangedEventHandler(RenderHost_SizeChanged);
+            renderHost.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(renderHost_PreviewKeyDown);
    
             this.document = document;
             document.ContentChange += this.Document_ContentChanged;
@@ -90,10 +91,12 @@ namespace TextCoreControl
                 int changeStart, changeEnd;
                 this.UpdateVisualLinesAndCaret(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
 
+                this.caret.HideCaret();
                 hwndRenderTarget.BeginDraw();
                 this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
+                this.caret.ShowCaret();
             }
         }
 
@@ -119,6 +122,42 @@ namespace TextCoreControl
             if (this.pageEndOrdinal > beginOrdinal && this.pageEndOrdinal != Document.UNDEFINED_ORDINAL ) this.pageEndOrdinal += shift;
         }
 
+        /// <summary>
+        ///    Handles all the special keys
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Left:
+                    if (this.caret.Ordinal > this.document.FirstOrdinal())
+                    {
+                        this.caret.MoveCaretOrdinal(this.document, -1);
+                        this.UpdateCaret();
+                    }
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Right:
+                    if (this.document.NextOrdinal(this.caret.Ordinal) != Document.UNDEFINED_ORDINAL)
+                    {
+                        this.caret.MoveCaretOrdinal(this.document, 1);
+                        this.UpdateCaret();
+                    }
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Up:
+                    this.caret.MoveCaretVertical(this.visualLines, document, /*moveUp*/true, /*moveDown*/false);
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Down:
+                    this.caret.MoveCaretVertical(this.visualLines, document, /*moveUp*/false, /*moveDown*/true);
+                    e.Handled = true;
+                    break;
+            }
+        }
+
         [DllImport("user32.dll")]
         static extern IntPtr SetFocus(IntPtr hWnd);
 
@@ -136,11 +175,13 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
+                            this.caret.HideCaret();
                             this.caret.MoveCaretVisual(vl, this.document, selectionBeginOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
                             this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
+                            this.caret.ShowCaret();
                         }
                     }
                     break;
@@ -165,11 +206,13 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionEndOrdinal, out iLine))
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
+                            this.caret.HideCaret();
                             this.caret.MoveCaretVisual(vl, this.document, selectionEndOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
                             this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
+                            this.caret.ShowCaret();
                         }
                     }
                     break;
@@ -327,8 +370,13 @@ namespace TextCoreControl
                 }
             }
 
+            this.UpdateCaret();
+        }
+
+        private void UpdateCaret()
+        {
             // Update caret
-            if (this.caret != null &&  this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
+            if (this.caret != null && this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
             {
                 for (int i = 0; i < this.visualLines.Count; i++)
                 {
@@ -336,7 +384,6 @@ namespace TextCoreControl
                     if (vl.BeginOrdinal <= this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
                     {
                         this.caret.MoveCaretVisual(vl, this.document, this.caret.Ordinal);
-                        break;
                     }
                 }
             }
@@ -465,6 +512,7 @@ namespace TextCoreControl
         {
             IntPtr hBitmap = IntPtr.Zero;
 
+            this.caret.HideCaret();
             hwndRenderTarget.BeginDraw();
 
             this.RenderToRenderTarget(hwndRenderTarget, 0, this.visualLines.Count - 1);
@@ -489,7 +537,8 @@ namespace TextCoreControl
             hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
 
             hwndRenderTarget.EndDraw();
-           
+            this.caret.ShowCaret();
+
             System.Windows.Media.Imaging.BitmapSource bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                  hBitmap,
                  IntPtr.Zero,

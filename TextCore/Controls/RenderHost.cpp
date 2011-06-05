@@ -118,6 +118,7 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 	    if (KeyHandler != nullptr)
 		{
 			KeyHandler((int) wParam, (int) lParam);
+			handled = true;
 		}
 		break;
 	case WM_SETFOCUS:

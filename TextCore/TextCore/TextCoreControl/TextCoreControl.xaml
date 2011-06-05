@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="300">
     <Grid>
-        <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam"/>
+        <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" />
         <Image Name="RasterHost"></Image>
     </Grid>
 </UserControl>
