@@ -59,7 +59,7 @@ namespace TextCoreControl
                     break;
             }
 
-            if (this.NextOrdinal(beginOrdinal) != Document.UNDEFINED_ORDINAL) 
+            if (beginOrdinal != this.FirstOrdinal() && this.NextOrdinal(beginOrdinal) != Document.UNDEFINED_ORDINAL) 
                 beginOrdinal = NextOrdinal(beginOrdinal);
 
             for (endOrdinal = ordinal; this.NextOrdinal(endOrdinal) != Document.UNDEFINED_ORDINAL; endOrdinal = this.NextOrdinal(endOrdinal))
