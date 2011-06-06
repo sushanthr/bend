@@ -189,6 +189,24 @@ namespace TextCoreControl
                     // WM_LBUTTONUP
 
                     break;
+                case 0x0203:
+                    // WM_LBUTTONDBLCLK                0x0203
+                    {
+                        int selectionBeginOrdinal;
+                        int iLine;
+                        if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
+                        {
+                            VisualLine vl = (VisualLine)this.visualLines[iLine];
+                            this.caret.HideCaret();
+                            this.caret.MoveCaretVisual(vl, this.document, selectionBeginOrdinal);
+
+                            this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.hwndRenderTarget.EndDraw();
+                            this.caret.ShowCaret();
+                        }
+                    }
+                    break;
                 case 0x0205:
                     // WM_RBUTTONUP
 
@@ -359,14 +377,25 @@ namespace TextCoreControl
                 }
             }
 
-            // Remove any trailing lines.
-            for (int d = changeEndIndex; d < this.visualLines.Count; d++)
+            if (ordinal == Document.UNDEFINED_ORDINAL)
             {
-                if (this.visualLines[d] == null)
+                // Ran out of content delete everything after changeEndIndex
+                if (changeEndIndex + 1 < this.visualLines.Count)
                 {
-                    // everything after this must go.
-                    this.visualLines.RemoveRange(d, this.visualLines.Count - d);
-                    break;
+                    this.visualLines.RemoveRange(changeEndIndex + 1, (this.visualLines.Count - changeEndIndex) - 1);
+                }
+            }
+            else
+            {
+                // Remove any trailing lines.
+                for (int d = changeEndIndex; d < this.visualLines.Count; d++)
+                {
+                    if (this.visualLines[d] == null)
+                    {
+                        // everything after this must go.
+                        this.visualLines.RemoveRange(d, this.visualLines.Count - d);
+                        break;
+                    }
                 }
             }
 
@@ -384,6 +413,7 @@ namespace TextCoreControl
                     if (vl.BeginOrdinal <= this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
                     {
                         this.caret.MoveCaretVisual(vl, this.document, this.caret.Ordinal);
+                        break;
                     }
                 }
             }

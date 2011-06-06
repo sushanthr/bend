@@ -66,8 +66,15 @@ namespace TextCoreControl
             int tempOrdinal = this.beginOrdinal;
             while (tempOrdinal != ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
 
-            HitTestInfo hitTestInfo = textLayout.HitTestTextPosition(localPosition, /*isTrailingHit*/false);
-            return hitTestInfo.Location.X;
+            if (tempOrdinal >= nextOrdinal)
+            {
+                return this.Width;
+            }
+            else
+            {
+                HitTestInfo hitTestInfo = textLayout.HitTestTextPosition(localPosition, /*isTrailingHit*/false);
+                return hitTestInfo.Location.X;
+            }
         }
 
         public List<RectF> GetRangeRectangles(Document document, int beginOrdinal, int endOrdinal)

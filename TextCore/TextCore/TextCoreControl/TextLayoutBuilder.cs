@@ -35,8 +35,9 @@ namespace TextCoreControl
                 if (letter == '\r')
                 {
                     int tempNextOrdinal = document.NextOrdinal(nextOrdinal);
-                    if (document.CharacterAt(tempNextOrdinal) != '\n')
+                    if (document.CharacterAt(tempNextOrdinal) != '\n' || document.NextOrdinal(tempNextOrdinal) == Document.UNDEFINED_ORDINAL)
                     {
+                        // The file terminating \n gets its own line.
                         lineText += letter;
                         nextOrdinal = tempNextOrdinal;
                         break;

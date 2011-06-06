@@ -12,7 +12,7 @@ namespace TextCoreControl
 
         public Document()
         {
-            this.fileContents = "\r\n";
+            this.fileContents = "\n";
         }
 
         public void LoadFile(string fullFilePath)
