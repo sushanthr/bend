@@ -50,6 +50,26 @@ namespace TextCoreControl
             return ordinal;
         }
 
+        internal void GetWordBoundary(int ordinal, out int beginOrdinal, out int endOrdinal)
+        {
+            for (beginOrdinal = ordinal; beginOrdinal > this.FirstOrdinal(); beginOrdinal = this.PreviousOrdinal(beginOrdinal))
+            {
+                char character = this.CharacterAt(beginOrdinal);
+                if (char.IsSeparator(character) || char.IsControl(character))
+                    break;
+            }
+
+            if (this.NextOrdinal(beginOrdinal) != Document.UNDEFINED_ORDINAL) 
+                beginOrdinal = NextOrdinal(beginOrdinal);
+
+            for (endOrdinal = ordinal; this.NextOrdinal(endOrdinal) != Document.UNDEFINED_ORDINAL; endOrdinal = this.NextOrdinal(endOrdinal))
+            {   
+                char character = this.CharacterAt(endOrdinal);
+                if (char.IsSeparator(character) || char.IsControl(character))
+                    break;
+            }
+        }
+
         internal void InsertStringAfter(int ordinal, string content)
         {
             fileContents = fileContents.Insert(ordinal, content);

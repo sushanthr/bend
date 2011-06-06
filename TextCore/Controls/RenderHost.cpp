@@ -20,7 +20,7 @@ bool RenderHost::RegisterWindowClass()
 		return true;
 	}
 
-	wndClass.style				= CS_HREDRAW | CS_VREDRAW;
+	wndClass.style				= CS_HREDRAW | CS_VREDRAW  | CS_DBLCLKS;
 	
 	wndClass.lpfnWndProc		= DefWindowProc; 
 	wndClass.cbClsExtra			= 0;

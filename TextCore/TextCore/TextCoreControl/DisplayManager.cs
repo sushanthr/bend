@@ -200,8 +200,12 @@ namespace TextCoreControl
                             this.caret.HideCaret();
                             this.caret.MoveCaretVisual(vl, this.document, selectionBeginOrdinal);
 
+                            int beginOrdinal, endOrdinal;
+                            this.document.GetWordBoundary(selectionBeginOrdinal, out beginOrdinal, out endOrdinal);
+
                             this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
                         }
