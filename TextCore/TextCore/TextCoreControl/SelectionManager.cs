@@ -22,8 +22,18 @@ namespace TextCoreControl
             int oldSelectionEnd,
             ArrayList visualLines,
             Document document, 
+            SizeF scrollOffset,
             RenderTarget renderTarget)
         {
+            if (oldSelectionBegin == Document.BEFOREBEGIN_ORDINAL || oldSelectionBegin == Document.UNDEFINED_ORDINAL ||
+                selectionBeginOrdinal == Document.BEFOREBEGIN_ORDINAL || selectionBeginOrdinal == Document.UNDEFINED_ORDINAL |
+                oldSelectionEnd == Document.BEFOREBEGIN_ORDINAL || oldSelectionEnd == Document.UNDEFINED_ORDINAL || 
+                selectionEndOrdinal == Document.BEFOREBEGIN_ORDINAL || selectionEndOrdinal == Document.UNDEFINED_ORDINAL)
+            {
+                // Invalid range - bail out
+                return;
+            }
+
             // Find range of affected lines.
             int firstLine = -1;
             int lastLine = 0;
@@ -99,7 +109,7 @@ namespace TextCoreControl
 
                     // Wipe out background outside selection background for the selected lines.
                     renderTarget.PushAxisAlignedClip(bounds, AntiAliasMode.PerPrimitive);
-                    renderTarget.DrawGeometry(selectionGeometry, defaultBackgroundBrush, float.MaxValue);
+                    renderTarget.FillRectangle(bounds, defaultBackgroundBrush);
                     renderTarget.PopAxisAlignedClip();
                 }
                 else
@@ -111,7 +121,7 @@ namespace TextCoreControl
                 // Draw content layer black lines.
                 for (int j = firstLine; j <= lastLine; j++)
                 {
-                   ((VisualLine)visualLines[j]).Draw(renderTarget);
+                    ((VisualLine)visualLines[j]).Draw(renderTarget);
                 }
 
                 if (selectionGeometry != null)
@@ -146,7 +156,7 @@ namespace TextCoreControl
             }
         }
 
-        public void ResetSelection(int beginOrdinal, ArrayList visualLines, Document document, RenderTarget renderTarget)
+        public void ResetSelection(int beginOrdinal, ArrayList visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBegin = this.selectionBeginOrdinal;
             int oldSelectionEnd = this.selectionEndOrdinal;
@@ -154,12 +164,12 @@ namespace TextCoreControl
             this.selectionBeginOrdinal = beginOrdinal;
             this.selectionEndOrdinal = beginOrdinal;
 
-            this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, renderTarget);
+            this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, scrollOffset, renderTarget);
         }
 
         public int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
 
-        public void ExpandSelection(int includeOrdinal, ArrayList visualLines, Document document, RenderTarget renderTarget)
+        public void ExpandSelection(int includeOrdinal, ArrayList visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBeginOrdinal = this.selectionBeginOrdinal;
             int oldSelectionEndOrdinal = this.selectionEndOrdinal;
@@ -195,7 +205,7 @@ namespace TextCoreControl
                 }
             }
 
-            this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, renderTarget);
+            this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, scrollOffset, renderTarget);
         }
 
         public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }

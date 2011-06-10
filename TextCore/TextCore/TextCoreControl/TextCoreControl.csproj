@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Caret.cs" />
+    <Compile Include="ScrollManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="VisualLine.cs" />

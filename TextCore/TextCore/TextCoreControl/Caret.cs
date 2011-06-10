@@ -54,7 +54,7 @@ namespace TextCoreControl
             DestroyCaret();
         }
 
-        public void MoveCaretVisual(VisualLine visualLine, Document document, int ordinal)
+        public void MoveCaretVisual(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
         {
             float x = visualLine.CharPosition(document, ordinal);
             if ((int)visualLine.Height != caretHeight || ordinal == 0)
@@ -65,8 +65,8 @@ namespace TextCoreControl
                 ShowCaret();
             }
 
-            xPos = (int)(visualLine.Position.X + x);
-            yPos = (int) visualLine.Position.Y;
+            xPos = (int)(visualLine.Position.X + x - scrollOffset.Width);
+            yPos = (int) (visualLine.Position.Y - scrollOffset.Height);
 
             SetCaretPos(xPos, yPos);
  
@@ -85,7 +85,7 @@ namespace TextCoreControl
             }
         }
 
-        public void MoveCaretVertical(ArrayList visualLines, Document document, bool moveUp, bool moveDown) 
+        public bool MoveCaretVertical(ArrayList visualLines, Document document, SizeF scrollOffset, bool moveUp, bool moveDown) 
         {
             if (this.Ordinal != Document.UNDEFINED_ORDINAL)
             {
@@ -98,12 +98,12 @@ namespace TextCoreControl
                         if (moveUp)
                         {
                             if (i > 0) i--;
-                            else return;
+                            else return false ;
                         }
                         else if (moveDown)
                         {
                             if (i + 1 < visualLines.Count) i++;
-                            else return;
+                            else return false;
                         }
 
                         VisualLine newVl = (VisualLine)visualLines[i];
@@ -115,11 +115,15 @@ namespace TextCoreControl
                             newOrdinal = document.PreviousOrdinal(newVl.NextOrdinal, 1);
                         }
 
-                        this.MoveCaretVisual(newVl, document, newOrdinal);
+                        if (newOrdinal != Document.UNDEFINED_ORDINAL)
+                        {
+                            this.MoveCaretVisual(newVl, document, scrollOffset, newOrdinal);
+                        }
                         break;
                     }
                 }
             }
+            return true;
         }
 
         public int Ordinal

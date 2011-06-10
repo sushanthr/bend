@@ -9,11 +9,10 @@ namespace TextCoreControl
 {
     public class TextLayoutBuilder
     {
-        internal TextLayoutBuilder(TextFormat defaultFormat, bool autoWrap)
+        internal TextLayoutBuilder()
         {
-            this.glyphTable = new GlyphTable(defaultFormat);
+            this.glyphTable = new GlyphTable(Settings.defaultTextFormat);
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
-            this.AutoWrap = autoWrap;
         }
 
         internal VisualLine GetNextLine(Document document, int beginOrdinal, float layoutWidth, out int nextOrdinal)
@@ -44,7 +43,7 @@ namespace TextCoreControl
                     }
                 }
 
-                if (AutoWrap)
+                if (Settings.autoWrap)
                 {
                     lineWidth += glyphTable.GetCharacterWidth(letter);
                     if (lineWidth > layoutWidth)
@@ -58,8 +57,46 @@ namespace TextCoreControl
             return textLine;
         }
 
+        internal VisualLine GetPreviousLine(Document document, int nextOrdinal, float layoutWidth, out int beginOrdinal)
+        {
+            // Estimate how long the line is
+            string lineText = "";
+            float lineWidth = 0;
+            bool characterSeen = false;
+            beginOrdinal = nextOrdinal;
+            beginOrdinal = document.PreviousOrdinal(beginOrdinal);
+            while (beginOrdinal != Document.BEFOREBEGIN_ORDINAL)
+            {
+                char letter = document.CharacterAt(beginOrdinal);
+                if ((letter == '\n' || letter == '\v') && characterSeen)
+                {   
+                    break;
+                }
+
+                if (letter == '\r' && lineText != "\n" && characterSeen)
+                {
+                    // if this is a \r\n pair need to ignore this \r
+                    break;
+                }
+
+                if (Settings.autoWrap)
+                {
+                    lineWidth += glyphTable.GetCharacterWidth(letter);
+                    if (lineWidth > layoutWidth)
+                        break;
+                }
+
+                characterSeen = true;
+                lineText = (letter + lineText);
+                beginOrdinal = document.PreviousOrdinal(beginOrdinal);
+            }
+
+            beginOrdinal = document.NextOrdinal(beginOrdinal);
+            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal);
+            return textLine;
+        }
+
         private GlyphTable glyphTable;
         private readonly DWriteFactory dwriteFactory;
-        public bool AutoWrap;
     }
 }

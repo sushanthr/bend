@@ -44,9 +44,13 @@ namespace TextCoreControl
 
         internal int PreviousOrdinal(int ordinal, uint offset = 1)
         {
+            if (ordinal == Document.UNDEFINED_ORDINAL)
+                return Document.UNDEFINED_ORDINAL;
+
             ordinal -= (int)offset;
             if (ordinal < 0)
                 return BEFOREBEGIN_ORDINAL;
+         
             return ordinal;
         }
 

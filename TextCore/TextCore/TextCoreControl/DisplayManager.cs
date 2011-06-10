@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Windows.Controls.Primitives;
 
 using Microsoft.WindowsAPICodePack.DirectX.Controls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
@@ -14,9 +15,6 @@ namespace TextCoreControl
     {
         internal DisplayManager(RenderHost renderHost, Document document)
         {
-            // Create the DWrite Factory
-            dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
-
             this.renderHost = renderHost;
             renderHost.Loaded += new RoutedEventHandler(RenderHost_Loaded);
             renderHost.SizeChanged += new SizeChangedEventHandler(RenderHost_SizeChanged);
@@ -26,6 +24,7 @@ namespace TextCoreControl
             document.ContentChange += this.Document_ContentChanged;
             document.OrdinalShift += this.Document_OrdinalShift;
 
+            scrollOffset = new SizeF();
             this.d2dFactory = D2DFactory.CreateFactory();
         }
 
@@ -39,7 +38,6 @@ namespace TextCoreControl
             this.renderHost.KeyHandler = KeyHandler;
             this.renderHost.OtherHandler = this.OtherHandler;
             this.pageBeginOrdinal   = 0;
-            this.pageEndOrdinal     = Document.UNDEFINED_ORDINAL;
             this.visualLines        = new ArrayList(50);
         }
 
@@ -60,7 +58,6 @@ namespace TextCoreControl
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {
                 this.pageBeginOrdinal = document.FirstOrdinal();
-                this.pageEndOrdinal = Document.UNDEFINED_ORDINAL;
 
                 int changeStart, changeEnd;
                 this.UpdateVisualLinesAndCaret(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
@@ -119,7 +116,6 @@ namespace TextCoreControl
             }
 
             if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL ) this.pageBeginOrdinal += shift;
-            if (this.pageEndOrdinal > beginOrdinal && this.pageEndOrdinal != Document.UNDEFINED_ORDINAL ) this.pageEndOrdinal += shift;
         }
 
         /// <summary>
@@ -148,12 +144,10 @@ namespace TextCoreControl
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Up:
-                    this.caret.MoveCaretVertical(this.visualLines, document, /*moveUp*/true, /*moveDown*/false);
-                    e.Handled = true;
+                    e.Handled = this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, /*moveUp*/true, /*moveDown*/false);
                     break;
                 case System.Windows.Input.Key.Down:
-                    this.caret.MoveCaretVertical(this.visualLines, document, /*moveUp*/false, /*moveDown*/true);
-                    e.Handled = true;
+                    e.Handled = this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, /*moveUp*/false, /*moveDown*/true);
                     break;
             }
         }
@@ -176,10 +170,10 @@ namespace TextCoreControl
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
                             this.caret.HideCaret();
-                            this.caret.MoveCaretVisual(vl, this.document, selectionBeginOrdinal);
+                            this.caret.MoveCaretVisual(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
                         }
@@ -198,14 +192,14 @@ namespace TextCoreControl
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
                             this.caret.HideCaret();
-                            this.caret.MoveCaretVisual(vl, this.document, selectionBeginOrdinal);
+                            this.caret.MoveCaretVisual(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
                             int beginOrdinal, endOrdinal;
                             this.document.GetWordBoundary(selectionBeginOrdinal, out beginOrdinal, out endOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
-                            this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.hwndRenderTarget);
+                            this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                            this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
                         }
@@ -229,10 +223,10 @@ namespace TextCoreControl
                         {
                             VisualLine vl = (VisualLine)this.visualLines[iLine];
                             this.caret.HideCaret();
-                            this.caret.MoveCaretVisual(vl, this.document, selectionEndOrdinal);
+                            this.caret.MoveCaretVisual(vl, this.document, scrollOffset, selectionEndOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.hwndRenderTarget);
+                            this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
                         }
@@ -274,6 +268,96 @@ namespace TextCoreControl
             }
         }
 
+        public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            scrollOffset.Height = (float)e.NewValue * ((VisualLine)visualLines[0]).Height;
+
+            // Remove lines going offscreen
+            for (int j = 0; j < visualLines.Count; j++)
+            {
+                VisualLine vl = ((VisualLine)visualLines[j]);
+                float lineBottom = vl.Position.Y + vl.Height - scrollOffset.Height;
+                if (lineBottom > 0)
+                {
+                    if (j > 0)
+                    {
+                        this.visualLines.RemoveRange(0, j);
+                    }
+                    break;
+                }
+            }
+
+            // add lines coming in at the top.
+            int nextOrdinal = ((VisualLine)this.visualLines[0]).BeginOrdinal;
+            double yBottom = ((VisualLine)this.visualLines[0]).Position.Y;
+
+            for (int j = 0; j < visualLines.Count; j++)
+            {
+                VisualLine vl = ((VisualLine)visualLines[j]);
+                float lineTop = vl.Position.Y - scrollOffset.Height;
+                if (lineTop > this.renderHost.ActualHeight)
+                {
+                    this.visualLines.RemoveRange(j, visualLines.Count - j);
+                    break;
+                }
+            }
+
+            if (nextOrdinal > document.FirstOrdinal())
+            {
+                while (yBottom > scrollOffset.Height)
+                {
+                    VisualLine vl = this.textLayoutBuilder.GetPreviousLine(this.document, nextOrdinal, (float)renderHost.ActualWidth, out nextOrdinal);
+                    yBottom -= vl.Height;
+                    vl.Position = new Point2F(0, (float)yBottom);
+                    this.visualLines.Insert(0, vl);
+                }
+            }
+
+            if (visualLines.Count > 0)
+            {
+                this.pageBeginOrdinal = ((VisualLine)this.visualLines[0]).BeginOrdinal;
+            }
+            else
+            {
+                this.pageBeginOrdinal = document.FirstOrdinal();
+            }
+
+            int changeStartIndex;
+            int changeEndIndex;
+            UpdateVisualLinesAndCaret(/*visualLineStartIndex*/0,/*forceRelayout*/false, out changeStartIndex, out changeEndIndex);
+
+
+            if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
+            {
+                hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));
+            }
+            else
+            {
+                hwndRenderTarget.Transform = Matrix3x2F.Identity;
+            }
+
+            this.caret.HideCaret();
+            this.Render();
+            this.caret.ShowCaret();
+        }
+
+        public void AdjustVScrollPositionForResize(double oldPosition, int newFirstLineIndex)
+        {
+            if ((int) oldPosition != newFirstLineIndex)
+            {
+                double yTop = (int)newFirstLineIndex * ((VisualLine)visualLines[0]).Height;
+                for (int i = 0; i < this.visualLines.Count; i++)
+                {
+                    Point2F position = ((VisualLine)visualLines[i]).Position;
+                    position.Y = (float)yTop;
+                    ((VisualLine)visualLines[i]).Position = position;
+                    yTop += ((VisualLine)visualLines[i]).Height;
+                }
+            }
+
+            this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newFirstLineIndex));
+        }
+
         #endregion
 
         void CreateDeviceResources()
@@ -298,11 +382,11 @@ namespace TextCoreControl
                 // Default rendering options
                 defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
                 defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
-                defaultTextFormat = dwriteFactory.CreateTextFormat("Consolas", 14);
+
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
    
-                this.textLayoutBuilder = new TextLayoutBuilder(defaultTextFormat, /*autoWrap*/true);
+                this.textLayoutBuilder = new TextLayoutBuilder();
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
          
                 int changeStart, changeEnd;
@@ -313,7 +397,7 @@ namespace TextCoreControl
                 }
                 else
                 {
-                    this.caret = new Caret(this.hwndRenderTarget, (int)(defaultTextFormat.FontSize * 1.3f));
+                    this.caret = new Caret(this.hwndRenderTarget, (int)(Settings.defaultTextFormat.FontSize * 1.3f));
                 }
             }
         }
@@ -325,12 +409,12 @@ namespace TextCoreControl
             out int changeEndIndex)
         {
             int ordinal = this.pageBeginOrdinal;
-            float y;
+            double y;
             if (forceRelayout)
             {
+                y = ((VisualLine)this.visualLines[0]).Position.Y;
                 this.visualLines.Clear();
                 visualLineStartIndex = 0;
-                y = 0;
             }
             else
             {
@@ -348,11 +432,11 @@ namespace TextCoreControl
 
             changeStartIndex = -1;
             changeEndIndex = -1;
-            while (ordinal != Document.UNDEFINED_ORDINAL && y < renderHost.ActualHeight)
+            while (ordinal != Document.UNDEFINED_ORDINAL && y < (renderHost.ActualHeight + scrollOffset.Height))
             {
                 VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, ordinal, (float)renderHost.ActualWidth, out ordinal);
 
-                visualLine.Position = new Point2F(0, y);
+                visualLine.Position = new Point2F(0, (float)y);
                 y += visualLine.Height;
 
                 changeEndIndex = visualLineStartIndex;
@@ -375,30 +459,46 @@ namespace TextCoreControl
                         if (visualLine.NextOrdinal == ((VisualLine)this.visualLines[visualLineStartIndex]).BeginOrdinal)
                         {
                             // We have reflowed enough, things are the same from here on.
-                            break;
+                           
+                            // Update position
+                            for (int p = visualLineStartIndex; p < visualLines.Count; p++)
+                            {
+                                Point2F position = ((VisualLine)this.visualLines[p]).Position;
+                                position.Y = (float)y;
+                                y += ((VisualLine)this.visualLines[p]).Height;
+                                //((VisualLine)this.visualLines[p]).Position = position;
+                            }
+                            
+                            // Continue from the last ordinal.
+                            ordinal = ((VisualLine)this.visualLines[this.visualLines.Count - 1]).NextOrdinal;
+                            visualLineStartIndex = this.visualLines.Count;
                         }
                     }
                 }
             }
 
-            if (ordinal == Document.UNDEFINED_ORDINAL)
+            if (changeEndIndex > 0)
             {
-                // Ran out of content delete everything after changeEndIndex
-                if (changeEndIndex + 1 < this.visualLines.Count)
+
+                if (ordinal == Document.UNDEFINED_ORDINAL)
                 {
-                    this.visualLines.RemoveRange(changeEndIndex + 1, (this.visualLines.Count - changeEndIndex) - 1);
-                }
-            }
-            else
-            {
-                // Remove any trailing lines.
-                for (int d = changeEndIndex; d < this.visualLines.Count; d++)
-                {
-                    if (this.visualLines[d] == null)
+                    // Ran out of content delete everything after changeEndIndex
+                    if (changeEndIndex + 1 < this.visualLines.Count)
                     {
-                        // everything after this must go.
-                        this.visualLines.RemoveRange(d, this.visualLines.Count - d);
-                        break;
+                        this.visualLines.RemoveRange(changeEndIndex + 1, (this.visualLines.Count - changeEndIndex) - 1);
+                    }
+                }
+                else
+                {
+                    // Remove any trailing lines.
+                    for (int d = changeEndIndex; d < this.visualLines.Count; d++)
+                    {
+                        if (this.visualLines[d] == null)
+                        {
+                            // everything after this must go.
+                            this.visualLines.RemoveRange(d, this.visualLines.Count - d);
+                            break;
+                        }
                     }
                 }
             }
@@ -416,7 +516,7 @@ namespace TextCoreControl
                     VisualLine vl = (VisualLine)this.visualLines[i];
                     if (vl.BeginOrdinal <= this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
                     {
-                        this.caret.MoveCaretVisual(vl, this.document, this.caret.Ordinal);
+                        this.caret.MoveCaretVisual(vl, this.document, scrollOffset, this.caret.Ordinal);
                         break;
                     }
                 }
@@ -449,9 +549,6 @@ namespace TextCoreControl
                 wipeBounds = new RectF(0.0f, beginLine.Position.Y, renderTarget.Size.Width, endLine.Position.Y + endLine.Height);
                 renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
             }
-            
-            int selectionBeginOrdinal = this.selectionManager.GetSelectionBeginOrdinal();
-            int selectionEndOrdinal = this.selectionManager.GetSelectionEndOrdinal();
 
             for (int i = redrawBegin; i <= redrawEnd; i++)
             {
@@ -464,11 +561,13 @@ namespace TextCoreControl
                 selectionManager.GetSelectionEndOrdinal(), 
                 this.visualLines, 
                 this.document, 
+                this.scrollOffset, 
                 renderTarget);
         }
 
         private bool HitTest(Point2F point, out int ordinal, out int lineIndex)
         {
+            point = new Point2F(point.X + this.scrollOffset.Width, point.Y + this.scrollOffset.Height);
             for (int i = 0; i < this.visualLines.Count; i++)
             {
                 VisualLine visualLine = (VisualLine)this.visualLines[i];
@@ -584,21 +683,39 @@ namespace TextCoreControl
         }
         #endregion
 
-        DWriteFactory                dwriteFactory;
+        public int VisualLineCount
+        {
+            get { return this.visualLines == null ? 0 : this.visualLines.Count; }
+        }
+
+        public int PageBeginOrdinal
+        {
+            get
+            {
+                if (this.visualLines == null || this.visualLines.Count == 0)
+                {
+                    return this.document.FirstOrdinal();
+                }
+                else
+                {
+                    return ((VisualLine)this.visualLines[0]).BeginOrdinal;
+                }
+            }
+        }
+
         D2DFactory                   d2dFactory;
         HwndRenderTarget             hwndRenderTarget;
         SolidColorBrush              defaultBackgroundBrush;
         SolidColorBrush              defaultForegroundBrush;
         SolidColorBrush              defaultSelectionBrush;
-        TextFormat                   defaultTextFormat;
         readonly RenderHost          renderHost;
         readonly Document            document;
         TextLayoutBuilder            textLayoutBuilder;
         SelectionManager             selectionManager;
         Caret                        caret;
+        SizeF                        scrollOffset;
 
         int                          pageBeginOrdinal;
-        int                          pageEndOrdinal;
         ArrayList                    visualLines;
     }
 }
