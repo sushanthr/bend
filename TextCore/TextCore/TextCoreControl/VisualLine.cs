@@ -61,6 +61,9 @@ namespace TextCoreControl
 
         public float CharPosition(Document document, int ordinal)
         {
+            if (ordinal < this.beginOrdinal) 
+                return 0;
+
             // get local text position.
             uint localPosition = 0;
             int tempOrdinal = this.beginOrdinal;

@@ -79,7 +79,7 @@ namespace TextCoreControl
             fileContents = fileContents.Insert(ordinal, content);
             if (this.OrdinalShift != null)
             {
-                this.OrdinalShift(ordinal, content.Length);
+                this.OrdinalShift(this, ordinal, content.Length);
             }
 
             if (this.ContentChange != null)
@@ -96,7 +96,7 @@ namespace TextCoreControl
             ordinal = this.PreviousOrdinal(ordinal);
             if (this.OrdinalShift != null)
             {
-                this.OrdinalShift(ordinal, - length);
+                this.OrdinalShift(this, ordinal, - length);
             }
 
             if (this.ContentChange != null)
@@ -110,7 +110,7 @@ namespace TextCoreControl
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal);
         public event ContentChangeEventHandler ContentChange;
 
-        public delegate void OrdinalShiftEventHandler(int beginOrdinal, int shift);
+        public delegate void OrdinalShiftEventHandler(Document document, int beginOrdinal, int shift);
         public event OrdinalShiftEventHandler OrdinalShift;
 
         private string fileContents;

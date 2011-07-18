@@ -20,7 +20,7 @@ namespace TextCoreControl
         public void DrawSelection(
             int oldSelectionBegin,
             int oldSelectionEnd,
-            ArrayList visualLines,
+            List<VisualLine> visualLines,
             Document document, 
             SizeF scrollOffset,
             RenderTarget renderTarget)
@@ -156,7 +156,7 @@ namespace TextCoreControl
             }
         }
 
-        public void ResetSelection(int beginOrdinal, ArrayList visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
+        public void ResetSelection(int beginOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBegin = this.selectionBeginOrdinal;
             int oldSelectionEnd = this.selectionEndOrdinal;
@@ -169,7 +169,7 @@ namespace TextCoreControl
 
         public int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
 
-        public void ExpandSelection(int includeOrdinal, ArrayList visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
+        public void ExpandSelection(int includeOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBeginOrdinal = this.selectionBeginOrdinal;
             int oldSelectionEndOrdinal = this.selectionEndOrdinal;

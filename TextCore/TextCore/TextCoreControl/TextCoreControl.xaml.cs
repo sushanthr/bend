@@ -18,14 +18,12 @@ namespace TextCoreControl
         {
             InitializeComponent();
             this.document = new Document();
-            this.displayManager = new DisplayManager(this.RenderHost, document);
-            this.scrollManager = new ScrollManager(vScrollBar, hScrollBar, this.displayManager, this.RenderHost, this.document);
+            this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar);
         }
         
         public void LoadFile(string fullFilePath)
         {
             document.LoadFile(fullFilePath);
-            this.scrollManager.InitializeVerticalScrollBounds((float)this.RenderHost.ActualWidth);
             RenderHost.InvalidateVisual();
         }
 
@@ -46,6 +44,5 @@ namespace TextCoreControl
 
         private Document document;
         private DisplayManager displayManager;
-        private ScrollManager scrollManager;
     }
 }

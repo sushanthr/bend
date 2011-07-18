@@ -10,9 +10,9 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
-    class ScrollManager
+    class ScrollBoundsManager
     {
-        public ScrollManager(ScrollBar vScrollBar, 
+        public ScrollBoundsManager(ScrollBar vScrollBar, 
             ScrollBar hScrollBar, 
             DisplayManager displayManager, 
             RenderHost renderHost,
@@ -26,58 +26,9 @@ namespace TextCoreControl
             renderHost.SizeChanged += new System.Windows.SizeChangedEventHandler(renderHost_SizeChanged);
             this.dwriteFactory = DWriteFactory.CreateFactory();
             this.displayManager = displayManager;
-
-            vScrollOffset = 0;
-            renderHost.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(renderHost_PreviewKeyDown);
-            vScrollBar.Scroll += new ScrollEventHandler(displayManager.vScrollBar_Scroll);
         }
 
-        void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            switch (e.Key)
-            {   
-                case System.Windows.Input.Key.Up:
-                    if (this.vScrollBar.Value > 0)
-                    {
-                        this.vScrollBar.Value --;
-                        e.Handled = true;
-                        this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.SmallDecrement, this.vScrollBar.Value));
-                    }
-                    break;
-                case System.Windows.Input.Key.Down:
-                    if (this.vScrollBar.Value < this.vScrollBar.Maximum)
-                    {
-                        this.vScrollBar.Value++;
-                        e.Handled = true;
-                        this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.SmallIncrement, this.vScrollBar.Value));
-                    }
-                    break;
-                case System.Windows.Input.Key.PageDown:
-                    if (this.vScrollBar.Value < this.vScrollBar.Maximum)
-                    {
-                        if (this.vScrollBar.Value + this.displayManager.VisualLineCount > this.vScrollBar.Maximum)
-                            this.vScrollBar.Value = this.vScrollBar.Maximum;
-                        else
-                            this.vScrollBar.Value += this.displayManager.VisualLineCount;
-                        e.Handled = true;
-                        this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.LargeIncrement, this.vScrollBar.Value));
-                    }
-                    break;
-                case System.Windows.Input.Key.PageUp:
-                    if (this.vScrollBar.Value > this.vScrollBar.Minimum)
-                    {
-                        if (this.vScrollBar.Value - this.displayManager.VisualLineCount < this.vScrollBar.Minimum)
-                            this.vScrollBar.Value = this.vScrollBar.Minimum;
-                        else
-                            this.vScrollBar.Value -= this.displayManager.VisualLineCount;
-                        e.Handled = true;
-                        this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.LargeDecrement, this.vScrollBar.Value));
-                    }
-                    break;
-            }
-
-        }
-
+        #region Event handler (Renderhost size change / loaded)
         void renderHost_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
             RenderHost renderHost = (RenderHost) sender;
@@ -89,36 +40,9 @@ namespace TextCoreControl
             DisableVScrollbar();
             DisableHScrollbar();
         }
+        #endregion
 
-        private void DisableVScrollbar()
-        {
-            this.vScrollBar.Dispatcher.Invoke(
-                System.Windows.Threading.DispatcherPriority.Normal, 
-                new Action
-                ( 
-                    delegate()
-                    {
-                        this.vScrollBar.IsEnabled = false;
-                        this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
-                    }
-                )
-            );
-        }
-
-        private void DisableHScrollbar()
-        {
-            this.hScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
-                new Action
-                (
-                    delegate()
-                    {
-                        this.hScrollBar.IsEnabled = false;
-                        this.hScrollBar.Track.Thumb.Height = 0;
-                    }
-                )
-            );
-        }
-
+        #region Vertical scroll bounds estimation
         public void InitializeVerticalScrollBounds(float width)
         {
             GlyphTable glyphTable = new GlyphTable(Settings.defaultTextFormat);
@@ -137,7 +61,7 @@ namespace TextCoreControl
             object[] paramaterArray = (object[])paramaterArrayIn;
             Document document = (Document)paramaterArray[0];
             GlyphTable glyphTable = (GlyphTable)paramaterArray[1];
-            ScrollManager scrollManager = (ScrollManager)paramaterArray[2];
+            ScrollBoundsManager scrollManager = (ScrollBoundsManager)paramaterArray[2];
             float layoutWidth = (float)paramaterArray[3];
             int pageBeginOrdinal = (int)paramaterArray[4];
 
@@ -225,7 +149,7 @@ namespace TextCoreControl
                             {
                                 double oldScrollPosition = this.vScrollBar.Value;
                                 this.vScrollBar.Value = firstLineIndex;
-                                this.displayManager.AdjustVScrollPositionForResize(oldScrollPosition, firstLineIndex);                                
+                                this.displayManager.AdjustVScrollPositionForResize(oldScrollPosition, firstLineIndex);
                             }
                         }
                     )
@@ -237,7 +161,9 @@ namespace TextCoreControl
                 DisableVScrollbar();
             }
         }
+        #endregion
 
+        #region Horizonatal scroll bounds setter API
         public void InitializeHorizontalScrollBounds(double maxLineWidth, double renderHostWidth)
         {
             if (maxLineWidth > renderHostWidth)
@@ -271,7 +197,54 @@ namespace TextCoreControl
                 DisableHScrollbar();
             }
         }
+        #endregion
 
+        #region Scroll bar offset computation / Hide - Show Scroll bar API
+
+        public void ScrollBy(int numberOfLines)
+        {
+            double newScrollValue = this.vScrollBar.Value + numberOfLines;
+            if (newScrollValue < 0) newScrollValue = 0;
+            if (newScrollValue > this.vScrollBar.Maximum) newScrollValue = this.vScrollBar.Maximum;
+
+            this.vScrollBar.Value = newScrollValue;
+            this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(
+                numberOfLines > 0 ? ScrollEventType.SmallIncrement : ScrollEventType.SmallDecrement, 
+                this.vScrollBar.Value));
+        }
+
+        private void DisableVScrollbar()
+        {
+            this.vScrollBar.Dispatcher.Invoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                new Action
+                (
+                    delegate()
+                    {
+                        this.vScrollBar.IsEnabled = false;
+                        this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
+                    }
+                )
+            );
+        }
+
+        private void DisableHScrollbar()
+        {
+            this.hScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
+                new Action
+                (
+                    delegate()
+                    {
+                        this.hScrollBar.IsEnabled = false;
+                        this.hScrollBar.Track.Thumb.Height = 0;
+                    }
+                )
+            );
+        }
+
+        #endregion
+
+        #region Member data
         ScrollBar hScrollBar;
         ScrollBar vScrollBar;
         Thread asyncScrollLengthEstimater;
@@ -279,6 +252,6 @@ namespace TextCoreControl
         DisplayManager displayManager;
 
         DWriteFactory dwriteFactory;
-        double vScrollOffset;
+        #endregion
     }
 }

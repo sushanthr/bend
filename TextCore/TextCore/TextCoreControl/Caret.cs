@@ -2,26 +2,12 @@
 using System.Windows;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using System.Runtime.InteropServices;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace TextCoreControl
 {
     public class Caret
     {
-        [DllImport("User32.dll")]
-        static extern bool CreateCaret(IntPtr hWnd, int hBitmap, int nWidth, int nHeight);
-
-        [DllImport("User32.dll")]
-        static extern bool SetCaretPos(int x, int y);
-
-        [DllImport("User32.dll")]
-        static extern bool DestroyCaret();
-
-        [DllImport("User32.dll")]
-        static extern bool ShowCaret(IntPtr hWnd);
-
-        [DllImport("User32.dll")]
-        static extern bool HideCaret(IntPtr hWnd);
 
         public Caret(HwndRenderTarget renderTarget, int defaultHeight)
         {
@@ -37,24 +23,26 @@ namespace TextCoreControl
             DestroyCaret();
         }
 
-        public void OnGetFocus()
-        {
-            // Create a solid black caret. 
-            CreateCaret(windowHandle, 0, 1, caretHeight);
+        #region WIN32 API references
+        [DllImport("User32.dll")]
+        static extern bool CreateCaret(IntPtr hWnd, int hBitmap, int nWidth, int nHeight);
 
-            // Adjust the caret position, in client coordinates. 
-            SetCaretPos(xPos, yPos);
+        [DllImport("User32.dll")]
+        static extern bool SetCaretPos(int x, int y);
 
-            // Display the caret. 
-            ShowCaret(); 
-        }
+        [DllImport("User32.dll")]
+        static extern bool DestroyCaret();
 
-        public void OnLostFocus()
-        {
-            DestroyCaret();
-        }
+        [DllImport("User32.dll")]
+        static extern bool ShowCaret(IntPtr hWnd);
 
-        public void MoveCaretVisual(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
+        [DllImport("User32.dll")]
+        static extern bool HideCaret(IntPtr hWnd);
+        #endregion
+
+        #region Caret position manipulation
+
+        public void MoveCaretToLine(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
         {
             float x = visualLine.CharPosition(document, ordinal);
             if ((int)visualLine.Height != caretHeight || ordinal == 0)
@@ -73,63 +61,96 @@ namespace TextCoreControl
             this.ordinal = ordinal;
         }
 
-        public void MoveCaretOrdinal(Document document, int shift)
+        public enum CaretStep
         {
-            if (shift > 0)
-            {
-                ordinal = document.NextOrdinal(ordinal, (uint)shift);
-            }
-            else
-            {
-                ordinal = document.PreviousOrdinal(ordinal, (uint)(-1 * shift));
-            }
+            LineUp,
+            LineDown
         }
 
-        public bool MoveCaretVertical(ArrayList visualLines, Document document, SizeF scrollOffset, bool moveUp, bool moveDown) 
+        public void MoveCaretVertical(List<VisualLine> visualLines, Document document, SizeF scrollOffset, CaretStep caretStep) 
         {
-            if (this.Ordinal != Document.UNDEFINED_ORDINAL)
+            if (visualLines.Count > 1)
             {
-                for (int i = 0; i < visualLines.Count; i++)
+                if (this.Ordinal != Document.UNDEFINED_ORDINAL)
                 {
-                    VisualLine vl = (VisualLine)visualLines[i];
-                    if (vl.BeginOrdinal <= this.Ordinal && vl.NextOrdinal > this.Ordinal)
+                    for (int i = 0; i < visualLines.Count; i++)
                     {
-                        // Caret is on index i, either move up or down.
-                        if (moveUp)
+                        VisualLine vl = visualLines[i];
+                        if (vl.BeginOrdinal <= this.Ordinal && vl.NextOrdinal > this.Ordinal)
                         {
-                            if (i > 0) i--;
-                            else return false ;
-                        }
-                        else if (moveDown)
-                        {
-                            if (i + 1 < visualLines.Count) i++;
-                            else return false;
-                        }
+                            // Caret is on index i, either move up or down.
+                            if (caretStep == CaretStep.LineUp)
+                            {
+                                if (i > 0) i--;
+                                else break;
+                            }
+                            else if (caretStep == CaretStep.LineDown)
+                            {
+                                if (i + 1 < visualLines.Count) i++;
+                                else break;
+                            }
 
-                        VisualLine newVl = (VisualLine)visualLines[i];
-                        uint offset;
-                        newVl.HitTest(new Point2F(xPos, 0), out offset);
-                        int newOrdinal = document.NextOrdinal(newVl.BeginOrdinal, offset);
-                        if (newOrdinal >= newVl.NextOrdinal)
-                        {
-                            newOrdinal = document.PreviousOrdinal(newVl.NextOrdinal, 1);
-                        }
+                            VisualLine newVl = visualLines[i];
+                            uint offset;
+                            newVl.HitTest(new Point2F(xPos, 0), out offset);
+                            int newOrdinal = document.NextOrdinal(newVl.BeginOrdinal, offset);
+                            if (newOrdinal >= newVl.NextOrdinal)
+                            {
+                                newOrdinal = document.PreviousOrdinal(newVl.NextOrdinal, 1);
+                            }
 
-                        if (newOrdinal != Document.UNDEFINED_ORDINAL)
-                        {
-                            this.MoveCaretVisual(newVl, document, scrollOffset, newOrdinal);
+                            if (newOrdinal != Document.UNDEFINED_ORDINAL)
+                            {
+                                this.MoveCaretToLine(newVl, document, scrollOffset, newOrdinal);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
-            return true;
         }
 
-        public int Ordinal
+        #endregion
+
+        #region Content change
+
+        public void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
-            get { return this.ordinal; }
+            if (this.Ordinal >= beginOrdinal)
+            {
+                if (shift > 0)
+                {
+                    this.ordinal = document.NextOrdinal(this.ordinal, (uint)shift);
+                }
+                else
+                {
+                    this.ordinal = document.PreviousOrdinal(this.ordinal, (uint)(-1 * shift));
+                }
+            }
         }
+
+        #endregion
+
+        #region Caret focus events
+        public void OnGetFocus()
+        {
+            // Create a solid black caret. 
+            CreateCaret(windowHandle, 0, 1, caretHeight);
+
+            // Adjust the caret position, in client coordinates. 
+            SetCaretPos(xPos, yPos);
+
+            // Display the caret. 
+            ShowCaret();
+        }
+
+        public void OnLostFocus()
+        {
+            DestroyCaret();
+        }
+        #endregion
+
+        #region Show / Hide caret
 
         public void HideCaret()
         {
@@ -141,10 +162,30 @@ namespace TextCoreControl
             ShowCaret(windowHandle);
         }
 
+        #endregion
+
+        #region Accessors
+
+        public int Ordinal
+        {
+            get { return this.ordinal; }
+        }
+
+        public Point2F PositionInScreenCoOrdinates()
+        {
+            return new Point2F(xPos, yPos + caretHeight / 2);
+        }
+
+        #endregion
+
+        #region Member data
+
         int ordinal;
         int caretHeight;
         int xPos;
         int yPos;
         IntPtr windowHandle;
+
+        #endregion
     }
 }
