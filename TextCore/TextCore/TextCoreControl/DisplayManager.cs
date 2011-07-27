@@ -629,14 +629,14 @@ namespace TextCoreControl
         private void UpdateCaret(int newCaretOrdinal)
         {
             // Update caret
-            if (this.caret != null && this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
+            if (this.caret != null && newCaretOrdinal != Document.UNDEFINED_ORDINAL)
             {
                 for (int i = 0; i < this.visualLines.Count; i++)
                 {
                     VisualLine vl = (VisualLine)this.visualLines[i];
-                    if (vl.BeginOrdinal <= this.caret.Ordinal && vl.NextOrdinal > this.caret.Ordinal)
+                    if (vl.BeginOrdinal <= newCaretOrdinal && vl.NextOrdinal > newCaretOrdinal)
                     {
-                        this.caret.MoveCaretToLine(vl, this.document, scrollOffset, this.caret.Ordinal);
+                        this.caret.MoveCaretToLine(vl, this.document, scrollOffset, newCaretOrdinal);
                         break;
                     }
                 }
