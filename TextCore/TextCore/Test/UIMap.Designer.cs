@@ -29,44 +29,6 @@ namespace Test
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public partial class UIMap
     {
-        private void CaptureVerify(string testName)
-        {
-            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
-            Image currentJpegImage = uIRenderHostClient.CaptureImage();
-            if (Settings.GenerateBaseLine)
-            {
-                currentJpegImage.Save(Settings.TestDataDirectory + "Baseline\\"+ testName + ".jpg");
-            }
-            else
-            {
-                currentJpegImage.Save(Settings.TestDataDirectory + "Current\\"+ testName + ".jpg");
-                Bitmap currentImage = new Bitmap(currentJpegImage);
-                Bitmap originalImage = new Bitmap(Image.FromFile(Settings.TestDataDirectory + "Baseline\\"+ testName + ".jpg"));
-
-                bool areImagesEqual = true;
-                if (currentImage.Width == originalImage.Width && currentImage.Height == originalImage.Height)
-                {
-                    for (int h = 0; h < currentImage.Height; h++)
-                    {
-                        for (int w = 0; w < currentImage.Width; w++)
-                        {
-                            if (originalImage.GetPixel(w, h) != currentImage.GetPixel(w, h))
-                            {
-                                areImagesEqual = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    areImagesEqual = false;
-                }
-
-                System.Diagnostics.Debug.Assert(areImagesEqual , "Image comparision failure in test case " + testName);
-            }
-        }
-
         /// <summary>
         /// OpenSampleText - Use 'OpenSampleTextParams' to pass parameters into this method.
         /// </summary>
@@ -90,7 +52,7 @@ namespace Test
             // Click 'load' button
             Mouse.Click(uILoadButton, new Point(11, 9));
 
-            // Select 'D:\assembla\trunk\TextCore\TextCore\Test\SampleText.txt' in 'File name:' combo box
+            // Select 'D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.OpenSampleTextParams.UIFilenameComboBoxEditableItem;
 
             // Click 'Open' Dialog
@@ -101,10 +63,8 @@ namespace Test
 
             // Click 'RenderHost' client
             Mouse.Click(uIRenderHostClient, new Point(3, 7));
-
-            this.CaptureVerify("OpenSampleText");
         }
-
+        
         /// <summary>
         /// ClickAtChar2
         /// </summary>
@@ -116,10 +76,8 @@ namespace Test
 
             // Click 'RenderHost' client
             Mouse.Click(uIRenderHostClient, new Point(7, 8));
-
-            this.CaptureVerify("ClickAtChar2");
         }
-
+        
         /// <summary>
         /// SelectPickups
         /// </summary>
@@ -132,10 +90,8 @@ namespace Test
             // Move 'RenderHost' client from (74, 7) to (132, 8)
             Mouse.StartDragging(uIRenderHostClient, new Point(74, 7));
             Mouse.StopDragging(uIRenderHostClient, 58, 1);
-
-            this.CaptureVerify("SelectPickups");
         }
-
+        
         /// <summary>
         /// ClickAtLine5
         /// </summary>
@@ -147,10 +103,8 @@ namespace Test
 
             // Click 'RenderHost' client
             Mouse.Click(uIRenderHostClient, new Point(58, 75));
-
-            this.CaptureVerify("ClickAtLine5");
         }
-
+        
         /// <summary>
         /// SelectBunchOfLines
         /// </summary>
@@ -163,23 +117,52 @@ namespace Test
             // Move 'RenderHost' client from (74, 70) to (245, 222)
             Mouse.StartDragging(uIRenderHostClient, new Point(74, 70));
             Mouse.StopDragging(uIRenderHostClient, 171, 152);
-
-            this.CaptureVerify("SelectBunchOfLines");
         }
-
+        
         /// <summary>
         /// Close - Use 'CloseParams' to pass parameters into this method.
         /// </summary>
         public void Close()
         {
             #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
             WpfButton uICloseButton = this.UIMainWindowWindow.UIMainWindowTitleBar.UICloseButton;
             #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(202, 11));
 
             // Click 'Close' button
             Mouse.Click(uICloseButton, new Point(20, 7));
         }
         
+        /// <summary>
+        /// TypeASentance - Use 'TypeASentanceParams' to pass parameters into this method.
+        /// </summary>
+        public void TypeASentance()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            WinClient uIRenderHostClient1 = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1;
+            WinWindow uIMainWindowWindow1 = this.UIMainWindowWindow1;
+            #endregion
+
+            // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+            ApplicationUnderTest uIMainWindowWindow = ApplicationUnderTest.Launch(this.TypeASentanceParams.UIMainWindowWindowExePath, this.TypeASentanceParams.UIMainWindowWindowAlternateExePath);
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(349, 62));
+
+            // Type 'Save{Space}the{Space}world{Back}{Back}ld.,{Back}{Back}{Space}!{Space}Make{Space}it{Space}a{Space}better{Space}place{Space}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Delete}{Delete}r{Space}{Right}{Right}{Right}{Right}{Right}{Space}for{Space}you{Space}and{Space}for{Space}me{Space}and{Space}the{Space}entire{Space}human{Space}race{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient1, this.TypeASentanceParams.UIRenderHostClient1SendKeys, ModifierKeys.None);
+
+            // Type '{RShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient1, this.TypeASentanceParams.UIRenderHostClient1SendKeys1, ModifierKeys.None);
+
+            // Type '!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient1, this.TypeASentanceParams.UIRenderHostClient1SendKeys2, ModifierKeys.None);
+        }
+
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -192,7 +175,31 @@ namespace Test
                 return this.mOpenSampleTextParams;
             }
         }
-
+        
+        public virtual CloseParams CloseParams
+        {
+            get
+            {
+                if ((this.mCloseParams == null))
+                {
+                    this.mCloseParams = new CloseParams();
+                }
+                return this.mCloseParams;
+            }
+        }
+        
+        public virtual TypeASentanceParams TypeASentanceParams
+        {
+            get
+            {
+                if ((this.mTypeASentanceParams == null))
+                {
+                    this.mTypeASentanceParams = new TypeASentanceParams();
+                }
+                return this.mTypeASentanceParams;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -232,11 +239,15 @@ namespace Test
         
         #region Fields
         private OpenSampleTextParams mOpenSampleTextParams;
-
+        
+        private CloseParams mCloseParams;
+        
+        private TypeASentanceParams mTypeASentanceParams;
+        
         private UIMainWindowWindow mUIMainWindowWindow;
-
+        
         private UIOpenWindow mUIOpenWindow;
-
+        
         private UIMainWindowWindow1 mUIMainWindowWindow1;
         #endregion
     }
@@ -249,18 +260,79 @@ namespace Test
     {
         
         #region Fields
-
-        public string UIMainWindowWindowExePath = Settings.TestAppFullPath;
-
-        public string UIMainWindowWindowAlternateExePath = Settings.TestAppFullPath;
-
         /// <summary>
-        /// Select 'D:\assembla\trunk\TextCore\TextCore\Test\SampleText.txt' in 'File name:' combo box
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string UIFilenameComboBoxEditableItem = Settings.TestDataDirectory + "SampleText.txt";
+        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Select 'D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
+        /// </summary>
+        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\Test\\Data\\SampleText.txt";
         #endregion
     }
-
+    
+    /// <summary>
+    /// Parameters to be passed into 'Close'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class CloseParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'TypeASentance'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class TypeASentanceParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Type 'Save{Space}the{Space}world{Back}{Back}ld.,{Back}{Back}{Space}!{Space}Make{Space}it{Space}a{Space}better{Space}place{Space}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Delete}{Delete}r{Space}{Right}{Right}{Right}{Right}{Right}{Space}for{Space}you{Space}and{Space}for{Space}me{Space}and{Space}the{Space}entire{Space}human{Space}race{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClient1SendKeys = @"Save{Space}the{Space}world{Back}{Back}ld.,{Back}{Back}{Space}!{Space}Make{Space}it{Space}a{Space}better{Space}place{Space}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Delete}{Delete}r{Space}{Right}{Right}{Right}{Right}{Right}{Space}for{Space}you{Space}and{Space}for{Space}me{Space}and{Space}the{Space}entire{Space}human{Space}race{Space}";
+        
+        /// <summary>
+        /// Type '{RShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClient1SendKeys1 = "{RShiftKey}";
+        
+        /// <summary>
+        /// Type '!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClient1SendKeys2 = "!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}" +
+            "{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!";
+        #endregion
+    }
+    
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public class UIMainWindowWindow : WpfWindow
     {
@@ -547,10 +619,28 @@ namespace Test
                 return this.mUIRenderHostClient;
             }
         }
+        
+        public WinClient UIRenderHostClient1
+        {
+            get
+            {
+                if ((this.mUIRenderHostClient1 == null))
+                {
+                    this.mUIRenderHostClient1 = new WinClient(this);
+                    #region Search Criteria
+                    this.mUIRenderHostClient1.SearchProperties[WinControl.PropertyNames.Name] = "RenderHost";
+                    this.mUIRenderHostClient1.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIRenderHostClient1;
+            }
+        }
         #endregion
         
         #region Fields
         private WinClient mUIRenderHostClient;
+        
+        private WinClient mUIRenderHostClient1;
         #endregion
     }
 }

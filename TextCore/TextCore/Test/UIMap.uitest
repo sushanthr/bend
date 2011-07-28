@@ -66,7 +66,7 @@
     </MouseAction>
     <SetValueAction UIObjectName="UIMap.UIOpenWindow.UIItemWindow.UIFilenameComboBox">
       <ParameterName />
-      <Value Encoded="false">D:\assembla\trunk\TextCore\TextCore\Test\SampleText.txt</Value>
+      <Value Encoded="false">D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt</Value>
       <Type>String</Type>
       <PreferEdit>True</PreferEdit>
     </SetValueAction>
@@ -176,11 +176,6 @@
       <WorkItemId>0</WorkItemId>
       <MarkerRegionType>Action</MarkerRegionType>
     </TestStepMarkerAction>
-    <LaunchApplicationAction UIObjectName="UIMap.UIMainWindowWindow">
-      <ParameterName />
-      <FileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
-      <AlternateFileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
-    </LaunchApplicationAction>
     <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
       <ParameterName />
       <ModifierKeys>None</ModifierKeys>
@@ -200,6 +195,47 @@
       <MouseButton>Left</MouseButton>
     </MouseAction>
     <TestStepMarkerAction MarkerInformation="Close">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <LaunchApplicationAction UIObjectName="UIMap.UIMainWindowWindow">
+      <ParameterName />
+      <FileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
+      <AlternateFileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
+    </LaunchApplicationAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="349" Y="62" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">Save{Space}the{Space}world{Back}{Back}ld.,{Back}{Back}{Space}!{Space}Make{Space}it{Space}a{Space}better{Space}place{Space}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Delete}{Delete}r{Space}{Right}{Right}{Right}{Right}{Right}{Space}for{Space}you{Space}and{Space}for{Space}me{Space}and{Space}the{Space}entire{Space}human{Space}race{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{RShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="TypeASentance">
       <ParameterName />
       <StepId>-1</StepId>
       <Direction>Start</Direction>
@@ -388,6 +424,18 @@
               <SupportLevel>0</SupportLevel>
               <Descendants>
                 <UIObject ControlType="Client" Id="UIRenderHostClient" FriendlyName="RenderHost" SpecialControlType="None">
+                  <TechnologyName>MSAA</TechnologyName>
+                  <WindowTitles>
+                    <WindowTitle>MainWindow</WindowTitle>
+                  </WindowTitles>
+                  <AndCondition Id="SearchCondition">
+                    <PropertyCondition Name="Name">RenderHost</PropertyCondition>
+                    <PropertyCondition Name="ControlType">Client</PropertyCondition>
+                  </AndCondition>
+                  <SupportLevel>0</SupportLevel>
+                  <Descendants />
+                </UIObject>
+                <UIObject ControlType="Client" Id="UIRenderHostClient1" FriendlyName="RenderHost" SpecialControlType="None">
                   <TechnologyName>MSAA</TechnologyName>
                   <WindowTitles>
                     <WindowTitle>MainWindow</WindowTitle>

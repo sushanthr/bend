@@ -91,18 +91,22 @@ namespace TextCoreControl
 
         internal void DeleteFrom(int ordinal, int length)
         {
-            fileContents = fileContents.Remove(ordinal, length);
-
-            ordinal = this.PreviousOrdinal(ordinal);
-            if (this.OrdinalShift != null)
+            // Last ordinal is reserved for \n
+            if (ordinal < this.fileContents.Length - 1)
             {
-                this.OrdinalShift(this, ordinal, - length);
-            }
+                fileContents = fileContents.Remove(ordinal, length);
 
-            if (this.ContentChange != null)
-            {
-                int endOrdinal = this.NextOrdinal(ordinal);
-                this.ContentChange(ordinal, endOrdinal);
+                ordinal = this.PreviousOrdinal(ordinal);
+                if (this.OrdinalShift != null)
+                {
+                    this.OrdinalShift(this, ordinal, -length);
+                }
+
+                if (this.ContentChange != null)
+                {
+                    int endOrdinal = this.NextOrdinal(ordinal);
+                    this.ContentChange(ordinal, endOrdinal);
+                }
             }
         }
 

@@ -66,8 +66,6 @@ namespace TextCoreControl
                 this.textLayoutBuilder = new TextLayoutBuilder();
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
 
-                int changeStart, changeEnd;
-                this.UpdateVisualLinesAndCaret(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
                 if (this.visualLines.Count > 0)
                 {
                     this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height);
@@ -108,7 +106,8 @@ namespace TextCoreControl
                 hwndRenderTarget.Resize(new SizeU((uint)(renderHost.ActualWidth), (uint)(renderHost.ActualHeight)));
 
                 int changeStart, changeEnd;
-                this.UpdateVisualLinesAndCaret(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                this.UpdateCaret(this.caret.Ordinal);
             }
         }
 
@@ -211,22 +210,19 @@ namespace TextCoreControl
             }
         }
 
+        /// <summary>
+        ///     Handle all non special key strokes by adding it to the document.
+        ///     Special key strokes are handled in renderHost_PreviewKeyDown.
+        ///     Other keys are handled here, in order to give windows the oppertunity
+        ///     to translate and provide correct wParam.
+        /// </summary>
+        /// <param name="wparam"></param>
+        /// <param name="lparam"></param>
         private void KeyHandler(int wparam, int lparam)
         {
             char key = (char)wparam;
-
-            if (key == '\b')
-            {
-                if (this.caret.Ordinal > document.FirstOrdinal())
-                {
-                    document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal), 1);
-                }
-            }
-            else
-            {
-                int insertOrdinal = this.caret.Ordinal;
-                document.InsertStringAfter(insertOrdinal, key.ToString());
-            }
+            int insertOrdinal = this.caret.Ordinal;
+            document.InsertStringAfter(insertOrdinal, key.ToString());
         }
 
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -304,6 +300,7 @@ namespace TextCoreControl
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
                         }
                     }
+                    e.Handled = true;
                     break;
                 case System.Windows.Input.Key.PageDown:
                     if (this.VisualLineCount > 1)
@@ -329,6 +326,21 @@ namespace TextCoreControl
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
                         }
                     }
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Back:
+                    if (this.caret.Ordinal > document.FirstOrdinal())
+                    {
+                        document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                    }
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Delete:
+                    if (this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
+                    {
+                        document.DeleteFrom(this.caret.Ordinal, 1);
+                    }
+                    e.Handled = true;
                     break;
             }
         }
@@ -414,7 +426,8 @@ namespace TextCoreControl
 
             int changeStartIndex;
             int changeEndIndex;
-            UpdateVisualLinesAndCaret(/*visualLineStartIndex*/0,/*forceRelayout*/false, out changeStartIndex, out changeEndIndex);
+            UpdateVisualLines(/*visualLineStartIndex*/0,/*forceRelayout*/false, out changeStartIndex, out changeEndIndex);
+            this.UpdateCaret(this.caret.Ordinal);
 
             if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
             {
@@ -464,7 +477,8 @@ namespace TextCoreControl
                 this.pageBeginOrdinal = document.FirstOrdinal();
 
                 int changeStart, changeEnd;
-                this.UpdateVisualLinesAndCaret(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateCaret(endOrdinal);
 
                 this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
             }
@@ -492,7 +506,8 @@ namespace TextCoreControl
 
                 visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
                 int changeStart, changeEnd;
-                this.UpdateVisualLinesAndCaret(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateVisualLines(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateCaret(endOrdinal);
 
                 this.caret.HideCaret();
                 hwndRenderTarget.BeginDraw();
@@ -519,7 +534,7 @@ namespace TextCoreControl
             if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL) this.pageBeginOrdinal += shift;
         }
 
-        private void UpdateVisualLinesAndCaret(
+        private void UpdateVisualLines(
             int visualLineStartIndex, 
             bool forceRelayout,
             out int changeStartIndex,
@@ -618,11 +633,6 @@ namespace TextCoreControl
                         }
                     }
                 }
-            }
-
-            if (this.caret != null)
-            {
-                this.UpdateCaret(this.caret.Ordinal);
             }
         }
 

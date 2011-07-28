@@ -16,27 +16,19 @@ namespace Test
     /// Summary description for CodedUITest1
     /// </summary>
     [CodedUITest]
-    public class BasicLoadFile
+    public class BasicTyping
     {
-        public BasicLoadFile()
+        public BasicTyping()
         {
         }
 
         [TestMethod]
-        public void BasicLoadFileTest()
+        public void BasicTypingTest()
         {
             // To generate code for this test, select "Generate Code for Coded UI Test" from the shortcut menu and select one of the menu items.
             // For more information on generated code, see http://go.microsoft.com/fwlink/?LinkId=179463
-            this.UIMap.OpenSampleText();
-            this.UIMap.CaptureVerify("OpenSampleText");
-            this.UIMap.ClickAtChar2();
-            this.UIMap.CaptureVerify("ClickAtChar2");
-            this.UIMap.SelectPickups();
-            this.UIMap.CaptureVerify("SelectPickups");
-            this.UIMap.ClickAtLine5();
-            this.UIMap.CaptureVerify("ClickAtLine5");
-            this.UIMap.SelectBunchOfLines();
-            this.UIMap.CaptureVerify("SelectBunchOfLines");
+            this.UIMap.TypeASentance();
+            this.UIMap.CaptureVerify("TypeASentance");
             this.UIMap.Close();
         }
 

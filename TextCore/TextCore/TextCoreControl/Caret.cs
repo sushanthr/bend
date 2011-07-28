@@ -116,7 +116,7 @@ namespace TextCoreControl
 
         public void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
-            if (this.Ordinal >= beginOrdinal)
+            if (this.Ordinal > beginOrdinal)
             {
                 if (shift > 0)
                 {
