@@ -636,6 +636,12 @@ namespace TextCoreControl
                     }
                 }
             }
+
+#if DEBUG
+            // Verify the invariant that there are no null lines after UpdateVisualLines call.
+            for (int i = 0; i < this.visualLines.Count; i++)
+                Debug.Assert(this.visualLines[i] != null);
+#endif
         }
 
         private void UpdateCaret(int newCaretOrdinal)

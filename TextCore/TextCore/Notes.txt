@@ -1,0 +1,3 @@
+TODOS:
+
+a. Remove the concept of BEFORE BEGIN ORDINAL.
