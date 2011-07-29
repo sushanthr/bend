@@ -29,6 +29,7 @@ namespace Test
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public partial class UIMap
     {
+        
         /// <summary>
         /// OpenSampleText - Use 'OpenSampleTextParams' to pass parameters into this method.
         /// </summary>
@@ -120,7 +121,7 @@ namespace Test
         }
         
         /// <summary>
-        /// Close - Use 'CloseParams' to pass parameters into this method.
+        /// Close
         /// </summary>
         public void Close()
         {
@@ -144,7 +145,6 @@ namespace Test
             #region Variable Declarations
             WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
             WinClient uIRenderHostClient1 = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1;
-            WinWindow uIMainWindowWindow1 = this.UIMainWindowWindow1;
             #endregion
 
             // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
@@ -162,7 +162,28 @@ namespace Test
             // Type '!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!' in 'RenderHost' client
             Keyboard.SendKeys(uIRenderHostClient1, this.TypeASentanceParams.UIRenderHostClient1SendKeys2, ModifierKeys.None);
         }
+        
+        /// <summary>
+        /// BackspaceAllContent - Use 'BackspaceAllContentParams' to pass parameters into this method.
+        /// </summary>
+        public void BackspaceAllContent()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            WinClient uIRenderHostClient1 = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1;
+            #endregion
 
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(271, 2));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(168, 26));
+
+            // Type '{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient1, this.BackspaceAllContentParams.UIRenderHostClient1SendKeys, ModifierKeys.None);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -176,18 +197,6 @@ namespace Test
             }
         }
         
-        public virtual CloseParams CloseParams
-        {
-            get
-            {
-                if ((this.mCloseParams == null))
-                {
-                    this.mCloseParams = new CloseParams();
-                }
-                return this.mCloseParams;
-            }
-        }
-        
         public virtual TypeASentanceParams TypeASentanceParams
         {
             get
@@ -197,6 +206,18 @@ namespace Test
                     this.mTypeASentanceParams = new TypeASentanceParams();
                 }
                 return this.mTypeASentanceParams;
+            }
+        }
+        
+        public virtual BackspaceAllContentParams BackspaceAllContentParams
+        {
+            get
+            {
+                if ((this.mBackspaceAllContentParams == null))
+                {
+                    this.mBackspaceAllContentParams = new BackspaceAllContentParams();
+                }
+                return this.mBackspaceAllContentParams;
             }
         }
         
@@ -240,9 +261,9 @@ namespace Test
         #region Fields
         private OpenSampleTextParams mOpenSampleTextParams;
         
-        private CloseParams mCloseParams;
-        
         private TypeASentanceParams mTypeASentanceParams;
+        
+        private BackspaceAllContentParams mBackspaceAllContentParams;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -274,26 +295,6 @@ namespace Test
         /// Select 'D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
         /// </summary>
         public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\Test\\Data\\SampleText.txt";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'Close'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
-    public class CloseParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
-        /// </summary>
-        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
-        
-        /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
-        /// </summary>
-        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         #endregion
     }
     
@@ -330,6 +331,21 @@ namespace Test
         /// </summary>
         public string UIRenderHostClient1SendKeys2 = "!{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Back}n{Left}{Left}{Left}{Left}{Right}" +
             "{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Delete}!";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'BackspaceAllContent'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class BackspaceAllContentParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClient1SendKeys = @"{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!";
         #endregion
     }
     

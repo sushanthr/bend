@@ -29,6 +29,8 @@ namespace Test
             // For more information on generated code, see http://go.microsoft.com/fwlink/?LinkId=179463
             this.UIMap.TypeASentance();
             this.UIMap.CaptureVerify("TypeASentance");
+            this.UIMap.BackspaceAllContent();
+            this.UIMap.CaptureVerify("BackspaceAllContent");
             this.UIMap.Close();
         }
 

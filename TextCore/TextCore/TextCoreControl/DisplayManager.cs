@@ -488,8 +488,10 @@ namespace TextCoreControl
                 for (int i = 0; i < visualLines.Count; i++)
                 {
                     VisualLine vl = visualLines[i];
-                    if (vl.BeginOrdinal == Document.BEFOREBEGIN_ORDINAL ||
-                        vl.BeginOrdinal <= beginOrdinal && vl.NextOrdinal >= beginOrdinal)
+
+                    // Null out all lines that intersect with the change region
+                    bool lineIsOutsideChange = vl.NextOrdinal < beginOrdinal || vl.BeginOrdinal > endOrdinal;
+                    if (!lineIsOutsideChange)
                     {
                         visualLines[i] = null;
                         if (visualLineStartIndex == -1)
@@ -609,7 +611,7 @@ namespace TextCoreControl
                 }
             }
 
-            if (changeEndIndex > 0)
+            if (changeEndIndex >= 0)
             {
 
                 if (ordinal == Document.UNDEFINED_ORDINAL)
