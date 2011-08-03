@@ -126,7 +126,7 @@ namespace TextCoreControl
 
                 if (selectionGeometry != null)
                 {
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 2.0f);
+                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 3.0f);
 
                     // Clip to selection shape.
                     Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height));
@@ -140,7 +140,7 @@ namespace TextCoreControl
                     );
 
                     renderTarget.PushLayer(layerParameters, layer);
-                    
+
                     renderTarget.FillRectangle(bounds, defaultSelectionBrush);
 
                     // Draw content layer - white lines.
