@@ -57,11 +57,11 @@ namespace TextCoreControl
                 hwndRenderTarget = this.d2dFactory.CreateHwndRenderTarget(props, hwndProps);
 
                 // Default rendering options
-                defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
-                defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
+                defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultForegroundColor);
+                defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultBackgroundColor);
 
                 // defaultSelectionBrush has to be solid color and not alpha
-                defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
+                defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultSelectionColor);
 
                 this.textLayoutBuilder = new TextLayoutBuilder();
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
@@ -546,7 +546,14 @@ namespace TextCoreControl
             double y;
             if (forceRelayout)
             {
-                y = this.visualLines[0].Position.Y;
+                if (this.VisualLineCount > 0)
+                {
+                    y = this.visualLines[0].Position.Y;
+                }
+                else
+                {
+                    y = 0;
+                }
                 this.visualLines.Clear();
                 visualLineStartIndex = 0;
             }
