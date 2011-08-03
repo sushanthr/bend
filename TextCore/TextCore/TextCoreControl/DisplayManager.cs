@@ -718,6 +718,11 @@ namespace TextCoreControl
                     uint offset;
                     visualLine.HitTest(point, out offset);
                     ordinal = document.NextOrdinal(visualLine.BeginOrdinal, (uint)offset);
+                    if (ordinal == Document.UNDEFINED_ORDINAL)
+                    {
+                        // If we cannot snap to the right, try the character to the left.
+                        ordinal = document.NextOrdinal(visualLine.BeginOrdinal, (uint)offset - 1);
+                    }
                     lineIndex = i;
 
                     return true;

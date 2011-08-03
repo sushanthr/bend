@@ -31,6 +31,8 @@ namespace Test
             this.UIMap.CaptureVerify("TypeASentance");
             this.UIMap.BackspaceAllContent();
             this.UIMap.CaptureVerify("BackspaceAllContent");
+            this.UIMap.TypeAfterLineEnd();
+            this.UIMap.CaptureVerify("TypeAfterLineEnd");
             this.UIMap.Close();
         }
 

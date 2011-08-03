@@ -184,6 +184,79 @@ namespace Test
             Keyboard.SendKeys(uIRenderHostClient1, this.BackspaceAllContentParams.UIRenderHostClient1SendKeys, ModifierKeys.None);
         }
         
+        /// <summary>
+        /// TypeAfterLineEnd - Use 'TypeAfterLineEndParams' to pass parameters into this method.
+        /// </summary>
+        public void TypeAfterLineEnd()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(61, 7));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(15, 8));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(26, 7));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(45, 8));
+
+            // Move 'RenderHost' client from (51, 6) to (59, 6)
+            Mouse.StartDragging(uIRenderHostClient, new Point(51, 6));
+            Mouse.StopDragging(uIRenderHostClient, 8, 0);
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(100, 8));
+
+            // Type '{Back}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(10, 6));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(49, 12));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(26, 9));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(112, 11));
+
+            // Type '{Space}and{Space}I{Space}am{Space}able{Space}to{Space}type{Space}after{Space}the{Space}end{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys1, ModifierKeys.None);
+
+            // Type '{RShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys2, ModifierKeys.None);
+
+            // Type '!' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys3, ModifierKeys.None);
+
+            // Move 'RenderHost' client from (166, 11) to (265, 12)
+            Mouse.StartDragging(uIRenderHostClient, new Point(166, 11));
+            Mouse.StopDragging(uIRenderHostClient, 99, 1);
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(427, 17));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(424, 12));
+
+            // Type '{Space}Cool{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys4, ModifierKeys.None);
+
+            // Type '{RShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys5, ModifierKeys.None);
+
+            // Type '!' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys6, ModifierKeys.None);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -218,6 +291,18 @@ namespace Test
                     this.mBackspaceAllContentParams = new BackspaceAllContentParams();
                 }
                 return this.mBackspaceAllContentParams;
+            }
+        }
+        
+        public virtual TypeAfterLineEndParams TypeAfterLineEndParams
+        {
+            get
+            {
+                if ((this.mTypeAfterLineEndParams == null))
+                {
+                    this.mTypeAfterLineEndParams = new TypeAfterLineEndParams();
+                }
+                return this.mTypeAfterLineEndParams;
             }
         }
         
@@ -264,6 +349,8 @@ namespace Test
         private TypeASentanceParams mTypeASentanceParams;
         
         private BackspaceAllContentParams mBackspaceAllContentParams;
+        
+        private TypeAfterLineEndParams mTypeAfterLineEndParams;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -346,6 +433,52 @@ namespace Test
         /// Type '{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!' in 'RenderHost' client
         /// </summary>
         public string UIRenderHostClient1SendKeys = @"{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'TypeAfterLineEnd'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class TypeAfterLineEndParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Back}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Back}";
+        
+        /// <summary>
+        /// Type '{Space}and{Space}I{Space}am{Space}able{Space}to{Space}type{Space}after{Space}the{Space}end{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "{Space}and{Space}I{Space}am{Space}able{Space}to{Space}type{Space}after{Space}the{" +
+            "Space}end{Space}";
+        
+        /// <summary>
+        /// Type '{RShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "{RShiftKey}";
+        
+        /// <summary>
+        /// Type '!' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "!";
+        
+        /// <summary>
+        /// Type '{Space}Cool{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "{Space}Cool{Space}";
+        
+        /// <summary>
+        /// Type '{RShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "{RShiftKey}";
+        
+        /// <summary>
+        /// Type '!' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "!";
         #endregion
     }
     

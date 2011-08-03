@@ -59,6 +59,7 @@ namespace TextCoreControl
             SetCaretPos(xPos, yPos);
  
             this.ordinal = ordinal;
+            System.Diagnostics.Debug.Assert(this.ordinal >= 0 && this.ordinal < Document.UNDEFINED_ORDINAL);
         }
 
         public enum CaretStep
