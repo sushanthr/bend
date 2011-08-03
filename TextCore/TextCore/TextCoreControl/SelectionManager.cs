@@ -10,9 +10,9 @@ namespace TextCoreControl
     {
         public SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
-            defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
+            defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.defaultBackgroundColor);
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
-            defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 0.5f));
+            defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.3686f, 0.447f, 0.6f, 1.0f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
         }
@@ -67,7 +67,7 @@ namespace TextCoreControl
                 for (int k = 0; k < visualLines.Count; k++)
                 {
                     VisualLine visualLine = (VisualLine)visualLines[k];
-   
+
                     bool currentSelection = (visualLine.BeginOrdinal <= selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
                         (visualLine.BeginOrdinal >= selectionBeginOrdinal && visualLine.BeginOrdinal <= selectionEndOrdinal);
                     currentSelection = currentSelection && selectionBeginOrdinal != selectionEndOrdinal;
@@ -126,9 +126,8 @@ namespace TextCoreControl
 
                 if (selectionGeometry != null)
                 {
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 3.0f);
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionBrush, 2.0f);
-                    
+                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 2.0f);
+
                     // Clip to selection shape.
                     Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height));
                     LayerParameters layerParameters = new LayerParameters(bounds,

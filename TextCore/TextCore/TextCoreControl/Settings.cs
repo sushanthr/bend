@@ -13,11 +13,11 @@ namespace TextCoreControl
         {
             // Create the DWrite Factory
             Settings.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
-            Settings.defaultTextFormat = dwriteFactory.CreateTextFormat("Consolas", 14);
+            Settings.defaultTextFormat = dwriteFactory.CreateTextFormat("Consolas", 14, FontWeight.Regular, FontStyle.Normal, FontStretch.Normal);
             Settings.autoWrap = true;
 
             Settings.defaultForegroundColor = new ColorF(0, 0, 0, 1);
-            Settings.defaultBackgroundColor = new ColorF(1, 1, 1, 1);
+            Settings.defaultBackgroundColor = new ColorF(0.96f, 0.96f, 0.96f);
             Settings.defaultSelectionColor = new ColorF(0.414f, 0.484f, 0.625f, 1.0f);
         }
 

@@ -34,14 +34,14 @@ namespace TextCoreControl
 
         public void Draw(RenderTarget renderTarget)
         {
-            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 1));
-            renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush);
+            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.defaultForegroundColor);
+            renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
         }
 
         public void DrawWhite(RenderTarget renderTarget)
         {
             SolidColorBrush whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
-            renderTarget.DrawTextLayout(this.position, this.textLayout, whiteBrush);
+            renderTarget.DrawTextLayout(this.position, this.textLayout, whiteBrush, DrawTextOptions.NoSnap);
         }
 
         public void HitTest(Point2F position, out uint offset)
