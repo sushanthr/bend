@@ -145,11 +145,12 @@ namespace TextCoreControl
                                 this.vScrollBar.ViewportSize = double.MaxValue;
                             }
 
-                            if (firstLineIndex > this.vScrollBar.Minimum && firstLineIndex < this.vScrollBar.Maximum)
+                            if (firstLineIndex >= this.vScrollBar.Minimum && firstLineIndex <= this.vScrollBar.Maximum)
                             {
-                                double oldScrollPosition = this.vScrollBar.Value;
-                                this.vScrollBar.Value = firstLineIndex;
-                                this.displayManager.AdjustVScrollPositionForResize(oldScrollPosition, firstLineIndex);
+                                int oldScrollPosition = (int)Math.Floor(this.vScrollBar.Value);
+                                int delta = firstLineIndex - oldScrollPosition;
+                                this.vScrollBar.Value = (this.vScrollBar.Value + delta);
+                                this.displayManager.AdjustVScrollPositionForResize(delta, this.vScrollBar.Value);
                             }
                         }
                     )

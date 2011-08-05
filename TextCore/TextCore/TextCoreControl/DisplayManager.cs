@@ -377,27 +377,44 @@ namespace TextCoreControl
         public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             int initialLineCount = this.VisualLineCount;
-
             scrollOffset.Height = (float)e.NewValue * visualLines[0].Height;
+            float pageBottom = scrollOffset.Height + (float)renderHost.ActualHeight;
 
-            if (this.scrollOffset.Height < this.visualLines[0].Position.Y)
+            // add lines coming in at the top.
+            int nextOrdinalBck = this.pageBeginOrdinal;
+            double yBottom = this.pageTop;
+
+            while (yBottom > scrollOffset.Height && nextOrdinalBck > Document.BEFOREBEGIN_ORDINAL)
             {
-                // add lines coming in at the top.
-                int nextOrdinal = this.visualLines[0].BeginOrdinal;
-                double yBottom = this.visualLines[0].Position.Y;
-
-                while (yBottom > scrollOffset.Height)
+                VisualLine vl = this.textLayoutBuilder.GetPreviousLine(this.document, nextOrdinalBck, (float)renderHost.ActualWidth, out nextOrdinalBck);
+                yBottom -= vl.Height;
+                vl.Position = new Point2F(0, (float)yBottom);
+                if (yBottom <= pageBottom)
                 {
-                    VisualLine vl = this.textLayoutBuilder.GetPreviousLine(this.document, nextOrdinal, (float)renderHost.ActualWidth, out nextOrdinal);
-                    yBottom -= vl.Height;
-                    vl.Position = new Point2F(0, (float)yBottom);
                     this.visualLines.Insert(0, vl);
                 }
             }
 
-            // Initialize to after the last line, incase we end up deleting all lines.
-            this.pageBeginOrdinal = this.visualLines[this.VisualLineCount - 1].NextOrdinal;
-            this.pageTop = this.visualLines[this.VisualLineCount - 1].Position.Y;
+            // add lines coming in at the bottom.
+            int nextOrdinalFwd = this.pageBeginOrdinal;
+            double yTop = this.pageTop;
+            if (this.VisualLineCount > 0)
+            {
+                int lastLine = this.VisualLineCount - 1;
+                nextOrdinalFwd = this.visualLines[lastLine].NextOrdinal;
+                yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
+            }
+
+            while (yTop < pageBottom && nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
+            {
+                VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, (float)renderHost.ActualWidth, out nextOrdinalFwd);
+                vl.Position = new Point2F(0, (float)yTop);
+                if (yTop >= scrollOffset.Height)
+                {
+                    this.visualLines.Add(vl);
+                }
+                yTop += vl.Height;
+            }
 
             // Remove lines going offscreen
             for (int j = 0; j < visualLines.Count; j++)
@@ -426,9 +443,7 @@ namespace TextCoreControl
                 this.pageTop = this.visualLines[0].Position.Y;
             }
 
-            int changeStartIndex;
-            int changeEndIndex;
-            UpdateVisualLines(/*visualLineStartIndex*/0,/*forceRelayout*/false, out changeStartIndex, out changeEndIndex);
+            // Update caret
             this.UpdateCaret(this.caret.Ordinal);
 
             if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
@@ -444,28 +459,33 @@ namespace TextCoreControl
             this.Render();
             this.caret.ShowCaret();
 
+#if DEBUG
             if (this.visualLines[this.VisualLineCount - 1].NextOrdinal != Document.UNDEFINED_ORDINAL)
             {
                 // not the last page
-                Debug.Assert(Math.Abs(initialLineCount - this.VisualLineCount) <= 1);
+                Debug.Assert(Math.Abs(initialLineCount - this.VisualLineCount) <= 2);
             }
+#endif
         }
 
-        public void AdjustVScrollPositionForResize(double oldPosition, int newFirstLineIndex)
+        /// <summary>
+        ///     Adjusts for new lines being added / removed above the current first visual line
+        /// </summary>
+        /// <param name="delta">Number of lines added</param>
+        /// <param name="newScrollOffset">Resulting new scroll offset</param>
+        public void AdjustVScrollPositionForResize(int delta, double newScrollOffset)
         {
-            if ((int)oldPosition != newFirstLineIndex)
+            if (delta != 0 && this.VisualLineCount > 0)
             {
-                double yTop = (int)newFirstLineIndex * visualLines[0].Height;
+                float deltaHeight = this.visualLines[0].Height * delta;
                 for (int i = 0; i < this.visualLines.Count; i++)
                 {
                     Point2F position = visualLines[i].Position;
-                    position.Y = (float)yTop;
+                    position.Y = position.Y + deltaHeight;
                     visualLines[i].Position = position;
-                    yTop += visualLines[i].Height;
                 }
             }
-
-            this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newFirstLineIndex));
+            this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
         }
         #endregion
 

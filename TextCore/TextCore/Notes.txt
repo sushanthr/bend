@@ -1,1 +1,4 @@
 TODOS:
+AdjustVScrollOffsetForResize needs to be fixed.
+DRT for scrolling
+DRT for caret dance.
