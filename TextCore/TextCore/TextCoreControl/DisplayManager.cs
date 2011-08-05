@@ -397,6 +397,7 @@ namespace TextCoreControl
 
             // Initialize to after the last line, incase we end up deleting all lines.
             this.pageBeginOrdinal = this.visualLines[this.VisualLineCount - 1].NextOrdinal;
+            this.pageTop = this.visualLines[this.VisualLineCount - 1].Position.Y;
 
             // Remove lines going offscreen
             for (int j = 0; j < visualLines.Count; j++)
@@ -422,6 +423,7 @@ namespace TextCoreControl
             if (this.VisualLineCount > 0)
             {
                 this.pageBeginOrdinal = this.visualLines[0].BeginOrdinal;
+                this.pageTop = this.visualLines[0].Position.Y;
             }
 
             int changeStartIndex;
@@ -475,6 +477,7 @@ namespace TextCoreControl
             {
                 // Full reset, most likely a new file was loaded.
                 this.pageBeginOrdinal = document.FirstOrdinal();
+                this.pageTop = 0;
 
                 int changeStart, changeEnd;
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
@@ -504,6 +507,7 @@ namespace TextCoreControl
                 if (this.pageBeginOrdinal == Document.BEFOREBEGIN_ORDINAL)
                 {
                     this.pageBeginOrdinal = this.document.FirstOrdinal();
+                    this.pageTop = 0;
                 }
 
                 visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
@@ -543,17 +547,9 @@ namespace TextCoreControl
             out int changeEndIndex)
         {
             int ordinal = this.pageBeginOrdinal;
-            double y;
+            double y = this.pageTop;
             if (forceRelayout)
             {
-                if (this.VisualLineCount > 0)
-                {
-                    y = this.visualLines[0].Position.Y;
-                }
-                else
-                {
-                    y = 0;
-                }
                 this.visualLines.Clear();
                 visualLineStartIndex = 0;
             }
@@ -567,7 +563,6 @@ namespace TextCoreControl
                 else
                 {
                     visualLineStartIndex = 0;
-                    y = 0;
                 }
             }
 
@@ -894,6 +889,7 @@ namespace TextCoreControl
         ScrollBoundsManager          scrollBoundsManager;
 
         int                          pageBeginOrdinal;
+        double                       pageTop;
         List<VisualLine>             visualLines;
         #endregion
     }
