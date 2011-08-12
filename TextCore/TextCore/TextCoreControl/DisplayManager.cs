@@ -32,6 +32,7 @@ namespace TextCoreControl
 
             scrollOffset = new SizeF();
             this.d2dFactory = D2DFactory.CreateFactory();
+            this.textLayoutBuilder = new TextLayoutBuilder();
 
             this.scrollBoundsManager = new ScrollBoundsManager(vScrollBar, hScrollBar, this, renderHost, this.document);
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
@@ -63,7 +64,6 @@ namespace TextCoreControl
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultSelectionColor);
 
-                this.textLayoutBuilder = new TextLayoutBuilder();
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
 
                 if (this.visualLines.Count > 0)
@@ -377,7 +377,7 @@ namespace TextCoreControl
         public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             int initialLineCount = this.VisualLineCount;
-            scrollOffset.Height = (float)e.NewValue * visualLines[0].Height;
+            scrollOffset.Height = (float)e.NewValue * this.LineHeight;
             float pageBottom = scrollOffset.Height + (float)renderHost.ActualHeight;
 
             // add lines coming in at the top.
@@ -429,7 +429,7 @@ namespace TextCoreControl
                 }
 
                 float lineBottom = vl.Position.Y + vl.Height - scrollOffset.Height;
-                if (lineBottom < 0)
+                if (lineBottom <= 0)
                 {
                     visualLines.RemoveAt(j);
                     j--;
@@ -460,11 +460,8 @@ namespace TextCoreControl
             this.caret.ShowCaret();
 
 #if DEBUG
-            if (this.visualLines[this.VisualLineCount - 1].NextOrdinal != Document.UNDEFINED_ORDINAL)
-            {
-                // not the last page
-                Debug.Assert(Math.Abs(initialLineCount - this.VisualLineCount) <= 2);
-            }
+    // Give a lee way of 2 lines
+    Debug.Assert(this.VisualLineCount < ((this.renderHost.ActualHeight / this.LineHeight) + 2));
 #endif
         }
 
@@ -473,18 +470,11 @@ namespace TextCoreControl
         /// </summary>
         /// <param name="delta">Number of lines added</param>
         /// <param name="newScrollOffset">Resulting new scroll offset</param>
-        public void AdjustVScrollPositionForResize(int delta, double newScrollOffset)
+        public void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop, double newScrollOffset)
         {
-            if (delta != 0 && this.VisualLineCount > 0)
-            {
-                float deltaHeight = this.visualLines[0].Height * delta;
-                for (int i = 0; i < this.visualLines.Count; i++)
-                {
-                    Point2F position = visualLines[i].Position;
-                    position.Y = position.Y + deltaHeight;
-                    visualLines[i].Position = position;
-                }
-            }
+            this.visualLines.RemoveRange(0, this.VisualLineCount);
+            this.pageTop = newPageTop;
+            this.pageBeginOrdinal = newPageBeginOrdinal;
             this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
         }
         #endregion
@@ -860,37 +850,31 @@ namespace TextCoreControl
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
         }
 
-        public int PageBeginOrdinal
+        public float LineHeight 
         {
             get
             {
-                if (this.visualLines == null || this.visualLines.Count == 0)
+                float lineHeight;
+                if (this.VisualLineCount > 0)
                 {
-                    return this.document.FirstOrdinal();
+                    lineHeight = this.visualLines[0].Height;
                 }
                 else
                 {
-                    return this.visualLines[0].BeginOrdinal;
+                    lineHeight = textLayoutBuilder.AverageLineHeight();
                 }
+                return lineHeight;
             }
         }
 
-        private int MaxLinesPerPage()
+        public int MaxLinesPerPage()
         {
             // Returns an estimate of how many lines can fix at the max
             // for the current font size and render hsot size on this page.
-            float lineHeight;
-            if (this.VisualLineCount > 0)
-            {
-                lineHeight = this.visualLines[0].Height;
-            }
-            else
-            {
-                lineHeight = Settings.defaultTextFormat.FontSize;
-            }
-
-            return (int)(this.renderHost.ActualHeight / lineHeight);
+            return (int) (this.renderHost.ActualHeight / this.LineHeight);
         }
+
+        public int PageBeginOrdinal { get { return this.pageBeginOrdinal; } }
 
         #endregion
 

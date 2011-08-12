@@ -96,6 +96,12 @@ namespace TextCoreControl
             return textLine;
         }
 
+        internal float AverageLineHeight()
+        {
+            VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL);
+            return textLine.Height;
+        }
+
         private GlyphTable glyphTable;
         private readonly DWriteFactory dwriteFactory;
     }

@@ -24,7 +24,6 @@ namespace TextCoreControl
             this.asyncScrollLengthEstimater = null;
             this.document = document;
             renderHost.SizeChanged += new System.Windows.SizeChangedEventHandler(renderHost_SizeChanged);
-            this.dwriteFactory = DWriteFactory.CreateFactory();
             this.displayManager = displayManager;
         }
 
@@ -45,8 +44,8 @@ namespace TextCoreControl
         #region Vertical scroll bounds estimation
         public void InitializeVerticalScrollBounds(float width)
         {
-            GlyphTable glyphTable = new GlyphTable(Settings.defaultTextFormat);
-            object[] paramaterArray = { this.document, glyphTable, this, width, this.displayManager.PageBeginOrdinal};
+            TextLayoutBuilder textLayoutBuilder = new TextLayoutBuilder();
+            object[] paramaterArray = { this.document, textLayoutBuilder, this, width, this.displayManager.PageBeginOrdinal};
 
             if (asyncScrollLengthEstimater != null)
             {
@@ -60,69 +59,43 @@ namespace TextCoreControl
         {
             object[] paramaterArray = (object[])paramaterArrayIn;
             Document document = (Document)paramaterArray[0];
-            GlyphTable glyphTable = (GlyphTable)paramaterArray[1];
-            ScrollBoundsManager scrollManager = (ScrollBoundsManager)paramaterArray[2];
+            TextLayoutBuilder textLayoutBuilder = (TextLayoutBuilder)paramaterArray[1];
+            ScrollBoundsManager scrollBoundsManager = (ScrollBoundsManager)paramaterArray[2];
             float layoutWidth = (float)paramaterArray[3];
             int pageBeginOrdinal = (int)paramaterArray[4];
 
             int ordinal = document.FirstOrdinal();
             int lineCount = 0;
-            float lineWidth = 0;
             int firstLineIndex = -1;
+            int newPageBeginOrdinal = 0;
+            double newPageTop = 0;
+
             while (ordinal != Document.UNDEFINED_ORDINAL)
             {
-                bool lineEnds = false;
-
-                char letter = document.CharacterAt(ordinal);
-                if (letter == '\n' || letter == '\v')
+                VisualLine vl = textLayoutBuilder.GetNextLine(document, ordinal, layoutWidth, out ordinal);
+                if (firstLineIndex == -1)
                 {
-                    ordinal = document.NextOrdinal(ordinal);
-                    lineEnds = true;
-                }
-                else if (letter == '\r')
-                {
-                    int tempNextOrdinal = document.NextOrdinal(ordinal);
-                    if (document.CharacterAt(tempNextOrdinal) != '\n' || document.NextOrdinal(tempNextOrdinal) == Document.UNDEFINED_ORDINAL)
+                    if (vl.NextOrdinal > pageBeginOrdinal)
                     {
-                        // The file terminating \n gets its own line.
-                        ordinal = tempNextOrdinal;
-                        lineEnds = true;
-                    }
-                }
-
-                if (!lineEnds && Settings.autoWrap)
-                {
-                    lineWidth += glyphTable.GetCharacterWidth(letter);
-                    if (lineWidth > layoutWidth)
-                    {
-                        lineEnds = true;
-                        ordinal = document.NextOrdinal(ordinal);
-                    }
-                }
-
-                if (lineEnds)
-                {
-                    if (firstLineIndex == -1 && ordinal > pageBeginOrdinal)
-                    {
+                        // page begin has been passed
+                        newPageBeginOrdinal = vl.BeginOrdinal;
                         firstLineIndex = lineCount;
                     }
-
-                    lineCount++;
-                    lineWidth = 0;
+                    else
+                    {
+                        newPageTop += vl.Height;
+                    }
                 }
-                else
-                {
-                    ordinal = document.NextOrdinal(ordinal);
-                }
+                lineCount++;
             }
 
-            scrollManager.InitializeVerticalScrollBounds(lineCount, firstLineIndex);
+            scrollBoundsManager.InitializeVerticalScrollBounds(lineCount, newPageBeginOrdinal, newPageTop, firstLineIndex);
         }
 
-        private void InitializeVerticalScrollBounds(int totalLineCount, int firstLineIndex)
+        private void InitializeVerticalScrollBounds(int totalLineCount, int pageBeginOrdinal, double pageTop, double scrollOffset)
         {
-            int visualLineCount = displayManager.VisualLineCount;
-            if (visualLineCount < totalLineCount && visualLineCount != 0)
+            int maxLinesPerPage = displayManager.MaxLinesPerPage();
+            if (maxLinesPerPage < totalLineCount && maxLinesPerPage != 0)
             {
                 // Need to show scrollbars
                 this.vScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
@@ -132,26 +105,21 @@ namespace TextCoreControl
                         {
                             this.vScrollBar.IsEnabled = true;
                             this.vScrollBar.Minimum = 0;
-                            this.vScrollBar.Maximum = totalLineCount - visualLineCount;
+                            this.vScrollBar.Maximum = totalLineCount - maxLinesPerPage;
                             this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
 
                             // Guesstimate the thumb hieght
-                            if (visualLineCount < totalLineCount)
+                            if (maxLinesPerPage < totalLineCount)
                             {
-                                this.vScrollBar.ViewportSize = totalLineCount * visualLineCount / (totalLineCount - visualLineCount);
+                                this.vScrollBar.ViewportSize = totalLineCount * maxLinesPerPage / (totalLineCount - maxLinesPerPage);
                             }
                             else
                             {
                                 this.vScrollBar.ViewportSize = double.MaxValue;
                             }
 
-                            if (firstLineIndex >= this.vScrollBar.Minimum && firstLineIndex <= this.vScrollBar.Maximum)
-                            {
-                                int oldScrollPosition = (int)Math.Floor(this.vScrollBar.Value);
-                                int delta = firstLineIndex - oldScrollPosition;
-                                this.vScrollBar.Value = (this.vScrollBar.Value + delta);
-                                this.displayManager.AdjustVScrollPositionForResize(delta, this.vScrollBar.Value);
-                            }
+                            this.vScrollBar.Value = scrollOffset;
+                            this.displayManager.AdjustVScrollPositionForResize(pageBeginOrdinal, pageTop, scrollOffset);
                         }
                     )
                 );
@@ -251,8 +219,6 @@ namespace TextCoreControl
         Thread asyncScrollLengthEstimater;
         Document document;
         DisplayManager displayManager;
-
-        DWriteFactory dwriteFactory;
         #endregion
     }
 }
