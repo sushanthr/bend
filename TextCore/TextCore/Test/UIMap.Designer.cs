@@ -257,6 +257,50 @@ namespace Test
             Keyboard.SendKeys(uIRenderHostClient, this.TypeAfterLineEndParams.UIRenderHostClientSendKeys6, ModifierKeys.None);
         }
         
+        /// <summary>
+        /// LaunchTextCoreDemo - Use 'LaunchTextCoreDemoParams' to pass parameters into this method.
+        /// </summary>
+        public void LaunchTextCoreDemo()
+        {
+
+            // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+            ApplicationUnderTest textCoreApplication = ApplicationUnderTest.Launch(this.LaunchTextCoreDemoParams.ExePath, this.LaunchTextCoreDemoParams.AlternateExePath);
+        }
+        
+        /// <summary>
+        /// OpenSample2XML - Use 'OpenSample2XMLParams' to pass parameters into this method.
+        /// </summary>
+        public void OpenSample2XML()
+        {
+            #region Variable Declarations
+            WpfButton uILoadButton = this.UIMainWindowWindow.UILoadButton;
+            WinComboBox uIFilenameComboBox = this.UIOpenWindow.UIItemWindow.UIFilenameComboBox;
+            WinEdit uIFilenameEdit = this.UIOpenWindow.UIItemWindow1.UIFilenameEdit;
+            #endregion
+
+            // Click 'load' button
+            Mouse.Click(uILoadButton, new Point(29, 10));
+
+            // Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
+            uIFilenameComboBox.EditableItem = this.OpenSample2XMLParams.UIFilenameComboBoxEditableItem;
+
+            // Type '{Enter}' in 'File name:' text box
+            Keyboard.SendKeys(uIFilenameEdit, this.OpenSample2XMLParams.UIFilenameEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// AssertVScrollBarExists - Use 'AssertVScrollBarExistsExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertVScrollBarExists()
+        {
+            #region Variable Declarations
+            WpfScrollBar uIVScrollBarScrollBar = this.UIMainWindowWindow.UITextEditorCustom.UIVScrollBarScrollBar;
+            #endregion
+
+            // Verify that 'vScrollBar' scroll bar's property 'Enabled' equals 'True'
+            Assert.AreEqual(this.AssertVScrollBarExistsExpectedValues.UIVScrollBarScrollBarEnabled, uIVScrollBarScrollBar.Enabled);
+        }
+
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -306,6 +350,42 @@ namespace Test
             }
         }
         
+        public virtual LaunchTextCoreDemoParams LaunchTextCoreDemoParams
+        {
+            get
+            {
+                if ((this.mLaunchTextCoreDemoParams == null))
+                {
+                    this.mLaunchTextCoreDemoParams = new LaunchTextCoreDemoParams();
+                }
+                return this.mLaunchTextCoreDemoParams;
+            }
+        }
+        
+        public virtual OpenSample2XMLParams OpenSample2XMLParams
+        {
+            get
+            {
+                if ((this.mOpenSample2XMLParams == null))
+                {
+                    this.mOpenSample2XMLParams = new OpenSample2XMLParams();
+                }
+                return this.mOpenSample2XMLParams;
+            }
+        }
+        
+        public virtual AssertVScrollBarExistsExpectedValues AssertVScrollBarExistsExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertVScrollBarExistsExpectedValues == null))
+                {
+                    this.mAssertVScrollBarExistsExpectedValues = new AssertVScrollBarExistsExpectedValues();
+                }
+                return this.mAssertVScrollBarExistsExpectedValues;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -351,6 +431,12 @@ namespace Test
         private BackspaceAllContentParams mBackspaceAllContentParams;
         
         private TypeAfterLineEndParams mTypeAfterLineEndParams;
+        
+        private LaunchTextCoreDemoParams mLaunchTextCoreDemoParams;
+        
+        private OpenSample2XMLParams mOpenSample2XMLParams;
+        
+        private AssertVScrollBarExistsExpectedValues mAssertVScrollBarExistsExpectedValues;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -482,6 +568,61 @@ namespace Test
         #endregion
     }
     
+    /// <summary>
+    /// Parameters to be passed into 'LaunchTextCoreDemo'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class LaunchTextCoreDemoParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string ExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        
+        /// <summary>
+        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// </summary>
+        public string AlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'OpenSample2XML'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class OpenSample2XMLParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
+        /// </summary>
+        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\test\\data\\Sample2.xml";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'File name:' text box
+        /// </summary>
+        public string UIFilenameEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertVScrollBarExists'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class AssertVScrollBarExistsExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that 'vScrollBar' scroll bar's property 'Enabled' equals 'True'
+        /// </summary>
+        public bool UIVScrollBarScrollBarEnabled = true;
+        #endregion
+    }
+    
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public class UIMainWindowWindow : WpfWindow
     {
@@ -523,12 +664,44 @@ namespace Test
                 return this.mUILoadButton;
             }
         }
+        
+        public UITextEditorCustom UITextEditorCustom
+        {
+            get
+            {
+                if ((this.mUITextEditorCustom == null))
+                {
+                    this.mUITextEditorCustom = new UITextEditorCustom(this);
+                }
+                return this.mUITextEditorCustom;
+            }
+        }
+        
+        public WpfEdit UIFilePathEdit
+        {
+            get
+            {
+                if ((this.mUIFilePathEdit == null))
+                {
+                    this.mUIFilePathEdit = new WpfEdit(this);
+                    #region Search Criteria
+                    this.mUIFilePathEdit.SearchProperties[WpfEdit.PropertyNames.AutomationId] = "FilePath";
+                    this.mUIFilePathEdit.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIFilePathEdit;
+            }
+        }
         #endregion
         
         #region Fields
         private UIMainWindowTitleBar mUIMainWindowTitleBar;
         
         private WpfButton mUILoadButton;
+        
+        private UITextEditorCustom mUITextEditorCustom;
+        
+        private WpfEdit mUIFilePathEdit;
         #endregion
     }
     
@@ -565,6 +738,147 @@ namespace Test
         
         #region Fields
         private WpfButton mUICloseButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UITextEditorCustom : WpfCustom
+    {
+        
+        public UITextEditorCustom(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[UITestControl.PropertyNames.ClassName] = "Uia.TextControlUserControl";
+            this.SearchProperties["AutomationId"] = "TextEditor";
+            this.WindowTitles.Add("MainWindow");
+            #endregion
+        }
+        
+        #region Properties
+        public UIVScrollBarScrollBar UIVScrollBarScrollBar
+        {
+            get
+            {
+                if ((this.mUIVScrollBarScrollBar == null))
+                {
+                    this.mUIVScrollBarScrollBar = new UIVScrollBarScrollBar(this);
+                }
+                return this.mUIVScrollBarScrollBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIVScrollBarScrollBar mUIVScrollBarScrollBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UIVScrollBarScrollBar : WpfScrollBar
+    {
+        
+        public UIVScrollBarScrollBar(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WpfScrollBar.PropertyNames.AutomationId] = "vScrollBar";
+            this.WindowTitles.Add("MainWindow");
+            #endregion
+        }
+        
+        #region Properties
+        public WpfButton UIPageDownButton
+        {
+            get
+            {
+                if ((this.mUIPageDownButton == null))
+                {
+                    this.mUIPageDownButton = new WpfButton(this);
+                    #region Search Criteria
+                    this.mUIPageDownButton.SearchProperties[WpfButton.PropertyNames.AutomationId] = "PageDown";
+                    this.mUIPageDownButton.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIPageDownButton;
+            }
+        }
+        
+        public WpfButton UILineUpButton
+        {
+            get
+            {
+                if ((this.mUILineUpButton == null))
+                {
+                    this.mUILineUpButton = new WpfButton(this);
+                    #region Search Criteria
+                    this.mUILineUpButton.SearchProperties[WpfButton.PropertyNames.AutomationId] = "LineUp";
+                    this.mUILineUpButton.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUILineUpButton;
+            }
+        }
+        
+        public WpfButton UILineDownButton
+        {
+            get
+            {
+                if ((this.mUILineDownButton == null))
+                {
+                    this.mUILineDownButton = new WpfButton(this);
+                    #region Search Criteria
+                    this.mUILineDownButton.SearchProperties[WpfButton.PropertyNames.AutomationId] = "LineDown";
+                    this.mUILineDownButton.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUILineDownButton;
+            }
+        }
+        
+        public WpfControl UIItemIndicator
+        {
+            get
+            {
+                if ((this.mUIItemIndicator == null))
+                {
+                    this.mUIItemIndicator = new WpfControl(this);
+                    #region Search Criteria
+                    this.mUIItemIndicator.SearchProperties[UITestControl.PropertyNames.ControlType] = "Indicator";
+                    this.mUIItemIndicator.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIItemIndicator;
+            }
+        }
+        
+        public WpfButton UIPageUpButton
+        {
+            get
+            {
+                if ((this.mUIPageUpButton == null))
+                {
+                    this.mUIPageUpButton = new WpfButton(this);
+                    #region Search Criteria
+                    this.mUIPageUpButton.SearchProperties[WpfButton.PropertyNames.AutomationId] = "PageUp";
+                    this.mUIPageUpButton.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIPageUpButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WpfButton mUIPageDownButton;
+        
+        private WpfButton mUILineUpButton;
+        
+        private WpfButton mUILineDownButton;
+        
+        private WpfControl mUIItemIndicator;
+        
+        private WpfButton mUIPageUpButton;
         #endregion
     }
     
@@ -622,6 +936,18 @@ namespace Test
                 return this.mUIOpenWindow1;
             }
         }
+        
+        public UIItemWindow1 UIItemWindow1
+        {
+            get
+            {
+                if ((this.mUIItemWindow1 == null))
+                {
+                    this.mUIItemWindow1 = new UIItemWindow1(this);
+                }
+                return this.mUIItemWindow1;
+            }
+        }
         #endregion
         
         #region Fields
@@ -630,6 +956,8 @@ namespace Test
         private WinControl mUIOpenDialog;
         
         private UIOpenWindow1 mUIOpenWindow1;
+        
+        private UIItemWindow1 mUIItemWindow1;
         #endregion
     }
     
@@ -703,6 +1031,43 @@ namespace Test
         
         #region Fields
         private WinButton mUIOpenButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UIItemWindow1 : WinWindow
+    {
+        
+        public UIItemWindow1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "1148";
+            this.SearchProperties[WinWindow.PropertyNames.Instance] = "3";
+            this.WindowTitles.Add("Open");
+            #endregion
+        }
+        
+        #region Properties
+        public WinEdit UIFilenameEdit
+        {
+            get
+            {
+                if ((this.mUIFilenameEdit == null))
+                {
+                    this.mUIFilenameEdit = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUIFilenameEdit.SearchProperties[WinEdit.PropertyNames.Name] = "File name:";
+                    this.mUIFilenameEdit.WindowTitles.Add("Open");
+                    #endregion
+                }
+                return this.mUIFilenameEdit;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinEdit mUIFilenameEdit;
         #endregion
     }
     
