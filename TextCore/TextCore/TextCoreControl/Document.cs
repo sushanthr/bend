@@ -12,12 +12,14 @@ namespace TextCoreControl
 
         public Document()
         {
-            this.fileContents = "\n";
+            this.fileContents = "\0";
         }
 
         public void LoadFile(string fullFilePath)
         {
             fileContents = System.IO.File.OpenText(fullFilePath).ReadToEnd();
+            fileContents += "\0";
+
             if (this.ContentChange != null)
             {
                 this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL);

@@ -1,4 +1,16 @@
 TODOS:
-AdjustVScrollOffsetForResize needs to be fixed.
-DRT for scrolling
-DRT for caret dance.
+Save File
+Open File - In place (Verify)
+Open File - In place DRT
+
+Undo Redo
+Copy Paste
+Mouse Wheel
+Scrollbounds due to editing
+Backwards line generation or GetPreviousLine
+
+
+Refinement
+Caret during scrolling
+Clicking inside selection
+Selection shape refinement

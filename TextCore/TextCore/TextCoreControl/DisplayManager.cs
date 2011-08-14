@@ -277,6 +277,47 @@ namespace TextCoreControl
                     this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineDown);
                     e.Handled = true;
                     break;
+                case System.Windows.Input.Key.End:
+                    {
+                        int lineIndex;
+                        int ordinal;
+                        Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
+                        if (this.HitTest(caretPosition, out ordinal, out lineIndex))
+                        {
+                            VisualLine vl = this.visualLines[lineIndex];
+                            int newCaretOrdinal = this.document.PreviousOrdinal(vl.NextOrdinal);
+                            if (newCaretOrdinal == Document.UNDEFINED_ORDINAL)
+                            {
+                                int tempOrdinal = vl.BeginOrdinal;
+                                while (tempOrdinal != Document.UNDEFINED_ORDINAL)
+                                {
+                                    newCaretOrdinal = tempOrdinal;
+                                    tempOrdinal = document.NextOrdinal(tempOrdinal);
+                                }
+                            }
+
+                            if (newCaretOrdinal >= vl.BeginOrdinal)
+                            {
+                                this.caret.MoveCaretToLine(vl, this.document, this.scrollOffset, newCaretOrdinal);
+                            }
+                        }
+                    }
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Home:
+                    {
+                        int lineIndex;
+                        int ordinal;
+                        Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
+                        if (this.HitTest(caretPosition, out ordinal, out lineIndex))
+                        {
+                            VisualLine vl = this.visualLines[lineIndex];
+                            int newCaretOrdinal = vl.BeginOrdinal;
+                            this.caret.MoveCaretToLine(vl, this.document, this.scrollOffset, newCaretOrdinal);
+                        }
+                    }
+                    e.Handled = true;
+                    break;
                 case System.Windows.Input.Key.PageUp:
                     if (this.VisualLineCount > 1)
                     {

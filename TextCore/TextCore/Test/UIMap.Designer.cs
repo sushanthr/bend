@@ -275,7 +275,9 @@ namespace Test
             #region Variable Declarations
             WpfButton uILoadButton = this.UIMainWindowWindow.UILoadButton;
             WinComboBox uIFilenameComboBox = this.UIOpenWindow.UIItemWindow.UIFilenameComboBox;
-            WinEdit uIFilenameEdit = this.UIOpenWindow.UIItemWindow1.UIFilenameEdit;
+            WinControl uIOpenDialog = this.UIOpenWindow.UIOpenDialog;
+            WinButton uIOpenButton = this.UIOpenWindow.UIOpenWindow1.UIOpenButton;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
             #endregion
 
             // Click 'load' button
@@ -284,8 +286,14 @@ namespace Test
             // Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.OpenSample2XMLParams.UIFilenameComboBoxEditableItem;
 
-            // Type '{Enter}' in 'File name:' text box
-            Keyboard.SendKeys(uIFilenameEdit, this.OpenSample2XMLParams.UIFilenameEditSendKeys, ModifierKeys.None);
+            // Click 'Open' Dialog
+            Mouse.Click(uIOpenDialog, new Point(232, 465));
+
+            // Click '&Open' button
+            Mouse.Click(uIOpenButton, new Point(55, 9));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(3, 7));
         }
         
         /// <summary>
@@ -300,7 +308,150 @@ namespace Test
             // Verify that 'vScrollBar' scroll bar's property 'Enabled' equals 'True'
             Assert.AreEqual(this.AssertVScrollBarExistsExpectedValues.UIVScrollBarScrollBarEnabled, uIVScrollBarScrollBar.Enabled);
         }
+        
+        /// <summary>
+        /// PageDown - Use 'PageDownParams' to pass parameters into this method.
+        /// </summary>
+        public void PageDown()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
 
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(213, 11));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(84, 122));
+
+            // Type '{PageDown}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PageDownParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// RightToNextLine - Use 'RightToNextLineParams' to pass parameters into this method.
+        /// </summary>
+        public void RightToNextLine()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(409, 106));
+
+            // Type '{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RightToNextLineParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// LeftToPreviousLine - Use 'LeftToPreviousLineParams' to pass parameters into this method.
+        /// </summary>
+        public void LeftToPreviousLine()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(101, 208));
+
+            // Type '{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.LeftToPreviousLineParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// HitHome - Use 'HitHomeParams' to pass parameters into this method.
+        /// </summary>
+        public void HitHome()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(34, 236));
+
+            // Type '{Home}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.HitHomeParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// HitEnd - Use 'HitEndParams' to pass parameters into this method.
+        /// </summary>
+        public void HitEnd()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(36, 239));
+
+            // Type '{End}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.HitEndParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// PageUpToTop - Use 'PageUpToTopParams' to pass parameters into this method.
+        /// </summary>
+        public void PageUpToTop()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            WinClient uIRenderHostClient1 = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(40, 235));
+
+            // Type '{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient1, this.PageUpToTopParams.UIRenderHostClient1SendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// PageDownToEnd - Use 'PageDownToEndParams' to pass parameters into this method.
+        /// </summary>
+        public void PageDownToEnd()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(88, 1));
+
+            // Type '{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PageDownToEndParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(97, 239));
+
+            // Type '{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PageDownToEndParams.UIRenderHostClientSendKeys1, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// CaretDance - Use 'CaretDanceParams' to pass parameters into this method.
+        /// </summary>
+        public void CaretDance()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(296, 8));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(195, 40));
+
+            // Type '{Right}{Right}{Right}{Right}{Down}{Right}{Right}{Right}{Down}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Up}{Up}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.CaretDanceParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -386,6 +537,102 @@ namespace Test
             }
         }
         
+        public virtual PageDownParams PageDownParams
+        {
+            get
+            {
+                if ((this.mPageDownParams == null))
+                {
+                    this.mPageDownParams = new PageDownParams();
+                }
+                return this.mPageDownParams;
+            }
+        }
+        
+        public virtual RightToNextLineParams RightToNextLineParams
+        {
+            get
+            {
+                if ((this.mRightToNextLineParams == null))
+                {
+                    this.mRightToNextLineParams = new RightToNextLineParams();
+                }
+                return this.mRightToNextLineParams;
+            }
+        }
+        
+        public virtual LeftToPreviousLineParams LeftToPreviousLineParams
+        {
+            get
+            {
+                if ((this.mLeftToPreviousLineParams == null))
+                {
+                    this.mLeftToPreviousLineParams = new LeftToPreviousLineParams();
+                }
+                return this.mLeftToPreviousLineParams;
+            }
+        }
+        
+        public virtual HitHomeParams HitHomeParams
+        {
+            get
+            {
+                if ((this.mHitHomeParams == null))
+                {
+                    this.mHitHomeParams = new HitHomeParams();
+                }
+                return this.mHitHomeParams;
+            }
+        }
+        
+        public virtual HitEndParams HitEndParams
+        {
+            get
+            {
+                if ((this.mHitEndParams == null))
+                {
+                    this.mHitEndParams = new HitEndParams();
+                }
+                return this.mHitEndParams;
+            }
+        }
+        
+        public virtual PageUpToTopParams PageUpToTopParams
+        {
+            get
+            {
+                if ((this.mPageUpToTopParams == null))
+                {
+                    this.mPageUpToTopParams = new PageUpToTopParams();
+                }
+                return this.mPageUpToTopParams;
+            }
+        }
+        
+        public virtual PageDownToEndParams PageDownToEndParams
+        {
+            get
+            {
+                if ((this.mPageDownToEndParams == null))
+                {
+                    this.mPageDownToEndParams = new PageDownToEndParams();
+                }
+                return this.mPageDownToEndParams;
+            }
+        }
+        
+        public virtual CaretDanceParams CaretDanceParams
+        {
+            get
+            {
+                if ((this.mCaretDanceParams == null))
+                {
+                    this.mCaretDanceParams = new CaretDanceParams();
+                }
+                return this.mCaretDanceParams;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -437,6 +684,22 @@ namespace Test
         private OpenSample2XMLParams mOpenSample2XMLParams;
         
         private AssertVScrollBarExistsExpectedValues mAssertVScrollBarExistsExpectedValues;
+        
+        private PageDownParams mPageDownParams;
+        
+        private RightToNextLineParams mRightToNextLineParams;
+        
+        private LeftToPreviousLineParams mLeftToPreviousLineParams;
+        
+        private HitHomeParams mHitHomeParams;
+        
+        private HitEndParams mHitEndParams;
+        
+        private PageUpToTopParams mPageUpToTopParams;
+        
+        private PageDownToEndParams mPageDownToEndParams;
+        
+        private CaretDanceParams mCaretDanceParams;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -600,11 +863,6 @@ namespace Test
         /// Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
         /// </summary>
         public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\test\\data\\Sample2.xml";
-        
-        /// <summary>
-        /// Type '{Enter}' in 'File name:' text box
-        /// </summary>
-        public string UIFilenameEditSendKeys = "{Enter}";
         #endregion
     }
     
@@ -620,6 +878,218 @@ namespace Test
         /// Verify that 'vScrollBar' scroll bar's property 'Enabled' equals 'True'
         /// </summary>
         public bool UIVScrollBarScrollBarEnabled = true;
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PageDown'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class PageDownParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{PageDown}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{PageDown}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'RightToNextLine'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class RightToNextLineParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Rig" +
+            "ht}{Right}{Right}{Right}{Right}{Right}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'LeftToPreviousLine'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class LeftToPreviousLineParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Le" +
+            "ft}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'HitHome'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class HitHomeParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Home}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Home}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'HitEnd'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class HitEndParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{End}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{End}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PageUpToTop'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class PageUpToTopParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClient1SendKeys = "{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{" +
+            "PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}{PageUp}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PageDownToEnd'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class PageDownToEndParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{" +
+            "PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{" +
+            "PageDown}{PageDown}{PageDown}{PageDown}";
+        
+        /// <summary>
+        /// Type '{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{" +
+            "PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{PageDown}{" +
+            "PageDown}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'CaretDance'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class CaretDanceParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Right}{Right}{Right}{Right}{Down}{Right}{Right}{Right}{Down}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Up}{Up}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Right}{Right}{Right}{Right}{Down}{Right}{Right}{Right}{Down}{Left}{Left}{Left}{L" +
+            "eft}{Left}{Left}{Left}{Left}{Left}{Left}{Up}{Up}";
         #endregion
     }
     
@@ -676,22 +1146,6 @@ namespace Test
                 return this.mUITextEditorCustom;
             }
         }
-        
-        public WpfEdit UIFilePathEdit
-        {
-            get
-            {
-                if ((this.mUIFilePathEdit == null))
-                {
-                    this.mUIFilePathEdit = new WpfEdit(this);
-                    #region Search Criteria
-                    this.mUIFilePathEdit.SearchProperties[WpfEdit.PropertyNames.AutomationId] = "FilePath";
-                    this.mUIFilePathEdit.WindowTitles.Add("MainWindow");
-                    #endregion
-                }
-                return this.mUIFilePathEdit;
-            }
-        }
         #endregion
         
         #region Fields
@@ -700,8 +1154,6 @@ namespace Test
         private WpfButton mUILoadButton;
         
         private UITextEditorCustom mUITextEditorCustom;
-        
-        private WpfEdit mUIFilePathEdit;
         #endregion
     }
     
@@ -936,18 +1388,6 @@ namespace Test
                 return this.mUIOpenWindow1;
             }
         }
-        
-        public UIItemWindow1 UIItemWindow1
-        {
-            get
-            {
-                if ((this.mUIItemWindow1 == null))
-                {
-                    this.mUIItemWindow1 = new UIItemWindow1(this);
-                }
-                return this.mUIItemWindow1;
-            }
-        }
         #endregion
         
         #region Fields
@@ -956,8 +1396,6 @@ namespace Test
         private WinControl mUIOpenDialog;
         
         private UIOpenWindow1 mUIOpenWindow1;
-        
-        private UIItemWindow1 mUIItemWindow1;
         #endregion
     }
     
@@ -1031,43 +1469,6 @@ namespace Test
         
         #region Fields
         private WinButton mUIOpenButton;
-        #endregion
-    }
-    
-    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
-    public class UIItemWindow1 : WinWindow
-    {
-        
-        public UIItemWindow1(UITestControl searchLimitContainer) : 
-                base(searchLimitContainer)
-        {
-            #region Search Criteria
-            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "1148";
-            this.SearchProperties[WinWindow.PropertyNames.Instance] = "3";
-            this.WindowTitles.Add("Open");
-            #endregion
-        }
-        
-        #region Properties
-        public WinEdit UIFilenameEdit
-        {
-            get
-            {
-                if ((this.mUIFilenameEdit == null))
-                {
-                    this.mUIFilenameEdit = new WinEdit(this);
-                    #region Search Criteria
-                    this.mUIFilenameEdit.SearchProperties[WinEdit.PropertyNames.Name] = "File name:";
-                    this.mUIFilenameEdit.WindowTitles.Add("Open");
-                    #endregion
-                }
-                return this.mUIFilenameEdit;
-            }
-        }
-        #endregion
-        
-        #region Fields
-        private WinEdit mUIFilenameEdit;
         #endregion
     }
     
