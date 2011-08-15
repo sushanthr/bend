@@ -452,6 +452,34 @@ namespace Test
             Keyboard.SendKeys(uIRenderHostClient, this.CaretDanceParams.UIRenderHostClientSendKeys, ModifierKeys.None);
         }
         
+        /// <summary>
+        /// EditSampleTextAndSave - Use 'EditSampleTextAndSaveParams' to pass parameters into this method.
+        /// </summary>
+        public void EditSampleTextAndSave()
+        {
+            #region Variable Declarations
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            WpfButton uISaveButton = this.UIMainWindowWindow.UISaveButton;
+            WinComboBox uIFilenameComboBox = this.UISaveAsWindow.UIDetailsPanePane.UIFilenameComboBox;
+            WinEdit uIFilenameEdit = this.UISaveAsWindow.UIItemWindow.UIFilenameEdit;
+            #endregion
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(118, 24));
+
+            // Type '{Space}is{Space}the{Space}best{Space}!{Space}and' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.EditSampleTextAndSaveParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Click 'save' button
+            Mouse.Click(uISaveButton, new Point(22, 18));
+
+            // Select 'SampleTextSave.txt' in 'File name:' combo box
+            uIFilenameComboBox.EditableItem = this.EditSampleTextAndSaveParams.UIFilenameComboBoxEditableItem;
+
+            // Type '{Enter}' in 'File name:' text box
+            Keyboard.SendKeys(uIFilenameEdit, this.EditSampleTextAndSaveParams.UIFilenameEditSendKeys, ModifierKeys.None);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -633,6 +661,18 @@ namespace Test
             }
         }
         
+        public virtual EditSampleTextAndSaveParams EditSampleTextAndSaveParams
+        {
+            get
+            {
+                if ((this.mEditSampleTextAndSaveParams == null))
+                {
+                    this.mEditSampleTextAndSaveParams = new EditSampleTextAndSaveParams();
+                }
+                return this.mEditSampleTextAndSaveParams;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -668,6 +708,18 @@ namespace Test
                 return this.mUIMainWindowWindow1;
             }
         }
+        
+        public UISaveAsWindow UISaveAsWindow
+        {
+            get
+            {
+                if ((this.mUISaveAsWindow == null))
+                {
+                    this.mUISaveAsWindow = new UISaveAsWindow();
+                }
+                return this.mUISaveAsWindow;
+            }
+        }
         #endregion
         
         #region Fields
@@ -701,11 +753,15 @@ namespace Test
         
         private CaretDanceParams mCaretDanceParams;
         
+        private EditSampleTextAndSaveParams mEditSampleTextAndSaveParams;
+        
         private UIMainWindowWindow mUIMainWindowWindow;
         
         private UIOpenWindow mUIOpenWindow;
         
         private UIMainWindowWindow1 mUIMainWindowWindow1;
+        
+        private UISaveAsWindow mUISaveAsWindow;
         #endregion
     }
     
@@ -1093,6 +1149,31 @@ namespace Test
         #endregion
     }
     
+    /// <summary>
+    /// Parameters to be passed into 'EditSampleTextAndSave'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class EditSampleTextAndSaveParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Space}is{Space}the{Space}best{Space}!{Space}and' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Space}is{Space}the{Space}best{Space}!{Space}and";
+        
+        /// <summary>
+        /// Select 'SampleTextSave.txt' in 'File name:' combo box
+        /// </summary>
+        public string UIFilenameComboBoxEditableItem = "Current\\SampleTextSave.txt";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'File name:' text box
+        /// </summary>
+        public string UIFilenameEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public class UIMainWindowWindow : WpfWindow
     {
@@ -1146,6 +1227,22 @@ namespace Test
                 return this.mUITextEditorCustom;
             }
         }
+        
+        public WpfButton UISaveButton
+        {
+            get
+            {
+                if ((this.mUISaveButton == null))
+                {
+                    this.mUISaveButton = new WpfButton(this);
+                    #region Search Criteria
+                    this.mUISaveButton.SearchProperties[WpfButton.PropertyNames.AutomationId] = "button3";
+                    this.mUISaveButton.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUISaveButton;
+            }
+        }
         #endregion
         
         #region Fields
@@ -1154,6 +1251,8 @@ namespace Test
         private WpfButton mUILoadButton;
         
         private UITextEditorCustom mUITextEditorCustom;
+        
+        private WpfButton mUISaveButton;
         #endregion
     }
     
@@ -1556,6 +1655,124 @@ namespace Test
         private WinClient mUIRenderHostClient;
         
         private WinClient mUIRenderHostClient1;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UISaveAsWindow : WinWindow
+    {
+        
+        public UISaveAsWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Save As";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "#32770";
+            this.WindowTitles.Add("Save As");
+            #endregion
+        }
+        
+        #region Properties
+        public UIDetailsPanePane UIDetailsPanePane
+        {
+            get
+            {
+                if ((this.mUIDetailsPanePane == null))
+                {
+                    this.mUIDetailsPanePane = new UIDetailsPanePane(this);
+                }
+                return this.mUIDetailsPanePane;
+            }
+        }
+        
+        public UIItemWindow1 UIItemWindow
+        {
+            get
+            {
+                if ((this.mUIItemWindow == null))
+                {
+                    this.mUIItemWindow = new UIItemWindow1(this);
+                }
+                return this.mUIItemWindow;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIDetailsPanePane mUIDetailsPanePane;
+        
+        private UIItemWindow1 mUIItemWindow;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UIDetailsPanePane : WinPane
+    {
+        
+        public UIDetailsPanePane(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinControl.PropertyNames.Name] = "Details Pane";
+            this.WindowTitles.Add("Save As");
+            #endregion
+        }
+        
+        #region Properties
+        public WinComboBox UIFilenameComboBox
+        {
+            get
+            {
+                if ((this.mUIFilenameComboBox == null))
+                {
+                    this.mUIFilenameComboBox = new WinComboBox(this);
+                    #region Search Criteria
+                    this.mUIFilenameComboBox.SearchProperties[WinComboBox.PropertyNames.Name] = "File name:";
+                    this.mUIFilenameComboBox.WindowTitles.Add("Save As");
+                    #endregion
+                }
+                return this.mUIFilenameComboBox;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinComboBox mUIFilenameComboBox;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UIItemWindow1 : WinWindow
+    {
+        
+        public UIItemWindow1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "1001";
+            this.WindowTitles.Add("Save As");
+            #endregion
+        }
+        
+        #region Properties
+        public WinEdit UIFilenameEdit
+        {
+            get
+            {
+                if ((this.mUIFilenameEdit == null))
+                {
+                    this.mUIFilenameEdit = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUIFilenameEdit.SearchProperties[WinEdit.PropertyNames.Name] = "File name:";
+                    this.mUIFilenameEdit.WindowTitles.Add("Save As");
+                    #endregion
+                }
+                return this.mUIFilenameEdit;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinEdit mUIFilenameEdit;
         #endregion
     }
 }
