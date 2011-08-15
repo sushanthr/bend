@@ -54,5 +54,15 @@ namespace TextCore
         }
 
         bool tilted;
+
+        private void button3_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            if (saveDialog.ShowDialog().Value)
+            {
+                FilePath.Text = saveDialog.FileName;
+                TextEditor.SaveFile(FilePath.Text);
+            }
+        }
     }
 }

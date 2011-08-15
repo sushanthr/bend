@@ -27,6 +27,11 @@ namespace TextCoreControl
             RenderHost.InvalidateVisual();
         }
 
+        public void SaveFile(string fullFilePath)
+        {
+            document.SaveFile(fullFilePath);
+        }
+
         public void Rasterize()
         {
             System.Windows.Media.Imaging.BitmapSource bitmap = displayManager.Rasterize();

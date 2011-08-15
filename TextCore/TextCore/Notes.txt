@@ -1,8 +1,4 @@
 TODOS:
-Save File
-Open File - In place (Verify)
-Open File - In place DRT
-
 Undo Redo
 Copy Paste
 Mouse Wheel
@@ -14,3 +10,9 @@ Refinement
 Caret during scrolling
 Clicking inside selection
 Selection shape refinement
+Mouse wheel zoom (settings change handling etc)
+Implement document lock to prevent changes during scroll length estimation
+Line numbers
+Syntax Highlighting
+Implement actual document using Rope or other advanced Data structure.
+International text

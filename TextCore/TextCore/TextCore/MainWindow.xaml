@@ -4,9 +4,10 @@
         xmlns:controls="clr-namespace:TextCoreControl;assembly=TextCoreControl" 
         Title="MainWindow" Height="350" Width="525" Background="White">
     <Grid Background="Gold" Name="tiltPanel" >
-        <TextBox Height="25" VerticalAlignment="Top" Margin="3,4,0,0" HorizontalAlignment="Left" Width="417" Name="FilePath"></TextBox>
+        <TextBox Height="25" VerticalAlignment="Top" Margin="3,4,0,0" HorizontalAlignment="Left" Width="336" Name="FilePath" TextAlignment="Right"></TextBox>
         <controls:TextControlUserControl x:Name="TextEditor" Margin="0,35,0,0"/>
-        <Button Content="load" Height="23" HorizontalAlignment="Left" Margin="428,6,0,0" Name="button1" VerticalAlignment="Top" Width="43" Click="button1_Click" />
-        <Button Content="tilt" Height="23" HorizontalAlignment="Left" Margin="480,6,0,0" Name="button2" VerticalAlignment="Top" Width="20" Click="button2_Click" />
+        <Button Content="load" Height="23" HorizontalAlignment="Left" Margin="345,6,0,0" Name="button1" VerticalAlignment="Top" Width="32" Click="button1_Click" />
+        <Button Content="tilt" Height="23" HorizontalAlignment="Left" Margin="383,6,0,0" Name="button2" VerticalAlignment="Top" Width="20" Click="button2_Click" />
+        <Button Height="23" Margin="408,6,0,0" Name="button3" VerticalAlignment="Top" Content="save" HorizontalAlignment="Left" Width="29" Click="button3_Click"></Button>
     </Grid>
 </Window>

@@ -26,6 +26,12 @@ namespace TextCoreControl
             }
         }
 
+        public void SaveFile(string fullFilePath)
+        {
+            System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
+            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1));
+        }
+
         internal char CharacterAt(int ordinal)
         {
             return fileContents[ordinal];
