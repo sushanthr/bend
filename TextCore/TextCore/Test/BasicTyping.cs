@@ -33,6 +33,14 @@ namespace Test
             this.UIMap.CaptureVerify("BackspaceAllContent");
             this.UIMap.TypeAfterLineEnd();
             this.UIMap.CaptureVerify("TypeAfterLineEnd");
+            this.UIMap.Undo();
+            this.UIMap.CaptureVerify("BasicTypingTest_Undo");
+            this.UIMap.Redo();
+            this.UIMap.CaptureVerify("BasicTypingTest_Redo");
+            this.UIMap.UndoAfterRedo();
+            this.UIMap.CaptureVerify("BasicTypingTest_UndoAfterRedo");
+            this.UIMap.TypePreventsRedo();
+            this.UIMap.CaptureVerify("BasicTypingTest_TypePreventsRedo");
             this.UIMap.Close();
         }
 

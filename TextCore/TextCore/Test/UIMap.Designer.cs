@@ -473,11 +473,178 @@ namespace Test
             // Click 'save' button
             Mouse.Click(uISaveButton, new Point(22, 18));
 
-            // Select 'SampleTextSave.txt' in 'File name:' combo box
+            // Select 'Current\SampleTextSave.txt' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.EditSampleTextAndSaveParams.UIFilenameComboBoxEditableItem;
 
             // Type '{Enter}' in 'File name:' text box
             Keyboard.SendKeys(uIFilenameEdit, this.EditSampleTextAndSaveParams.UIFilenameEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// Undo - Use 'UndoParams' to pass parameters into this method.
+        /// </summary>
+        public void Undo()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(296, 6));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(199, 8));
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys1, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys2, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys3, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys4, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys5, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys6, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys7, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoParams.UIRenderHostClientSendKeys8, ModifierKeys.Control);
+        }
+        
+        /// <summary>
+        /// Redo - Use 'RedoParams' to pass parameters into this method.
+        /// </summary>
+        public void Redo()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(104, 4));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(159, 11));
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys1, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys2, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys3, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys4, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys5, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys6, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys7, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RedoParams.UIRenderHostClientSendKeys8, ModifierKeys.Control);
+        }
+        
+        /// <summary>
+        /// UndoAfterRedo - Use 'UndoAfterRedoParams' to pass parameters into this method.
+        /// </summary>
+        public void UndoAfterRedo()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(195, 7));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(175, 13));
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys1, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys2, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys3, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys4, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys5, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys6, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys7, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys8, ModifierKeys.Control);
+
+            // Type 'Control + Z' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.UndoAfterRedoParams.UIRenderHostClientSendKeys9, ModifierKeys.Control);
+        }
+        
+        /// <summary>
+        /// TypePreventsRedo - Use 'TypePreventsRedoParams' to pass parameters into this method.
+        /// </summary>
+        public void TypePreventsRedo()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(303, 5));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(337, 21));
+
+            // Type '{Space}break.' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys1, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys2, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys3, ModifierKeys.Control);
+
+            // Type 'Control + Y' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys4, ModifierKeys.Control);
         }
         
         #region Properties
@@ -673,6 +840,54 @@ namespace Test
             }
         }
         
+        public virtual UndoParams UndoParams
+        {
+            get
+            {
+                if ((this.mUndoParams == null))
+                {
+                    this.mUndoParams = new UndoParams();
+                }
+                return this.mUndoParams;
+            }
+        }
+        
+        public virtual RedoParams RedoParams
+        {
+            get
+            {
+                if ((this.mRedoParams == null))
+                {
+                    this.mRedoParams = new RedoParams();
+                }
+                return this.mRedoParams;
+            }
+        }
+        
+        public virtual UndoAfterRedoParams UndoAfterRedoParams
+        {
+            get
+            {
+                if ((this.mUndoAfterRedoParams == null))
+                {
+                    this.mUndoAfterRedoParams = new UndoAfterRedoParams();
+                }
+                return this.mUndoAfterRedoParams;
+            }
+        }
+        
+        public virtual TypePreventsRedoParams TypePreventsRedoParams
+        {
+            get
+            {
+                if ((this.mTypePreventsRedoParams == null))
+                {
+                    this.mTypePreventsRedoParams = new TypePreventsRedoParams();
+                }
+                return this.mTypePreventsRedoParams;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -754,6 +969,14 @@ namespace Test
         private CaretDanceParams mCaretDanceParams;
         
         private EditSampleTextAndSaveParams mEditSampleTextAndSaveParams;
+        
+        private UndoParams mUndoParams;
+        
+        private RedoParams mRedoParams;
+        
+        private UndoAfterRedoParams mUndoAfterRedoParams;
+        
+        private TypePreventsRedoParams mTypePreventsRedoParams;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -1163,7 +1386,7 @@ namespace Test
         public string UIRenderHostClientSendKeys = "{Space}is{Space}the{Space}best{Space}!{Space}and";
         
         /// <summary>
-        /// Select 'SampleTextSave.txt' in 'File name:' combo box
+        /// Select 'Current\SampleTextSave.txt' in 'File name:' combo box
         /// </summary>
         public string UIFilenameComboBoxEditableItem = "Current\\SampleTextSave.txt";
         
@@ -1171,6 +1394,211 @@ namespace Test
         /// Type '{Enter}' in 'File name:' text box
         /// </summary>
         public string UIFilenameEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'Undo'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UndoParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys7 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys8 = "Z";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'Redo'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class RedoParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys7 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys8 = "Y";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'UndoAfterRedo'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UndoAfterRedoParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys7 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys8 = "Z";
+        
+        /// <summary>
+        /// Type 'Control + Z' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys9 = "Z";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'TypePreventsRedo'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class TypePreventsRedoParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Space}break.' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Space}break.";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "Y";
+        
+        /// <summary>
+        /// Type 'Control + Y' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "Y";
         #endregion
     }
     
