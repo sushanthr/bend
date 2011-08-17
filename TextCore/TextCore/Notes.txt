@@ -1,7 +1,5 @@
 TODOS:
-Undo Redo
 Copy Paste
-Mouse Wheel
 Scrollbounds due to editing
 Backwards line generation or GetPreviousLine
 Select and hitting delete key

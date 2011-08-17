@@ -107,6 +107,7 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 	case WM_RBUTTONDOWN :
 	case WM_RBUTTONUP   :
 	case WM_MOUSEMOVE   :
+	case WM_MOUSEWHEEL  :
 	case WM_LBUTTONDBLCLK:
 	    if (MouseHandler != nullptr)
 		{

@@ -36,6 +36,8 @@ namespace TextCoreControl
 
             this.scrollBoundsManager = new ScrollBoundsManager(vScrollBar, hScrollBar, this, renderHost, this.document);
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
+
+            this.lastMouseWheelTime = System.DateTime.Now.Ticks;
         }
 
         void CreateDeviceResources()
@@ -204,6 +206,36 @@ namespace TextCoreControl
                             this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
+                        }
+                    }
+                    break;
+                case 0x020A:
+                    {
+                        // WM_MOUSEWHEEL
+                        // wparam is passed in as flags
+                        int highWord = flags >> 16;
+                        int lowWord = flags & 0xFF;
+
+                        // Read http://www.codeproject.com/KB/system/HiResScrollSupp.aspx?display=Mobile for info about
+                        // highWord and how it corresponds to mouse type and speed.
+                        long timeStamp = System.DateTime.Now.Ticks;
+                        long deltaMS = (timeStamp - lastMouseWheelTime) / 10000;
+                        lastMouseWheelTime = timeStamp;
+
+                        // Emphrical constants that define the acceleration factor for mouse wheel scrolling.
+                        int acceleration = 1;
+                        if (deltaMS < 20) acceleration = 6;
+
+                        int deltaAmount = (int)Math.Ceiling(-4 * acceleration * (double)highWord / 120);
+
+                        // When lowWord has MK_CONTROL 0x0008, the control key is down.
+                        if ((0x0008 & lowWord) == 0)
+                        {
+                            this.scrollBoundsManager.ScrollBy(deltaAmount);
+                        }
+                        else
+                        {
+                            // TODO: Implement mouse wheel zooom
                         }
                     }
                     break;
@@ -936,6 +968,8 @@ namespace TextCoreControl
         int                          pageBeginOrdinal;
         double                       pageTop;
         List<VisualLine>             visualLines;
+
+        long                         lastMouseWheelTime;
         #endregion
     }
 }
