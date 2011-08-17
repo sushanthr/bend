@@ -60,6 +60,7 @@
     <Compile Include="ScrollBoundsManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="UndoRedoManager.cs" />
     <Compile Include="VisualLine.cs" />
     <Page Include="TextCoreControl.xaml">
       <Generator>MSBuild:Compile</Generator>

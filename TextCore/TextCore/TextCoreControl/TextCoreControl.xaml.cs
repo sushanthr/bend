@@ -18,9 +18,33 @@ namespace TextCoreControl
         {
             InitializeComponent();
             this.document = new Document();
+            this.undoRedoManager = new UndoRedoManager(this.document);
+            this.document.UndoRedoManager = this.undoRedoManager;
             this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar);
+            this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControlUserControl_PreviewKeyDown);
         }
-        
+
+        void TextControlUserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Z:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    {
+                        this.Undo();
+                        e.Handled = true;
+                    }
+                    break;
+                case System.Windows.Input.Key.Y:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    {
+                        this.Redo();
+                        e.Handled = true;
+                    }
+                    break;
+            }
+        }
+
         public void LoadFile(string fullFilePath)
         {
             document.LoadFile(fullFilePath);
@@ -47,7 +71,18 @@ namespace TextCoreControl
             RasterHost.Visibility = System.Windows.Visibility.Hidden;
         }
 
+        public void Undo()
+        {
+            this.undoRedoManager.Undo();
+        }
+
+        public void Redo()
+        {
+            this.undoRedoManager.Redo();
+        }
+
         private Document document;
         private DisplayManager displayManager;
+        private UndoRedoManager undoRedoManager;
     }
 }

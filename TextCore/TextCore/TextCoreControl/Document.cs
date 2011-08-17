@@ -13,6 +13,7 @@ namespace TextCoreControl
         public Document()
         {
             this.fileContents = "\0";
+            this.undoRedoManager = null;
         }
 
         public void LoadFile(string fullFilePath)
@@ -82,9 +83,24 @@ namespace TextCoreControl
             }
         }
 
-        internal void InsertStringAfter(int ordinal, string content)
+        /// <summary>
+        ///      Inserts a string into the document
+        /// </summary>
+        /// <param name="ordinal">
+        ///     Content ordinal to insert at. For example text: "0123" insert at 2 text t will result in 01t23. 
+        ///     The Caret would have been at shown to the left of 2, since caret is always drawn to the left of
+        ///     and index.
+        ///  </param>
+        /// <param name="content">String to insert</param>
+        internal void InsertAt(int ordinal, string content)
         {
             fileContents = fileContents.Insert(ordinal, content);
+
+            if (this.undoRedoManager != null)
+            {
+                this.undoRedoManager.AddAction( new UndoRedoManager.InsertTextAction(ordinal, content));
+            }
+
             if (this.OrdinalShift != null)
             {
                 this.OrdinalShift(this, ordinal, content.Length);
@@ -97,34 +113,57 @@ namespace TextCoreControl
             }
         }
 
-        internal void DeleteFrom(int ordinal, int length)
+        /// <summary>
+        ///     Deletes "length" number of characters from index "ordinal" including "ordinal"
+        /// </summary>
+        /// <param name="ordinal">Ordinal to delete from</param>
+        /// <param name="length">Length of string to delete< /param>
+        internal void DeleteAt(int ordinal, int length)
         {
+            System.Diagnostics.Debug.Assert(length > 0);
+
             // Last ordinal is reserved for \n
-            if (ordinal < this.fileContents.Length - 1)
+            if (ordinal + length < this.fileContents.Length)
             {
+                if (this.undoRedoManager != null)
+                {
+                    this.undoRedoManager.AddAction(new UndoRedoManager.DeleteTextAction(ordinal, fileContents.Substring(ordinal, length)));
+                }
+
+                int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
+
                 fileContents = fileContents.Remove(ordinal, length);
 
-                ordinal = this.PreviousOrdinal(ordinal);
                 if (this.OrdinalShift != null)
                 {
-                    this.OrdinalShift(this, ordinal, -length);
+                    this.OrdinalShift(this, endOrdinal, -length);
                 }
 
                 if (this.ContentChange != null)
                 {
-                    int endOrdinal = this.NextOrdinal(ordinal);
-                    this.ContentChange(ordinal, endOrdinal);
+                    this.ContentChange(ordinal, ordinal);
                 }
             }
+        }
+
+        internal UndoRedoManager UndoRedoManager {
+            set { this.undoRedoManager = value; }
         }
 
         // A delegate type for hooking up change notifications.
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal);
         public event ContentChangeEventHandler ContentChange;
 
+        /// <summary>
+        ///     Event handler raised when ordinals are shifted around
+        /// </summary>
+        /// <param name="document">Document object</param>
+        /// <param name="beginOrdinal">All ordinals greater than beginOrdinal are shifted</param>
+        /// <param name="shift">Shift amount</param>
         public delegate void OrdinalShiftEventHandler(Document document, int beginOrdinal, int shift);
         public event OrdinalShiftEventHandler OrdinalShift;
 
         private string fileContents;
+        private UndoRedoManager undoRedoManager;
     }
 }

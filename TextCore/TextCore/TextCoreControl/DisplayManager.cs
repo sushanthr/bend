@@ -222,7 +222,7 @@ namespace TextCoreControl
         {
             char key = (char)wparam;
             int insertOrdinal = this.caret.Ordinal;
-            document.InsertStringAfter(insertOrdinal, key.ToString());
+            document.InsertAt(insertOrdinal, key.ToString());
         }
 
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -372,14 +372,14 @@ namespace TextCoreControl
                 case System.Windows.Input.Key.Back:
                     if (this.caret.Ordinal > document.FirstOrdinal())
                     {
-                        document.DeleteFrom(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                        document.DeleteAt(document.PreviousOrdinal(this.caret.Ordinal), 1);
                     }
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Delete:
                     if (this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
                     {
-                        document.DeleteFrom(this.caret.Ordinal, 1);
+                        document.DeleteAt(this.caret.Ordinal, 1);
                     }
                     e.Handled = true;
                     break;
