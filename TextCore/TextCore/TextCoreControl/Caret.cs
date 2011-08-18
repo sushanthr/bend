@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace TextCoreControl
 {
-    public class Caret
+    internal class Caret
     {
 
         public Caret(HwndRenderTarget renderTarget, int defaultHeight)

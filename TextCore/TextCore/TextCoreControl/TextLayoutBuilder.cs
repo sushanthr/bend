@@ -7,11 +7,11 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
-    public class TextLayoutBuilder
+    internal class TextLayoutBuilder
     {
         internal TextLayoutBuilder()
         {
-            this.glyphTable = new GlyphTable(Settings.defaultTextFormat);
+            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat);
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
         }
 
@@ -43,7 +43,7 @@ namespace TextCoreControl
                     }
                 }
 
-                if (Settings.autoWrap)
+                if (Settings.AutoWrap)
                 {
                     lineWidth += glyphTable.GetCharacterWidth(letter);
                     if (lineWidth > layoutWidth)
@@ -79,7 +79,7 @@ namespace TextCoreControl
                     break;
                 }
 
-                if (Settings.autoWrap)
+                if (Settings.AutoWrap)
                 {
                     lineWidth += glyphTable.GetCharacterWidth(letter);
                     if (lineWidth > layoutWidth)

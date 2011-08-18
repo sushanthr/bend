@@ -8,7 +8,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace TextCoreControl
 {
-    public class VisualLine
+    internal class VisualLine
     {
         public VisualLine(DWriteFactory dwriteFactory, 
             string lineText, 
@@ -34,7 +34,7 @@ namespace TextCoreControl
 
         public void Draw(RenderTarget renderTarget)
         {
-            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.defaultForegroundColor);
+            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
             renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
         }
 

@@ -13,8 +13,9 @@ using Microsoft.WindowsAPICodePack.DirectX.WindowsImagingComponent;
 
 namespace TextCoreControl
 {
-    class DisplayManager
+    internal class DisplayManager
     {
+        const int MOUSEWHEEL_WINDOWS_STEP_QUANTUM = 120;
 
         internal DisplayManager(RenderHost renderHost, 
             Document document, 
@@ -60,11 +61,11 @@ namespace TextCoreControl
                 hwndRenderTarget = this.d2dFactory.CreateHwndRenderTarget(props, hwndProps);
 
                 // Default rendering options
-                defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultForegroundColor);
-                defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultBackgroundColor);
+                defaultForegroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
+                defaultBackgroundBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
 
                 // defaultSelectionBrush has to be solid color and not alpha
-                defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.defaultSelectionColor);
+                defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
 
@@ -74,7 +75,7 @@ namespace TextCoreControl
                 }
                 else
                 {
-                    this.caret = new Caret(this.hwndRenderTarget, (int)(Settings.defaultTextFormat.FontSize * 1.3f));
+                    this.caret = new Caret(this.hwndRenderTarget, (int)(Settings.DefaultTextFormat.FontSize * 1.3f));
                 }
                 this.document.OrdinalShift += this.caret.Document_OrdinalShift;
             }
@@ -223,10 +224,12 @@ namespace TextCoreControl
                         lastMouseWheelTime = timeStamp;
 
                         // Emphrical constants that define the acceleration factor for mouse wheel scrolling.
-                        int acceleration = 1;
-                        if (deltaMS < 20) acceleration = 6;
+                        int acceleration = Settings.MouseWheel_Normal_Step_LineCount;
+                        if (deltaMS < Settings.MouseWheel_Fast1_Threshold_MS) acceleration = Settings.MouseWheel_Fast1_Step_LineCount;
 
-                        int deltaAmount = (int)Math.Ceiling(-4 * acceleration * (double)highWord / 120);
+                        int deltaAmount = (int)Math.Ceiling( acceleration * (double)highWord / DisplayManager.MOUSEWHEEL_WINDOWS_STEP_QUANTUM);
+                        // Flip coordinates between windows and text core control.
+                        deltaAmount = (0 - deltaAmount);
 
                         // When lowWord has MK_CONTROL 0x0008, the control key is down.
                         if ((0x0008 & lowWord) == 0)
@@ -550,6 +553,20 @@ namespace TextCoreControl
             this.pageBeginOrdinal = newPageBeginOrdinal;
             this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
         }
+        #endregion
+
+        #region Selection
+
+        public void SelectRange(int beginAtOrdinal, int endBeforeOrdinal)
+        {
+            this.caret.HideCaret();
+            this.hwndRenderTarget.BeginDraw();
+            this.selectionManager.ResetSelection(beginAtOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+            this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+            this.hwndRenderTarget.EndDraw();
+            this.caret.ShowCaret();
+        }
+
         #endregion
 
         #region Content change handling
@@ -948,10 +965,13 @@ namespace TextCoreControl
         }
 
         public int PageBeginOrdinal { get { return this.pageBeginOrdinal; } }
+        public int CaretOrdinal     { get { return this.caret.Ordinal; } }
+        public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
+        public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
 
         #endregion
 
-        #region Memeber Data
+        #region Member Data
         D2DFactory                   d2dFactory;
         HwndRenderTarget             hwndRenderTarget;
         SolidColorBrush              defaultBackgroundBrush;

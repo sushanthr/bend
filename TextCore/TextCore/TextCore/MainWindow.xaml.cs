@@ -25,6 +25,7 @@ namespace TextCore
         {
             InitializeComponent();
             this.tilted = false;
+            TextEditor.CopyPasteManager = new TextCoreControl.CopyPasteManager();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)

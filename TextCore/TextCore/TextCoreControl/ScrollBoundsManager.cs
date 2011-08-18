@@ -10,7 +10,7 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
-    class ScrollBoundsManager
+    internal class ScrollBoundsManager
     {
         public ScrollBoundsManager(ScrollBar vScrollBar, 
             ScrollBar hScrollBar, 

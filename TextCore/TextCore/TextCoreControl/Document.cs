@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TextCoreControl
 {
-    public class Document
+    internal class Document
     {
         public const int UNDEFINED_ORDINAL = int.MaxValue;
         public const int BEFOREBEGIN_ORDINAL = -1;

@@ -6,11 +6,11 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace TextCoreControl
 {
-    public class SelectionManager
+    internal class SelectionManager
     {
         public SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
-            defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.defaultBackgroundColor);
+            defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
             defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.3686f, 0.447f, 0.6f, 1.0f));
             this.leftToRightSelection = true;
@@ -166,7 +166,18 @@ namespace TextCoreControl
             this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, scrollOffset, renderTarget);
         }
 
+        /// <summary>
+        ///     Returns the ordinal at which selection starts, this document ordinal is selected.
+        /// </summary>
+        /// <returns></returns>
         public int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
+
+        /// <summary>
+        ///     Returns the ordinal just after selection end, this document ordinal is not selected 
+        ///     but the previous one is selected.
+        /// </summary>
+        /// <returns></returns>
+        public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
 
         public void ExpandSelection(int includeOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
@@ -206,8 +217,6 @@ namespace TextCoreControl
 
             this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, scrollOffset, renderTarget);
         }
-
-        public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
 
         public void OrdinalShift(int beginOrdinal, int shift)
         {

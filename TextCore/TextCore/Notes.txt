@@ -1,11 +1,11 @@
 TODOS:
-Copy Paste
 Scrollbounds due to editing
 Backwards line generation or GetPreviousLine
 Select and hitting delete key
 
 Refinement
 Caret during scrolling
+Shift left arrow right arrow must select.
 Clicking inside selection
 Selection shape refinement
 Mouse wheel zoom (settings change handling etc)
@@ -14,3 +14,7 @@ Line numbers
 Syntax Highlighting
 Implement actual document using Rope or other advanced Data structure.
 International text
+
+Features:
+Accelerated Scrolling
+D2d Font rendering Sub pixel
