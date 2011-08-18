@@ -1,11 +1,12 @@
 TODOS:
 Scrollbounds due to editing
 Backwards line generation or GetPreviousLine
+
 Select and hitting delete key
+Shift left arrow right arrow must select.
 
 Refinement
 Caret during scrolling
-Shift left arrow right arrow must select.
 Clicking inside selection
 Selection shape refinement
 Mouse wheel zoom (settings change handling etc)

@@ -1100,6 +1100,349 @@
       <WorkItemId>0</WorkItemId>
       <MarkerRegionType>Action</MarkerRegionType>
     </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="242" Y="1" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="175" Y="35" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">Today{Space}we{Space}have{Space}CVu{Back}{Back}ut{Space}/{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{LShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">Copy{Space}/{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{LShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">Paste{Space}implemented.{Space}It{Space}just{Space}works{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{RShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">!{Space}</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="TypeSomeText">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="260" Y="1" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="283" Y="10" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <DragAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <MouseButton>Left</MouseButton>
+      <StartLocation X="378" Y="9" />
+      <MoveBy X="28" Y="3" />
+    </DragAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">C</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="CopiedText">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="304" Y="12" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="477" Y="8" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">V</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Space}</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="PastedText">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="316" Y="3" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <DragAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <MouseButton>Left</MouseButton>
+      <StartLocation X="417" Y="8" />
+      <MoveBy X="36" Y="2" />
+    </DragAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">X</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="CutText">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="237" Y="5" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="472" Y="10" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">V</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">.{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{LShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">ad{Back}nd{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{LShiftKey}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">I{Space}can{Space}p{Back}continue{Space}to{Space}tpe{Back}{Back}ype{Space}.</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="PasteCutText">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="326" Y="3" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="278" Y="26" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control Shift</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Insert}</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="RingPaste1">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="284" Y="8" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="330" Y="29" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control Shift</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Insert}</Text>
+    </SendKeysAction>
+    <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="353" Y="24" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Space}</Text>
+    </SendKeysAction>
+    <SendKeysAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
+      <ParameterName />
+      <ModifierKeys>Control</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">V</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction MarkerInformation="RingPaste2">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
   </ExecuteActions>
   <CleanupActions />
   <OnErrorActions />

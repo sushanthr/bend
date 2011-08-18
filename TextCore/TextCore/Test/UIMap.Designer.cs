@@ -647,6 +647,202 @@ namespace Test
             Keyboard.SendKeys(uIRenderHostClient, this.TypePreventsRedoParams.UIRenderHostClientSendKeys4, ModifierKeys.Control);
         }
         
+        /// <summary>
+        /// TypeSomeText - Use 'TypeSomeTextParams' to pass parameters into this method.
+        /// </summary>
+        public void TypeSomeText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(242, 1));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(175, 35));
+
+            // Type 'Today{Space}we{Space}have{Space}CVu{Back}{Back}ut{Space}/{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Type '{LShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys1, ModifierKeys.None);
+
+            // Type 'Copy{Space}/{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys2, ModifierKeys.None);
+
+            // Type '{LShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys3, ModifierKeys.None);
+
+            // Type 'Paste{Space}implemented.{Space}It{Space}just{Space}works{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys4, ModifierKeys.None);
+
+            // Type '{RShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys5, ModifierKeys.None);
+
+            // Type '!{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.TypeSomeTextParams.UIRenderHostClientSendKeys6, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// CopiedText - Use 'CopiedTextParams' to pass parameters into this method.
+        /// </summary>
+        public void CopiedText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(260, 1));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(283, 10));
+
+            // Move 'RenderHost' client from (378, 9) to (406, 12)
+            Mouse.StartDragging(uIRenderHostClient, new Point(378, 9));
+            Mouse.StopDragging(uIRenderHostClient, 28, 3);
+
+            // Type 'Control + C' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.CopiedTextParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+        }
+        
+        /// <summary>
+        /// PastedText - Use 'PastedTextParams' to pass parameters into this method.
+        /// </summary>
+        public void PastedText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(304, 12));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(477, 8));
+
+            // Type 'Control + V' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PastedTextParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+
+            // Type '{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PastedTextParams.UIRenderHostClientSendKeys1, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// CutText - Use 'CutTextParams' to pass parameters into this method.
+        /// </summary>
+        public void CutText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(316, 3));
+
+            // Move 'RenderHost' client from (417, 8) to (453, 10)
+            Mouse.StartDragging(uIRenderHostClient, new Point(417, 8));
+            Mouse.StopDragging(uIRenderHostClient, 36, 2);
+
+            // Type 'Control + X' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.CutTextParams.UIRenderHostClientSendKeys, ModifierKeys.Control);
+        }
+        
+        /// <summary>
+        /// PasteCutText - Use 'PasteCutTextParams' to pass parameters into this method.
+        /// </summary>
+        public void PasteCutText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(237, 5));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(472, 10));
+
+            // Type '{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Type 'Control + V' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys1, ModifierKeys.Control);
+
+            // Type '.{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys2, ModifierKeys.None);
+
+            // Type '{LShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys3, ModifierKeys.None);
+
+            // Type 'ad{Back}nd{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys4, ModifierKeys.None);
+
+            // Type '{LShiftKey}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys5, ModifierKeys.None);
+
+            // Type 'I{Space}can{Space}p{Back}continue{Space}to{Space}tpe{Back}{Back}ype{Space}.' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.PasteCutTextParams.UIRenderHostClientSendKeys6, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// RingPaste1 - Use 'RingPaste1Params' to pass parameters into this method.
+        /// </summary>
+        public void RingPaste1()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(326, 3));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(278, 26));
+
+            // Type 'Control, Shift + {Insert}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RingPaste1Params.UIRenderHostClientSendKeys, (ModifierKeys.Control | ModifierKeys.Shift));
+        }
+        
+        /// <summary>
+        /// RingPaste2 - Use 'RingPaste2Params' to pass parameters into this method.
+        /// </summary>
+        public void RingPaste2()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(284, 8));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(330, 29));
+
+            // Type '{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RingPaste2Params.UIRenderHostClientSendKeys, ModifierKeys.None);
+
+            // Type 'Control, Shift + {Insert}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RingPaste2Params.UIRenderHostClientSendKeys1, (ModifierKeys.Control | ModifierKeys.Shift));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(353, 24));
+
+            // Type '{Space}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RingPaste2Params.UIRenderHostClientSendKeys2, ModifierKeys.None);
+
+            // Type 'Control + V' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.RingPaste2Params.UIRenderHostClientSendKeys3, ModifierKeys.Control);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -888,6 +1084,90 @@ namespace Test
             }
         }
         
+        public virtual TypeSomeTextParams TypeSomeTextParams
+        {
+            get
+            {
+                if ((this.mTypeSomeTextParams == null))
+                {
+                    this.mTypeSomeTextParams = new TypeSomeTextParams();
+                }
+                return this.mTypeSomeTextParams;
+            }
+        }
+        
+        public virtual CopiedTextParams CopiedTextParams
+        {
+            get
+            {
+                if ((this.mCopiedTextParams == null))
+                {
+                    this.mCopiedTextParams = new CopiedTextParams();
+                }
+                return this.mCopiedTextParams;
+            }
+        }
+        
+        public virtual PastedTextParams PastedTextParams
+        {
+            get
+            {
+                if ((this.mPastedTextParams == null))
+                {
+                    this.mPastedTextParams = new PastedTextParams();
+                }
+                return this.mPastedTextParams;
+            }
+        }
+        
+        public virtual CutTextParams CutTextParams
+        {
+            get
+            {
+                if ((this.mCutTextParams == null))
+                {
+                    this.mCutTextParams = new CutTextParams();
+                }
+                return this.mCutTextParams;
+            }
+        }
+        
+        public virtual PasteCutTextParams PasteCutTextParams
+        {
+            get
+            {
+                if ((this.mPasteCutTextParams == null))
+                {
+                    this.mPasteCutTextParams = new PasteCutTextParams();
+                }
+                return this.mPasteCutTextParams;
+            }
+        }
+        
+        public virtual RingPaste1Params RingPaste1Params
+        {
+            get
+            {
+                if ((this.mRingPaste1Params == null))
+                {
+                    this.mRingPaste1Params = new RingPaste1Params();
+                }
+                return this.mRingPaste1Params;
+            }
+        }
+        
+        public virtual RingPaste2Params RingPaste2Params
+        {
+            get
+            {
+                if ((this.mRingPaste2Params == null))
+                {
+                    this.mRingPaste2Params = new RingPaste2Params();
+                }
+                return this.mRingPaste2Params;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -977,6 +1257,20 @@ namespace Test
         private UndoAfterRedoParams mUndoAfterRedoParams;
         
         private TypePreventsRedoParams mTypePreventsRedoParams;
+        
+        private TypeSomeTextParams mTypeSomeTextParams;
+        
+        private CopiedTextParams mCopiedTextParams;
+        
+        private PastedTextParams mPastedTextParams;
+        
+        private CutTextParams mCutTextParams;
+        
+        private PasteCutTextParams mPasteCutTextParams;
+        
+        private RingPaste1Params mRingPaste1Params;
+        
+        private RingPaste2Params mRingPaste2Params;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -1599,6 +1893,191 @@ namespace Test
         /// Type 'Control + Y' in 'RenderHost' client
         /// </summary>
         public string UIRenderHostClientSendKeys4 = "Y";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'TypeSomeText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class TypeSomeTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Today{Space}we{Space}have{Space}CVu{Back}{Back}ut{Space}/{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "Today{Space}we{Space}have{Space}CVu{Back}{Back}ut{Space}/{Space}";
+        
+        /// <summary>
+        /// Type '{LShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "{LShiftKey}";
+        
+        /// <summary>
+        /// Type 'Copy{Space}/{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "Copy{Space}/{Space}";
+        
+        /// <summary>
+        /// Type '{LShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "{LShiftKey}";
+        
+        /// <summary>
+        /// Type 'Paste{Space}implemented.{Space}It{Space}just{Space}works{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "Paste{Space}implemented.{Space}It{Space}just{Space}works{Space}";
+        
+        /// <summary>
+        /// Type '{RShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "{RShiftKey}";
+        
+        /// <summary>
+        /// Type '!{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "!{Space}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'CopiedText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class CopiedTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + C' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "C";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PastedText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class PastedTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + V' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "V";
+        
+        /// <summary>
+        /// Type '{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "{Space}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'CutText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class CutTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control + X' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "X";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PasteCutText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class PasteCutTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Space}";
+        
+        /// <summary>
+        /// Type 'Control + V' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "V";
+        
+        /// <summary>
+        /// Type '.{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = ".{Space}";
+        
+        /// <summary>
+        /// Type '{LShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "{LShiftKey}";
+        
+        /// <summary>
+        /// Type 'ad{Back}nd{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys4 = "ad{Back}nd{Space}";
+        
+        /// <summary>
+        /// Type '{LShiftKey}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys5 = "{LShiftKey}";
+        
+        /// <summary>
+        /// Type 'I{Space}can{Space}p{Back}continue{Space}to{Space}tpe{Back}{Back}ype{Space}.' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys6 = "I{Space}can{Space}p{Back}continue{Space}to{Space}tpe{Back}{Back}ype{Space}.";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'RingPaste1'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class RingPaste1Params
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Control, Shift + {Insert}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Insert}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'RingPaste2'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class RingPaste2Params
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = "{Space}";
+        
+        /// <summary>
+        /// Type 'Control, Shift + {Insert}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys1 = "{Insert}";
+        
+        /// <summary>
+        /// Type '{Space}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys2 = "{Space}";
+        
+        /// <summary>
+        /// Type 'Control + V' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys3 = "V";
         #endregion
     }
     
