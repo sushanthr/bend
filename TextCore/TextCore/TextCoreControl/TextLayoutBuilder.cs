@@ -21,6 +21,7 @@ namespace TextCoreControl
             string lineText = "";
             float lineWidth = 0;
             nextOrdinal = beginOrdinal;
+            bool hasHardBreak = false;
             while (nextOrdinal != Document.UNDEFINED_ORDINAL)
             {
                 char letter = document.CharacterAt(nextOrdinal);
@@ -28,17 +29,26 @@ namespace TextCoreControl
                 {
                     lineText += letter;
                     nextOrdinal = document.NextOrdinal(nextOrdinal);
+                    hasHardBreak = true;
                     break;
                 }
-
-                if (letter == '\r')
+                else if (letter == '\r')
                 {
                     int tempNextOrdinal = document.NextOrdinal(nextOrdinal);
-                    if (document.CharacterAt(tempNextOrdinal) != '\n' || document.NextOrdinal(tempNextOrdinal) == Document.UNDEFINED_ORDINAL)
+                    if (document.CharacterAt(tempNextOrdinal) != '\n')
                     {
-                        // The file terminating \n gets its own line.
                         lineText += letter;
                         nextOrdinal = tempNextOrdinal;
+                        hasHardBreak = true;
+                        break;
+                    }
+                    else
+                    {
+                        // /r /n combo
+                        lineText += letter;
+                        lineText += '\n';
+                        nextOrdinal = document.NextOrdinal(tempNextOrdinal);
+                        hasHardBreak = true;
                         break;
                     }
                 }
@@ -49,56 +59,46 @@ namespace TextCoreControl
                     if (lineWidth > layoutWidth)
                         break;
                 }
+
                 lineText += letter;
                 nextOrdinal = document.NextOrdinal(nextOrdinal);
             }
 
-            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal);
+            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
         }
 
-        internal VisualLine GetPreviousLine(Document document, int nextOrdinal, float layoutWidth, out int beginOrdinal)
+        internal List<VisualLine> GetPreviousLines(Document document, int nextOrdinal, float layoutWidth, out int beginOrdinal)
         {
-            // Estimate how long the line is
-            string lineText = "";
-            float lineWidth = 0;
-            bool characterSeen = false;
-            beginOrdinal = nextOrdinal;
-            beginOrdinal = document.PreviousOrdinal(beginOrdinal);
-            while (beginOrdinal != Document.BEFOREBEGIN_ORDINAL)
+            beginOrdinal = Document.BEFOREBEGIN_ORDINAL;
+            List<VisualLine> visualLines = new List<VisualLine>();
+
+            // Find the nearest hard break before nextOrdinal
+            int firstHardBreakOrdinal = document.PreviousOrdinal(nextOrdinal, 3);
+            while (firstHardBreakOrdinal != Document.BEFOREBEGIN_ORDINAL)
             {
-                char letter = document.CharacterAt(beginOrdinal);
-                if ((letter == '\n' || letter == '\v') && characterSeen)
-                {   
+                char letter = document.CharacterAt(firstHardBreakOrdinal);
+                if (letter == '\r' || letter == '\n' || letter == '\v')
                     break;
-                }
 
-                if (letter == '\r' && lineText != "\n" && characterSeen)
-                {
-                    // if this is a \r\n pair need to ignore this \r
-                    break;
-                }
+                firstHardBreakOrdinal = document.PreviousOrdinal(firstHardBreakOrdinal);
+            }
+            beginOrdinal = document.NextOrdinal(firstHardBreakOrdinal);
 
-                if (Settings.AutoWrap)
-                {
-                    lineWidth += glyphTable.GetCharacterWidth(letter);
-                    if (lineWidth > layoutWidth)
-                        break;
-                }
-
-                characterSeen = true;
-                lineText = (letter + lineText);
-                beginOrdinal = document.PreviousOrdinal(beginOrdinal);
+            // Generate lines
+            int tempBeginOrdinal = beginOrdinal;
+            while (tempBeginOrdinal < nextOrdinal)
+            {
+                VisualLine vl = this.GetNextLine(document, tempBeginOrdinal, layoutWidth, out tempBeginOrdinal);
+                visualLines.Add(vl);
             }
 
-            beginOrdinal = document.NextOrdinal(beginOrdinal);
-            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal);
-            return textLine;
+            return visualLines;
         }
 
         internal float AverageLineHeight()
         {
-            VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL);
+            VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
             return textLine.Height;
         }
 

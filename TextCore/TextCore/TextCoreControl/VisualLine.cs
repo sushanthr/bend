@@ -14,7 +14,8 @@ namespace TextCoreControl
             string lineText, 
             TextFormat defaultFormat, 
             int beginOrdinal, 
-            int nextOrdinal)
+            int nextOrdinal,
+            bool hasHardBreak)
         {
             textLayout = dwriteFactory.CreateTextLayout(lineText, 
                 defaultFormat, 
@@ -30,6 +31,7 @@ namespace TextCoreControl
 
             this.beginOrdinal = beginOrdinal;
             this.nextOrdinal = nextOrdinal;
+            this.hasHardBreak = hasHardBreak;
         }
 
         public void Draw(RenderTarget renderTarget)
@@ -181,10 +183,13 @@ namespace TextCoreControl
             if (nextOrdinal  != Document.UNDEFINED_ORDINAL && nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
         }
 
+        public bool HasHardBreak { get { return true;} }
+
         private Point2F position;
         private TextLayout textLayout;
         private float height;
         private int beginOrdinal;
         private int nextOrdinal;
+        private bool hasHardBreak;
     }
 }

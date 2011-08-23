@@ -457,16 +457,19 @@ namespace TextCoreControl
             float pageBottom = scrollOffset.Height + (float)renderHost.ActualHeight;
 
             // add lines coming in at the top.
-            int nextOrdinalBck = this.pageBeginOrdinal;
+            int nextOrdinalBack = this.pageBeginOrdinal;
             double yBottom = this.pageTop;
-
-            while (yBottom > scrollOffset.Height && nextOrdinalBck > Document.BEFOREBEGIN_ORDINAL)
+            while (yBottom > scrollOffset.Height && nextOrdinalBack > Document.BEFOREBEGIN_ORDINAL)
             {
-                VisualLine vl = this.textLayoutBuilder.GetPreviousLine(this.document, nextOrdinalBck, (float)renderHost.ActualWidth, out nextOrdinalBck);
-                yBottom -= vl.Height;
-                vl.Position = new Point2F(0, (float)yBottom);
-                if (yBottom <= pageBottom)
+                List<VisualLine> previousVisualLines = this.textLayoutBuilder.GetPreviousLines(this.document, nextOrdinalBack, (float)renderHost.ActualWidth, out nextOrdinalBack);
+                if (previousVisualLines.Count == 0)
+                    break;
+
+                for (int i = previousVisualLines.Count - 1; i >= 0; i--)
                 {
+                    VisualLine vl = previousVisualLines[i];
+                    yBottom -= vl.Height;
+                    vl.Position = new Point2F(0, (float)yBottom);
                     this.visualLines.Insert(0, vl);
                 }
             }
@@ -480,7 +483,6 @@ namespace TextCoreControl
                 nextOrdinalFwd = this.visualLines[lastLine].NextOrdinal;
                 yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
             }
-
             while (yTop < pageBottom && nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
             {
                 VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, (float)renderHost.ActualWidth, out nextOrdinalFwd);
@@ -493,24 +495,38 @@ namespace TextCoreControl
             }
 
             // Remove lines going offscreen
+            int indexLastLineAboveScreenWithHardBreak = -1;
+            int indexFirstLineBelowScreenWithHardBreak = int.MaxValue;
             for (int j = 0; j < visualLines.Count; j++)
             {
                 VisualLine vl = visualLines[j];
                 float lineTop = vl.Position.Y - scrollOffset.Height;
+                float lineBottom = vl.Position.Y + vl.Height - scrollOffset.Height;
+
                 if (lineTop > this.renderHost.ActualHeight)
                 {
-                    visualLines.RemoveAt(j);
-                    j--;
-                    continue;
+                    // Line is below screen
+                    if (vl.HasHardBreak)
+                    {
+                        indexFirstLineBelowScreenWithHardBreak = Math.Min(indexFirstLineBelowScreenWithHardBreak, j);
+                    }
                 }
-
-                float lineBottom = vl.Position.Y + vl.Height - scrollOffset.Height;
-                if (lineBottom <= 0)
+                else if (lineBottom <= 0)
                 {
-                    visualLines.RemoveAt(j);
-                    j--;
-                    continue;
+                    // Line is above screen
+                    if (vl.HasHardBreak)
+                    {
+                        indexLastLineAboveScreenWithHardBreak = Math.Max(indexLastLineAboveScreenWithHardBreak, j);
+                    }
                 }
+            }
+            if (indexFirstLineBelowScreenWithHardBreak != int.MaxValue)
+            {
+                this.visualLines.RemoveRange(indexFirstLineBelowScreenWithHardBreak, this.visualLines.Count - indexFirstLineBelowScreenWithHardBreak);
+            }
+            if (indexLastLineAboveScreenWithHardBreak > 0)
+            {
+                this.visualLines.RemoveRange(0, indexLastLineAboveScreenWithHardBreak + 1);
             }
 
             if (this.VisualLineCount > 0)
@@ -534,11 +550,6 @@ namespace TextCoreControl
             this.caret.HideCaret();
             this.Render();
             this.caret.ShowCaret();
-
-#if DEBUG
-    // Give a lee way of 2 lines
-    Debug.Assert(this.VisualLineCount < ((this.renderHost.ActualHeight / this.LineHeight) + 2));
-#endif
         }
 
         /// <summary>
@@ -668,12 +679,14 @@ namespace TextCoreControl
 
             changeStartIndex = -1;
             changeEndIndex = -1;
-            while (ordinal != Document.UNDEFINED_ORDINAL && y < (renderHost.ActualHeight + scrollOffset.Height))
+            bool previousLineHasHardBreak = true;
+            while (ordinal != Document.UNDEFINED_ORDINAL && (y < (renderHost.ActualHeight + scrollOffset.Height) || !previousLineHasHardBreak))
             {
                 VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, ordinal, (float)renderHost.ActualWidth, out ordinal);
 
                 visualLine.Position = new Point2F(0, (float)y);
                 y += visualLine.Height;
+                previousLineHasHardBreak = visualLine.HasHardBreak;
 
                 changeEndIndex = visualLineStartIndex;
                 if (changeStartIndex == -1)
@@ -743,6 +756,10 @@ namespace TextCoreControl
             // Verify the invariant that there are no null lines after UpdateVisualLines call.
             for (int i = 0; i < this.visualLines.Count; i++)
                 Debug.Assert(this.visualLines[i] != null);
+
+            // Verify that last line has a hard break
+            Debug.Assert(this.visualLines.Count > 0);
+            Debug.Assert(this.visualLines[this.visualLines.Count - 1].HasHardBreak);
 #endif
         }
 
