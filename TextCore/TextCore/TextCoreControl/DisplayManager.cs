@@ -360,9 +360,7 @@ namespace TextCoreControl
                         Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
                         if (this.pageBeginOrdinal > document.FirstOrdinal())
                         {
-                            lineIndex = this.CountVisibleLinesBeforeOrdinal(this.caret.Ordinal);
-                            lineIndex = lineIndex - this.MaxLinesPerPage();
-                            this.scrollBoundsManager.ScrollBy(lineIndex);
+                            this.scrollBoundsManager.ScrollBy(-this.MaxLinesPerPage());
                         }
                         else
                         {
@@ -386,9 +384,7 @@ namespace TextCoreControl
 
                         if (this.visualLines[this.VisualLineCount - 1].NextOrdinal != Document.UNDEFINED_ORDINAL)
                         {
-                            lineIndex = this.CountVisibleLinesBeforeOrdinal(this.caret.Ordinal);
-                            lineIndex = lineIndex + this.MaxLinesPerPage();
-                            this.scrollBoundsManager.ScrollBy(lineIndex);
+                            this.scrollBoundsManager.ScrollBy(this.MaxLinesPerPage());
                         }
                         else
                         {
@@ -419,31 +415,6 @@ namespace TextCoreControl
                     e.Handled = true;
                     break;
             }
-        }
-
-        private int CountVisibleLinesBeforeOrdinal(int ordinal)
-        {
-            int countOfVisibleLines = 0;
-            if (ordinal != Document.UNDEFINED_ORDINAL)
-            {
-                for (int i = 0; i < this.visualLines.Count; i++)
-                {
-                    VisualLine vl = this.visualLines[i];
-                    if (vl.BeginOrdinal <= ordinal && vl.NextOrdinal > ordinal)
-                    {
-                        return countOfVisibleLines;
-                    }
-
-                    float lineTop = vl.Position.Y - scrollOffset.Height;
-                    float lineBottom = vl.Position.Y + vl.Height - scrollOffset.Height;
-                    if (lineTop < this.renderHost.ActualHeight && lineBottom > 0)
-                    {
-                        countOfVisibleLines++;
-                    }
-                }
-            }
-
-            return countOfVisibleLines;
         }
 
         #endregion
@@ -522,7 +493,11 @@ namespace TextCoreControl
             }
             if (indexFirstLineBelowScreenWithHardBreak != int.MaxValue)
             {
-                this.visualLines.RemoveRange(indexFirstLineBelowScreenWithHardBreak, this.visualLines.Count - indexFirstLineBelowScreenWithHardBreak);
+                indexFirstLineBelowScreenWithHardBreak++;
+                if (indexFirstLineBelowScreenWithHardBreak < this.visualLines.Count)
+                {
+                    this.visualLines.RemoveRange(indexFirstLineBelowScreenWithHardBreak, this.visualLines.Count - indexFirstLineBelowScreenWithHardBreak);
+                }
             }
             if (indexLastLineAboveScreenWithHardBreak > 0)
             {
@@ -823,6 +798,11 @@ namespace TextCoreControl
                 this.document, 
                 this.scrollOffset, 
                 renderTarget);
+
+#if DEBUG
+            // Verify that last line has a hard break
+            Debug.Assert(this.visualLines.Count == 0 || this.visualLines[this.visualLines.Count - 1].HasHardBreak);
+#endif
         }
 
         private bool HitTest(Point2F point, out int ordinal, out int lineIndex)
@@ -1004,6 +984,9 @@ namespace TextCoreControl
 
         int                          pageBeginOrdinal;
         double                       pageTop;
+
+        // Cache of sequential visual lines such that the last line has a hard break and
+        // that all the lines on screen are present in the collection.
         List<VisualLine>             visualLines;
 
         long                         lastMouseWheelTime;
