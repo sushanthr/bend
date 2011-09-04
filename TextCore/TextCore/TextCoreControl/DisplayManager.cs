@@ -802,6 +802,7 @@ namespace TextCoreControl
 #if DEBUG
             // Verify that last line has a hard break
             Debug.Assert(this.visualLines.Count == 0 || this.visualLines[this.visualLines.Count - 1].HasHardBreak);
+            Debug.WriteLine("Visual line count: " + this.VisualLineCount);
 #endif
         }
 

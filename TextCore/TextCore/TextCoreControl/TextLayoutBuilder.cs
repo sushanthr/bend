@@ -17,55 +17,112 @@ namespace TextCoreControl
 
         internal VisualLine GetNextLine(Document document, int beginOrdinal, float layoutWidth, out int nextOrdinal)
         {
-            // Estimate how long the line is
-            string lineText = "";
-            float lineWidth = 0;
             nextOrdinal = beginOrdinal;
+
+            // Compute line contents
+            string lineText = "";
+            float autoWrapLineWidth = 0;
             bool hasHardBreak = false;
+
             while (nextOrdinal != Document.UNDEFINED_ORDINAL)
             {
                 char letter = document.CharacterAt(nextOrdinal);
-                if (letter == '\n' || letter == '\v')
+
+                if (letter == '\r')
+                {
+                    // Need to treat \r\n as one character.
+                    int tempNextOrdinal = document.NextOrdinal(nextOrdinal);
+                    if (tempNextOrdinal != Document.UNDEFINED_ORDINAL &&
+                        document.CharacterAt(tempNextOrdinal) == '\n')
+                    {
+                        lineText += letter;
+                        nextOrdinal = tempNextOrdinal;
+                        letter = '\n';
+                    }
+                }
+
+                if (letter == '\n' || letter == '\v' || letter == '\r')
                 {
                     lineText += letter;
                     nextOrdinal = document.NextOrdinal(nextOrdinal);
                     hasHardBreak = true;
                     break;
                 }
-                else if (letter == '\r')
+                else if (Settings.AutoWrap)
                 {
-                    int tempNextOrdinal = document.NextOrdinal(nextOrdinal);
-                    if (document.CharacterAt(tempNextOrdinal) != '\n')
+                    if (TextLayoutBuilder.IsBreakOppertunity(letter))
                     {
+                        float charWidth = glyphTable.GetCharacterWidth(letter);
+                        if (autoWrapLineWidth + charWidth > layoutWidth)
+                            break;
+
                         lineText += letter;
-                        nextOrdinal = tempNextOrdinal;
-                        hasHardBreak = true;
-                        break;
+                        autoWrapLineWidth += charWidth;
+                        nextOrdinal = document.NextOrdinal(nextOrdinal);
                     }
                     else
                     {
-                        // /r /n combo
-                        lineText += letter;
-                        lineText += '\n';
-                        nextOrdinal = document.NextOrdinal(tempNextOrdinal);
-                        hasHardBreak = true;
-                        break;
+                        // form the next word
+                        string nextWord = letter.ToString();
+                        int tempOrdinal = document.NextOrdinal(nextOrdinal);
+                        float wordWidth = glyphTable.GetCharacterWidth(letter);
+
+                        bool IsFirstWord = (beginOrdinal == nextOrdinal);
+                        char tempChar;
+                        bool wordFitsInLine = true;
+
+                        while (tempOrdinal != Document.UNDEFINED_ORDINAL)
+                        {
+                            tempChar = document.CharacterAt(tempOrdinal);
+                            if (TextLayoutBuilder.IsBreakOppertunity(tempChar))
+                                break;
+
+                            float charWidth = glyphTable.GetCharacterWidth(tempChar);
+                            if ((autoWrapLineWidth + wordWidth + charWidth) > layoutWidth)
+                            {
+                                if (!IsFirstWord)
+                                {
+                                    // The word will not fit in the line
+                                    wordFitsInLine = false;
+                                }
+                                // Else let the half word live on the line
+
+                                break;
+                            }
+
+                            nextWord += tempChar;
+                            wordWidth += charWidth;
+                            tempOrdinal = document.NextOrdinal(tempOrdinal);
+                        }
+
+                        if (wordFitsInLine)
+                        {
+                            // We have a valid word that fits in the line
+                            lineText += nextWord;
+                            autoWrapLineWidth += wordWidth;
+                            nextOrdinal = tempOrdinal;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
-
-                if (Settings.AutoWrap)
+                else
                 {
-                    lineWidth += glyphTable.GetCharacterWidth(letter);
-                    if (lineWidth > layoutWidth)
-                        break;
+                    // We dont update line width because it only matters when AutoWrap is enabled.
+                    lineText += letter;
+                    nextOrdinal = document.NextOrdinal(nextOrdinal);
                 }
-
-                lineText += letter;
-                nextOrdinal = document.NextOrdinal(nextOrdinal);
             }
 
             VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
+        }
+
+        private static bool IsBreakOppertunity(char letter)
+        {
+            return !Char.IsLetterOrDigit(letter) && !Char.IsPunctuation(letter);
         }
 
         internal List<VisualLine> GetPreviousLines(Document document, int nextOrdinal, float layoutWidth, out int beginOrdinal)

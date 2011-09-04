@@ -178,7 +178,7 @@ namespace Test
             Mouse.Click(uIMainWindowTitleBar, new Point(271, 2));
 
             // Click 'RenderHost' client
-            Mouse.Click(uIRenderHostClient, new Point(168, 26));
+            Mouse.Click(uIRenderHostClient, new Point(174, 26));
 
             // Type '{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}{Back}And{Space}Back{Space}!' in 'RenderHost' client
             Keyboard.SendKeys(uIRenderHostClient1, this.BackspaceAllContentParams.UIRenderHostClient1SendKeys, ModifierKeys.None);
