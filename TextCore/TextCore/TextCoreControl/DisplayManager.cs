@@ -401,18 +401,36 @@ namespace TextCoreControl
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Back:
-                    if (this.caret.Ordinal > document.FirstOrdinal())
                     {
-                        document.DeleteAt(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                        int selectionBeginTemp;
+                        string selectedText = this.GetSelectedText(out selectionBeginTemp);
+                        if (selectedText != null && selectedText.Length != 0)
+                        {
+                            // We have some text selected. Need to delete that instead
+                            document.DeleteAt(selectionBeginTemp, selectedText.Length);
+                        }
+                        else if (this.caret.Ordinal > document.FirstOrdinal())
+                        {
+                            document.DeleteAt(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                        }
+                        e.Handled = true;
                     }
-                    e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Delete:
-                    if (this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
                     {
-                        document.DeleteAt(this.caret.Ordinal, 1);
+                        int selectionBeginTemp;
+                        string selectedText = this.GetSelectedText(out selectionBeginTemp);
+                        if (selectedText != null && selectedText.Length != 0)
+                        {
+                            // We have some text selected. Need to delete that instead
+                            document.DeleteAt(selectionBeginTemp, selectedText.Length);
+                        }
+                        else if (this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
+                        {
+                            document.DeleteAt(this.caret.Ordinal, 1);
+                        }
+                        e.Handled = true;
                     }
-                    e.Handled = true;
                     break;
             }
         }
@@ -551,6 +569,31 @@ namespace TextCoreControl
             this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
             this.hwndRenderTarget.EndDraw();
             this.caret.ShowCaret();
+        }
+
+        public string GetSelectedText(out int selectionBeginOrdinal)
+        {
+            string selectedString = "";
+
+            selectionBeginOrdinal = this.SelectionBegin;
+            int selectionEndOrdinal = this.SelectionEnd;
+
+            if (selectionBeginOrdinal < selectionEndOrdinal &&
+                selectionBeginOrdinal != Document.BEFOREBEGIN_ORDINAL &&
+                selectionBeginOrdinal != Document.UNDEFINED_ORDINAL &&
+                selectionEndOrdinal != Document.BEFOREBEGIN_ORDINAL &&
+                selectionEndOrdinal != Document.UNDEFINED_ORDINAL)
+            {
+                // Valid selection range exists
+                int tempOrdinal = selectionBeginOrdinal;
+                while (tempOrdinal != selectionEndOrdinal)
+                {
+                    selectedString += document.CharacterAt(tempOrdinal);
+                    tempOrdinal = document.NextOrdinal(tempOrdinal);
+                }
+            }
+
+            return selectedString;
         }
 
         #endregion
@@ -802,7 +845,6 @@ namespace TextCoreControl
 #if DEBUG
             // Verify that last line has a hard break
             Debug.Assert(this.visualLines.Count == 0 || this.visualLines[this.visualLines.Count - 1].HasHardBreak);
-            Debug.WriteLine("Visual line count: " + this.VisualLineCount);
 #endif
         }
 

@@ -19,7 +19,7 @@ namespace TextCoreControl
 
             // Delete the text
             int selectionBeginOrdinal;
-            string cutString = this.GetSelectedText(textCoreControl, out selectionBeginOrdinal);
+            string cutString = textCoreControl.DisplayManager.GetSelectedText(out selectionBeginOrdinal);
             if (cutString.Length > 0)
             {
                 textCoreControl.Document.DeleteAt(selectionBeginOrdinal, cutString.Length);
@@ -30,7 +30,7 @@ namespace TextCoreControl
         {
             this.SyncClipBoardRing();
             int selectionBeginOrdinal;
-            string copyString = this.GetSelectedText(textCoreControl, out selectionBeginOrdinal);
+            string copyString = textCoreControl.DisplayManager.GetSelectedText(out selectionBeginOrdinal);
             if (copyString.Length > 0)
             {
                 this.PrivateAddToClipBoardRing(copyString);
@@ -46,7 +46,7 @@ namespace TextCoreControl
             {
                 // Remove current selected text
                 int selectionBeginOrdinal;
-                string copyString = this.GetSelectedText(textCoreControl, out selectionBeginOrdinal);
+                string copyString = textCoreControl.DisplayManager.GetSelectedText(out selectionBeginOrdinal);
                 if (copyString.Length > 0)
                 {
                     textCoreControl.Document.DeleteAt(selectionBeginOrdinal, copyString.Length);
@@ -67,7 +67,7 @@ namespace TextCoreControl
 
                 // Remove current selected text
                 int selectionBeginOrdinal;
-                string copyString = this.GetSelectedText(textCoreControl, out selectionBeginOrdinal);
+                string copyString = textCoreControl.DisplayManager.GetSelectedText(out selectionBeginOrdinal);
                 if (copyString.Length > 0)
                 {
                     textCoreControl.Document.DeleteAt(selectionBeginOrdinal, copyString.Length);
@@ -118,32 +118,6 @@ namespace TextCoreControl
                     this.ringIndex = 0;
                 }
             }
-        }
-
-        private string GetSelectedText(TextControlUserControl textCoreControl, out int selectionBeginOrdinal)
-        {
-            string copyString = "";
-
-            selectionBeginOrdinal = textCoreControl.DisplayManager.SelectionBegin;
-            int selectionEndOrdinal = textCoreControl.DisplayManager.SelectionEnd;
-
-            if (selectionBeginOrdinal < selectionEndOrdinal &&
-                selectionBeginOrdinal != Document.BEFOREBEGIN_ORDINAL &&
-                selectionBeginOrdinal != Document.UNDEFINED_ORDINAL &&
-                selectionEndOrdinal != Document.BEFOREBEGIN_ORDINAL &&
-                selectionEndOrdinal != Document.UNDEFINED_ORDINAL)
-            {
-                // Valid selection range exists
-                Document document = textCoreControl.Document;
-                int tempOrdinal = selectionBeginOrdinal;
-                while (tempOrdinal != selectionEndOrdinal)
-                {
-                    copyString += document.CharacterAt(tempOrdinal);
-                    tempOrdinal = document.NextOrdinal(tempOrdinal);
-                }
-            }
-
-            return copyString;
         }
 
         LinkedList<String> clipBoardRing;
