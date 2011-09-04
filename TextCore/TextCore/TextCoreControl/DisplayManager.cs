@@ -262,6 +262,8 @@ namespace TextCoreControl
 
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            bool adjustSelection = false;
+
             switch (e.Key)
             {
                 case System.Windows.Input.Key.Left:
@@ -272,7 +274,9 @@ namespace TextCoreControl
                         {
                             this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ -1);
                         }
+
                         this.UpdateCaret(newCaretPosition);
+                        adjustSelection = true;
                     }
                     e.Handled = true;
                     break;
@@ -284,32 +288,40 @@ namespace TextCoreControl
                         {
                             this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ +1);
                         }
+
                         this.UpdateCaret(newCaretPosition);
+                        adjustSelection = true;
                     }
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Up:
-                    if (this.VisualLineCount > 0)
                     {
-                        if (this.visualLines[0].BeginOrdinal <= this.caret.Ordinal && this.visualLines[0].NextOrdinal > this.caret.Ordinal)
+                        if (this.VisualLineCount > 0)
                         {
-                            // Moving up from the first line, we need to scroll up - if possible.
-                            this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ -1);
+                            if (this.visualLines[0].BeginOrdinal <= this.caret.Ordinal && this.visualLines[0].NextOrdinal > this.caret.Ordinal)
+                            {
+                                // Moving up from the first line, we need to scroll up - if possible.
+                                this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ -1);
+                            }
                         }
+                        this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineUp);
+                        adjustSelection = true;
                     }
-                    this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineUp);
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.Down:
-                    if (this.VisualLineCount > 0)
                     {
-                        if (this.visualLines[this.VisualLineCount - 1].BeginOrdinal <= this.caret.Ordinal && this.visualLines[this.VisualLineCount - 1].NextOrdinal > this.caret.Ordinal)
+                        if (this.VisualLineCount > 0)
                         {
-                            // Moving down from the first line, we need to scroll down - if possible.
-                            this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ +1);
+                            if (this.visualLines[this.VisualLineCount - 1].BeginOrdinal <= this.caret.Ordinal && this.visualLines[this.VisualLineCount - 1].NextOrdinal > this.caret.Ordinal)
+                            {
+                                // Moving down from the first line, we need to scroll down - if possible.
+                                this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ +1);
+                            }
                         }
+                        this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineDown);
+                        adjustSelection = true;
                     }
-                    this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineDown);
                     e.Handled = true;
                     break;
                 case System.Windows.Input.Key.End:
@@ -334,6 +346,7 @@ namespace TextCoreControl
                             if (newCaretOrdinal >= vl.BeginOrdinal)
                             {
                                 this.caret.MoveCaretToLine(vl, this.document, this.scrollOffset, newCaretOrdinal);
+                                adjustSelection = true;
                             }
                         }
                     }
@@ -349,6 +362,7 @@ namespace TextCoreControl
                             VisualLine vl = this.visualLines[lineIndex];
                             int newCaretOrdinal = vl.BeginOrdinal;
                             this.caret.MoveCaretToLine(vl, this.document, this.scrollOffset, newCaretOrdinal);
+                            adjustSelection = true;
                         }
                     }
                     e.Handled = true;
@@ -372,6 +386,7 @@ namespace TextCoreControl
                         if (this.HitTest(caretPosition, out ordinal, out lineIndex))
                         {
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
+                            adjustSelection = true;
                         }
                     }
                     e.Handled = true;
@@ -396,6 +411,7 @@ namespace TextCoreControl
                         if (this.HitTest(caretPosition, out ordinal, out lineIndex))
                         {
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
+                            adjustSelection = true;
                         }
                     }
                     e.Handled = true;
@@ -432,6 +448,22 @@ namespace TextCoreControl
                         e.Handled = true;
                     }
                     break;
+            }
+
+            if (adjustSelection)
+            {
+                this.caret.HideCaret();
+                this.hwndRenderTarget.BeginDraw();
+                if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                {
+                    this.selectionManager.ExpandSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                }
+                else
+                {
+                    this.selectionManager.ResetSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                }
+                this.hwndRenderTarget.EndDraw();
+                this.caret.ShowCaret();
             }
         }
 
@@ -566,7 +598,10 @@ namespace TextCoreControl
             this.caret.HideCaret();
             this.hwndRenderTarget.BeginDraw();
             this.selectionManager.ResetSelection(beginAtOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-            this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+            if (beginAtOrdinal != endBeforeOrdinal)
+            {
+                this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+            }
             this.hwndRenderTarget.EndDraw();
             this.caret.ShowCaret();
         }
@@ -607,6 +642,7 @@ namespace TextCoreControl
                 // Full reset, most likely a new file was loaded.
                 this.pageBeginOrdinal = document.FirstOrdinal();
                 this.pageTop = 0;
+                this.SelectRange(this.pageBeginOrdinal, this.pageBeginOrdinal);
 
                 int changeStart, changeEnd;
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
@@ -646,6 +682,7 @@ namespace TextCoreControl
 
                 this.caret.HideCaret();
                 hwndRenderTarget.BeginDraw();
+                this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                 this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();

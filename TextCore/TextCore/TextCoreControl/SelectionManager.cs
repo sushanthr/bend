@@ -34,6 +34,13 @@ namespace TextCoreControl
                 return;
             }
 
+            if (oldSelectionBegin == oldSelectionEnd && selectionBeginOrdinal == selectionEndOrdinal)
+            {
+                // There was no selection before and there is no selection now - bail out.
+                // There is no work to do here.
+                return;
+            }
+
             // Find range of affected lines.
             int firstLine = -1;
             int lastLine = 0;
@@ -163,6 +170,7 @@ namespace TextCoreControl
             this.selectionBeginOrdinal = beginOrdinal;
             this.selectionEndOrdinal = beginOrdinal;
 
+            // Draw selection bails when there is no actual selection area change.
             this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, scrollOffset, renderTarget);
         }
 
