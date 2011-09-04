@@ -1,8 +1,6 @@
 TODOS:
 Scrollbounds due to editing
 
-Shift left arrow right arrow must select.
-
 Refinement
 Caret during scrolling
 Clicking inside selection
