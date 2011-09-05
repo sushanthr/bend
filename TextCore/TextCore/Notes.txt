@@ -1,6 +1,5 @@
 TODOS:
 Refinement
-Ctrl + A
 Caret during scrolling
 Selection shape refinement
 Mouse wheel zoom (settings change handling etc)
@@ -11,7 +10,7 @@ Implement actual document using Rope or other advanced Data structure.
 International text
 http://msdn.microsoft.com/en-us/library/dd756594(v=vs.85).aspx
 http://msdn.microsoft.com/en-us/library/aa970267.aspx
-
+Carent when window gets focus back.
 
 Features:
 Accelerated Scrolling

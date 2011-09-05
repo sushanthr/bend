@@ -43,6 +43,11 @@ namespace TextCoreControl
             return fileContents != null && fileContents.Length > 0 ? 0 : UNDEFINED_ORDINAL;
         }
 
+        internal int LastOrdinal()
+        {
+            return fileContents != null && fileContents.Length > 0 ? fileContents.Length - 1 : UNDEFINED_ORDINAL;
+        }
+
         internal int NextOrdinal(int ordinal, uint offset = 1)
         {
             ordinal += (int)offset;

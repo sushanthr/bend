@@ -448,6 +448,19 @@ namespace TextCoreControl
                         e.Handled = true;
                     }
                     break;
+                case System.Windows.Input.Key.A:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    {
+                        //  Control A was pressed - select all
+                        this.caret.HideCaret();
+                        this.hwndRenderTarget.BeginDraw();
+                        this.selectionManager.ResetSelection(this.document.FirstOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.hwndRenderTarget.EndDraw();
+                        this.caret.ShowCaret();
+                        e.Handled = true;
+                    }
+                    break;
             }
 
             if (adjustSelection)
