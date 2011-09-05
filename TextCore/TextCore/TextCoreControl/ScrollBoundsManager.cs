@@ -46,7 +46,7 @@ namespace TextCoreControl
         public void InitializeVerticalScrollBounds(float width)
         {
             TextLayoutBuilder textLayoutBuilder = new TextLayoutBuilder();
-            object[] paramaterArray = { this.document, textLayoutBuilder, this, width, this.displayManager.PageBeginOrdinal};
+            object[] paramaterArray = { this.document, textLayoutBuilder, this, width, this.displayManager.FirstVisibleOrdinal()};
 
             if (asyncScrollLengthEstimater != null)
             {

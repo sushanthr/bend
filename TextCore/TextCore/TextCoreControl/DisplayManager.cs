@@ -693,7 +693,6 @@ namespace TextCoreControl
                 visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
                 int changeStart, changeEnd;
                 this.UpdateVisualLines(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
-                this.UpdateCaret(endOrdinal);
 
                 // Scrollbounds: Estimate delta due to change (only works when change is above the last ordinal on page).
                 //               forces full document scroll bounds computation otherwise.
@@ -743,11 +742,6 @@ namespace TextCoreControl
                     }
                 }
 
-                if (forceDocumentBoundsMeasure)
-                {
-                    Debug.WriteLine("Initiating full document scroll bounds measure due to change.");
-                    this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
-                }
                 if (!forceDocumentBoundsMeasure)
                 {
                     // scrollBoundsDelta is accurate and the scrollBoundsManager has to be updated with it.
@@ -757,21 +751,28 @@ namespace TextCoreControl
                     }
                 }
 
-                // Render 
-                // Scroll the caret into view
+                // Scroll the endOrdinal into view
                 bool contentRendered = false;
-                while (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= this.CaretOrdinal)
+                while (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= endOrdinal)
                 {
+                    // Since the scroll bounds are not correct at this point, simply increment it so that scrollby can
+                    // scroll to the next line. The async scrollbounds estimator will fix the scroll bounds up later.
+                    if (forceDocumentBoundsMeasure)
+                    {
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(1);
+                    }
                     this.scrollBoundsManager.ScrollBy(+1);
                     contentRendered = true;
                 }
-                while (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > this.CaretOrdinal)
+                while (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > endOrdinal)
                 {
                     this.scrollBoundsManager.ScrollBy(-1);
                     contentRendered = true;
                 }
 
+                // Render 
                 this.caret.HideCaret();
+                this.UpdateCaret(endOrdinal);
                 hwndRenderTarget.BeginDraw();
                 this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                 if (!contentRendered)
@@ -782,6 +783,12 @@ namespace TextCoreControl
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
                 this.caret.ShowCaret();
+
+                if (forceDocumentBoundsMeasure)
+                {
+                    Debug.WriteLine("Initiating full document scroll bounds measure due to change.");
+                    this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
+                }
             }
         }
 
@@ -1136,8 +1143,22 @@ namespace TextCoreControl
             return (int) (this.renderHost.ActualHeight / this.LineHeight);
         }
 
-        public int PageBeginOrdinal { get { return this.pageBeginOrdinal; } }
-        public int CaretOrdinal     { get { return this.caret.Ordinal; } }
+        public int FirstVisibleOrdinal() 
+        {
+            double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
+            for (int i = 0; i < this.VisualLineCount; i++)
+            {
+                if (visualLines[i].Position.Y >= this.scrollOffset.Height && visualLines[i].Position.Y < screenBottom)
+                {
+                    // We have a cached line that is visible on screen
+                    return visualLines[i].BeginOrdinal;
+                }
+            }
+
+            return this.pageBeginOrdinal;
+        }
+
+        public int CaretOrdinal { get { return this.caret.Ordinal; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
 
