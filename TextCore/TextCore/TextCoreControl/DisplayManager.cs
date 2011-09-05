@@ -652,6 +652,21 @@ namespace TextCoreControl
             }
             else
             {
+                // ScrollBounds Prep for estimate scroll bounds delta due to change.
+                int lastVisualLineNextOrdinal = Document.UNDEFINED_ORDINAL;
+                float trackedVisualLineTop = 0f;
+                bool trackableLineFound = false;
+                if (this.VisualLineCount > 0)
+                {
+                    Debug.Assert(this.visualLines[this.VisualLineCount - 1].HasHardBreak);
+                    lastVisualLineNextOrdinal = this.visualLines[this.VisualLineCount - 1].NextOrdinal;
+                    if (lastVisualLineNextOrdinal > endOrdinal)
+                    {
+                        trackedVisualLineTop = this.visualLines[this.VisualLineCount - 1].Position.Y;
+                        trackableLineFound = true;
+                    }
+                }
+
                 int visualLineStartIndex = -1;
                 for (int i = 0; i < visualLines.Count; i++)
                 {
@@ -680,10 +695,90 @@ namespace TextCoreControl
                 this.UpdateVisualLines(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
                 this.UpdateCaret(endOrdinal);
 
+                // Scrollbounds: Estimate delta due to change (only works when change is above the last ordinal on page).
+                //               forces full document scroll bounds computation otherwise.
+                float scrollBoundsDelta = 0f;
+                bool forceDocumentBoundsMeasure = true;
+                int lastLineIndex = this.VisualLineCount - 1;
+                if (trackableLineFound && this.VisualLineCount > 0)
+                {
+                    Debug.Assert(this.visualLines[lastLineIndex].HasHardBreak);
+                    int newLastVisualLineNextOrdinal = this.visualLines[lastLineIndex].NextOrdinal;
+
+                    if (newLastVisualLineNextOrdinal == lastVisualLineNextOrdinal)
+                    {
+                        // Matching lines, the scroll bounds delta can be calculated.
+                        scrollBoundsDelta = this.visualLines[lastLineIndex].Position.Y - trackedVisualLineTop;
+                        forceDocumentBoundsMeasure = false;
+                    }
+                    else if (newLastVisualLineNextOrdinal < lastVisualLineNextOrdinal)
+                    {
+                        // try generating 5 more lines to see if lastVisualLineNextOrdinal can be found
+                        float tempLinesDelta = 0;
+                        for (int i = 0; i < 5 && newLastVisualLineNextOrdinal != Document.UNDEFINED_ORDINAL; i++)
+                        {
+                            VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, newLastVisualLineNextOrdinal, (float)renderHost.ActualWidth, out newLastVisualLineNextOrdinal);
+                            tempLinesDelta += visualLine.Height;
+                            if (visualLine.NextOrdinal == lastVisualLineNextOrdinal)
+                            {
+                                scrollBoundsDelta = this.visualLines[lastLineIndex].Position.Y + tempLinesDelta - trackedVisualLineTop;
+                                forceDocumentBoundsMeasure = false;
+                            }
+                        }
+                    }
+                    else if (newLastVisualLineNextOrdinal > lastVisualLineNextOrdinal)
+                    {
+                        // Look up the array to find the line again.
+                        for (int i = this.VisualLineCount - 1; i >= 0; i--)
+                        {
+                            if (this.visualLines[i].NextOrdinal == lastVisualLineNextOrdinal)
+                            {
+                                // We can safely assert this, since the change is completely before lastVisualLineNextOrdinal
+                                // and this invariant should not have changed.
+                                Debug.Assert(this.visualLines[i].HasHardBreak);
+                                scrollBoundsDelta = this.visualLines[i].Position.Y - trackedVisualLineTop;
+                                forceDocumentBoundsMeasure = false;
+                            }
+                        }
+                    }
+                }
+
+                if (forceDocumentBoundsMeasure)
+                {
+                    Debug.WriteLine("Initiating full document scroll bounds measure due to change.");
+                    this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
+                }
+                if (!forceDocumentBoundsMeasure)
+                {
+                    // scrollBoundsDelta is accurate and the scrollBoundsManager has to be updated with it.
+                    if (scrollBoundsDelta != 0)
+                    {
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange((int)(scrollBoundsDelta / this.visualLines[0].Height));
+                    }
+                }
+
+                // Render 
+                // Scroll the caret into view
+                bool contentRendered = false;
+                while (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= this.CaretOrdinal)
+                {
+                    this.scrollBoundsManager.ScrollBy(+1);
+                    contentRendered = true;
+                }
+                while (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > this.CaretOrdinal)
+                {
+                    this.scrollBoundsManager.ScrollBy(-1);
+                    contentRendered = true;
+                }
+
                 this.caret.HideCaret();
                 hwndRenderTarget.BeginDraw();
                 this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
+                if (!contentRendered)
+                {
+                    // Nothing to render if scrolling already rendered content on screen.
+                    this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
+                }
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
                 this.caret.ShowCaret();
@@ -794,7 +889,7 @@ namespace TextCoreControl
                 }
                 else
                 {
-                    // Remove any trailing lines.
+                    // Remove any trailing null lines.
                     for (int d = changeEndIndex; d < this.visualLines.Count; d++)
                     {
                         if (this.visualLines[d] == null)

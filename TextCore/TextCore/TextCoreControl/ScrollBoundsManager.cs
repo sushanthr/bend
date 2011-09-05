@@ -18,6 +18,7 @@ namespace TextCoreControl
             RenderHost renderHost,
             Document document)
         {
+            this.totalLineCount = 0;
             vScrollBar.Loaded += new System.Windows.RoutedEventHandler(vScrollBar_Loaded);
             this.vScrollBar = vScrollBar;
             this.hScrollBar = hScrollBar;
@@ -94,35 +95,43 @@ namespace TextCoreControl
 
         private void InitializeVerticalScrollBounds(int totalLineCount, int pageBeginOrdinal, double pageTop, double scrollOffset)
         {
-            int maxLinesPerPage = displayManager.MaxLinesPerPage();
-            if (maxLinesPerPage < totalLineCount && maxLinesPerPage != 0)
-            {
-                // Need to show scrollbars
-                this.vScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
-                    new Action
-                    (
-                        delegate()
+            this.vScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
+                new Action
+                (
+                    delegate()
+                    {
+                        this.SetVerticalScrollBarLimits(totalLineCount);
+                        if (this.vScrollBar.IsEnabled)
                         {
-                            this.vScrollBar.IsEnabled = true;
-                            this.vScrollBar.Minimum = 0;
-                            this.vScrollBar.Maximum = totalLineCount - maxLinesPerPage;
-                            this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
-
-                            // Guesstimate the thumb hieght
-                            if (maxLinesPerPage < totalLineCount)
-                            {
-                                this.vScrollBar.ViewportSize = totalLineCount * maxLinesPerPage / (totalLineCount - maxLinesPerPage);
-                            }
-                            else
-                            {
-                                this.vScrollBar.ViewportSize = double.MaxValue;
-                            }
-
                             this.vScrollBar.Value = scrollOffset;
                             this.displayManager.AdjustVScrollPositionForResize(pageBeginOrdinal, pageTop, scrollOffset);
                         }
-                    )
-                );
+                    }
+                )
+            );
+        }
+
+        private void SetVerticalScrollBarLimits(int totalLineCount)
+        {
+            int maxLinesPerPage = displayManager.MaxLinesPerPage();
+            this.totalLineCount = totalLineCount;
+            if (maxLinesPerPage < totalLineCount && maxLinesPerPage != 0)
+            {
+                // Need to show scrollbars
+                this.vScrollBar.IsEnabled = true;
+                this.vScrollBar.Minimum = 0;
+                this.vScrollBar.Maximum = totalLineCount - maxLinesPerPage;
+                this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
+
+                // Guesstimate the thumb hieght
+                if (maxLinesPerPage < totalLineCount)
+                {
+                    this.vScrollBar.ViewportSize = totalLineCount * maxLinesPerPage / (totalLineCount - maxLinesPerPage);
+                }
+                else
+                {
+                    this.vScrollBar.ViewportSize = double.MaxValue;
+                }
             }
             else
             {
@@ -130,6 +139,12 @@ namespace TextCoreControl
                 DisableVScrollbar();
             }
         }
+
+        internal void UpdateVerticalScrollBoundsDueToContentChange(int delta)
+        {
+            this.SetVerticalScrollBarLimits(this.totalLineCount + delta);
+        }
+
         #endregion
 
         #region Horizonatal scroll bounds setter API
@@ -219,6 +234,7 @@ namespace TextCoreControl
         Thread asyncScrollLengthEstimater;
         Document document;
         DisplayManager displayManager;
+        int totalLineCount;
         #endregion
     }
 }
