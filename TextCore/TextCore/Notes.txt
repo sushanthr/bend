@@ -1,18 +1,17 @@
 TODOS:
-Scrollbounds due to editing
-
 Refinement
+Ctrl + A
 Caret during scrolling
-Clicking inside selection
 Selection shape refinement
 Mouse wheel zoom (settings change handling etc)
-Implement document lock to prevent changes during scroll length estimation
+Implement async estimator restart to handle changes during scroll length estimation
 Line numbers
 Syntax Highlighting
 Implement actual document using Rope or other advanced Data structure.
 International text
 http://msdn.microsoft.com/en-us/library/dd756594(v=vs.85).aspx
 http://msdn.microsoft.com/en-us/library/aa970267.aspx
+
 
 Features:
 Accelerated Scrolling

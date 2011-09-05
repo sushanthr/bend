@@ -66,6 +66,8 @@ namespace TextCoreControl
                         string nextWord = letter.ToString();
                         int tempOrdinal = document.NextOrdinal(nextOrdinal);
                         float wordWidth = glyphTable.GetCharacterWidth(letter);
+                        if (autoWrapLineWidth + wordWidth > layoutWidth)
+                            break;
 
                         bool IsFirstWord = (beginOrdinal == nextOrdinal);
                         char tempChar;
