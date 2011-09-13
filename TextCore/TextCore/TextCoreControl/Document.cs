@@ -13,7 +13,6 @@ namespace TextCoreControl
         public Document()
         {
             this.fileContents = "\0";
-            this.undoRedoManager = null;
         }
 
         public void LoadFile(string fullFilePath)
@@ -23,7 +22,7 @@ namespace TextCoreControl
 
             if (this.ContentChange != null)
             {
-                this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL);
+                this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
             }
         }
 
@@ -101,11 +100,6 @@ namespace TextCoreControl
         {
             fileContents = fileContents.Insert(ordinal, content);
 
-            if (this.undoRedoManager != null)
-            {
-                this.undoRedoManager.AddAction( new UndoRedoManager.InsertTextAction(ordinal, content));
-            }
-
             if (this.OrdinalShift != null)
             {
                 this.OrdinalShift(this, ordinal, content.Length);
@@ -114,7 +108,7 @@ namespace TextCoreControl
             if (this.ContentChange != null)
             {
                 int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
-                this.ContentChange(ordinal, endOrdinal);
+                this.ContentChange(ordinal, endOrdinal, content);
             }
         }
 
@@ -130,10 +124,7 @@ namespace TextCoreControl
             // Last ordinal is reserved for \n
             if (ordinal + length < this.fileContents.Length)
             {
-                if (this.undoRedoManager != null)
-                {
-                    this.undoRedoManager.AddAction(new UndoRedoManager.DeleteTextAction(ordinal, fileContents.Substring(ordinal, length)));
-                }
+                string content = fileContents.Substring(ordinal, length);
 
                 int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
 
@@ -146,17 +137,13 @@ namespace TextCoreControl
 
                 if (this.ContentChange != null)
                 {
-                    this.ContentChange(ordinal, ordinal);
+                    this.ContentChange(ordinal, ordinal, content);
                 }
             }
         }
 
-        internal UndoRedoManager UndoRedoManager {
-            set { this.undoRedoManager = value; }
-        }
-
         // A delegate type for hooking up change notifications.
-        public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal);
+        public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal, string content);
         public event ContentChangeEventHandler ContentChange;
 
         /// <summary>
@@ -169,6 +156,5 @@ namespace TextCoreControl
         public event OrdinalShiftEventHandler OrdinalShift;
 
         private string fileContents;
-        private UndoRedoManager undoRedoManager;
     }
 }

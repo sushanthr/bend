@@ -19,7 +19,6 @@ namespace TextCoreControl
             InitializeComponent();
             this.document = new Document();
             this.undoRedoManager = new UndoRedoManager(this.document);
-            this.document.UndoRedoManager = this.undoRedoManager;
             this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar);
             this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControlUserControl_PreviewKeyDown);
             this.copyPasteManager = null;

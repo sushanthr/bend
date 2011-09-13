@@ -648,7 +648,7 @@ namespace TextCoreControl
 
         #region Content change handling
 
-        void Document_ContentChanged(int beginOrdinal, int endOrdinal)
+        void Document_ContentChanged(int beginOrdinal, int endOrdinal, string content)
         {
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {

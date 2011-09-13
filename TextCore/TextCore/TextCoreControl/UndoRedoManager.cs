@@ -163,12 +163,31 @@ namespace TextCoreControl
         internal UndoRedoManager(Document document)
         {
             document.OrdinalShift += new Document.OrdinalShiftEventHandler(Document_OrdinalShift);
+            document.ContentChange += new Document.ContentChangeEventHandler(document_ContentChange);
             this.document = document;
             this.actionList = new LinkedList<Action>();
             this.currentActionNode = this.actionList.First;
             this.currentActionNodeIsAfterEnd = false;
             this.isPerformingUndoRedo = false;
             this.maxInterestingOrdinal = Document.BEFOREBEGIN_ORDINAL;
+        }
+
+        void document_ContentChange(int beginOrdinal, int endOrdinal, string content)
+        {
+            if (content != null)
+            { 
+                System.Diagnostics.Debug.Assert(beginOrdinal != Document.UNDEFINED_ORDINAL);
+                if (beginOrdinal < endOrdinal)
+                {
+                    // Content insertion
+                    this.AddAction(new UndoRedoManager.InsertTextAction(beginOrdinal, content));
+                }
+                else
+                {
+                    // Content deletion
+                    this.AddAction(new UndoRedoManager.DeleteTextAction(beginOrdinal, content));
+                }
+            }
         }
 
         internal void AddAction(Action action)
