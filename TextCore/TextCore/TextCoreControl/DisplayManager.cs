@@ -39,6 +39,8 @@ namespace TextCoreControl
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
 
             this.lastMouseWheelTime = System.DateTime.Now.Ticks;
+
+            DebugHUD.DisplayManager = this;
         }
 
         void CreateDeviceResources()
@@ -68,6 +70,8 @@ namespace TextCoreControl
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
+
+                this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget);
 
                 if (this.visualLines.Count > 0)
                 {
@@ -517,7 +521,9 @@ namespace TextCoreControl
                 nextOrdinalFwd = this.visualLines[lastLine].NextOrdinal;
                 yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
             }
-            while (yTop < pageBottom && nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
+            // add lines making sure, we end with a line that has a hard break.
+            while ((yTop < pageBottom || this.VisualLineCount == 0 || !this.visualLines[this.VisualLineCount -1].HasHardBreak) && 
+                nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
             {
                 VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, (float)renderHost.ActualWidth, out nextOrdinalFwd);
                 vl.Position = new Point2F(0, (float)yTop);
@@ -791,7 +797,7 @@ namespace TextCoreControl
                 if (!contentRendered)
                 {
                     // Nothing to render if scrolling already rendered content on screen.
-                    this.RenderToRenderTarget(hwndRenderTarget, changeStart, changeEnd);
+                    this.RenderToRenderTarget(changeStart, changeEnd, hwndRenderTarget);
                 }
                 hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
@@ -960,12 +966,12 @@ namespace TextCoreControl
                 return;
 
             hwndRenderTarget.BeginDraw();
-            this.RenderToRenderTarget(hwndRenderTarget, /*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1);
+            this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
             hwndRenderTarget.Flush();
             hwndRenderTarget.EndDraw();
         }
 
-        private void RenderToRenderTarget(RenderTarget renderTarget, int redrawBegin, int redrawEnd)
+        private void RenderToRenderTarget(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
         {
             RectF wipeBounds;
             if (redrawBegin == 0 && redrawEnd == visualLines.Count - 1)
@@ -986,13 +992,22 @@ namespace TextCoreControl
                 visualLine.Draw(renderTarget);
             }
 
-            selectionManager.DrawSelection(
+            this.selectionManager.DrawSelection(
                 selectionManager.GetSelectionBeginOrdinal(),
                 selectionManager.GetSelectionEndOrdinal(), 
                 this.visualLines, 
                 this.document, 
                 this.scrollOffset, 
                 renderTarget);
+
+            this.contentLineManager.DrawLineNumbers(
+                redrawBegin,
+                redrawEnd,
+                this.visualLines, 
+                this.document,
+                renderTarget);
+
+            DebugHUD.Draw(renderTarget, this.scrollOffset);
 
 #if DEBUG
             // Verify that last line has a hard break
@@ -1090,7 +1105,7 @@ namespace TextCoreControl
             this.caret.HideCaret();
             hwndRenderTarget.BeginDraw();
 
-            this.RenderToRenderTarget(hwndRenderTarget, 0, this.visualLines.Count - 1);
+            this.RenderToRenderTarget(0, this.visualLines.Count - 1, hwndRenderTarget);
 
             IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
             IntPtr compatibleDC = CreateCompatibleDC(windowDC);
@@ -1171,6 +1186,7 @@ namespace TextCoreControl
             return this.pageBeginOrdinal;
         }
 
+        internal int MaxContentLines { set { if (this.contentLineManager != null) { this.contentLineManager.MaxContentLines = value; } } }
         public int CaretOrdinal { get { return this.caret.Ordinal; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
@@ -1190,6 +1206,7 @@ namespace TextCoreControl
         Caret                        caret;
         SizeF                        scrollOffset;
         ScrollBoundsManager          scrollBoundsManager;
+        ContentLineManager           contentLineManager;
 
         int                          pageBeginOrdinal;
         double                       pageTop;

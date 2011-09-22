@@ -11,8 +11,8 @@ namespace TextCoreControl
         public SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
-            defaultSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.414f, 0.484f, 0.625f, 1.0f));
-            defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(0.3686f, 0.447f, 0.6f, 1.0f));
+            defaultSelectionBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
+            defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionOutlineColor);
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
         }

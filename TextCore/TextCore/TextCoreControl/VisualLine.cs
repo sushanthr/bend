@@ -183,7 +183,7 @@ namespace TextCoreControl
             if (nextOrdinal  != Document.UNDEFINED_ORDINAL && nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
         }
 
-        public bool HasHardBreak { get { return true;} }
+        public bool HasHardBreak { get { return this.hasHardBreak;} }
 
         private Point2F position;
         private TextLayout textLayout;

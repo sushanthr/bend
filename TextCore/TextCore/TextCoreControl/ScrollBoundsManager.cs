@@ -14,7 +14,7 @@ namespace TextCoreControl
     {
         const int UPDATE_INTERVAL = 100;
 
-        public ScrollBoundsManager(ScrollBar vScrollBar, 
+        internal ScrollBoundsManager(ScrollBar vScrollBar, 
             ScrollBar hScrollBar, 
             DisplayManager displayManager, 
             RenderHost renderHost,
@@ -69,7 +69,7 @@ namespace TextCoreControl
 
         #region Vertical scroll bounds estimation
 
-        public void InitializeVerticalScrollBounds(double width)
+        internal void InitializeVerticalScrollBounds(double width)
         {
             lock (this)
             {
@@ -111,10 +111,17 @@ namespace TextCoreControl
                 int firstLineIndex = -1;
                 int newPageBeginOrdinal = 0;
                 double newPageTop = 0;
+                int contentLines = 0;
 
                 while (ordinal != Document.UNDEFINED_ORDINAL)
                 {
                     VisualLine vl = this.textLayoutBuilder.GetNextLine(document, ordinal, layoutWidth, out ordinal);
+
+                    if (vl.HasHardBreak)
+                    {
+                        contentLines++;
+                    }
+
                     if (firstLineIndex == -1)
                     {
                         if (vl.NextOrdinal > firstVisibleOrdinal)
@@ -128,6 +135,7 @@ namespace TextCoreControl
                             newPageTop += vl.Height;
                         }
                     }
+
                     lineCount++;
 
                     if (lineCount % UPDATE_INTERVAL == 0)
@@ -143,7 +151,7 @@ namespace TextCoreControl
 
                 if (!e.Cancel)
                 {
-                    object[] resultArray = { lineCount, newPageBeginOrdinal, newPageTop, firstLineIndex };
+                    object[] resultArray = { lineCount, newPageBeginOrdinal, newPageTop, firstLineIndex, contentLines };
                     e.Result = resultArray;
                 }
             }
@@ -171,6 +179,7 @@ namespace TextCoreControl
                 int newPageBeginOrdinal = (int)resultArray[1];
                 double newPageTop = (double)resultArray[2];
                 int firstLineIndex = (int)resultArray[3];
+                int maxContentLines = (int)resultArray[4];
 
                 this.SetVerticalScrollBarLimits(lineCount);
                 if (this.vScrollBar.IsEnabled)
@@ -178,6 +187,8 @@ namespace TextCoreControl
                     this.vScrollBar.Value = firstLineIndex;
                     this.displayManager.AdjustVScrollPositionForResize(newPageBeginOrdinal, newPageTop, firstLineIndex);
                 }
+
+                this.displayManager.MaxContentLines = maxContentLines;
             }
         }
 
@@ -224,7 +235,7 @@ namespace TextCoreControl
         #endregion
 
         #region Horizonatal scroll bounds setter API
-        public void InitializeHorizontalScrollBounds(double maxLineWidth, double renderHostWidth)
+        internal void InitializeHorizontalScrollBounds(double maxLineWidth, double renderHostWidth)
         {
             if (maxLineWidth > renderHostWidth)
             {
@@ -261,7 +272,7 @@ namespace TextCoreControl
 
         #region Scroll bar offset computation / Hide - Show Scroll bar API
 
-        public void ScrollBy(int numberOfLines)
+        internal void ScrollBy(int numberOfLines)
         {
             double newScrollValue = this.vScrollBar.Value + numberOfLines;
             if (newScrollValue < 0) newScrollValue = 0;

@@ -118,6 +118,7 @@ namespace TextCoreControl
                 }
             }
 
+            if (nextOrdinal == Document.UNDEFINED_ORDINAL) hasHardBreak = true;
             VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
         }

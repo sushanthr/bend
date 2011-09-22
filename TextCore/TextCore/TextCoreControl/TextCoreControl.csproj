@@ -58,6 +58,8 @@
   <ItemGroup>
     <Compile Include="Caret.cs" />
     <Compile Include="CopyPasteManager.cs" />
+    <Compile Include="ContentLineManager.cs" />
+    <Compile Include="DebugHUD.cs" />
     <Compile Include="ScrollBoundsManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
