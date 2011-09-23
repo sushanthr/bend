@@ -13,6 +13,8 @@ namespace TextCoreControl
         {
             this.glyphTable = new GlyphTable(Settings.DefaultTextFormat);
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
+            this.averageLineHeight = -1;
+            this.averageDigitWidth = -1;
         }
 
         internal VisualLine GetNextLine(Document document, int beginOrdinal, float layoutWidth, out int nextOrdinal)
@@ -53,12 +55,19 @@ namespace TextCoreControl
                     if (TextLayoutBuilder.IsBreakOppertunity(letter))
                     {
                         float charWidth = glyphTable.GetCharacterWidth(letter);
-                        if (autoWrapLineWidth + charWidth > layoutWidth)
-                            break;
+                        bool mustBreak = autoWrapLineWidth + charWidth > layoutWidth;
 
-                        lineText += letter;
-                        autoWrapLineWidth += charWidth;
-                        nextOrdinal = document.NextOrdinal(nextOrdinal);
+                        // If we must break, but this is the first character on the line then 
+                        // include it inorder to consume atleast one ordinal.
+                        if (!mustBreak || nextOrdinal == beginOrdinal)
+                        {
+                            lineText += letter;
+                            autoWrapLineWidth += charWidth;
+                            nextOrdinal = document.NextOrdinal(nextOrdinal);
+                        }
+
+                        if (mustBreak)
+                            break;
                     }
                     else
                     {
@@ -118,6 +127,7 @@ namespace TextCoreControl
                 }
             }
 
+            System.Diagnostics.Debug.Assert(beginOrdinal != nextOrdinal, "Line building should have consumed atleast 1 ordinal.");
             if (nextOrdinal == Document.UNDEFINED_ORDINAL) hasHardBreak = true;
             VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
@@ -156,13 +166,40 @@ namespace TextCoreControl
             return visualLines;
         }
 
+        /// <summary>
+        ///     Returns if a character pair constitute a hard break
+        /// </summary>
+        /// <param name="letter">First character</param>
+        /// <param name="nextLetter">Next character (pass \0, if there are no more characters)</param>
+        /// <returns>True if character pair constitute a hard break</returns>
+        internal static bool IsHardBreakChar(char letter, char nextLetter)
+        {
+            return letter == '\n' || letter == '\v' || (letter == '\r' && nextLetter != '\n');
+        }
+
         internal float AverageLineHeight()
         {
-            VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
-            return textLine.Height;
+            if (this.averageLineHeight == -1)
+            {
+                VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
+                this.averageLineHeight = textLine.Height;
+            }
+            return this.averageLineHeight;
+        }
+
+        internal float AverageDigitWidth()
+        {
+            if (this.averageDigitWidth == -1)
+            {
+                VisualLine textLine = new VisualLine(this.dwriteFactory, "0123456789", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
+                this.averageDigitWidth = (textLine.Width / 10);
+            }
+            return this.averageDigitWidth;
         }
 
         private GlyphTable glyphTable;
         private readonly DWriteFactory dwriteFactory;
+        private float averageLineHeight;
+        private float averageDigitWidth;
     }
 }

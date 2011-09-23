@@ -39,6 +39,7 @@ namespace TextCoreControl
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
 
             this.lastMouseWheelTime = System.DateTime.Now.Ticks;
+            this.leftMargin = 0;
 
             DebugHUD.DisplayManager = this;
         }
@@ -71,7 +72,8 @@ namespace TextCoreControl
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
 
-                this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget);
+                this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget, this.d2dFactory);
+                this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
 
                 if (this.visualLines.Count > 0)
                 {
@@ -115,6 +117,8 @@ namespace TextCoreControl
                 int changeStart, changeEnd;
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
                 this.UpdateCaret(this.caret.Ordinal);
+
+                this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
             }
         }
 
@@ -491,15 +495,15 @@ namespace TextCoreControl
         public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             int initialLineCount = this.VisualLineCount;
-            scrollOffset.Height = (float)e.NewValue * this.LineHeight;
-            float pageBottom = scrollOffset.Height + (float)renderHost.ActualHeight;
+            this.scrollOffset.Height = (float)e.NewValue * this.LineHeight;
+            float pageBottom = this.scrollOffset.Height + (float)renderHost.ActualHeight;
 
             // add lines coming in at the top.
             int nextOrdinalBack = this.pageBeginOrdinal;
             double yBottom = this.pageTop;
             while (yBottom > scrollOffset.Height && nextOrdinalBack > Document.BEFOREBEGIN_ORDINAL)
             {
-                List<VisualLine> previousVisualLines = this.textLayoutBuilder.GetPreviousLines(this.document, nextOrdinalBack, (float)renderHost.ActualWidth, out nextOrdinalBack);
+                List<VisualLine> previousVisualLines = this.textLayoutBuilder.GetPreviousLines(this.document, nextOrdinalBack, this.AvailbleWidth, out nextOrdinalBack);
                 if (previousVisualLines.Count == 0)
                     break;
 
@@ -507,7 +511,7 @@ namespace TextCoreControl
                 {
                     VisualLine vl = previousVisualLines[i];
                     yBottom -= vl.Height;
-                    vl.Position = new Point2F(0, (float)yBottom);
+                    vl.Position = new Point2F(this.LeftMargin, (float)yBottom);
                     this.visualLines.Insert(0, vl);
                 }
             }
@@ -522,11 +526,11 @@ namespace TextCoreControl
                 yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
             }
             // add lines making sure, we end with a line that has a hard break.
-            while ((yTop < pageBottom || this.VisualLineCount == 0 || !this.visualLines[this.VisualLineCount -1].HasHardBreak) && 
+            while ((yTop < pageBottom || this.VisualLineCount == 0 || !this.visualLines[this.VisualLineCount - 1].HasHardBreak) &&
                 nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
             {
-                VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, (float)renderHost.ActualWidth, out nextOrdinalFwd);
-                vl.Position = new Point2F(0, (float)yTop);
+                VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, this.AvailbleWidth, out nextOrdinalFwd);
+                vl.Position = new Point2F(this.LeftMargin, (float)yTop);
                 if (yTop >= scrollOffset.Height)
                 {
                     this.visualLines.Add(vl);
@@ -603,10 +607,14 @@ namespace TextCoreControl
         /// <param name="newScrollOffset">Resulting new scroll offset</param>
         public void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop, double newScrollOffset)
         {
-            this.visualLines.RemoveRange(0, this.VisualLineCount);
-            this.pageTop = newPageTop;
-            this.pageBeginOrdinal = newPageBeginOrdinal;
-            this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
+            if (this.scrollOffset.Height != (float)newScrollOffset * this.LineHeight)
+            {
+                // Scrolloffset actually changed.
+                this.visualLines.RemoveRange(0, this.VisualLineCount);
+                this.pageTop = newPageTop;
+                this.pageBeginOrdinal = newPageBeginOrdinal;
+                this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
+            }
         }
         #endregion
 
@@ -667,7 +675,7 @@ namespace TextCoreControl
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
                 this.UpdateCaret(endOrdinal);
 
-                this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
+                this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
             }
             else
             {
@@ -735,7 +743,7 @@ namespace TextCoreControl
                         float tempLinesDelta = 0;
                         for (int i = 0; i < 5 && newLastVisualLineNextOrdinal != Document.UNDEFINED_ORDINAL; i++)
                         {
-                            VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, newLastVisualLineNextOrdinal, (float)renderHost.ActualWidth, out newLastVisualLineNextOrdinal);
+                            VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, newLastVisualLineNextOrdinal, this.AvailbleWidth, out newLastVisualLineNextOrdinal);
                             tempLinesDelta += visualLine.Height;
                             if (visualLine.NextOrdinal == lastVisualLineNextOrdinal)
                             {
@@ -806,7 +814,7 @@ namespace TextCoreControl
                 if (forceDocumentBoundsMeasure)
                 {
                     Debug.WriteLine("Initiating full document scroll bounds measure due to change.");
-                    this.scrollBoundsManager.InitializeVerticalScrollBounds((float)this.renderHost.ActualWidth);
+                    this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
                 }
             }
         }
@@ -858,9 +866,9 @@ namespace TextCoreControl
             bool previousLineHasHardBreak = true;
             while (ordinal != Document.UNDEFINED_ORDINAL && (y < (renderHost.ActualHeight + scrollOffset.Height) || !previousLineHasHardBreak))
             {
-                VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, ordinal, (float)renderHost.ActualWidth, out ordinal);
+                VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, ordinal, this.AvailbleWidth, out ordinal);
 
-                visualLine.Position = new Point2F(0, (float)y);
+                visualLine.Position = new Point2F(this.LeftMargin, (float)y);
                 y += visualLine.Height;
                 previousLineHasHardBreak = visualLine.HasHardBreak;
 
@@ -1005,6 +1013,8 @@ namespace TextCoreControl
                 redrawEnd,
                 this.visualLines, 
                 this.document,
+                this.scrollOffset,
+                this.LeftMargin, 
                 renderTarget);
 
             DebugHUD.Draw(renderTarget, this.scrollOffset);
@@ -1024,6 +1034,7 @@ namespace TextCoreControl
                 if (visualLine.Position.Y <= point.Y && visualLine.Position.Y + visualLine.Height > point.Y)
                 {
                     point.Y -= visualLine.Position.Y;
+                    point.X -= visualLine.Position.X;
                     uint offset;
                     visualLine.HitTest(point, out offset);
                     ordinal = document.NextOrdinal(visualLine.BeginOrdinal, (uint)offset);
@@ -1151,16 +1162,7 @@ namespace TextCoreControl
         {
             get
             {
-                float lineHeight;
-                if (this.VisualLineCount > 0)
-                {
-                    lineHeight = this.visualLines[0].Height;
-                }
-                else
-                {
-                    lineHeight = textLayoutBuilder.AverageLineHeight();
-                }
-                return lineHeight;
+                return textLayoutBuilder.AverageLineHeight();
             }
         }
 
@@ -1186,7 +1188,49 @@ namespace TextCoreControl
             return this.pageBeginOrdinal;
         }
 
-        internal int MaxContentLines { set { if (this.contentLineManager != null) { this.contentLineManager.MaxContentLines = value; } } }
+        internal int MaxContentLines 
+        { 
+            set 
+            { 
+                if (this.contentLineManager != null) 
+                {
+                    if (this.contentLineManager.MaxContentLines != value)
+                    {
+                        this.contentLineManager.MaxContentLines = value;
+                        this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
+                    }
+                }
+            } 
+        }
+
+        internal int LeftMargin
+        {
+            get { return this.leftMargin; }
+            set
+            {
+                if (this.leftMargin != value)
+                {
+                    this.leftMargin = value;
+
+                    // Need to update all lines and recompute scroll bounds.
+                    int changeStart, changeEnd;
+                    this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                    this.UpdateCaret(this.caret.Ordinal);
+                    this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
+
+                    // Render the newly shifted lines.
+                    this.caret.HideCaret();
+                    this.Render();
+                    this.caret.ShowCaret();
+                }
+            }
+        }
+
+        internal float AvailbleWidth
+        {
+            get { return (float)renderHost.ActualWidth - this.LeftMargin; }
+        }
+
         public int CaretOrdinal { get { return this.caret.Ordinal; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
@@ -1216,6 +1260,7 @@ namespace TextCoreControl
         List<VisualLine>             visualLines;
 
         long                         lastMouseWheelTime;
+        int                          leftMargin;
         #endregion
     }
 }

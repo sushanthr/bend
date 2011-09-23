@@ -37,7 +37,6 @@ namespace TextCoreControl
             this.scrollLengthEstimator.RunWorkerCompleted += new RunWorkerCompletedEventHandler(scrollLengthEstimator_RunWorkerCompleted);
 
             vScrollBar.Loaded += new System.Windows.RoutedEventHandler(vScrollBar_Loaded);
-            renderHost.SizeChanged += new System.Windows.SizeChangedEventHandler(renderHost_SizeChanged);
         }
 
         #region Event handler (Renderhost size change / loaded)
@@ -46,12 +45,6 @@ namespace TextCoreControl
         {
             DisableVScrollbar();
             DisableHScrollbar();
-        }
-
-        void renderHost_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
-        {
-            RenderHost renderHost = (RenderHost) sender;
-            this.InitializeVerticalScrollBounds(renderHost.ActualWidth);
         }
 
         internal void UpdateVerticalScrollBoundsDueToContentChange(int delta)

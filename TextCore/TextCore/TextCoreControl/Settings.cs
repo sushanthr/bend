@@ -30,6 +30,9 @@ namespace TextCoreControl
             Settings.CopyPaste_ClipRing_Max_Entries      = 10;
 
             Settings.ShowDebugHUD                        = false;
+
+            Settings.ShowLineNumber                      = false;
+            Settings.MinLineNumberDigits                 = 3;
         }
 
         private static DWriteFactory dwriteFactory;
@@ -51,5 +54,7 @@ namespace TextCoreControl
         public static int           CopyPaste_ClipRing_Max_Entries;
 
         public static bool          ShowDebugHUD;
+        public static bool          ShowLineNumber;
+        public static int           MinLineNumberDigits;
     }
 }

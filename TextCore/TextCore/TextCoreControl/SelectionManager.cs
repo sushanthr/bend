@@ -44,6 +44,7 @@ namespace TextCoreControl
             // Find range of affected lines.
             int firstLine = -1;
             int lastLine = 0;
+            float minX = renderTarget.Size.Width;
             for (int k = 0; k < visualLines.Count; k++)
             {
                 VisualLine visualLine = (VisualLine)visualLines[k];
@@ -57,6 +58,7 @@ namespace TextCoreControl
 
                 if (oldSelection || currentSelection)
                 {
+                    minX = Math.Min(minX, visualLine.Position.X);
                     lastLine = k;
                     if (firstLine == -1) firstLine = k;
                 }
@@ -94,7 +96,7 @@ namespace TextCoreControl
                 }
 
                 RectF bounds = new RectF(
-                                    0,
+                                    minX,
                                     ((VisualLine)visualLines[firstLine]).Position.Y,
                                     renderTarget.Size.Width,
                                     ((VisualLine)visualLines[lastLine]).Position.Y + ((VisualLine)visualLines[lastLine]).Height
@@ -108,6 +110,7 @@ namespace TextCoreControl
                 {
                     bounds.Bottom += 3.0f;
                 }
+                bounds.Left -= 3.0f;
 
                 GeometryGroup selectionGeometry = null;
                 if (geometryList.Count != 0)

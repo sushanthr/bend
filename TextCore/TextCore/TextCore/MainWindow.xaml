@@ -9,5 +9,7 @@
         <Button Content="load" Height="23" HorizontalAlignment="Left" Margin="345,6,0,0" Name="button1" VerticalAlignment="Top" Width="32" Click="button1_Click" />
         <Button Content="tilt" Height="23" HorizontalAlignment="Left" Margin="383,6,0,0" Name="button2" VerticalAlignment="Top" Width="20" Click="button2_Click" />
         <Button Height="23" Margin="408,6,0,0" Name="button3" VerticalAlignment="Top" Content="save" HorizontalAlignment="Left" Width="29" Click="button3_Click"></Button>
+        <CheckBox Content="LN" Height="16" HorizontalAlignment="Left" Margin="446,10,0,0" Name="showLineNumnber" VerticalAlignment="Top" Click="showLineNumnber_Click" />
+        <CheckBox Content="HUD" Height="16" HorizontalAlignment="Left" Margin="486,10,0,0" Name="showHUD" VerticalAlignment="Top" Click="showHUD_Click"/>
     </Grid>
 </Window>

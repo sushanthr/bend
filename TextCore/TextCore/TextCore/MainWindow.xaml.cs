@@ -65,5 +65,23 @@ namespace TextCore
                 TextEditor.SaveFile(FilePath.Text);
             }
         }
+
+        private void showLineNumnber_Click(object sender, RoutedEventArgs e)
+        {
+            TextCoreControl.Settings.ShowLineNumber = false;
+            if (showLineNumnber.IsChecked.HasValue)
+            {
+                TextCoreControl.Settings.ShowLineNumber = showLineNumnber.IsChecked.Value;
+            }
+        }
+
+        private void showHUD_Click(object sender, RoutedEventArgs e)
+        {
+            TextCoreControl.Settings.ShowDebugHUD = false;
+            if (showHUD.IsChecked.HasValue)
+            {
+                TextCoreControl.Settings.ShowDebugHUD = showHUD.IsChecked.Value;
+            }
+        }
     }
 }
