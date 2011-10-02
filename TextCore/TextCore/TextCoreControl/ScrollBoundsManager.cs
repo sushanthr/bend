@@ -20,7 +20,6 @@ namespace TextCoreControl
             RenderHost renderHost,
             Document document)
         {
-            this.totalLineCount = 0;
             this.vScrollBar = vScrollBar;
             this.hScrollBar = hScrollBar;
             this.document = document;
@@ -28,6 +27,7 @@ namespace TextCoreControl
             this.textLayoutBuilder = new TextLayoutBuilder();
             this.currentWidth = 0;
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
+            this.verticalScrollBound = 0;
 
             this.scrollLengthEstimator = new BackgroundWorker();
             this.scrollLengthEstimator.WorkerReportsProgress = true;
@@ -45,11 +45,13 @@ namespace TextCoreControl
         {
             DisableVScrollbar();
             DisableHScrollbar();
+            vScrollBar.SmallChange = this.textLayoutBuilder.AverageLineHeight();
+            vScrollBar.LargeChange = this.displayManager.AvailableHeight;
         }
 
-        internal void UpdateVerticalScrollBoundsDueToContentChange(int delta)
+        internal void UpdateVerticalScrollBoundsDueToContentChange(double delta)
         {
-            this.SetVerticalScrollBarLimits(this.totalLineCount + delta);
+            this.SetVerticalScrollBarLimits(this.verticalScrollBound + delta);
 
             if (scrollLengthEstimator.IsBusy)
             {
@@ -100,11 +102,13 @@ namespace TextCoreControl
             try
             {
                 int ordinal = document.FirstOrdinal();
-                int lineCount = 0;
-                int firstLineIndex = -1;
+                double verticalScrollBound = 0;
+
+                bool pageTopFound = false;
                 int newPageBeginOrdinal = 0;
                 double newPageTop = 0;
                 int contentLines = 0;
+                int progressCount = 0;
 
                 while (ordinal != Document.UNDEFINED_ORDINAL)
                 {
@@ -115,13 +119,13 @@ namespace TextCoreControl
                         contentLines++;
                     }
 
-                    if (firstLineIndex == -1)
+                    if (!pageTopFound)
                     {
                         if (vl.NextOrdinal > firstVisibleOrdinal)
                         {
                             // page begin has been passed
                             newPageBeginOrdinal = vl.BeginOrdinal;
-                            firstLineIndex = lineCount;
+                            pageTopFound = true;
                         }
                         else
                         {
@@ -129,11 +133,12 @@ namespace TextCoreControl
                         }
                     }
 
-                    lineCount++;
+                    verticalScrollBound += vl.Height;
 
-                    if (lineCount % UPDATE_INTERVAL == 0)
+                    progressCount++;
+                    if (progressCount % UPDATE_INTERVAL == 0)
                     {
-                        worker.ReportProgress(lineCount);
+                        worker.ReportProgress((int)verticalScrollBound);
                         if (worker.CancellationPending)
                         {
                             e.Cancel = true;
@@ -144,7 +149,7 @@ namespace TextCoreControl
 
                 if (!e.Cancel)
                 {
-                    object[] resultArray = { lineCount, newPageBeginOrdinal, newPageTop, firstLineIndex, contentLines };
+                    object[] resultArray = { verticalScrollBound, newPageBeginOrdinal, newPageTop, contentLines };
                     e.Result = resultArray;
                 }
             }
@@ -168,17 +173,16 @@ namespace TextCoreControl
             {
                 // We have a valid result.
                 object[] resultArray = (object []) e.Result;
-                int lineCount = (int)resultArray[0];
+                double verticalScrollBound = (double)resultArray[0];
                 int newPageBeginOrdinal = (int)resultArray[1];
                 double newPageTop = (double)resultArray[2];
-                int firstLineIndex = (int)resultArray[3];
-                int maxContentLines = (int)resultArray[4];
+                int maxContentLines = (int)resultArray[3];
 
-                this.SetVerticalScrollBarLimits(lineCount);
+                this.SetVerticalScrollBarLimits(verticalScrollBound);
                 if (this.vScrollBar.IsEnabled)
                 {
-                    this.vScrollBar.Value = firstLineIndex;
-                    this.displayManager.AdjustVScrollPositionForResize(newPageBeginOrdinal, newPageTop, firstLineIndex);
+                    this.vScrollBar.Value = newPageTop;
+                    this.displayManager.AdjustVScrollPositionForResize(newPageBeginOrdinal, newPageTop);
                 }
 
                 this.displayManager.MaxContentLines = maxContentLines;
@@ -187,36 +191,28 @@ namespace TextCoreControl
 
         void scrollLengthEstimator_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            int totalLineCount = e.ProgressPercentage;
+            int verticalScrollBound = e.ProgressPercentage;
             // To prevent jittery scroll thumb updates, update the thumb only if totalLineCount increases.
             // On completion, we do update the thumb size to the final value correctly.
-            if (totalLineCount > this.totalLineCount)
+            if (verticalScrollBound > this.verticalScrollBound)
             {
-                this.SetVerticalScrollBarLimits(totalLineCount);
+                this.SetVerticalScrollBarLimits(verticalScrollBound);
             }
         }
 
-        private void SetVerticalScrollBarLimits(int totalLineCount)
+        private void SetVerticalScrollBarLimits(double verticalScrollBound)
         {
-            int maxLinesPerPage = displayManager.MaxLinesPerPage();
-            this.totalLineCount = totalLineCount;
-            if (maxLinesPerPage < totalLineCount && maxLinesPerPage != 0)
+            this.verticalScrollBound = verticalScrollBound;
+            if (displayManager.AvailableHeight < this.verticalScrollBound && displayManager.AvailableHeight != 0)
             {
                 // Need to show scrollbars
                 this.vScrollBar.IsEnabled = true;
                 this.vScrollBar.Minimum = 0;
-                this.vScrollBar.Maximum = totalLineCount - maxLinesPerPage;
+                this.vScrollBar.Maximum = this.verticalScrollBound - displayManager.AvailableHeight;
                 this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
 
                 // Guesstimate the thumb hieght
-                if (maxLinesPerPage < totalLineCount)
-                {
-                    this.vScrollBar.ViewportSize = totalLineCount * maxLinesPerPage / (totalLineCount - maxLinesPerPage);
-                }
-                else
-                {
-                    this.vScrollBar.ViewportSize = double.MaxValue;
-                }
+                this.vScrollBar.ViewportSize = this.verticalScrollBound * displayManager.AvailableHeight / (this.verticalScrollBound - displayManager.AvailableHeight);
             }
             else
             {
@@ -265,15 +261,15 @@ namespace TextCoreControl
 
         #region Scroll bar offset computation / Hide - Show Scroll bar API
 
-        internal void ScrollBy(int numberOfLines)
+        internal void ScrollBy(double offset)
         {
-            double newScrollValue = this.vScrollBar.Value + numberOfLines;
+            double newScrollValue = this.vScrollBar.Value + offset;
             if (newScrollValue < 0) newScrollValue = 0;
             if (newScrollValue > this.vScrollBar.Maximum) newScrollValue = this.vScrollBar.Maximum;
 
             this.vScrollBar.Value = newScrollValue;
             this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(
-                numberOfLines > 0 ? ScrollEventType.SmallIncrement : ScrollEventType.SmallDecrement, 
+                offset > 0 ? ScrollEventType.SmallIncrement : ScrollEventType.SmallDecrement, 
                 this.vScrollBar.Value));
         }
 
@@ -315,10 +311,11 @@ namespace TextCoreControl
         Document document;
         DisplayManager displayManager;
         TextLayoutBuilder textLayoutBuilder;
-        int totalLineCount;
 
         double currentWidth;
         int currentFirstVisibleOrdinal;
+
+        double verticalScrollBound;
 
         #endregion
     }

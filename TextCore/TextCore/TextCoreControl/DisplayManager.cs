@@ -242,7 +242,7 @@ namespace TextCoreControl
                         // When lowWord has MK_CONTROL 0x0008, the control key is down.
                         if ((0x0008 & lowWord) == 0)
                         {
-                            this.scrollBoundsManager.ScrollBy(deltaAmount);
+                            this.ScrollBy(deltaAmount);
                         }
                         else
                         {
@@ -280,7 +280,7 @@ namespace TextCoreControl
                         int newCaretPosition = this.document.PreviousOrdinal(this.caret.Ordinal);
                         if (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > newCaretPosition && this.pageBeginOrdinal != document.FirstOrdinal())
                         {
-                            this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ -1);
+                            this.ScrollBy(/*numberOfLines*/ -1);
                         }
 
                         this.UpdateCaret(newCaretPosition);
@@ -294,7 +294,7 @@ namespace TextCoreControl
                         int newCaretPosition = this.document.NextOrdinal(this.caret.Ordinal);
                         if (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= newCaretPosition)
                         {
-                            this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ +1);
+                            this.ScrollBy(/*numberOfLines*/ +1);
                         }
 
                         this.UpdateCaret(newCaretPosition);
@@ -306,10 +306,13 @@ namespace TextCoreControl
                     {
                         if (this.VisualLineCount > 0)
                         {
-                            if (this.visualLines[0].BeginOrdinal <= this.caret.Ordinal && this.visualLines[0].NextOrdinal > this.caret.Ordinal)
+                            int firstVisibleLine = this.FirstVisibleLine();
+                            if (firstVisibleLine >= 0 && 
+                                this.visualLines[firstVisibleLine].BeginOrdinal <= this.caret.Ordinal && 
+                                this.visualLines[firstVisibleLine].NextOrdinal > this.caret.Ordinal)
                             {
                                 // Moving up from the first line, we need to scroll up - if possible.
-                                this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ -1);
+                                this.ScrollBy(/*numberOfLines*/ -1);
                             }
                         }
                         this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineUp);
@@ -321,10 +324,13 @@ namespace TextCoreControl
                     {
                         if (this.VisualLineCount > 0)
                         {
-                            if (this.visualLines[this.VisualLineCount - 1].BeginOrdinal <= this.caret.Ordinal && this.visualLines[this.VisualLineCount - 1].NextOrdinal > this.caret.Ordinal)
+                            int lastVisibleLine = this.LastVisibleLine();
+                            if (lastVisibleLine >= 0 && 
+                                this.visualLines[lastVisibleLine].BeginOrdinal <= this.caret.Ordinal && 
+                                this.visualLines[lastVisibleLine].NextOrdinal > this.caret.Ordinal)
                             {
-                                // Moving down from the first line, we need to scroll down - if possible.
-                                this.scrollBoundsManager.ScrollBy(/*numberOfLines*/ +1);
+                                // Moving down from the last visible line, we need to scroll down - if possible.
+                                this.ScrollBy(/*numberOfLines*/ +1);
                             }
                         }
                         this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineDown);
@@ -382,7 +388,7 @@ namespace TextCoreControl
                         Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
                         if (this.pageBeginOrdinal > document.FirstOrdinal())
                         {
-                            this.scrollBoundsManager.ScrollBy(-this.MaxLinesPerPage());
+                            this.scrollBoundsManager.ScrollBy(-this.AvailableHeight);
                         }
                         else
                         {
@@ -407,7 +413,7 @@ namespace TextCoreControl
 
                         if (this.visualLines[this.VisualLineCount - 1].NextOrdinal != Document.UNDEFINED_ORDINAL)
                         {
-                            this.scrollBoundsManager.ScrollBy(this.MaxLinesPerPage());
+                            this.scrollBoundsManager.ScrollBy(this.AvailableHeight);
                         }
                         else
                         {
@@ -495,48 +501,10 @@ namespace TextCoreControl
         public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             int initialLineCount = this.VisualLineCount;
-            this.scrollOffset.Height = (float)e.NewValue * this.LineHeight;
-            float pageBottom = this.scrollOffset.Height + (float)renderHost.ActualHeight;
+            this.scrollOffset.Height = (float)e.NewValue;
 
-            // add lines coming in at the top.
-            int nextOrdinalBack = this.pageBeginOrdinal;
-            double yBottom = this.pageTop;
-            while (yBottom > scrollOffset.Height && nextOrdinalBack > Document.BEFOREBEGIN_ORDINAL)
-            {
-                List<VisualLine> previousVisualLines = this.textLayoutBuilder.GetPreviousLines(this.document, nextOrdinalBack, this.AvailbleWidth, out nextOrdinalBack);
-                if (previousVisualLines.Count == 0)
-                    break;
-
-                for (int i = previousVisualLines.Count - 1; i >= 0; i--)
-                {
-                    VisualLine vl = previousVisualLines[i];
-                    yBottom -= vl.Height;
-                    vl.Position = new Point2F(this.LeftMargin, (float)yBottom);
-                    this.visualLines.Insert(0, vl);
-                }
-            }
-
-            // add lines coming in at the bottom.
-            int nextOrdinalFwd = this.pageBeginOrdinal;
-            double yTop = this.pageTop;
-            if (this.VisualLineCount > 0)
-            {
-                int lastLine = this.VisualLineCount - 1;
-                nextOrdinalFwd = this.visualLines[lastLine].NextOrdinal;
-                yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
-            }
-            // add lines making sure, we end with a line that has a hard break.
-            while ((yTop < pageBottom || this.VisualLineCount == 0 || !this.visualLines[this.VisualLineCount - 1].HasHardBreak) &&
-                nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
-            {
-                VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, this.AvailbleWidth, out nextOrdinalFwd);
-                vl.Position = new Point2F(this.LeftMargin, (float)yTop);
-                if (yTop >= scrollOffset.Height)
-                {
-                    this.visualLines.Add(vl);
-                }
-                yTop += vl.Height;
-            }
+            this.AddLinesAbove(/*minLinesToAdd*/0);
+            this.AddLinesBelow(/*minLinesToAdd*/0);
 
             // Remove lines going offscreen
             int indexLastLineAboveScreenWithHardBreak = -1;
@@ -600,22 +568,129 @@ namespace TextCoreControl
             this.caret.ShowCaret();
         }
 
+        private void AddLinesAbove(int minLinesToAdd)
+        {
+            float pageBottom = this.scrollOffset.Height + (float)renderHost.ActualHeight;
+            // add lines coming in at the top.
+            int nextOrdinalBack = this.pageBeginOrdinal;
+            double yBottom = this.pageTop;
+            if (this.VisualLineCount > 0)
+            {
+                nextOrdinalBack = this.visualLines[0].BeginOrdinal;
+                yBottom = this.visualLines[0].Position.Y;
+            }
+
+            while ((yBottom > scrollOffset.Height || minLinesToAdd > 0) && nextOrdinalBack > Document.BEFOREBEGIN_ORDINAL)
+            {
+                List<VisualLine> previousVisualLines = this.textLayoutBuilder.GetPreviousLines(this.document, nextOrdinalBack, this.AvailbleWidth, out nextOrdinalBack);
+                if (previousVisualLines.Count == 0)
+                    break;
+
+                for (int i = previousVisualLines.Count - 1; i >= 0; i--)
+                {
+                    VisualLine vl = previousVisualLines[i];
+                    yBottom -= vl.Height;
+                    vl.Position = new Point2F(this.LeftMargin, (float)yBottom);
+                    this.visualLines.Insert(0, vl);
+                    minLinesToAdd--;
+                }
+            }
+        }
+
+        private void AddLinesBelow(int minLinesToAdd)
+        {
+            // add lines coming in at the bottom.
+            int nextOrdinalFwd = this.pageBeginOrdinal;
+            double yTop = this.pageTop;
+            if (this.VisualLineCount > 0)
+            {
+                int lastLine = this.VisualLineCount - 1;
+                nextOrdinalFwd = this.visualLines[lastLine].NextOrdinal;
+                yTop = this.visualLines[lastLine].Position.Y + this.visualLines[lastLine].Height;
+            }
+
+            float pageBottom = this.scrollOffset.Height + (float)renderHost.ActualHeight;
+            // add lines making sure, we end with a line that has a hard break.
+            while ((yTop < pageBottom || this.VisualLineCount == 0 || !this.visualLines[this.VisualLineCount - 1].HasHardBreak || minLinesToAdd > 0) &&
+                nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
+            {
+                VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, this.AvailbleWidth, out nextOrdinalFwd);
+                vl.Position = new Point2F(this.LeftMargin, (float)yTop);
+                if (yTop >= scrollOffset.Height)
+                {
+                    this.visualLines.Add(vl);
+                    minLinesToAdd--;
+                }
+                yTop += vl.Height;
+            }
+        }
+
         /// <summary>
         ///     Adjusts for new lines being added / removed above the current first visual line
         /// </summary>
         /// <param name="delta">Number of lines added</param>
         /// <param name="newScrollOffset">Resulting new scroll offset</param>
-        public void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop, double newScrollOffset)
+        public void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop)
         {
-            if (this.scrollOffset.Height != (float)newScrollOffset * this.LineHeight)
+            if (this.scrollOffset.Height != newPageTop)
             {
                 // Scrolloffset actually changed.
                 this.visualLines.RemoveRange(0, this.VisualLineCount);
                 this.pageTop = newPageTop;
                 this.pageBeginOrdinal = newPageBeginOrdinal;
-                this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newScrollOffset));
+                this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newPageTop));
             }
         }
+
+        public void ScrollBy(int numberOfLines)
+        {
+            double offset = 0;
+
+            if (numberOfLines > 0)
+            {
+                int lastVisibleLine = this.LastVisibleLine();
+                if (lastVisibleLine < 0)
+                {
+                    this.AddLinesBelow(numberOfLines);
+                    lastVisibleLine = 0;
+                }
+                else if (this.VisualLineCount - lastVisibleLine - 1 < numberOfLines)
+                {
+                    this.AddLinesBelow(numberOfLines - (this.VisualLineCount - lastVisibleLine - 1));
+                }
+
+                for (int i = lastVisibleLine; i < this.VisualLineCount && numberOfLines > 0; i++)
+                {
+                    numberOfLines--;
+                    offset += this.visualLines[i].Height;
+                }
+            }
+            else if (numberOfLines < 0)
+            {
+                int absNumberOfLines = Math.Abs(numberOfLines);
+                int firstVisibleLine = this.FirstVisibleLine();
+                if (firstVisibleLine < 0)
+                {
+                    this.AddLinesAbove(-numberOfLines);
+                    firstVisibleLine = this.VisualLineCount - 1;
+                }
+                else if (firstVisibleLine < absNumberOfLines)
+                {
+                    int originalLineCount = this.VisualLineCount;
+                    this.AddLinesAbove(absNumberOfLines - firstVisibleLine);
+                    firstVisibleLine = this.VisualLineCount - originalLineCount;
+                }
+
+                for (int i = firstVisibleLine; i > 0 && absNumberOfLines > 0; i--)
+                {
+                    absNumberOfLines--;
+                    offset -= this.visualLines[i].Height;
+                }
+            }
+
+            this.scrollBoundsManager.ScrollBy(offset);
+        }
+
         #endregion
 
         #region Selection
@@ -788,12 +863,12 @@ namespace TextCoreControl
                     {
                         this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(1);
                     }
-                    this.scrollBoundsManager.ScrollBy(+1);
+                    this.ScrollBy(+1);
                     contentRendered = true;
                 }
                 while (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > endOrdinal)
                 {
-                    this.scrollBoundsManager.ScrollBy(-1);
+                    this.ScrollBy(-1);
                     contentRendered = true;
                 }
 
@@ -912,7 +987,6 @@ namespace TextCoreControl
 
             if (changeEndIndex >= 0)
             {
-
                 if (ordinal == Document.UNDEFINED_ORDINAL)
                 {
                     // Ran out of content delete everything after changeEndIndex
@@ -1158,34 +1232,45 @@ namespace TextCoreControl
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
         }
 
-        public float LineHeight 
-        {
-            get
-            {
-                return textLayoutBuilder.AverageLineHeight();
-            }
-        }
-
-        public int MaxLinesPerPage()
-        {
-            // Returns an estimate of how many lines can fix at the max
-            // for the current font size and render hsot size on this page.
-            return (int) (this.renderHost.ActualHeight / this.LineHeight);
-        }
-
         public int FirstVisibleOrdinal() 
         {
-            double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
-            for (int i = 0; i < this.VisualLineCount; i++)
+            int firstVisibleLine = this.FirstVisibleLine();
+            if (firstVisibleLine >= 0)
             {
-                if (visualLines[i].Position.Y >= this.scrollOffset.Height && visualLines[i].Position.Y < screenBottom)
-                {
-                    // We have a cached line that is visible on screen
-                    return visualLines[i].BeginOrdinal;
-                }
+                // We have a cached line that is visible on screen
+                return visualLines[firstVisibleLine].BeginOrdinal;
             }
 
             return this.pageBeginOrdinal;
+        }
+
+        public int FirstVisibleLine()
+        {
+            for (int i = 0; i < this.VisualLineCount; i++)
+            {
+                if (visualLines[i].Position.Y + this.visualLines[i].Height > this.scrollOffset.Height)
+                {
+                    // We have a cached line that is visible on screen
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public int LastVisibleLine()
+        {
+            double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
+            for (int i = this.VisualLineCount - 1; i >= 0; i--)
+            {
+                if (visualLines[i].Position.Y < screenBottom)
+                {
+                    // We have a cached line that is visible on screen
+                    return i;
+                }
+            }
+
+            return -1;
         }
 
         internal int MaxContentLines 
@@ -1229,6 +1314,11 @@ namespace TextCoreControl
         internal float AvailbleWidth
         {
             get { return (float)renderHost.ActualWidth - this.LeftMargin; }
+        }
+
+        internal float AvailableHeight
+        {
+            get { return (float)renderHost.ActualHeight; }
         }
 
         public int CaretOrdinal { get { return this.caret.Ordinal; } }
