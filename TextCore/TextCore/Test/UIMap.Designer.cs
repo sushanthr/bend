@@ -843,6 +843,72 @@ namespace Test
             Keyboard.SendKeys(uIRenderHostClient, this.RingPaste2Params.UIRenderHostClientSendKeys3, ModifierKeys.Control);
         }
         
+        /// <summary>
+        /// EnableLineNumbersAndHUD - Use 'EnableLineNumbersAndHUDParams' to pass parameters into this method.
+        /// </summary>
+        public void EnableLineNumbersAndHUD()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WpfCheckBox uILNCheckBox = this.UIMainWindowWindow.UILNCheckBox;
+            WpfCheckBox uIHUDCheckBox = this.UIMainWindowWindow.UIHUDCheckBox;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(272, 7));
+
+            // Select 'LN' check box
+            uILNCheckBox.Checked = this.EnableLineNumbersAndHUDParams.UILNCheckBoxChecked;
+
+            // Select 'HUD' check box
+            uIHUDCheckBox.Checked = this.EnableLineNumbersAndHUDParams.UIHUDCheckBoxChecked;
+        }
+        
+        /// <summary>
+        /// LoadSampleText - Use 'LoadSampleTextParams' to pass parameters into this method.
+        /// </summary>
+        public void LoadSampleText()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WpfButton uILoadButton = this.UIMainWindowWindow.UILoadButton;
+            WinComboBox uIFilenameComboBox = this.UIOpenWindow.UIItemWindow.UIFilenameComboBox;
+            WinEdit uIFilenameEdit = this.UIOpenWindow.UIItemWindow1.UIFilenameEdit;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(236, 2));
+
+            // Click 'load' button
+            Mouse.Click(uILoadButton, new Point(5, 12));
+
+            // Select 'D:\assembla\trunk\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
+            uIFilenameComboBox.EditableItem = this.LoadSampleTextParams.UIFilenameComboBoxEditableItem;
+
+            // Type '{Enter}' in 'File name:' text box
+            Keyboard.SendKeys(uIFilenameEdit, this.LoadSampleTextParams.UIFilenameEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// SomeRandomEditing - Use 'SomeRandomEditingParams' to pass parameters into this method.
+        /// </summary>
+        public void SomeRandomEditing()
+        {
+            #region Variable Declarations
+            WpfTitleBar uIMainWindowTitleBar = this.UIMainWindowWindow.UIMainWindowTitleBar;
+            WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
+            #endregion
+
+            // Click 'MainWindow' title bar
+            Mouse.Click(uIMainWindowTitleBar, new Point(217, 13));
+
+            // Click 'RenderHost' client
+            Mouse.Click(uIRenderHostClient, new Point(232, 123));
+
+            // Type '{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Space}{Space}{Space}lets{Space}do{Space}doe{Back}m{Back}{Space}some{Space}weeet{Space}s{Back}editing{Space}{Enter}{Space}this{Space}is{Space}soo{Space}cool{Space}to{Space}edit{Space}this{Space}way{Space}!{Enter}' in 'RenderHost' client
+            Keyboard.SendKeys(uIRenderHostClient, this.SomeRandomEditingParams.UIRenderHostClientSendKeys, ModifierKeys.None);
+        }
+        
         #region Properties
         public virtual OpenSampleTextParams OpenSampleTextParams
         {
@@ -1168,6 +1234,42 @@ namespace Test
             }
         }
         
+        public virtual EnableLineNumbersAndHUDParams EnableLineNumbersAndHUDParams
+        {
+            get
+            {
+                if ((this.mEnableLineNumbersAndHUDParams == null))
+                {
+                    this.mEnableLineNumbersAndHUDParams = new EnableLineNumbersAndHUDParams();
+                }
+                return this.mEnableLineNumbersAndHUDParams;
+            }
+        }
+        
+        public virtual LoadSampleTextParams LoadSampleTextParams
+        {
+            get
+            {
+                if ((this.mLoadSampleTextParams == null))
+                {
+                    this.mLoadSampleTextParams = new LoadSampleTextParams();
+                }
+                return this.mLoadSampleTextParams;
+            }
+        }
+        
+        public virtual SomeRandomEditingParams SomeRandomEditingParams
+        {
+            get
+            {
+                if ((this.mSomeRandomEditingParams == null))
+                {
+                    this.mSomeRandomEditingParams = new SomeRandomEditingParams();
+                }
+                return this.mSomeRandomEditingParams;
+            }
+        }
+        
         public UIMainWindowWindow UIMainWindowWindow
         {
             get
@@ -1271,6 +1373,12 @@ namespace Test
         private RingPaste1Params mRingPaste1Params;
         
         private RingPaste2Params mRingPaste2Params;
+        
+        private EnableLineNumbersAndHUDParams mEnableLineNumbersAndHUDParams;
+        
+        private LoadSampleTextParams mLoadSampleTextParams;
+        
+        private SomeRandomEditingParams mSomeRandomEditingParams;
         
         private UIMainWindowWindow mUIMainWindowWindow;
         
@@ -1997,6 +2105,61 @@ namespace Test
         #endregion
     }
     
+    /// <summary>
+    /// Parameters to be passed into 'EnableLineNumbersAndHUD'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class EnableLineNumbersAndHUDParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Select 'LN' check box
+        /// </summary>
+        public bool UILNCheckBoxChecked = true;
+        
+        /// <summary>
+        /// Select 'HUD' check box
+        /// </summary>
+        public bool UIHUDCheckBoxChecked = true;
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'LoadSampleText'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class LoadSampleTextParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Select 'D:\assembla\trunk\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
+        /// </summary>
+        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\test\\data\\SampleText.txt";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'File name:' text box
+        /// </summary>
+        public string UIFilenameEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'SomeRandomEditing'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class SomeRandomEditingParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Space}{Space}{Space}lets{Space}do{Space}doe{Back}m{Back}{Space}some{Space}weeet{Space}s{Back}editing{Space}{Enter}{Space}this{Space}is{Space}soo{Space}cool{Space}to{Space}edit{Space}this{Space}way{Space}!{Enter}' in 'RenderHost' client
+        /// </summary>
+        public string UIRenderHostClientSendKeys = @"{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Right}{Space}{Space}{Space}lets{Space}do{Space}doe{Back}m{Back}{Space}some{Space}weeet{Space}s{Back}editing{Space}{Enter}{Space}this{Space}is{Space}soo{Space}cool{Space}to{Space}edit{Space}this{Space}way{Space}!{Enter}";
+        #endregion
+    }
+    
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
     public class UIMainWindowWindow : WpfWindow
     {
@@ -2066,6 +2229,38 @@ namespace Test
                 return this.mUISaveButton;
             }
         }
+        
+        public WpfCheckBox UILNCheckBox
+        {
+            get
+            {
+                if ((this.mUILNCheckBox == null))
+                {
+                    this.mUILNCheckBox = new WpfCheckBox(this);
+                    #region Search Criteria
+                    this.mUILNCheckBox.SearchProperties[WpfCheckBox.PropertyNames.AutomationId] = "showLineNumnber";
+                    this.mUILNCheckBox.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUILNCheckBox;
+            }
+        }
+        
+        public WpfCheckBox UIHUDCheckBox
+        {
+            get
+            {
+                if ((this.mUIHUDCheckBox == null))
+                {
+                    this.mUIHUDCheckBox = new WpfCheckBox(this);
+                    #region Search Criteria
+                    this.mUIHUDCheckBox.SearchProperties[WpfCheckBox.PropertyNames.AutomationId] = "showHUD";
+                    this.mUIHUDCheckBox.WindowTitles.Add("MainWindow");
+                    #endregion
+                }
+                return this.mUIHUDCheckBox;
+            }
+        }
         #endregion
         
         #region Fields
@@ -2076,6 +2271,10 @@ namespace Test
         private UITextEditorCustom mUITextEditorCustom;
         
         private WpfButton mUISaveButton;
+        
+        private WpfCheckBox mUILNCheckBox;
+        
+        private WpfCheckBox mUIHUDCheckBox;
         #endregion
     }
     
@@ -2310,6 +2509,18 @@ namespace Test
                 return this.mUIOpenWindow1;
             }
         }
+        
+        public UIItemWindow1 UIItemWindow1
+        {
+            get
+            {
+                if ((this.mUIItemWindow1 == null))
+                {
+                    this.mUIItemWindow1 = new UIItemWindow1(this);
+                }
+                return this.mUIItemWindow1;
+            }
+        }
         #endregion
         
         #region Fields
@@ -2318,6 +2529,8 @@ namespace Test
         private WinControl mUIOpenDialog;
         
         private UIOpenWindow1 mUIOpenWindow1;
+        
+        private UIItemWindow1 mUIItemWindow1;
         #endregion
     }
     
@@ -2391,6 +2604,43 @@ namespace Test
         
         #region Fields
         private WinButton mUIOpenButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
+    public class UIItemWindow1 : WinWindow
+    {
+        
+        public UIItemWindow1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "1148";
+            this.SearchProperties[WinWindow.PropertyNames.Instance] = "3";
+            this.WindowTitles.Add("Open");
+            #endregion
+        }
+        
+        #region Properties
+        public WinEdit UIFilenameEdit
+        {
+            get
+            {
+                if ((this.mUIFilenameEdit == null))
+                {
+                    this.mUIFilenameEdit = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUIFilenameEdit.SearchProperties[WinEdit.PropertyNames.Name] = "File name:";
+                    this.mUIFilenameEdit.WindowTitles.Add("Open");
+                    #endregion
+                }
+                return this.mUIFilenameEdit;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinEdit mUIFilenameEdit;
         #endregion
     }
     
@@ -2507,13 +2757,13 @@ namespace Test
             }
         }
         
-        public UIItemWindow1 UIItemWindow
+        public UIItemWindow2 UIItemWindow
         {
             get
             {
                 if ((this.mUIItemWindow == null))
                 {
-                    this.mUIItemWindow = new UIItemWindow1(this);
+                    this.mUIItemWindow = new UIItemWindow2(this);
                 }
                 return this.mUIItemWindow;
             }
@@ -2523,7 +2773,7 @@ namespace Test
         #region Fields
         private UIDetailsPanePane mUIDetailsPanePane;
         
-        private UIItemWindow1 mUIItemWindow;
+        private UIItemWindow2 mUIItemWindow;
         #endregion
     }
     
@@ -2564,10 +2814,10 @@ namespace Test
     }
     
     [GeneratedCode("Coded UITest Builder", "10.0.40219.1")]
-    public class UIItemWindow1 : WinWindow
+    public class UIItemWindow2 : WinWindow
     {
         
-        public UIItemWindow1(UITestControl searchLimitContainer) : 
+        public UIItemWindow2(UITestControl searchLimitContainer) : 
                 base(searchLimitContainer)
         {
             #region Search Criteria

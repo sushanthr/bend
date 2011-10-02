@@ -16,46 +16,30 @@ namespace Test
     /// Summary description for CodedUITest1
     /// </summary>
     [CodedUITest]
-    public class LineNumberTests
+    public class AdvancedTypingTests
     {
-        public LineNumberTests()
+        public AdvancedTypingTests()
         {
         }
 
         [TestMethod]
-        public void LineNumberTest()
+        public void AdvancedTypingTest()
         {
             // To generate code for this test, select "Generate Code for Coded UI Test" from the shortcut menu and select one of the menu items.
             // For more information on generated code, see http://go.microsoft.com/fwlink/?LinkId=179463
             this.UIMap.LaunchTextCoreDemo();
-            this.UIMap.EnableLineNumbersAndHUD();
-            this.UIMap.LoadSampleText();
-            this.UIMap.CaptureVerify("LineNumber_Load");
-
-            // Drag to the end.
-            this.UIMap.DragVScrollBarThumb(250);
-            this.UIMap.CaptureVerify("LineNumber_ScrollEnd");
-
-            // Draw to Middle.
-            this.UIMap.DragVScrollBarThumb(-50);
-            this.UIMap.CaptureVerify("LineNumber_ScrollMiddle");
-
-            this.UIMap.ResizeWindowX(300);
-            this.UIMap.CaptureVerify("LineNumber_Resize1");
-
-            this.UIMap.ResizeWindowX(-300);
-            this.UIMap.ResizeWindowY(200);
-            this.UIMap.CaptureVerify("LineNumber_Resize2");
-
-            this.UIMap.ResizeWindowY(-200);
-            this.UIMap.CaptureVerify("LineNumber_Resize3");
-
-            this.UIMap.SomeRandomEditing();
-            this.UIMap.CaptureVerify("LineNumber_Edit1");
-
-            this.UIMap.BackspaceAllContent();
-            this.UIMap.CaptureVerify("LineNumber_Edit2");
-
+            this.UIMap.TypeSomeText();
+            this.UIMap.CopiedText();
+            this.UIMap.CaptureVerify("AdvancedTypingTest_CopiedText");
+            this.UIMap.PastedText();
+            this.UIMap.CaptureVerify("AdvancedTypingTest_PastedText");
+            this.UIMap.CutText();
+            this.UIMap.CaptureVerify("AdvancedTypingTest_CutText");
+            this.UIMap.PasteCutText();
+            this.UIMap.RingPaste1();
+            this.UIMap.CaptureVerify("AdvancedTypingTest_RingPaste1");
+            this.UIMap.RingPaste2();
+            this.UIMap.CaptureVerify("AdvancedTypingTest_RingPaste2");
             this.UIMap.Close();
         }
 
