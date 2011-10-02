@@ -115,8 +115,11 @@ namespace TextCoreControl
             int   leftMargin,
             RenderTarget renderTarget)
         {
-            if (Settings.ShowLineNumber)
+            if (Settings.ShowLineNumber && redrawEnd >= 0)
             {
+                System.Diagnostics.Debug.Assert(redrawBegin >= 0 && redrawBegin < visualLines.Count);
+                System.Diagnostics.Debug.Assert(redrawEnd >= 0 && redrawEnd < visualLines.Count);
+
                 // Draw the vertical line
                 Point2F topPoint = new Point2F(leftMargin - RIGHT_TWO_PADDING_PX + scrollOffset.Width + PIXEL_SNAP_FACTOR_PX, scrollOffset.Height);
                 Point2F bottomPoint = new Point2F(topPoint.X, topPoint.Y + renderTarget.PixelSize.Height);
@@ -126,7 +129,23 @@ namespace TextCoreControl
                 {
                     RectF rect = new RectF(LEFT_PADDING_PX, 0, leftMargin - LEFT_PADDING_PX, 0);
                     int maxNumberOfDigits = this.MaxNumberOfDigits;
-                    bool lastLineHadHardBreak = (redrawBegin == 0);
+                    bool lastLineHadHardBreak = false;
+                    if (redrawBegin <= 0)
+                    {
+                        lastLineHadHardBreak = true;
+                    }
+                    else
+                    {
+                        if (visualLines[redrawBegin - 1].Position.Y < scrollOffset.Height)
+                        {
+                            // redrawBegin is the first line that is visible.
+                            lastLineHadHardBreak = true;
+                        }
+                        else if (visualLines[redrawBegin -1].HasHardBreak)
+                        {
+                            lastLineHadHardBreak = true;
+                        }
+                    }
 
                     int firstOrdinal = visualLines[redrawBegin].BeginOrdinal;
                     int lineNumber = this.GetLineNumber(document, firstOrdinal);
