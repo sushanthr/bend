@@ -28,8 +28,6 @@ namespace TextCoreControl
             renderHost.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(renderHost_PreviewKeyDown);
 
             this.document = document;
-            document.ContentChange += this.Document_ContentChanged;
-            document.OrdinalShift += this.Document_OrdinalShift;
 
             scrollOffset = new SizeF();
             this.d2dFactory = D2DFactory.CreateFactory();
@@ -84,6 +82,9 @@ namespace TextCoreControl
                     this.caret = new Caret(this.hwndRenderTarget, (int)(Settings.DefaultTextFormat.FontSize * 1.3f));
                 }
                 this.document.OrdinalShift += this.caret.Document_OrdinalShift;
+
+                document.ContentChange += this.Document_ContentChanged;
+                document.OrdinalShift += this.Document_OrdinalShift;
             }
         }
 
