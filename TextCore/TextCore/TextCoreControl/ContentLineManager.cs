@@ -213,14 +213,38 @@ namespace TextCoreControl
         internal int GetLineNumber(Document document, int ordinal)
         {
             int lineNumber = cachedLineNumber;
+            int ordinalBegin;
+            int ordinalEnd;
+            bool addDelta;
 
-            while (ordinal != cachedOrdinal && ordinal != Document.UNDEFINED_ORDINAL)
+            if (ordinal == cachedOrdinal)
+            {
+                return lineNumber;
+            }
+            else if (ordinal < cachedOrdinal)
+            {
+                ordinalBegin = ordinal;
+                ordinalEnd = cachedOrdinal;
+                addDelta = false;
+            }
+            else
+            {
+                ordinalBegin = cachedOrdinal;
+                ordinalEnd = ordinal;
+                addDelta = true;
+            }
+
+            if (ordinalBegin == Document.BEFOREBEGIN_ORDINAL)
+                ordinalBegin = document.FirstOrdinal();
+
+            int delta = 0;
+            while (ordinalBegin != ordinalEnd && ordinalBegin != Document.UNDEFINED_ORDINAL)
             {
                 // Determine if ordinal is a hard break
                 bool isHardBreak;
-                char firstChar = document.CharacterAt(ordinal);
+                char firstChar = document.CharacterAt(ordinalBegin);
                 char nextChar;
-                int nextOrdinal = document.NextOrdinal(ordinal);
+                int nextOrdinal = document.NextOrdinal(ordinalBegin);
                 if (nextOrdinal != Document.UNDEFINED_ORDINAL)
                 {
                     nextChar = document.CharacterAt(nextOrdinal);
@@ -231,21 +255,12 @@ namespace TextCoreControl
                 }
                 isHardBreak = TextLayoutBuilder.IsHardBreakChar(firstChar, nextChar);
 
-                if (ordinal < cachedOrdinal)
-                {
-                    if (isHardBreak)
-                        lineNumber--;
-                     ordinal = document.NextOrdinal(ordinal);
-                }
-                else if (ordinal > cachedOrdinal)
-                {
-                    if (isHardBreak)
-                        lineNumber++;
-                    ordinal = document.PreviousOrdinal(ordinal);
-                }
+                if (isHardBreak)
+                    delta++;
+                ordinalBegin = document.NextOrdinal(ordinalBegin);
             }
 
-            return lineNumber;
+            return addDelta ? lineNumber + delta : lineNumber - delta;
         }
 
         /// <summary>

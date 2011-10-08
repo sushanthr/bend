@@ -140,20 +140,35 @@ namespace TextCoreControl
 
         internal List<VisualLine> GetPreviousLines(Document document, int nextOrdinal, float layoutWidth, out int beginOrdinal)
         {
-            beginOrdinal = Document.BEFOREBEGIN_ORDINAL;
+            beginOrdinal = document.FirstOrdinal();
             List<VisualLine> visualLines = new List<VisualLine>();
 
             // Find the nearest hard break before nextOrdinal
-            int firstHardBreakOrdinal = document.PreviousOrdinal(nextOrdinal, 3);
-            while (firstHardBreakOrdinal != Document.BEFOREBEGIN_ORDINAL)
+            int firstHardBreakOrdinal = document.PreviousOrdinal(nextOrdinal, 1);
+            if (firstHardBreakOrdinal != Document.BEFOREBEGIN_ORDINAL)
             {
-                char letter = document.CharacterAt(firstHardBreakOrdinal);
-                if (letter == '\r' || letter == '\n' || letter == '\v')
-                    break;
+                if (document.CharacterAt(firstHardBreakOrdinal) == '\n')
+                {
+                    // this could be a \r\n pair, that needs an additional skip.
+                    int temp = document.PreviousOrdinal(firstHardBreakOrdinal, 1);
+                    if (temp != Document.BEFOREBEGIN_ORDINAL && document.CharacterAt(temp) == '\r')
+                    {
+                        firstHardBreakOrdinal = temp;
+                    }
+                }
 
-                firstHardBreakOrdinal = document.PreviousOrdinal(firstHardBreakOrdinal);
+                // Start looking from one character earlier
+                firstHardBreakOrdinal = document.PreviousOrdinal(firstHardBreakOrdinal, 1);
+                while (firstHardBreakOrdinal != Document.BEFOREBEGIN_ORDINAL)
+                {
+                    char letter = document.CharacterAt(firstHardBreakOrdinal);
+                    if (letter == '\r' || letter == '\n' || letter == '\v')
+                        break;
+
+                    firstHardBreakOrdinal = document.PreviousOrdinal(firstHardBreakOrdinal);
+                }
+                beginOrdinal = document.NextOrdinal(firstHardBreakOrdinal);
             }
-            beginOrdinal = document.NextOrdinal(firstHardBreakOrdinal);
 
             // Generate lines
             int tempBeginOrdinal = beginOrdinal;

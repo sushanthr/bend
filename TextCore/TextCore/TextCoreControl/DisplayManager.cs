@@ -681,10 +681,22 @@ namespace TextCoreControl
                     firstVisibleLine = this.VisualLineCount - originalLineCount;
                 }
 
-                for (int i = firstVisibleLine; i > 0 && absNumberOfLines > 0; i--)
+                for (int i = firstVisibleLine - 1; i >= 0 && absNumberOfLines > 0; i--)
                 {
                     absNumberOfLines--;
                     offset -= this.visualLines[i].Height;
+                }
+            }
+
+            if (offset == 0)
+            {
+                if (numberOfLines < 0)
+                {
+                    offset = -int.MaxValue;
+                }
+                else if (numberOfLines > 0)
+                {
+                    offset = int.MaxValue;
                 }
             }
 
@@ -824,6 +836,7 @@ namespace TextCoreControl
                             {
                                 scrollBoundsDelta = this.visualLines[lastLineIndex].Position.Y + tempLinesDelta - trackedVisualLineTop;
                                 forceDocumentBoundsMeasure = false;
+                                break;
                             }
                         }
                     }
@@ -849,7 +862,7 @@ namespace TextCoreControl
                     // scrollBoundsDelta is accurate and the scrollBoundsManager has to be updated with it.
                     if (scrollBoundsDelta != 0)
                     {
-                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange((int)(scrollBoundsDelta / this.visualLines[0].Height));
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(scrollBoundsDelta);
                     }
                 }
 
@@ -861,7 +874,7 @@ namespace TextCoreControl
                     // scroll to the next line. The async scrollbounds estimator will fix the scroll bounds up later.
                     if (forceDocumentBoundsMeasure)
                     {
-                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(1);
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(this.visualLines[this.VisualLineCount - 1].Height);
                     }
                     this.ScrollBy(+1);
                     contentRendered = true;
@@ -987,7 +1000,7 @@ namespace TextCoreControl
 
             if (changeEndIndex >= 0)
             {
-                if (ordinal == Document.UNDEFINED_ORDINAL)
+                if (!(ordinal != Document.UNDEFINED_ORDINAL && (y < (renderHost.ActualHeight + scrollOffset.Height) || !previousLineHasHardBreak)))
                 {
                     // Ran out of content delete everything after changeEndIndex
                     if (changeEndIndex + 1 < this.visualLines.Count)

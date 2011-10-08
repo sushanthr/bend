@@ -17,7 +17,7 @@
     
     public partial class UIMap
     {
-        public const bool ShouldGeneratedBaseline = false;
+        public const bool ShouldGeneratedBaseline = true;
         public const string TestDataDirectory = "D:\\assembla\\trunk\\TextCore\\TextCore\\Test\\Data\\";
         private uint caretBlinkTime;
 
