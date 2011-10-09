@@ -989,6 +989,7 @@ namespace TextCoreControl
                                 position.Y = (float)y;
                                 y += this.visualLines[p].Height;
                                 this.visualLines[p].Position = position;
+                                changeEndIndex = p;
                             }
                             
                             // Continue from the last ordinal.
