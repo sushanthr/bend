@@ -13,13 +13,14 @@ namespace TextCoreControl
         public Document()
         {
             this.fileContents = "\0";
+            this.LanguageDetector = new SyntaxHighlighting.LanguageDetector(this);
         }
 
         public void LoadFile(string fullFilePath)
         {
             fileContents = System.IO.File.OpenText(fullFilePath).ReadToEnd();
             fileContents += "\0";
-
+            this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
             if (this.ContentChange != null)
             {
                 this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
@@ -29,6 +30,7 @@ namespace TextCoreControl
         public void SaveFile(string fullFilePath)
         {
             System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
+            this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
             System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1));
         }
 
@@ -156,5 +158,6 @@ namespace TextCoreControl
         public event OrdinalShiftEventHandler OrdinalShift;
 
         private string fileContents;
+        public readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
     }
 }

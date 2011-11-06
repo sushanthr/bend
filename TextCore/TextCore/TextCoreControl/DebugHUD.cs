@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TextCoreControl.SyntaxHighlighting;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
@@ -24,6 +25,7 @@ namespace TextCoreControl
         {
             DebugHUD.DisplayManager = null;
             DebugHUD.ContentLineManager = null;
+            DebugHUD.LanguageDetector = null;
         }
 
         static internal void Draw(RenderTarget renderTarget, SizeF scrollOffset)
@@ -41,6 +43,11 @@ namespace TextCoreControl
                     output += "CL " + ContentLineManager.MaxContentLines.ToString() + " / ";
                 }
 
+                if (LanguageDetector != null)
+                {
+                    output += LanguageDetector.SyntaxDefinitionFile;
+                }
+
                 if (output != "")
                 {
                     RectF rect = new RectF(2 + scrollOffset.Width, 0 + scrollOffset.Height, 300 + scrollOffset.Width, 20 + scrollOffset.Height);
@@ -52,5 +59,6 @@ namespace TextCoreControl
 
         static internal DisplayManager DisplayManager;
         static internal ContentLineManager ContentLineManager;
+        static internal LanguageDetector LanguageDetector;
     }
 }

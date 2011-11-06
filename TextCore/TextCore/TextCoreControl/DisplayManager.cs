@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Controls.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TextCoreControl.SyntaxHighlighting;
 
 using Microsoft.WindowsAPICodePack.DirectX.Controls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
@@ -38,6 +39,9 @@ namespace TextCoreControl
 
             this.lastMouseWheelTime = System.DateTime.Now.Ticks;
             this.leftMargin = 0;
+
+            this.syntaxHighlightingService = null;
+            this.document.LanguageDetector.LanguageChange += new SyntaxHighlighting.LanguageDetector.LanguageChangeEventHandler(LanguageDetector_LanguageChange);
 
             DebugHUD.DisplayManager = this;
         }
@@ -1342,6 +1346,15 @@ namespace TextCoreControl
 
         #endregion
 
+        #region Syntax Highlighting
+
+        void LanguageDetector_LanguageChange(SyntaxHighlighting.SyntaxHighlighterService syntaxHighlightingService)
+        {
+            this.syntaxHighlightingService = syntaxHighlightingService;
+        }
+
+        #endregion
+
         #region Member Data
         D2DFactory                   d2dFactory;
         HwndRenderTarget             hwndRenderTarget;
@@ -1356,6 +1369,7 @@ namespace TextCoreControl
         SizeF                        scrollOffset;
         ScrollBoundsManager          scrollBoundsManager;
         ContentLineManager           contentLineManager;
+        SyntaxHighlighterService     syntaxHighlightingService;
 
         int                          pageBeginOrdinal;
         double                       pageTop;

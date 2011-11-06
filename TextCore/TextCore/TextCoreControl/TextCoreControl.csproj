@@ -63,6 +63,9 @@
     <Compile Include="ScrollBoundsManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SyntaxHighlighting\LanguageDetector.cs" />
+    <Compile Include="SyntaxHighlighting\SyntaxHighlighterService.cs" />
+    <Compile Include="SyntaxHighlighting\SyntaxHightlighterEngine.cs" />
     <Compile Include="UndoRedoManager.cs" />
     <Compile Include="VisualLine.cs" />
     <Page Include="TextCoreControl.xaml">
@@ -101,10 +104,117 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\Ada.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\atlwtl.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\cmd.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\cobol-97.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\csharp8.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\css2dot1.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\f90.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\fsharp.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\html.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\java1_6.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\javascript.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\jsp4.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\LanguageDetector.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\LaTeX.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\lisp.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\matlabR12.1.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\perl3upd.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\php.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\python3.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\reg.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\ruby_on_rails.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\sql.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\svg.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\tcl.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\vbdotnet9.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\vbscript56.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xaml.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xhtml.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xml-excel_2002.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xml.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xqy.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xsl.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\xslt.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SyntaxHighlighting\Definitions\yacc.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="SyntaxHighlighting\Definitions\objc.syn" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
