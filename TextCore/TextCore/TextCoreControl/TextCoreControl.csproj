@@ -145,6 +145,7 @@
     </Content>
     <Content Include="SyntaxHighlighting\LanguageDetector.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="SyntaxHighlighting\Definitions\LaTeX.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

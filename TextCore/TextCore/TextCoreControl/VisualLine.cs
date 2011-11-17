@@ -34,6 +34,11 @@ namespace TextCoreControl
             this.hasHardBreak = hasHardBreak;
         }
 
+        public void SetDrawingEffect(Brush effect, uint beginOffset, uint length)
+        {
+            this.textLayout.SetDrawingEffect(effect, new TextRange(beginOffset, length));
+        }
+
         public void Draw(RenderTarget renderTarget)
         {
             SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
@@ -184,6 +189,8 @@ namespace TextCoreControl
         }
 
         public bool HasHardBreak { get { return this.hasHardBreak;} }
+
+        public string Text { get { return this.textLayout.Text; } }
 
         private Point2F position;
         private TextLayout textLayout;

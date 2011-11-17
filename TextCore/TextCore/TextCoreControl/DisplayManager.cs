@@ -594,6 +594,8 @@ namespace TextCoreControl
                 for (int i = previousVisualLines.Count - 1; i >= 0; i--)
                 {
                     VisualLine vl = previousVisualLines[i];
+                    if (this.syntaxHighlightingService != null) this.syntaxHighlightingService.HighlightLine(ref vl);
+
                     yBottom -= vl.Height;
                     vl.Position = new Point2F(this.LeftMargin, (float)yBottom);
                     this.visualLines.Insert(0, vl);
@@ -620,6 +622,8 @@ namespace TextCoreControl
                 nextOrdinalFwd != Document.UNDEFINED_ORDINAL)
             {
                 VisualLine vl = this.textLayoutBuilder.GetNextLine(this.document, nextOrdinalFwd, this.AvailbleWidth, out nextOrdinalFwd);
+                if (this.syntaxHighlightingService != null) this.syntaxHighlightingService.HighlightLine(ref vl);
+
                 vl.Position = new Point2F(this.LeftMargin, (float)yTop);
                 if (yTop >= scrollOffset.Height)
                 {
@@ -836,6 +840,8 @@ namespace TextCoreControl
                         for (int i = 0; i < 5 && newLastVisualLineNextOrdinal != Document.UNDEFINED_ORDINAL; i++)
                         {
                             VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, newLastVisualLineNextOrdinal, this.AvailbleWidth, out newLastVisualLineNextOrdinal);
+                            if (this.syntaxHighlightingService != null) this.syntaxHighlightingService.HighlightLine(ref visualLine);
+
                             tempLinesDelta += visualLine.Height;
                             if (visualLine.NextOrdinal == lastVisualLineNextOrdinal)
                             {
@@ -960,6 +966,7 @@ namespace TextCoreControl
             while (ordinal != Document.UNDEFINED_ORDINAL && (y < (renderHost.ActualHeight + scrollOffset.Height) || !previousLineHasHardBreak))
             {
                 VisualLine visualLine = textLayoutBuilder.GetNextLine(this.document, ordinal, this.AvailbleWidth, out ordinal);
+                if (this.syntaxHighlightingService != null) this.syntaxHighlightingService.HighlightLine(ref visualLine);
 
                 visualLine.Position = new Point2F(this.LeftMargin, (float)y);
                 y += visualLine.Height;
@@ -1351,6 +1358,11 @@ namespace TextCoreControl
         void LanguageDetector_LanguageChange(SyntaxHighlighting.SyntaxHighlighterService syntaxHighlightingService)
         {
             this.syntaxHighlightingService = syntaxHighlightingService;
+            this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
+
+            // Recolor all the lines.
+            int changeStart, changeEnd;
+            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
         }
 
         #endregion
