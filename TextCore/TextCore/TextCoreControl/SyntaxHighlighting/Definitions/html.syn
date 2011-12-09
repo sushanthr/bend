@@ -10,8 +10,8 @@ KeyWordChars = A-Za-z0-9_
 BracketChars = {[()]};
 OperatorChars = -+*/<>!~%^&|=
 PreprocStart = #
-SyntaxStart =
-SyntaxEnd =
+SyntaxStart = <
+SyntaxEnd = >
 HexPrefix = 0x
 CommentStart = /*
 CommentEnd = */
@@ -106,7 +106,6 @@ Object
 Option
 RegExp
 String
-
 ;HTML-TABLE
 caption
 cols

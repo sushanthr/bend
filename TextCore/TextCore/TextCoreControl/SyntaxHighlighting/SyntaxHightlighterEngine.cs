@@ -16,9 +16,36 @@ namespace TextCoreControl.SyntaxHighlighting
         internal SyntaxHightlighterEngine(string fullSyntaxFilePath)
         {
             // Default definition values
-            this.keywordsMap = new Dictionary<string, int>();
+            this.keywordsMapNamespace1 = new Dictionary<string, int>();
+            this.keywordsMapNamespace2 = new Dictionary<string, int>();
             this.languageType = LanguageType.NONE;
             this.namespace1 = 6;
+            this.keywordCharacters = new CharacterCollection("a-zA-Z0-9_!-");
+            this.keywordLength = 0;
+            this.operatorCharacters = new CharacterCollection("");
+            this.bracketCharacters = new CharacterCollection("");
+            this.hexPrefix = "";
+
+            this.syntaxStart = "";
+            this.syntaxEnd = "";
+            this.commentStart = "";
+            this.commentEnd = "";
+            this.commentStartAlt = "";
+            this.commentEndAlt = "";
+            this.singleComment = "";
+            this.singleCommentAlt = "";
+            this.singleCommentEsc = "";
+            this.stringStart = "";
+            this.stringEnd = "";
+            this.stringAlt = "";
+            this.stringEsc = "";
+            this.charStart = "";
+            this.charEnd = "";
+            this.charEsc = "";
+            this.stringsSpanLines = false;
+
+            this.highlightRangeStartStringsHash = 0;
+            this.highlightRangeEndStringsHash = 0;
 
             this.LoadDefinition(fullSyntaxFilePath);
         }
@@ -38,51 +65,67 @@ namespace TextCoreControl.SyntaxHighlighting
                 {
                     case "TEXT=1":
                         this.languageType = LanguageType.TEXT;
-                        this.namespace1 = 1;
                         break;
                     case "C=1":
                         this.languageType = LanguageType.C;
-                        this.namespace1 = 1;
                         break;
                     case "HTML=1":
                         this.languageType = LanguageType.HTML;
-                        this.namespace1 = 6;
+                        this.namespace1 = 1;
+                        this.syntaxStart = "<";
+                        this.syntaxEnd = ">";
                         break;
                     case "PERL=1":
                         this.languageType = LanguageType.PERL;
                         break;
                     case "LATEX=1":
                         this.languageType = LanguageType.LATEX;
-                        this.namespace1 = 1;
                         break;
                     case "[SYNTAX]":
                         this.ParseSyntaxSection(fileStream);
                         break;
                     case "[KEYWORDS 1]":
-                        ParseArray(fileStream, ref this.keywordsMap, 1, this.ignoreCase);
+                        ParseKeywords(fileStream, 1);
                         break;
                     case "[KEYWORDS 2]":
-                        ParseArray(fileStream, ref this.keywordsMap, Math.Min(2, this.namespace1), this.ignoreCase);
+                        ParseKeywords(fileStream, 2);
                         break;
                     case "[KEYWORDS 3]":
-                        ParseArray(fileStream, ref this.keywordsMap, Math.Min(3, this.namespace1), this.ignoreCase);
+                        ParseKeywords(fileStream, 3);
                         break;
                     case "[KEYWORDS 4]":
-                        ParseArray(fileStream, ref this.keywordsMap, Math.Min(4, this.namespace1), this.ignoreCase);
+                        ParseKeywords(fileStream, 4);
                         break;
                     case "[KEYWORDS 5]":
-                        ParseArray(fileStream, ref this.keywordsMap, Math.Min(5, this.namespace1), this.ignoreCase);
+                        ParseKeywords(fileStream, 5);
                         break;
                     case "[KEYWORDS 6]":
-                        ParseArray(fileStream, ref this.keywordsMap, Math.Min(6, this.namespace1), this.ignoreCase);
+                        ParseKeywords(fileStream, 6);
                         break;
                     case "[PREPROCESSOR KEYWORDS]":
-                        ParseArray(fileStream, ref this.keywordsMap, 7, this.ignoreCase);
+                        ParseKeywords(fileStream, 7);
                         break;
                 }
             }
 
             fileStream.Close();
+        }
+
+        /// <summary>
+        ///     Parse keywords into the appropriate dictionary respecting the namespace settings.
+        /// </summary>
+        /// <param name="fileStream">Input filestream to read from</param>
+        /// <param name="keywordSection">The keyword section number that is being parsed</param>
+        private void ParseKeywords(StreamReader fileStream, int keywordSection)
+        {
+            if (keywordSection > this.namespace1)
+            {
+                ParseDictionary(fileStream, ref this.keywordsMapNamespace2, keywordSection, this.ignoreCase);
+            }
+            else
+            {
+                ParseDictionary(fileStream, ref this.keywordsMapNamespace1, keywordSection, this.ignoreCase);
+            }
         }
 
         /// <summary>
@@ -94,7 +137,7 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <param name="dictionary">Dictionary to put entries into</param>
         /// <param name="value">Value to set for the keys</param>
         /// <param name="makeLower">Should the key be made lower case before insertion</param> 
-        private static void ParseArray(StreamReader fileStream, ref Dictionary<string, int> dictionary, int value, bool makeLower)
+        private static void ParseDictionary(StreamReader fileStream, ref Dictionary<string, int> dictionary, int value, bool makeLower)
         {
             while (!fileStream.EndOfStream)
             {
@@ -103,7 +146,13 @@ namespace TextCoreControl.SyntaxHighlighting
 
                 // Check for array end
                 if (line.Length == 0)
-                    break;
+                {
+                    // Check if this is a real end of definition
+                    if ((char)fileStream.Peek() == '[')
+                        break;
+                    else
+                        continue;
+                }
 
                 // Skip comments
                 if (line[0] == ';')
@@ -112,6 +161,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 if (makeLower)
                     line = line.ToLower();
 
+                // A good syntax file should not have duplicates keywords in the same namespace.
                 if (!dictionary.ContainsKey(line))
                 {
                     dictionary.Add(line, value);
@@ -175,69 +225,99 @@ namespace TextCoreControl.SyntaxHighlighting
                     property = property.Trim();
                     value = value.Trim();
 
+                    // If the value is not specified, leave it at the default value.
+                    if (value.Length == 0)
+                        continue;
+
+                    int valInt;
                     switch (property.ToLower())
                     {
                         case "namespace1":
-                            int valInt = int.Parse(value);
-                            if (valInt >= 1 && valInt <= 6)
-                            {
-                                namespace1 = valInt;
-                            }
+                            valInt = int.Parse(value);
+                            if (valInt >= 1 && valInt <= 6) this.namespace1 = valInt;
                             break;
                         case "ignorecase":
                             this.ignoreCase = Boolify(value);
                             break;
+                        case "keywordchars":
+                            this.keywordCharacters = new CharacterCollection(value);
+                            break;
                         case "keywordlength":
+                            valInt = int.Parse(value);
+                            if (valInt >= 1 && valInt <= 6) this.keywordLength = valInt;
                             break;
                         case "bracketchars":
+                            this.bracketCharacters = new CharacterCollection(value);
                             break;
                         case "operatorchars":
+                            this.operatorCharacters = new CharacterCollection(value);
                             break;
                         case "preprocstart":
+                            if (value.Length == 1) this.keywordCharacters.AddCharacter(this.preProcessorCharacter = value[0]);
                             break;
                         case "hexprefix":
+                            this.hexPrefix = value;
                             break;
                         case "syntaxstart":
+                            this.syntaxStart = value;
                             break;
                         case "syntaxend":
+                            this.syntaxEnd = value;
                             break;
                         case "commentstart":
+                            this.commentStart = value;
                             break;
                         case "commentend":
+                            this.commentEnd = value;
                             break;
                         case "commentstartalt":
+                            this.commentStartAlt = value;
                             break;
                         case "commentendalt":
+                            this.commentEndAlt = value;
                             break;
                         case "singlecomment":
+                            this.singleComment = value;
                             break;
                         case "singlecommentcol":
                             break;
                         case "singlecommentalt":
+                            this.singleCommentAlt = value;
                             break;
                         case "singlecommentcolalt":
                             break;
                         case "singlecommentesc":
+                            this.singleCommentEsc = value;
                             break;
                         case "stringsspanlines":
+                            this.stringsSpanLines = Boolify(value);
                             break;
                         case "stringstart":
+                            this.stringStart = value;
                             break;
                         case "stringend":
+                            this.stringEnd = value;
                             break;
                         case "stringalt":
+                            this.stringAlt = value;
                             break;
                         case "stringesc":
+                            this.stringEsc = value;
                             break;
                         case "charstart":
+                            this.charStart = value;
                             break;
                         case "charend":
+                            this.charEnd = value;
                             break;
                         case "charesc":
+                            this.charEsc = value;
                             break;
                     }
                 }
             }
+
+            this.ComputeHightlightRangeHashs();
         }
 
         private static bool Boolify(string value)
@@ -248,36 +328,394 @@ namespace TextCoreControl.SyntaxHighlighting
 
         #endregion
 
+        #region HighlightRange
+
+        private enum HighlightState
+        {
+            NONE = 0x0000,
+            IN_NO_SYNTAX = 0x0001,
+            IN_COMMENT = 0X0002,
+            IN_COMMENT_ALT = 0x0004,
+            IN_SINGLE_COMMENT = 0x0008,
+            IN_SINGLE_COMMENT_ALT = 0x0010,
+            IN_STRING = 0x0020,
+            IN_CHAR = 0x0040,
+        };
+
+        public static int GetInitialState() { return (int)HighlightState.NONE; }
+
+        private void ComputeHightlightRangeHashs()
+        {
+            if (this.syntaxEnd != null && this.syntaxEnd.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.syntaxEnd[0]);
+            if (this.commentStart != null && this.commentStart.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.commentStart[0]);
+            if (this.commentStartAlt != null && this.commentStartAlt.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.commentStartAlt[0]);
+            if (this.singleComment != null && this.singleComment.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.singleComment[0]);
+            if (this.singleCommentAlt != null && this.singleCommentAlt.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.singleCommentAlt[0]);
+            if (this.stringStart != null && this.stringStart.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.stringStart[0]);
+            if (this.charStart != null && this.charStart.Length != 0) this.highlightRangeStartStringsHash |= ComputeHash(this.charStart[0]);
+
+            if (this.syntaxStart != null && this.syntaxStart.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.syntaxStart[0]);
+            if (this.commentEnd != null && this.commentEnd.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.commentEnd[0]);
+            if (this.commentEndAlt != null && this.commentEndAlt.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.commentEndAlt[0]);
+            if (this.singleCommentEsc != null && this.singleCommentEsc.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.singleCommentEsc[0]);
+            if (this.stringEnd != null && this.stringEnd.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.stringEnd[0]);
+            if (this.stringAlt != null && this.stringAlt.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.stringAlt[0]);
+            if (this.charEnd != null && this.charEnd.Length != 0) this.highlightRangeEndStringsHash |= ComputeHash(this.charEnd[0]);
+        }
+
+        private static int ComputeHash(char character)
+        {
+            int hash = (int)character;
+            if (hash < 256)
+            {
+                // We have 24 bits to encode extra info which slice of 256/24 this character falls in.
+                int slice = (hash / 11) + 8;
+                slice = (1 << slice);
+                hash |= slice;
+            }
+            else
+            {
+                // Not Enough Information for a hash permit everything
+                hash = (0XFFFF | 0X0000FFFF);
+            }
+            return hash;
+        }
+
+        private bool IsPossibleHighlightRangeStart(char character)
+        {
+            if ((character & this.highlightRangeStartStringsHash) != 0)
+            {
+                int slice = (1 << (((int)character / 11) + 8));
+                return ((slice & this.highlightRangeStartStringsHash) != 0);
+            }
+            return false;
+        }
+
+        private bool IsPossibleHighlightRangeEnd(char character)
+        {
+            if ((character & this.highlightRangeEndStringsHash) != 0)
+            {
+                int slice = (1 << (((int)character / 11) + 8));
+                return ((slice & this.highlightRangeEndStringsHash) != 0);
+            }
+            return false;
+        }
+
+        #endregion
+
         #region Highlighter
 
-        public void HighlightText(string text)
+        /// <summary>
+        ///     Finds and highlights a range of characters
+        /// </summary>
+        /// <param name="highlightState">Current highlighter state</param>
+        /// <param name="text">text to highlight</param>
+        /// <param name="highlightStartIndex">index to extend highlight of the first char to the left by</param>
+        /// <param name="findStartIndex">index in text to start highlighting form</param>
+        /// <param name="continueFromIndex">index for other systems to continue highlighting at</param>
+        /// <param name="newHighlightState">the new state for the highlighter</param>
+        private void FindAndHighlightRange(int highlightState, string text, int highlightStartIndex, int findStartIndex, out int continueFromIndex, out int newHighlightState, out bool transitionedIntoSyntaxRegion)
         {
+            System.Diagnostics.Debug.Assert(highlightState != 0);
+            newHighlightState = highlightState;
+            continueFromIndex = findStartIndex;
+            transitionedIntoSyntaxRegion = false;
+
+            int index = findStartIndex;
+            while (index < text.Length)
+            {
+                char ch = text[index];
+                HighlightStyle highLightStyle = HighlightStyle.NONE;
+                if (this.IsPossibleHighlightRangeEnd(ch))
+                {
+                    if (((highlightState & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, index))
+                    {
+                        continueFromIndex = index + 1;
+                        newHighlightState = (int)HighlightState.NONE;
+                        transitionedIntoSyntaxRegion = true;
+                        break;
+                    }
+
+                    else if (((highlightState & (int)HighlightState.IN_COMMENT) != 0) && CompareStrings(this.commentEnd, 0, text, index))
+                    {
+                        index += this.commentEnd.Length;
+                        highLightStyle = HighlightStyle.COMMENT;
+                    }
+                    else if (((highlightState & (int)HighlightState.IN_COMMENT_ALT) != 0) && CompareStrings(this.commentEndAlt, 0, text, index))
+                    {
+                        index += this.commentEndAlt.Length;
+                        highLightStyle = HighlightStyle.COMMENT;
+                    }
+                    else if (((highlightState & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringEnd, 0, text, index))
+                    {
+                        index += this.stringEnd.Length;
+                        highLightStyle = HighlightStyle.STRING;
+                    }
+                    else if (((highlightState & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringAlt, 0, text, index))
+                    {
+                        index += this.stringAlt.Length;
+                        highLightStyle = HighlightStyle.STRING;
+                    }
+                    else if (((highlightState & (int)HighlightState.IN_CHAR) != 0) && CompareStrings(this.charEnd, 0, text, index))
+                    {
+                        index += this.charEnd.Length;
+                        highLightStyle = HighlightStyle.CHAR;
+                    }
+                    else if ((((highlightState & (int)HighlightState.IN_SINGLE_COMMENT) != 0) || ((highlightState & (int)HighlightState.IN_SINGLE_COMMENT_ALT) != 0))
+                        && CompareStrings(this.singleCommentEsc, 0, text, index))
+                    {
+                        index += this.singleCommentEsc.Length;
+                        highLightStyle = HighlightStyle.COMMENT;
+                    }
+                }
+
+                if (highLightStyle == HighlightStyle.NONE && (ch == '\r' || ch == '\n'))
+                {
+                    if ((highlightState & (int)HighlightState.IN_SINGLE_COMMENT) != 0) highLightStyle = HighlightStyle.COMMENT;
+                    if ((highlightState & (int)HighlightState.IN_STRING) != 0 && !this.stringsSpanLines) highLightStyle = HighlightStyle.STRING;
+                    if ((highlightState & (int)HighlightState.IN_CHAR) != 0) highLightStyle = HighlightStyle.STRING;
+                }
+
+                if (highLightStyle != HighlightStyle.NONE)
+                {
+                    continueFromIndex = index;
+                    this.highlightRange((uint)highlightStartIndex, (uint)(index - highlightStartIndex), highLightStyle);
+                    newHighlightState = (int)HighlightState.NONE;
+                    break;
+                }
+
+                index++;
+            }
+
+            if (newHighlightState != 0)
+            {
+                HighlightStyle highLightStyle = HighlightStyle.NONE;
+                if ((highlightState & (int)HighlightState.IN_COMMENT) != 0)
+                    highLightStyle = HighlightStyle.COMMENT;
+                else if ((highlightState & (int)HighlightState.IN_COMMENT_ALT) != 0)
+                    highLightStyle = HighlightStyle.COMMENT;
+                else if ((highlightState & (int)HighlightState.IN_STRING) != 0)
+                    highLightStyle = HighlightStyle.STRING;
+                else if ((highlightState & (int)HighlightState.IN_STRING) != 0)
+                    highLightStyle = HighlightStyle.STRING;
+                else if ((highlightState & (int)HighlightState.IN_CHAR) != 0)
+                    highLightStyle = HighlightStyle.CHAR;
+                else if ((highlightState & (int)HighlightState.IN_SINGLE_COMMENT) != 0)
+                    highLightStyle = HighlightStyle.COMMENT;
+                else if ((highlightState & (int)HighlightState.IN_SINGLE_COMMENT_ALT) != 0)
+                    highLightStyle = HighlightStyle.COMMENT;
+
+                continueFromIndex = index;
+                if (highLightStyle != HighlightStyle.NONE)
+                {
+                    this.highlightRange((uint)highlightStartIndex, (uint)(text.Length - highlightStartIndex), highLightStyle);
+                }
+            }
+        }
+
+        public void HighlightText(string text, int opaqueStateIn, out int opaqueStateOut)
+        {
+            opaqueStateOut = (int)HighlightState.NONE; 
+
             if (this.highlightRange != null)
             {
-                string keyword = "";
-                for (int i = 0; i < text.Length; i++)
-                {
-                    char ch = text[i];
-                    if (char.IsWhiteSpace(ch))
-                    {
-                        int style;
-                        if (keyword.Length != 0 && this.keywordsMap.TryGetValue(keyword, out style))
-                        {
-                            // Found a keyword
-                            HighlightStyle highlightStyle = (HighlightStyle)style;
-                            uint length = (uint)keyword.Length;
-                            uint rangeBegin = (uint)(i - length);
-                            this.highlightRange(rangeBegin, length, highlightStyle);
-                        }
+                int i = 0;
+                char ch;
+                bool onlyDetectKeywords = false;
+                bool previousTokenIsSyntaxStart = false;
 
-                        keyword = "";
+                if (opaqueStateIn != 0)
+                    this.FindAndHighlightRange(opaqueStateIn, text, i, i, out i, out opaqueStateOut, out previousTokenIsSyntaxStart);
+                else
+                {
+                    // Sniff for preprocessor directives
+                    // Skip over leading whitespaces
+                    for (; i < text.Length; i++)
+                    {
+                        if (!char.IsWhiteSpace(ch = text[i]))
+                        {
+                            // highlight whole line as preprocessor line
+                            if (ch == preProcessorCharacter)
+                            {
+                                this.highlightRange(0, (uint)text.Length, HighlightStyle.PREPROCESSOR);
+                                onlyDetectKeywords = true;
+                            }
+                            break;
+                        }
                     }
-                    else
+                }
+
+                string keyword = "";
+                for (; i < text.Length; i++)
+                {
+                    // Look for keywords
+                    ch = text[i];
+                    if (this.keywordCharacters.Contains(ch) &&
+                        (this.keywordLength == 0 || keyword.Length < this.keywordLength))
                     {
                         keyword += ch;
                     }
+                    else
+                    {
+                        int beginNonKeywordScan = i;
+                        int endNonKeywordScan = i + 1;
+                        int style;
+                        if (keyword.Length != 0)
+                        {
+                            if (this.keywordsMapNamespace1.TryGetValue(keyword, out style) ||
+                                (!previousTokenIsSyntaxStart && this.keywordsMapNamespace2.TryGetValue(keyword, out style)))
+                            {
+                                // Found a keyword
+                                HighlightStyle highlightStyle = (HighlightStyle)style;
+                                uint length = (uint)keyword.Length;
+                                uint rangeBegin = (uint)(i - length);
+                                this.highlightRange(rangeBegin, length, highlightStyle);
+                            }
+                            else
+                            {
+                                // It wasnt a keyword so make a pass scanning for non keyword
+                                beginNonKeywordScan = (i - keyword.Length);
+                            }
+                        }
+                        keyword = "";
+                        previousTokenIsSyntaxStart = false;
+
+                        if (!onlyDetectKeywords)
+                        {
+                            // Now detect this non keyword character
+                            while (beginNonKeywordScan < endNonKeywordScan)
+                            {
+                                ch = text[beginNonKeywordScan];
+
+                                // Look for single line comment
+                                if (this.IsPossibleHighlightRangeStart(ch))
+                                {
+                                    HighlightState highlightState = HighlightState.NONE;
+                                    int highlightStartIndex = beginNonKeywordScan;
+                                    if (CompareStrings(this.syntaxEnd, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_NO_SYNTAX; 
+                                        beginNonKeywordScan += this.syntaxEnd.Length;
+                                    }
+                                    else if (CompareStrings(this.commentStart, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_COMMENT;
+                                        beginNonKeywordScan += this.commentStart.Length;
+                                    }
+                                    else if (CompareStrings(this.commentStartAlt, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_COMMENT_ALT;
+                                        beginNonKeywordScan += this.commentStartAlt.Length;
+                                    }
+                                    else if (CompareStrings(this.singleComment, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_SINGLE_COMMENT;
+                                        beginNonKeywordScan += this.singleComment.Length;
+                                    }
+                                    else if (CompareStrings(this.singleCommentAlt, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_SINGLE_COMMENT_ALT;
+                                        beginNonKeywordScan += this.singleCommentAlt.Length;
+                                    }
+                                    else if (CompareStrings(this.stringStart, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_STRING;
+                                        beginNonKeywordScan += this.stringStart.Length;
+                                    }
+                                    else if (CompareStrings(this.charStart, 0, text, beginNonKeywordScan))
+                                    {
+                                        highlightState = HighlightState.IN_CHAR;
+                                        beginNonKeywordScan += this.charStart.Length;
+                                    }
+
+                                    if (highlightState != HighlightState.NONE)
+                                    {
+                                        opaqueStateOut |= (int)highlightState;
+                                        this.FindAndHighlightRange(opaqueStateOut, text, highlightStartIndex, beginNonKeywordScan, out beginNonKeywordScan, out opaqueStateOut, out previousTokenIsSyntaxStart);
+                                        break;
+                                    }
+                                }
+
+                                bool detectFollowingDigit = false; 
+                                // Look for operator
+                                if (this.operatorCharacters.Contains(ch))
+                                {
+                                    this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.OPERATOR);
+                                    detectFollowingDigit = true;
+                                }
+
+                                // Look for bracket characters
+                                else if (this.bracketCharacters.Contains(ch))
+                                {
+                                    this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.BRACKET);
+                                    detectFollowingDigit = true;
+                                }
+
+                                detectFollowingDigit |= (ch == ' ' || ch == ',' || ch == '.');
+                                beginNonKeywordScan++;
+
+                                // look for hex prefix
+                                if (detectFollowingDigit)
+                                {
+                                    bool isHexNumber = false;
+                                    if (CompareStrings(hexPrefix, 0, text, beginNonKeywordScan))
+                                    {
+                                        this.highlightRange((uint)beginNonKeywordScan, (uint)hexPrefix.Length, HighlightStyle.NUMBER);
+                                        beginNonKeywordScan += hexPrefix.Length;
+                                        isHexNumber = true;
+                                    }
+
+                                    while (beginNonKeywordScan < text.Length)
+                                    {
+                                        if (char.IsDigit(text[beginNonKeywordScan]))
+                                        {
+                                            this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.NUMBER);
+                                            beginNonKeywordScan++;
+                                            continue;
+                                        }
+                                        else if (isHexNumber)
+                                        {
+                                            char chHex = char.ToLower(text[beginNonKeywordScan]);
+                                            if (chHex >= 'a' && chHex <= 'f')
+                                            {
+                                                this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.NUMBER);
+                                                beginNonKeywordScan++;
+                                                continue;
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // we could have covered a lot more ground update i.
+                            i = beginNonKeywordScan - 1;
+                        }
+                    }
                 }
             }
+        }
+
+        private static bool CompareStrings(string string1, int offset1, string string2, int offset2)
+        {
+            if (string1 == null)
+                return false;
+
+            int string1Length = string1.Length;
+            int string2Length = string2.Length;
+
+            if (string1Length > string2Length - offset2 || string1Length == 0)
+                return false;
+
+            while (offset1 < string1Length && offset2 < string2Length)
+            {
+                if (string1[offset1] != string2[offset2])
+                    return false;
+
+                offset1++;
+                offset2++;
+            }
+            return true;
         }
 
         #region Highlighter callbacks
@@ -293,7 +731,12 @@ namespace TextCoreControl.SyntaxHighlighting
             KEYWORD6 = 6, 
             PREPROCESSORKEYWORD = 7, 
             PREPROCESSOR = 8,
-            COMMENT = 9 
+            COMMENT = 9,
+            OPERATOR = 10,
+            BRACKET = 11,
+            NUMBER = 12,
+            STRING = 13,
+            CHAR   = 14
         }
 
         public delegate void HighlightRange(uint beginOffset, uint endOffset, HighlightStyle style);
@@ -307,10 +750,40 @@ namespace TextCoreControl.SyntaxHighlighting
         #region syntax rules
         private enum LanguageType { NONE, TEXT, C, HTML, PERL, LATEX };
         LanguageType    languageType;
-        private int     namespace1;
         private bool    ignoreCase;
+        /// <summary>
+        ///     #number such that last [keyword #number] inclusive which are in first namespace.
+        /// </summary>
+        private int     namespace1;
+        private CharacterCollection keywordCharacters;
+        private CharacterCollection bracketCharacters;
+        private int     keywordLength;
+        private char    preProcessorCharacter;
+        private CharacterCollection operatorCharacters;
+        private string  hexPrefix;
+        private string  syntaxStart;
+        private string  syntaxEnd;
+        private string  commentStart;
+        private string  commentEnd;
+        private string  commentStartAlt;
+        private string  commentEndAlt;
+        private string  singleComment;
+        private string  singleCommentAlt;
+        private string  singleCommentEsc;
+        private string  stringStart;
+        private string  stringEnd;
+        private string  stringAlt;
+        private string  stringEsc;
+        private string  charStart;
+        private string  charEnd;
+        private string  charEsc;
+        private bool stringsSpanLines;
         #endregion
 
-        private Dictionary<string, int> keywordsMap;
+        private int highlightRangeStartStringsHash;
+        private int highlightRangeEndStringsHash;
+
+        private Dictionary<string, int> keywordsMapNamespace1;
+        private Dictionary<string, int> keywordsMapNamespace2;
     }
 }

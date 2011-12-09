@@ -63,6 +63,7 @@
     <Compile Include="ScrollBoundsManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SyntaxHighlighting\CharacterCollection.cs" />
     <Compile Include="SyntaxHighlighting\LanguageDetector.cs" />
     <Compile Include="SyntaxHighlighting\SyntaxHighlighterService.cs" />
     <Compile Include="SyntaxHighlighting\SyntaxHightlighterEngine.cs" />

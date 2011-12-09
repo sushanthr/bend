@@ -34,7 +34,12 @@ namespace TextCoreControl.SyntaxHighlighting
                 /*KEYWORD6*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF( 139f/255,   0,   0)), 
                 /*PREPROCESSORKEYWORD*/     hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0, 128f/255,   0)),
                 /*PREPROCESSOR*/            hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0, 155f/255,  91f/255)),
-                /*COMMENT*/                 hwndRenderTarget.CreateSolidColorBrush(new ColorF( 170f/255, 170f/255, 170f/255))
+                /*COMMENT*/                 hwndRenderTarget.CreateSolidColorBrush(new ColorF( 170f/255, 170f/255, 170f/255)), 
+                /*OPERATOR*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF( 230f/255,  51f/255,  51f/255)),
+                /*BRACKET*/                 hwndRenderTarget.CreateSolidColorBrush(new ColorF( 250f/255,  51f/255,  51f/255)),
+                /*NUMBER*/                  hwndRenderTarget.CreateSolidColorBrush(new ColorF( 184f/255, 134f/255,  11f/255)),
+                /*STRING*/                  hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0f/255, 100f/255,  0f/255)),
+                /*CHAR*/                    hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0f/255, 100f/255,  0f/255))
             };
             this.colorTable = colorTable;
         } 
@@ -45,7 +50,9 @@ namespace TextCoreControl.SyntaxHighlighting
 
             // Call to highlight text, the engine will now use callbacks 
             // to highlight the text passed in.
-            syntaxHighlighterEngine.HighlightText(visualLine.Text);
+            int opaqueStateIn = SyntaxHightlighterEngine.GetInitialState();
+            int opaqueStateOut;
+            syntaxHighlighterEngine.HighlightText(visualLine.Text, opaqueStateIn, out opaqueStateOut);
         }
 
         void syntaxHighlighterEngine_highlightRange(uint beginOffset, uint length, SyntaxHightlighterEngine.HighlightStyle style)
