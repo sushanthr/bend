@@ -332,17 +332,27 @@ namespace TextCoreControl.SyntaxHighlighting
 
         private enum HighlightState
         {
-            NONE = 0x0000,
-            IN_NO_SYNTAX = 0x0001,
-            IN_COMMENT = 0X0002,
-            IN_COMMENT_ALT = 0x0004,
-            IN_SINGLE_COMMENT = 0x0008,
-            IN_SINGLE_COMMENT_ALT = 0x0010,
-            IN_STRING = 0x0020,
-            IN_CHAR = 0x0040,
+            NONE                    = 0x0000,
+            IN_NO_SYNTAX            = 0x0001,
+            IN_COMMENT              = 0X0002,
+            IN_COMMENT_ALT          = 0x0004,
+            IN_SINGLE_COMMENT       = 0x0008,
+            IN_SINGLE_COMMENT_ALT   = 0x0010,
+            IN_STRING               = 0x0020,
+            IN_CHAR                 = 0x0040,
+            AFTER_HARD_BREAK        = 0x00010000,
+
+            STATE_FLAGS             = 0x0000FFFF,
+            OTHER_FLAGS             = 0x0000FFFF
         };
 
-        public static int GetInitialState() { return (int)HighlightState.NONE; }
+        public int GetInitialState() 
+        {
+            if (this.syntaxStart == null || this.syntaxStart == "")
+                return (int)HighlightState.NONE;
+            else
+                return (int)HighlightState.IN_NO_SYNTAX;
+        }
 
         private void ComputeHightlightRangeHashs()
         {
@@ -401,6 +411,103 @@ namespace TextCoreControl.SyntaxHighlighting
             return false;
         }
 
+        internal int SynthesizeStateForward(string text, int stateAtStart)
+        {
+            bool isAfterHardBreak = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char ch = text[i];
+                if (this.IsPossibleHighlightRangeStart(ch))
+                {
+                    if (CompareStrings(this.syntaxEnd, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_NO_SYNTAX;
+                        i += (this.syntaxEnd.Length - 1);
+                    }
+                    else if (CompareStrings(this.commentStart, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_COMMENT;
+                        i += (this.commentStart.Length - 1);
+                    }
+                    else if (CompareStrings(this.commentStartAlt, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_COMMENT_ALT;
+                        i += (this.commentStartAlt.Length - 1);
+                    }
+                    else if (CompareStrings(this.singleComment, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT;
+                        i += (this.singleComment.Length - 1);
+                    }
+                    else if (CompareStrings(this.singleCommentAlt, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT_ALT;
+                        i += (this.singleCommentAlt.Length - 1);
+                    }
+                    else if (CompareStrings(this.stringStart, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_STRING;
+                        i += (this.stringStart.Length - 1);
+                    }
+                    else if (CompareStrings(this.charStart, 0, text, i))
+                    {
+                        stateAtStart |= (int)HighlightState.IN_CHAR;
+                        i += (this.charStart.Length - 1);
+                    }
+                }
+                else if (this.IsPossibleHighlightRangeEnd(ch))
+                {
+                    if (((stateAtStart & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, i))
+                    {
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+
+                    else if (((stateAtStart & (int)HighlightState.IN_COMMENT) != 0) && CompareStrings(this.commentEnd, 0, text, i))
+                    {
+                        i += (this.commentEnd.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                    else if (((stateAtStart & (int)HighlightState.IN_COMMENT_ALT) != 0) && CompareStrings(this.commentEndAlt, 0, text, i))
+                    {
+                        i += (this.commentEndAlt.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                    else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringEnd, 0, text, i))
+                    {
+                        i += (this.stringEnd.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                    else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringAlt, 0, text, i))
+                    {
+                        i += (this.stringAlt.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                    else if (((stateAtStart & (int)HighlightState.IN_CHAR) != 0) && CompareStrings(this.charEnd, 0, text, i))
+                    {
+                        i += (this.charEnd.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                    else if ((((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) || ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT_ALT) != 0))
+                        && CompareStrings(this.singleCommentEsc, 0, text, i))
+                    {
+                        i += (this.singleCommentEsc.Length - 1);
+                        stateAtStart = (int)HighlightState.NONE;
+                    }
+                }
+                else if (ch == '\r' || ch == '\n')
+                {
+                    if ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) stateAtStart = (int)HighlightState.NONE;
+                    if ((stateAtStart & (int)HighlightState.IN_STRING) != 0 && !this.stringsSpanLines) stateAtStart = (int)HighlightState.NONE;
+                    if ((stateAtStart & (int)HighlightState.IN_CHAR) != 0) stateAtStart = (int)HighlightState.NONE;
+                }
+            }
+            if (text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
+            {
+                stateAtStart |= (int)HighlightState.AFTER_HARD_BREAK;
+            }
+            return stateAtStart;
+        }
+
         #endregion
 
         #region Highlighter
@@ -433,6 +540,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         continueFromIndex = index + 1;
                         newHighlightState = (int)HighlightState.NONE;
                         transitionedIntoSyntaxRegion = true;
+                        this.highlightRange((uint)index, (uint)this.syntaxStart.Length, HighlightStyle.BRACKET);
                         break;
                     }
 
@@ -515,6 +623,7 @@ namespace TextCoreControl.SyntaxHighlighting
 
         public void HighlightText(string text, int opaqueStateIn, out int opaqueStateOut)
         {
+            opaqueStateIn = opaqueStateIn & (int)HighlightState.STATE_FLAGS;
             opaqueStateOut = (int)HighlightState.NONE; 
 
             if (this.highlightRange != null)
@@ -594,7 +703,8 @@ namespace TextCoreControl.SyntaxHighlighting
                                     int highlightStartIndex = beginNonKeywordScan;
                                     if (CompareStrings(this.syntaxEnd, 0, text, beginNonKeywordScan))
                                     {
-                                        highlightState = HighlightState.IN_NO_SYNTAX; 
+                                        highlightState = HighlightState.IN_NO_SYNTAX;
+                                        this.highlightRange((uint)beginNonKeywordScan, (uint)this.syntaxEnd.Length, HighlightStyle.BRACKET);
                                         beginNonKeywordScan += this.syntaxEnd.Length;
                                     }
                                     else if (CompareStrings(this.commentStart, 0, text, beginNonKeywordScan))
@@ -694,6 +804,11 @@ namespace TextCoreControl.SyntaxHighlighting
                     }
                 }
             }
+
+            if (text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
+            {
+                opaqueStateOut |= (int)HighlightState.AFTER_HARD_BREAK;
+            }
         }
 
         private static bool CompareStrings(string string1, int offset1, string string2, int offset2)
@@ -739,7 +854,7 @@ namespace TextCoreControl.SyntaxHighlighting
             CHAR   = 14
         }
 
-        public delegate void HighlightRange(uint beginOffset, uint endOffset, HighlightStyle style);
+        public delegate void HighlightRange(uint beginOffset, uint length, HighlightStyle style);
         public event HighlightRange highlightRange;
 
         #endregion

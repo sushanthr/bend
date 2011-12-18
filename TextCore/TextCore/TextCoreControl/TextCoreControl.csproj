@@ -65,6 +65,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="SyntaxHighlighting\CharacterCollection.cs" />
     <Compile Include="SyntaxHighlighting\LanguageDetector.cs" />
+    <Compile Include="SyntaxHighlighting\OrdinalKeyedLinkedList.cs" />
     <Compile Include="SyntaxHighlighting\SyntaxHighlighterService.cs" />
     <Compile Include="SyntaxHighlighting\SyntaxHightlighterEngine.cs" />
     <Compile Include="UndoRedoManager.cs" />

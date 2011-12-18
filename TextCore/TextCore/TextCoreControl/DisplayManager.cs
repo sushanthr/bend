@@ -989,7 +989,8 @@ namespace TextCoreControl
                     visualLineStartIndex++;
                     if (!forceRelayout && visualLineStartIndex < this.visualLines.Count && this.visualLines[visualLineStartIndex] != null)
                     {
-                        if (visualLine.NextOrdinal == this.visualLines[visualLineStartIndex].BeginOrdinal)
+                        if (visualLine.NextOrdinal == this.visualLines[visualLineStartIndex].BeginOrdinal &&
+                            (this.syntaxHighlightingService == null || this.syntaxHighlightingService.CanReuseLine(this.visualLines[visualLineStartIndex])))
                         {
                             // We have reflowed enough, things are the same from here on.
                            

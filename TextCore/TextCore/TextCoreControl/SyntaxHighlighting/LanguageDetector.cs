@@ -126,7 +126,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         }
                         else
                         {
-                            syntaxHighlighterService = new SyntaxHighlighterService(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile);
+                            syntaxHighlighterService = new SyntaxHighlighterService(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile, this.document);
                         }
                         this.currentSyntaxDefinitionFile = syntaxFile;
                         e.Result = syntaxHighlighterService;
@@ -166,6 +166,7 @@ namespace TextCoreControl.SyntaxHighlighting
             if (filenameExtension != null)
             {
                 filenameExtension = filenameExtension.Trim();
+                filenameExtension = filenameExtension.ToLower();
                 if (filenameExtension.Length != 0 && extSyntaxFileNames != null)
                 {
                     for (int i = 0; i < filenameExtensions.Length; i++)
@@ -234,6 +235,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         if (parts.Length == 2)
                         {
                             string fileExtension = parts[0].Trim();
+                            fileExtension = fileExtension.ToLower();
                             string syntaxFileName = parts[1].Trim();
                             if (fileExtension.Length > 0 && syntaxFileName.Length > 0)
                             {

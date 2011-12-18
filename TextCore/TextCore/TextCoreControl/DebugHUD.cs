@@ -26,6 +26,8 @@ namespace TextCoreControl
             DebugHUD.DisplayManager = null;
             DebugHUD.ContentLineManager = null;
             DebugHUD.LanguageDetector = null;
+            DebugHUD.IterationsSearchingForSyntaxState = 0;
+            DebugHUD.IterationsSynthesizingSyntaxState = 0;
         }
 
         static internal void Draw(RenderTarget renderTarget, SizeF scrollOffset)
@@ -43,22 +45,29 @@ namespace TextCoreControl
                     output += "CL " + ContentLineManager.MaxContentLines.ToString() + " / ";
                 }
 
+#if DEBUG
+                output += "SynPerf " + DebugHUD.IterationsSearchingForSyntaxState.ToString() + " / ";
+                output += "SynSynth " + DebugHUD.IterationsSynthesizingSyntaxState.ToString() + " / ";
+#endif
+
                 if (LanguageDetector != null)
                 {
                     output += LanguageDetector.SyntaxDefinitionFile;
                 }
 
-                if (output != "")
-                {
-                    RectF rect = new RectF(2 + scrollOffset.Width, 0 + scrollOffset.Height, 300 + scrollOffset.Width, 20 + scrollOffset.Height);
-                    renderTarget.FillRectangle(rect, renderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 0.5f)));
-                    renderTarget.DrawText(output, Settings.DefaultTextFormat, rect, renderTarget.CreateSolidColorBrush(new ColorF(0, 128, 0, 0.5f)));
-                }
+                RectF rect = new RectF(2 + scrollOffset.Width, 0 + scrollOffset.Height, 600 + scrollOffset.Width, 20 + scrollOffset.Height);
+                renderTarget.FillRectangle(rect, renderTarget.CreateSolidColorBrush(new ColorF(0, 0, 0, 0.5f)));
+                renderTarget.DrawText(output, Settings.DefaultTextFormat, rect, renderTarget.CreateSolidColorBrush(new ColorF(0, 128, 0, 0.5f)));
+
+                DebugHUD.IterationsSearchingForSyntaxState = 0;
+                DebugHUD.IterationsSynthesizingSyntaxState = 0;
             }
         }
 
         static internal DisplayManager DisplayManager;
         static internal ContentLineManager ContentLineManager;
         static internal LanguageDetector LanguageDetector;
+        static internal int IterationsSearchingForSyntaxState;
+        static internal int IterationsSynthesizingSyntaxState;
     }
 }
