@@ -28,6 +28,7 @@ namespace TextCoreControl.SyntaxHighlighting
             this.first = null;
             this.last = null;
             this.memoizationNode = null;
+            this.compressionCount = 0;
         }
 
         private bool Find(int ordinal, out OrdinalKeyedLinkedListNode startNode)
@@ -108,9 +109,11 @@ namespace TextCoreControl.SyntaxHighlighting
                 }
                 else if (foundNode.value.CompareTo(value) == 0 && 
                     foundNode.previous != null && 
-                    foundNode.previous.ordinal != ordinal)
+                    foundNode.previous.ordinal != ordinal &&
+                    this.compressionCount % 10 != 0)
                 {
                     foundNode.ordinal = ordinal;
+                    this.compressionCount++;
                 }
                 else
                 {
@@ -131,15 +134,17 @@ namespace TextCoreControl.SyntaxHighlighting
             }
 
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine("");
-            OrdinalKeyedLinkedListNode tempNode = this.first;
-            while (tempNode != null)
+            if (DebugHUD.ShowOrdinalKeyedLinkedListContentsInDebugWindow)
             {
-                System.Diagnostics.Debug.Write(tempNode.ordinal + " " + tempNode.value + " (" + (tempNode.previous == null ? "O" : "X") + ") " +" - ");
-                tempNode = tempNode.next;
+                System.Diagnostics.Debug.WriteLine("");
+                OrdinalKeyedLinkedListNode tempNode = this.first;
+                while (tempNode != null)
+                {
+                    System.Diagnostics.Debug.Write(tempNode.ordinal + " " + tempNode.value + " (" + (tempNode.previous == null ? "O" : "X") + ") " + " - ");
+                    tempNode = tempNode.next;
+                }
             }
 #endif
-
             return true;
         }
 
@@ -193,5 +198,6 @@ namespace TextCoreControl.SyntaxHighlighting
         OrdinalKeyedLinkedListNode first;
         OrdinalKeyedLinkedListNode last;
         OrdinalKeyedLinkedListNode memoizationNode;
+        uint compressionCount;
     }
 }

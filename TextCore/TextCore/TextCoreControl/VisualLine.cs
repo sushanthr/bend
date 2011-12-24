@@ -64,6 +64,14 @@ namespace TextCoreControl
                 // snap right
                 offset = hitTestInfo.Metrics.TextPosition + hitTestInfo.Metrics.Length;
             }
+
+            // Return offset that is before the break '\r\n' or '\n' or '\r'
+            if (this.hasHardBreak && this.Text.Length == offset && offset > 0)
+            {
+                offset--;
+                if (offset > 0 && this.Text[(int)offset - 1] == '\r')
+                    offset--;
+            }
         }
 
         public float CharPosition(Document document, int ordinal)

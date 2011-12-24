@@ -760,6 +760,9 @@ namespace TextCoreControl
 
         void Document_ContentChanged(int beginOrdinal, int endOrdinal, string content)
         {
+            if (this.syntaxHighlightingService != null)
+                this.syntaxHighlightingService.NotifyOfContentChange(beginOrdinal, endOrdinal, content);
+
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {
                 // Full reset, most likely a new file was loaded.

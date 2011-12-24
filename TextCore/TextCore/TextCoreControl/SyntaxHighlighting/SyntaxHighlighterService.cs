@@ -22,29 +22,31 @@ namespace TextCoreControl.SyntaxHighlighting
             this.document = document;
             this.syntaxHighlighterStates = new OrdinalKeyedLinkedList<int>();
             this.syntaxHighlighterStates.Insert(document.FirstOrdinal(), this.syntaxHighlighterEngine.GetInitialState());
-            this.document.ContentChange += new Document.ContentChangeEventHandler(document_ContentChange);
-            this.dirtySyntaxHighlighterStatesBeginOrdinal = int.MaxValue;
+            this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
+            this.dirtySyntaxHighlightBeginOrdinal = int.MaxValue;
         }
 
-        private void document_ContentChange(int beginOrdinal, int endOrdinal, string content)
+        internal void NotifyOfContentChange(int beginOrdinal, int endOrdinal, string content)
         {
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {
                 // Full reset, most likely a new file was loaded.
                 this.syntaxHighlighterStates = new OrdinalKeyedLinkedList<int>();
                 this.syntaxHighlighterStates.Insert(document.FirstOrdinal(), this.syntaxHighlighterEngine.GetInitialState());
-                this.DirtySyntaxHighlighterStatesBeginOrdinal = int.MaxValue;
+                this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
+                this.dirtySyntaxHighlightBeginOrdinal = int.MaxValue;
             }
             else
             {
                 this.syntaxHighlighterStates.Delete(beginOrdinal, endOrdinal);
-                this.DirtySyntaxHighlighterStatesBeginOrdinal = Math.Min(endOrdinal, this.DirtySyntaxHighlighterStatesBeginOrdinal);
+                this.dirtySyntaxStateBeginOrdinal = Math.Min(document.PreviousOrdinal(beginOrdinal), this.dirtySyntaxStateBeginOrdinal);
+                this.dirtySyntaxHighlightBeginOrdinal = this.dirtySyntaxStateBeginOrdinal;
             }
         }
 
         internal bool CanReuseLine(VisualLine visualLine)
         {
-            return visualLine.BeginOrdinal < document.PreviousOrdinal(this.DirtySyntaxHighlighterStatesBeginOrdinal);
+            return visualLine.BeginOrdinal <= this.dirtySyntaxHighlightBeginOrdinal;
         }
 
         internal void InitDisplayResources(HwndRenderTarget hwndRenderTarget)
@@ -73,16 +75,25 @@ namespace TextCoreControl.SyntaxHighlighting
         internal void HighlightLine(ref VisualLine visualLine)
         {
             this.currentVisualLine = visualLine;
+            this.dirtySyntaxHighlightBeginOrdinal = Math.Max(this.dirtySyntaxHighlightBeginOrdinal, visualLine.BeginOrdinal);
 
             int opaqueStateIn;
             int ordinalFound;
             int stateNeededOrdinal = visualLine.BeginOrdinal;
-            if (stateNeededOrdinal >= this.DirtySyntaxHighlighterStatesBeginOrdinal)
+            if (stateNeededOrdinal > this.dirtySyntaxStateBeginOrdinal)
             {
-                System.Diagnostics.Debug.Assert(this.DirtySyntaxHighlighterStatesBeginOrdinal != int.MaxValue);
-                stateNeededOrdinal = document.PreviousOrdinal(this.DirtySyntaxHighlighterStatesBeginOrdinal);
+                System.Diagnostics.Debug.Assert(this.dirtySyntaxStateBeginOrdinal != int.MaxValue);
+                stateNeededOrdinal = this.dirtySyntaxStateBeginOrdinal;
             }
-            bool found = this.syntaxHighlighterStates.Find(stateNeededOrdinal, out ordinalFound, out opaqueStateIn);
+            bool found;
+            if (stateNeededOrdinal == document.LastOrdinal())
+            {
+                found = this.syntaxHighlighterStates.Find(Document.UNDEFINED_ORDINAL, out ordinalFound, out opaqueStateIn);
+            }
+            else
+            {
+                found = this.syntaxHighlighterStates.Find(stateNeededOrdinal, out ordinalFound, out opaqueStateIn);
+            }
             System.Diagnostics.Debug.Assert(found, "Atleast the first ordinal is available in the states collection.");
 
             if (ordinalFound != visualLine.BeginOrdinal)
@@ -103,7 +114,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 string text = stringBuilder.ToString();
                 opaqueStateIn = this.syntaxHighlighterEngine.SynthesizeStateForward(text, opaqueStateIn);
                 this.syntaxHighlighterStates.Insert(beginOrdinal, opaqueStateIn);
-                this.DirtySyntaxHighlighterStatesBeginOrdinal = Math.Max(this.DirtySyntaxHighlighterStatesBeginOrdinal, beginOrdinal+1);
+                this.dirtySyntaxStateBeginOrdinal = Math.Max(this.dirtySyntaxStateBeginOrdinal, beginOrdinal);
             }
 
             // Call to highlight text, the engine will now use callbacks 
@@ -113,25 +124,24 @@ namespace TextCoreControl.SyntaxHighlighting
 
             if (visualLine.NextOrdinal == Document.UNDEFINED_ORDINAL)
             {
-                // The plus one is hacky, but indicates a position just after the last ordinal.
-                this.syntaxHighlighterStates.Insert(document.LastOrdinal() + 1, opaqueStateOut);
-                this.DirtySyntaxHighlighterStatesBeginOrdinal = int.MaxValue;
+                this.syntaxHighlighterStates.Insert(document.LastOrdinal(), opaqueStateOut);
+                this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
             }
             else
             {
                 bool insertedDiffentValue = this.syntaxHighlighterStates.Insert(visualLine.NextOrdinal, opaqueStateOut);
 
-                if (this.DirtySyntaxHighlighterStatesBeginOrdinal <= visualLine.NextOrdinal)
+                if (visualLine.NextOrdinal > this.dirtySyntaxStateBeginOrdinal)
                 {
                     if (insertedDiffentValue)
                     {
-                        int nextOrdinal = document.NextOrdinal(visualLine.NextOrdinal);
-                        this.DirtySyntaxHighlighterStatesBeginOrdinal = Math.Max(nextOrdinal, this.DirtySyntaxHighlighterStatesBeginOrdinal);
+                        this.dirtySyntaxStateBeginOrdinal = Math.Max(this.dirtySyntaxStateBeginOrdinal, visualLine.NextOrdinal);
                     }
                     else
                     {
                         // more dirtiness can be wiped out
-                        this.DirtySyntaxHighlighterStatesBeginOrdinal = int.MaxValue;
+                        this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
+                        this.dirtySyntaxHighlightBeginOrdinal = int.MaxValue;
                     }
                 }
             }
@@ -145,21 +155,21 @@ namespace TextCoreControl.SyntaxHighlighting
             }
         }
 
-        private int DirtySyntaxHighlighterStatesBeginOrdinal
-        {
-            get { return dirtySyntaxHighlighterStatesBeginOrdinal; }
-            set { dirtySyntaxHighlighterStatesBeginOrdinal = value; System.Diagnostics.Debug.Assert(value >= 0); }
-        }
-
         VisualLine currentVisualLine;
         SyntaxHightlighterEngine syntaxHighlighterEngine;
         SolidColorBrush[] colorTable;
         Document document;
         OrdinalKeyedLinkedList<int> syntaxHighlighterStates;
+        
         /// <summary>
-        ///  All ordinals greater than or equal to dirtySyntaxHighlighterStatesBeginOrdinal in the 
-        ///  syntaxHighlighterStates have invalid state data.
+        ///     All ordinals greater than dirtySyntaxHighlighterStatesBeginOrdinal
+        ///     in syntaxHighlighterStates have invalid state data.
         /// </summary>
-        int dirtySyntaxHighlighterStatesBeginOrdinal;
+        int dirtySyntaxStateBeginOrdinal;
+
+        /// <summary>
+        ///     All lines that begin after this ordinal need to be rehighlighted.
+        /// </summary>
+        int dirtySyntaxHighlightBeginOrdinal;
     }
 }

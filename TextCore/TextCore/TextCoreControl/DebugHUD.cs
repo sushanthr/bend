@@ -28,6 +28,7 @@ namespace TextCoreControl
             DebugHUD.LanguageDetector = null;
             DebugHUD.IterationsSearchingForSyntaxState = 0;
             DebugHUD.IterationsSynthesizingSyntaxState = 0;
+            DebugHUD.ShowOrdinalKeyedLinkedListContentsInDebugWindow = false;
         }
 
         static internal void Draw(RenderTarget renderTarget, SizeF scrollOffset)
@@ -46,7 +47,7 @@ namespace TextCoreControl
                 }
 
 #if DEBUG
-                output += "SynPerf " + DebugHUD.IterationsSearchingForSyntaxState.ToString() + " / ";
+                output += "SynSearch " + DebugHUD.IterationsSearchingForSyntaxState.ToString() + " / ";
                 output += "SynSynth " + DebugHUD.IterationsSynthesizingSyntaxState.ToString() + " / ";
 #endif
 
@@ -69,5 +70,6 @@ namespace TextCoreControl
         static internal LanguageDetector LanguageDetector;
         static internal int IterationsSearchingForSyntaxState;
         static internal int IterationsSynthesizingSyntaxState;
+        static internal bool ShowOrdinalKeyedLinkedListContentsInDebugWindow;
     }
 }
