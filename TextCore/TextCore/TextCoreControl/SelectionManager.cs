@@ -229,7 +229,7 @@ namespace TextCoreControl
             this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, scrollOffset, renderTarget);
         }
 
-        public void OrdinalShift(int beginOrdinal, int shift)
+        public void NotifyOfOrdinalShift(int beginOrdinal, int shift)
         {
             if (selectionBeginOrdinal > beginOrdinal) selectionBeginOrdinal += shift;
             if (selectionEndOrdinal > beginOrdinal) selectionEndOrdinal += shift;

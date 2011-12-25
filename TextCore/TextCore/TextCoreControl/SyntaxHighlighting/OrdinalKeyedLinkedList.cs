@@ -9,15 +9,18 @@ namespace TextCoreControl.SyntaxHighlighting
     {
         private class OrdinalKeyedLinkedListNode
         {
-            internal OrdinalKeyedLinkedListNode(int ordinal, T value)
+            internal OrdinalKeyedLinkedListNode(int ordinalDelta, T value)
             {
-                this.ordinal = ordinal;
+                this.ordinalDelta = ordinalDelta;
                 this.value = value;
                 this.next = null;
                 this.previous = null;
             }
 
-            internal int ordinal;
+            /// <summary>
+            ///     OrdinalDelta - value to add from the pervious node ordinal to get the ordinal for this node.
+            /// </summary>
+            internal int ordinalDelta;
             internal T value;
             internal OrdinalKeyedLinkedListNode next;
             internal OrdinalKeyedLinkedListNode previous;
@@ -26,40 +29,78 @@ namespace TextCoreControl.SyntaxHighlighting
         internal OrdinalKeyedLinkedList()
         {
             this.first = null;
+            this.firstOrdinal = Document.UNDEFINED_ORDINAL;
             this.last = null;
+            this.lastOrdinal = Document.UNDEFINED_ORDINAL;
             this.memoizationNode = null;
+            this.memoizationOrdinal = Document.UNDEFINED_ORDINAL;
             this.compressionCount = 0;
         }
 
-        private bool Find(int ordinal, out OrdinalKeyedLinkedListNode startNode)
+        internal void NotifyOfOrdinalShift(Document document, int beginOrdinal, int shift)
         {
-            startNode = first;
-            if (first == null || first.ordinal > ordinal)
+            OrdinalKeyedLinkedListNode foundNode;
+            int foundOrdinal;
+            if (this.Find(beginOrdinal, out foundNode, out foundOrdinal))
+            {
+                this.memoizationNode = foundNode;
+                this.memoizationOrdinal = foundOrdinal;
+
+                OrdinalKeyedLinkedListNode adjustNode = foundNode.next;
+                if (adjustNode != null)
+                    adjustNode.ordinalDelta += shift;
+            }
+
+            if (this.firstOrdinal > beginOrdinal && this.firstOrdinal != Document.UNDEFINED_ORDINAL)
+                this.firstOrdinal += shift;
+
+            if (this.lastOrdinal > beginOrdinal && this.lastOrdinal != Document.UNDEFINED_ORDINAL)
+                this.lastOrdinal += shift;
+
+            if (this.memoizationOrdinal > beginOrdinal && this.memoizationOrdinal != Document.UNDEFINED_ORDINAL)
+                this.memoizationOrdinal += shift;
+        }
+
+        private bool Find(int ordinal, out OrdinalKeyedLinkedListNode foundNode, out int foundOrdinal)
+        {
+            foundNode = first;
+            foundOrdinal = firstOrdinal;
+            if (first == null || firstOrdinal > ordinal)
                 return false;
 
-            int delta = Math.Abs(first.ordinal - ordinal);
-            int deltaLast = Math.Abs(last.ordinal - ordinal);
-            int deltaMemoization = Math.Abs(memoizationNode.ordinal - ordinal);
-            if (deltaLast < delta) startNode = last;
-            if (deltaMemoization < delta && deltaMemoization < deltaLast) startNode = memoizationNode;
+            int delta = Math.Abs(firstOrdinal - ordinal);
+            int deltaLast = Math.Abs(lastOrdinal - ordinal);
+            int deltaMemoization = Math.Abs(memoizationOrdinal - ordinal);
+            if (deltaLast < delta)
+            {
+                foundNode = last;
+                foundOrdinal = lastOrdinal;
+            }
+            if (deltaMemoization < delta && deltaMemoization < deltaLast)
+            {
+                foundNode = memoizationNode;
+                foundOrdinal = memoizationOrdinal;
+            }
 
-            if (startNode.ordinal < ordinal)
+            if (foundOrdinal < ordinal)
             {
                 // Find forward
-                while (startNode.next != null && ordinal >= startNode.next.ordinal)
+                while (foundNode.next != null && ordinal >= (foundNode.next.ordinalDelta + foundOrdinal))
                 {
-                    startNode = startNode.next;
+                    foundNode = foundNode.next;
+                    foundOrdinal += foundNode.ordinalDelta;
 #if DEBUG
                     DebugHUD.IterationsSearchingForSyntaxState++;
 #endif
                 }
             }
-            else if (startNode.ordinal > ordinal)
+            else if (foundOrdinal > ordinal)
             {
                 // Find backward
-                while (startNode.previous != null && ordinal < startNode.ordinal)
+                while (foundNode.previous != null && ordinal < foundOrdinal)
                 {
-                    startNode = startNode.previous;
+                    foundOrdinal -= foundNode.ordinalDelta;
+                    foundNode = foundNode.previous;
 #if DEBUG
                     DebugHUD.IterationsSearchingForSyntaxState++;
 #endif
@@ -69,22 +110,23 @@ namespace TextCoreControl.SyntaxHighlighting
         }
 
         /// <summary>
-        ///     Returns the value lesser or equal to the ordinal passed in.
+        ///     Finds the value for a ordinal lesser or equal to the ordinal passed in.
+        ///     Returns true for a sucessful find, returns false otherwise.
         /// </summary>
         /// <param name="ordinal">Ordinal to search for</param>
-        /// <param name="ordinalFound">Ordinal found instead</param>
+        /// <param name="foundOrdinal">Ordinal found instead</param>
         /// <param name="value">Value corresponding to the found ordinal</param>
-        internal bool Find(int ordinal, out int ordinalFound, out T value)
+        internal bool Find(int ordinal, out int foundOrdinal, out T value)
         {
             OrdinalKeyedLinkedListNode foundNode;
-            if (this.Find(ordinal, out foundNode))
+            if (this.Find(ordinal, out foundNode, out foundOrdinal))
             {
                 this.memoizationNode = foundNode;
-                ordinalFound = foundNode.ordinal;
+                this.memoizationOrdinal = foundOrdinal;
                 value = foundNode.value;
                 return true;
             }
-            ordinalFound = -1;
+            foundOrdinal = -1;
             value = default(T);
             return false;
         }
@@ -97,55 +139,95 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <returns>false if inserted value is the same as the one already in place</returns>
         internal bool Insert(int ordinal, T value)
         {
-            OrdinalKeyedLinkedListNode newNode = new OrdinalKeyedLinkedListNode(ordinal, value);
+            this.compressionCount++;
             OrdinalKeyedLinkedListNode foundNode;
-            if (this.Find(ordinal, out foundNode))
+            int foundOrdinal;
+            if (this.Find(ordinal, out foundNode, out foundOrdinal))
             {
-                if (foundNode.ordinal == ordinal)
+                if (foundOrdinal == ordinal)
                 {
                     if (foundNode.value.CompareTo(value) == 0)
                         return false;
                     foundNode.value = value;
                 }
-                else if (foundNode.value.CompareTo(value) == 0 && 
-                    foundNode.previous != null && 
-                    foundNode.previous.ordinal != ordinal &&
-                    this.compressionCount % 10 != 0)
-                {
-                    foundNode.ordinal = ordinal;
-                    this.compressionCount++;
-                }
                 else
                 {
-                    newNode.next = foundNode.next;
-                    foundNode.next = newNode;
-                    newNode.previous = foundNode;
-                    if (newNode.next != null)
-                        newNode.next.previous = newNode;
-                    if (foundNode == this.last)
-                        this.last = newNode;
+                    int previousNodeOrdinal = foundOrdinal - foundNode.ordinalDelta;
+                    if (foundNode.value.CompareTo(value) == 0 &&
+                        foundNode.previous != null &&
+                        previousNodeOrdinal != ordinal &&
+                        this.compressionCount % 10 != 0)
+                    {
+                        int oldOrdinalDelta = foundNode.ordinalDelta;
+                        foundNode.ordinalDelta = ordinal - previousNodeOrdinal;
+                        if (foundNode.next != null) foundNode.next.ordinalDelta -= (foundNode.ordinalDelta - oldOrdinalDelta);
+                        if (this.first == foundNode) this.firstOrdinal = ordinal;
+                        if (this.last == foundNode) this.lastOrdinal = ordinal;
+                        if (this.memoizationNode == foundNode) this.memoizationOrdinal = ordinal;
+                    }
+                    else
+                    {
+                        OrdinalKeyedLinkedListNode newNode = new OrdinalKeyedLinkedListNode(ordinal - foundOrdinal, value);
+                        newNode.next = foundNode.next;
+                        foundNode.next = newNode;
+                        newNode.previous = foundNode;
+                        if (newNode.next != null)
+                        {
+                            newNode.next.previous = newNode;
+                            newNode.next.ordinalDelta = (foundOrdinal + newNode.next.ordinalDelta - ordinal);
+                        }
+                        if (foundNode == this.last)
+                        {
+                            this.last = newNode;
+                            this.lastOrdinal = ordinal;
+                        }
+                    }
                 }
             }
             else
             {
+                OrdinalKeyedLinkedListNode newNode = new OrdinalKeyedLinkedListNode(ordinal, value);
                 this.first = newNode;
+                this.firstOrdinal = ordinal;
                 this.last = newNode;
+                this.lastOrdinal = ordinal;
                 this.memoizationNode = newNode;
+                this.memoizationOrdinal = ordinal;
             }
 
 #if DEBUG
             if (DebugHUD.ShowOrdinalKeyedLinkedListContentsInDebugWindow)
             {
-                System.Diagnostics.Debug.WriteLine("");
                 OrdinalKeyedLinkedListNode tempNode = this.first;
+                int ordinalSum = 0;
                 while (tempNode != null)
                 {
-                    System.Diagnostics.Debug.Write(tempNode.ordinal + " " + tempNode.value + " (" + (tempNode.previous == null ? "O" : "X") + ") " + " - ");
+                    ordinalSum += tempNode.ordinalDelta;
                     tempNode = tempNode.next;
                 }
+                if (ordinalSum != this.lastOrdinal)
+                {
+                    System.Diagnostics.Debug.Assert(ordinalSum == this.lastOrdinal);
+                    this.Delete(ordinal, ordinal);
+                }
+
+                this.Dump();
             }
 #endif
             return true;
+        }
+
+        internal void Dump()
+        {
+            System.Diagnostics.Debug.WriteLine("");
+            OrdinalKeyedLinkedListNode tempNode = this.first;
+            int ordinalSum = 0;
+            while (tempNode != null)
+            {
+                ordinalSum += tempNode.ordinalDelta;
+                System.Diagnostics.Debug.Write(ordinalSum + " (" + tempNode.ordinalDelta + ") " + tempNode.value + " => ");
+                tempNode = tempNode.next;
+            }
         }
 
         /// <summary>
@@ -156,48 +238,89 @@ namespace TextCoreControl.SyntaxHighlighting
         internal void Delete(int beginOrdinal, int endOrdinal)
         {
             OrdinalKeyedLinkedListNode beginNode;
-            if (this.Find(beginOrdinal, out beginNode))
+            int beginOrdinalFound;
+            if (this.Find(beginOrdinal, out beginNode, out beginOrdinalFound))
             {
                 if (beginNode.next == null) 
                     // Nothing to delete you are the last already
                     return;
-                if (beginNode.ordinal < beginOrdinal)
+                if (beginOrdinalFound < beginOrdinal)
+                {
                     beginNode = beginNode.next;
+                    beginOrdinalFound += beginNode.ordinalDelta;
+                }
 
-                if (beginNode.ordinal > endOrdinal)
+                if (beginOrdinalFound > endOrdinal)
                     return;
 
                 OrdinalKeyedLinkedListNode endNode;
-                if (this.Find(endOrdinal, out endNode))
+                int endOrdinalFound;
+                if (this.Find(endOrdinal, out endNode, out endOrdinalFound))
                 {
-                    if (endNode.ordinal < beginOrdinal)
+                    if (endOrdinalFound < beginOrdinal)
                         return;
 
                     // Now we have both begin and end;
-                    // Delete inclusive being and end nodes.
-                    if (first.ordinal >= beginOrdinal && first.ordinal <= endNode.ordinal)
-                        first = endNode.next;
-                    if (last.ordinal >= beginOrdinal && last.ordinal <= endNode.ordinal)
-                        last = beginNode.previous;
-                    if (memoizationNode.ordinal >= beginOrdinal && memoizationNode.ordinal <= endNode.ordinal)
+                    // Delete inclusive begin and end nodes.
+                    if (firstOrdinal >= beginOrdinal && firstOrdinal <= endOrdinal)
                     {
-                        memoizationNode = beginNode.previous;
-                        if (memoizationNode == null)
+                        first = endNode.next;
+                        firstOrdinal = endOrdinalFound + endNode.ordinalDelta;
+                    }
+                    if (lastOrdinal >= beginOrdinal && lastOrdinal <= endOrdinal)
+                    {
+                        last = beginNode.previous;
+                        lastOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
+                    }
+
+                    if (memoizationOrdinal >= beginOrdinal && memoizationOrdinal <= endOrdinal)
+                    {
+                        if (beginNode.previous == null)
+                        {
                             memoizationNode = endNode.next;
+                            if (memoizationNode != null)
+                                memoizationOrdinal = endOrdinalFound + memoizationNode.ordinalDelta;
+                            else
+                                memoizationOrdinal = 0;
+                        }
+                        else
+                        {
+                            memoizationNode = beginNode.previous;
+                            memoizationOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
+                        }
                     }
 
                     if (beginNode.previous != null)
                         beginNode.previous.next = endNode.next;
                     if (endNode.next != null)
+                    {
                         endNode.next.previous = beginNode.previous;
+                        int deleteOrdinalDelta = endOrdinalFound - (beginOrdinalFound - beginNode.ordinalDelta);
+                        endNode.next.ordinalDelta += deleteOrdinalDelta;
+                    }
                 }
             }
 
         }
 
         OrdinalKeyedLinkedListNode first;
+        /// <summary>
+        ///     Ordinal value for the first node.
+        /// </summary>
+        int firstOrdinal;
+        
         OrdinalKeyedLinkedListNode last;
+        /// <summary>
+        ///     Ordinal value for the last node.
+        /// </summary>
+        int lastOrdinal;
+        
         OrdinalKeyedLinkedListNode memoizationNode;
+        /// <summary>
+        ///     Ordinal value for the memoization node.
+        /// </summary>
+        int memoizationOrdinal;
+
         uint compressionCount;
     }
 }

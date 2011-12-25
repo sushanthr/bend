@@ -102,6 +102,12 @@ namespace TextCoreControl
             if (this.cachedOrdinal > beginOrdinal && this.cachedOrdinal != Document.UNDEFINED_ORDINAL) this.cachedOrdinal += shift;
         }
 
+        internal void NotifyOfSettingsChange()
+        {
+            cachedOrdinal = Document.BEFOREBEGIN_ORDINAL;
+            cachedLineNumber = 0;
+        }
+
         #endregion
 
         #region Render and display helpers

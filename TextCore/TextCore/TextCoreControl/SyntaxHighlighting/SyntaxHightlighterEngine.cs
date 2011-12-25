@@ -413,7 +413,6 @@ namespace TextCoreControl.SyntaxHighlighting
 
         internal int SynthesizeStateForward(string text, int stateAtStart)
         {
-            bool isAfterHardBreak = false;
             for (int i = 0; i < text.Length; i++)
             {
                 char ch = text[i];

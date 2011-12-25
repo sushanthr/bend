@@ -66,9 +66,10 @@ namespace TextCoreControl
             }
 
             // Return offset that is before the break '\r\n' or '\n' or '\r'
-            if (this.hasHardBreak && this.Text.Length == offset && offset > 0)
+            if (this.hasHardBreak)
             {
-                offset--;
+                if (offset > 0 && this.Text[(int)offset - 1] == '\n')
+                    offset--;
                 if (offset > 0 && this.Text[(int)offset - 1] == '\r')
                     offset--;
             }

@@ -26,6 +26,11 @@ namespace TextCoreControl.SyntaxHighlighting
             this.dirtySyntaxHighlightBeginOrdinal = int.MaxValue;
         }
 
+        internal void NotifyOfOrdinalShift(Document document, int beginOrdinal, int shift)
+        {
+            this.syntaxHighlighterStates.NotifyOfOrdinalShift(document, beginOrdinal, shift);
+        }
+
         internal void NotifyOfContentChange(int beginOrdinal, int endOrdinal, string content)
         {
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)

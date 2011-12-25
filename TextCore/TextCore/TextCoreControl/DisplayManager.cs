@@ -771,7 +771,7 @@ namespace TextCoreControl
                 this.SelectRange(this.pageBeginOrdinal, this.pageBeginOrdinal);
 
                 int changeStart, changeEnd;
-                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
                 this.UpdateCaret(endOrdinal);
 
                 this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
@@ -920,7 +920,7 @@ namespace TextCoreControl
                 }
             }
         }
-
+        
         void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
             for (int i = 0; i < visualLines.Count; i++)
@@ -929,12 +929,36 @@ namespace TextCoreControl
                 vl.OrdinalShift(beginOrdinal, shift);
             }
 
-            if (this.selectionManager != null)
+            if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL) 
+                this.pageBeginOrdinal += shift;
+
+            if (this.selectionManager != null)            
+                this.selectionManager.NotifyOfOrdinalShift(beginOrdinal, shift);
+
+            if (this.syntaxHighlightingService != null)
+                this.syntaxHighlightingService.NotifyOfOrdinalShift(document, beginOrdinal, shift);
+        }
+
+        internal void NotifyOfSettingsChange()
+        {
+            if (this.syntaxHighlightingService != null)
+                this.syntaxHighlightingService.NotifyOfContentChange(Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL, "");
+
+            if (this.contentLineManager != null)
             {
-                this.selectionManager.OrdinalShift(beginOrdinal, shift);
+                this.contentLineManager.NotifyOfSettingsChange();
+                this.contentLineManager.MaxContentLines = 0;
             }
 
-            if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL) this.pageBeginOrdinal += shift;
+            this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
+            
+            int changeStart, changeEnd;
+            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+            this.UpdateCaret(this.caret.Ordinal);
+
+            this.caret.HideCaret();
+            this.Render();
+            this.caret.ShowCaret();
         }
 
         private void UpdateVisualLines(
@@ -1364,9 +1388,7 @@ namespace TextCoreControl
             this.syntaxHighlightingService = syntaxHighlightingService;
             this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
 
-            // Recolor all the lines.
-            int changeStart, changeEnd;
-            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+            this.NotifyOfSettingsChange();
         }
 
         #endregion

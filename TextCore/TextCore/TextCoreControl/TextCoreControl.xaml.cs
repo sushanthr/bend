@@ -134,6 +134,11 @@ namespace TextCoreControl
             set { this.copyPasteManager = value; }
         }
 
+        public void NotifyOfSettingsChange()
+        {
+            this.displayManager.NotifyOfSettingsChange();
+        }
+
         internal Document Document { get { return this.document; } }
         internal DisplayManager DisplayManager { get { return this.displayManager; } }
 
