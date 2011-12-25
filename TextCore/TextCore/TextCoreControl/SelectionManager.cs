@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
+using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
@@ -13,8 +14,10 @@ namespace TextCoreControl
             defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
             defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionOutlineColor);
+            whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1.0f, 1.0f, 1.0f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
+            this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
         }
 
         public void DrawSelection(
@@ -88,7 +91,7 @@ namespace TextCoreControl
                         {
                             if (selectRectangles[i].Width > 0.0f)
                             {
-                                RoundedRect roundedRect = new RoundedRect(selectRectangles[i], 2.0f, 2.0f);
+                                RoundedRect roundedRect = new RoundedRect(selectRectangles[i], 0.0f, 0.0f);
                                 geometryList.Add(d2dFactory.CreateRoundedRectangleGeometry(roundedRect));
                             }
                         }
@@ -136,7 +139,7 @@ namespace TextCoreControl
 
                 if (selectionGeometry != null)
                 {
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 3.0f);
+                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 1.0f);
 
                     // Clip to selection shape.
                     Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height));
@@ -156,7 +159,15 @@ namespace TextCoreControl
                     // Draw content layer - white lines.
                     for (int j = firstLine; j <= lastLine; j++)
                     {
-                        ((VisualLine)visualLines[j]).DrawWhite(renderTarget);
+                        VisualLine whiteVisualLine = new VisualLine(this.dwriteFactory, 
+                            ((VisualLine)visualLines[j]).Text,
+                            Settings.DefaultTextFormat,
+                            ((VisualLine)visualLines[j]).BeginOrdinal,
+                            ((VisualLine)visualLines[j]).NextOrdinal,
+                            ((VisualLine)visualLines[j]).HasHardBreak);
+                        whiteVisualLine.SetDrawingEffect(whiteBrush, 0, (uint)((VisualLine)visualLines[j]).Text.Length);
+                        whiteVisualLine.Position = ((VisualLine)visualLines[j]).Position;
+                        whiteVisualLine.Draw(renderTarget);
                     }
 
                     renderTarget.PopLayer();
@@ -241,6 +252,8 @@ namespace TextCoreControl
         SolidColorBrush defaultBackgroundBrush;
         SolidColorBrush defaultSelectionBrush;
         SolidColorBrush defaultSelectionOutlineBrush;
+        SolidColorBrush whiteBrush;
         D2DFactory d2dFactory;
+        DWriteFactory dwriteFactory;
     }
 }

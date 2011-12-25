@@ -34,6 +34,12 @@ namespace TextCoreControl
             this.hasHardBreak = hasHardBreak;
         }
 
+        /// <summary>
+        ///     Sets a color for a range of text
+        /// </summary>
+        /// <param name="effect">The color</param>
+        /// <param name="beginOffset">Offset from the begin of the line 0 to text.length</param>
+        /// <param name="length">Length of the range</param>
         public void SetDrawingEffect(Brush effect, uint beginOffset, uint length)
         {
             this.textLayout.SetDrawingEffect(effect, new TextRange(beginOffset, length));
@@ -43,12 +49,6 @@ namespace TextCoreControl
         {
             SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
             renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
-        }
-
-        public void DrawWhite(RenderTarget renderTarget)
-        {
-            SolidColorBrush whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1, 1, 1, 1));
-            renderTarget.DrawTextLayout(this.position, this.textLayout, whiteBrush, DrawTextOptions.NoSnap);
         }
 
         public void HitTest(Point2F position, out uint offset)
