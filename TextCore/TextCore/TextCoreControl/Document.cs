@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TextCoreControl
 {
-    internal class Document
+    public class Document
     {
         public const int UNDEFINED_ORDINAL = int.MaxValue;
         public const int BEFOREBEGIN_ORDINAL = -1;
@@ -44,6 +44,11 @@ namespace TextCoreControl
             return fileContents != null && fileContents.Length > 0 ? 0 : UNDEFINED_ORDINAL;
         }
 
+        public bool IsEmpty
+        {
+            get { return fileContents == null || fileContents.Length == 0; }
+        }
+        
         internal int LastOrdinal()
         {
             return fileContents != null && fileContents.Length > 0 ? fileContents.Length - 1 : UNDEFINED_ORDINAL;
@@ -158,6 +163,6 @@ namespace TextCoreControl
         public event OrdinalShiftEventHandler OrdinalShift;
 
         private string fileContents;
-        public readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
+        internal readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
     }
 }

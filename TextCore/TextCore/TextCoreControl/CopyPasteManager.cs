@@ -13,7 +13,7 @@ namespace TextCoreControl
             this.ringIndex = 0;
         }
 
-        public void Cut(TextControlUserControl textCoreControl)
+        public void Cut(TextEditor textCoreControl)
         {
             this.Copy(textCoreControl);
 
@@ -26,7 +26,7 @@ namespace TextCoreControl
             }
         }
 
-        public void Copy(TextControlUserControl textCoreControl)
+        public void Copy(TextEditor textCoreControl)
         {
             this.SyncClipBoardRing();
             int selectionBeginOrdinal;
@@ -38,7 +38,7 @@ namespace TextCoreControl
             }
         }
 
-        public void Paste(TextControlUserControl textCoreControl, int item = 0)
+        public void Paste(TextEditor textCoreControl, int item = 0)
         {
             this.SyncClipBoardRing();
 
@@ -59,7 +59,7 @@ namespace TextCoreControl
             }
         }
 
-        public void PasteNextRingItem(TextControlUserControl textCoreControl)
+        public void PasteNextRingItem(TextEditor textCoreControl)
         {
             if (this.clipBoardRing.Count != 0)
             {

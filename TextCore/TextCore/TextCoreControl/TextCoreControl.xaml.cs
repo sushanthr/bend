@@ -12,9 +12,9 @@ namespace TextCoreControl
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class TextControlUserControl : UserControl
+    public partial class TextEditor : UserControl
     {
-        public TextControlUserControl()
+        public TextEditor()
         {
             InitializeComponent();
             this.document = new Document();
@@ -139,7 +139,7 @@ namespace TextCoreControl
             this.displayManager.NotifyOfSettingsChange();
         }
 
-        internal Document Document { get { return this.document; } }
+        public Document Document { get { return this.document; } }
         internal DisplayManager DisplayManager { get { return this.displayManager; } }
 
         private Document document;
