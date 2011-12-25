@@ -12,10 +12,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.Windows.Shell;
 using Microsoft.Win32;
+using TextCoreControl;
 
 namespace Bend
 {
@@ -24,7 +23,7 @@ namespace Bend
         #region Member data
             private WrapPanel title;
             private TextBlock titleText;            
-            private TextEditor textEditor;
+            private TextCoreControl.TextEditor textEditor;
             private String fullFileName;
             private Image closeButton;   
 
@@ -98,11 +97,8 @@ namespace Bend
                 textEditor.HorizontalAlignment = HorizontalAlignment.Stretch;
                 textEditor.Margin = new Thickness(0);
                 textEditor.VerticalAlignment = VerticalAlignment.Stretch;
-                textEditor.ShowLineNumbers = true;
-                textEditor.FontFamily = Tab.fontFamilyConsolas;
-                textEditor.FontSize = 14;
                 textEditor.PreviewMouseWheel += Tab.EditorPreviewMouseWheel;
-                textEditor.PreviewKeyDown += Tab.EditorPreviewKeyDown;                
+                textEditor.PreviewKeyDown += Tab.EditorPreviewKeyDown;
 
                 this.fileChangedWatcher = null;
                 this.lastFileChangeTime = 1;
@@ -116,8 +112,6 @@ namespace Bend
             if (this.fullFileName != fullFileName)
             {
                  // File changed
-                this.textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(System.IO.Path.GetExtension(fullFileName));
-
                 if (this.fileChangedWatcher != null)
                 {
                     this.fileChangedWatcher.EnableRaisingEvents = false;
@@ -145,14 +139,14 @@ namespace Bend
 
         internal void OpenFile(String fullFileName)
         {
-            this.textEditor.Load(fullFileName);            
+            this.textEditor.LoadFile(fullFileName);            
             this.SetFullFileName(fullFileName);
         }
 
         internal void SaveFile(String fullFileName)
         {
             System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
-            this.TextEditor.Save(fullFileName);            
+            this.TextEditor.SaveFile(fullFileName);            
             this.SetFullFileName(fullFileName);
         }
 
@@ -264,6 +258,8 @@ namespace Bend
 
         internal void LoadOptions()
         {
+            // TODO: INTEGRATE:
+            /*
             this.textEditor.Options.ConvertTabsToSpaces = PersistantStorage.StorageObject.TextUseSpaces;
             this.textEditor.Options.IndentationSize = PersistantStorage.StorageObject.TextIndent;
             this.textEditor.Options.ShowBoxForControlCharacters = PersistantStorage.StorageObject.TextFormatControlCharacters;
@@ -282,6 +278,7 @@ namespace Bend
                 this.textEditor.Options.ShowEndOfLine = false;
             }
             this.textEditor.WordWrap = PersistantStorage.StorageObject.TextWordWrap;
+            */
         }
         #endregion
     }

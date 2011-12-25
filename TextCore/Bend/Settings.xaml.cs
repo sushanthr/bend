@@ -331,6 +331,8 @@ namespace Bend
 
         private void JSBeautifyFile(object sender, RoutedEventArgs e)
         {
+            // TODO: INTEGRATE:
+            /*
             try
             {   
                 CurrentTab().TextEditor.BeginChange();
@@ -343,10 +345,13 @@ namespace Bend
             catch
             {
             }
+             */
         }
 
         private void JSBeautifySelection(object sender, RoutedEventArgs e)
         {
+            // TODO: INTEGRATE:
+            /*
             try
             {
                 Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.SelectedText, GetAndPersistJsBeautifyOptions());
@@ -357,6 +362,7 @@ namespace Bend
             catch
             {
             }
+             */
         }
 
         private void AllowOnlyDigits_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -382,6 +388,8 @@ namespace Bend
 
         private void HTMLTidyProcessFile_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: INTEGRATE:
+            /*
             try
             {
                 String tidyHTML = "";
@@ -415,6 +423,7 @@ namespace Bend
             catch
             {
             }
+             * */
         }
 
         private void UpdateOptions()

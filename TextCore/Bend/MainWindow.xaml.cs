@@ -16,8 +16,6 @@ using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using Microsoft.Windows.Shell;
 using Microsoft.Win32;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Highlighting;
 using System.Collections;
 
 namespace Bend
@@ -167,7 +165,8 @@ namespace Bend
                     newTab.Title.MouseLeftButtonUp += this.TabClick;
                     newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
                     newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
-                    newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+                    // TODO: INTEGRATE:
+                    // newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
 
                     newTab.Title.Opacity = 0.5;
                     newTab.TextEditor.Visibility = Visibility.Hidden;
@@ -225,7 +224,8 @@ namespace Bend
             {
                 if (this.currentTabIndex > 0 && this.currentTabIndex < tab.Count)
                 {
-                    tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                    // TODO: INTEGRATE:
+                    // tab[this.currentTabIndex].TextEditor.Select(0, 0);
                     this.currentSearchIndex = 0;
                 }
             }
@@ -328,7 +328,7 @@ namespace Bend
             if (dlg.ShowDialog(this) ?? false)
             {
                 // No tabs / Non Empty new file / tab has some file open
-                if (this.currentTabIndex < 0 || this.tab[this.currentTabIndex].TextEditor.Document.TextLength != 0 || this.tab[this.currentTabIndex].FullFileName != null)
+                if (this.currentTabIndex < 0 || !this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty || this.tab[this.currentTabIndex].FullFileName != null)
                 {
                     if (this.currentTabIndex >= 0)
                     {
@@ -398,7 +398,8 @@ namespace Bend
             {
                 try
                 {
-                    tab[this.currentTabIndex].TextEditor.ScrollToLine(lineNumber);                    
+                    // TODO: INTEGRATE:
+                    //tab[this.currentTabIndex].TextEditor.ScrollToLine(lineNumber);                    
                 }
                 catch
                 {
@@ -560,7 +561,8 @@ namespace Bend
             newTab.Title.MouseLeftButtonUp += this.TabClick;
             newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
             newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
-            newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+            // TODO: INTEGRATE:
+            //newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
 
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
@@ -580,7 +582,8 @@ namespace Bend
                     }
                     // Clear find on page state
                     this.currentSearchIndex = 0;
-                    tab[this.currentTabIndex].TextEditor.Select(0,0);
+                    // TODO: INTEGRATE:
+                    // tab[this.currentTabIndex].TextEditor.Select(0,0);
 
                     this.currentTabIndex = i;                    
                     tab[i].Title.Opacity = 1.0;
@@ -747,7 +750,7 @@ namespace Bend
                 {
                     if (tab[i].FullFileName != null && System.IO.File.Exists(tab[i].FullFileName))
                     {
-                        tab[i].TextEditor.Load(tab[i].FullFileName);
+                        tab[i].TextEditor.LoadFile(tab[i].FullFileName);
                     }
                     break;
                 }
@@ -780,7 +783,8 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
-                this.tab[this.currentTabIndex].TextEditor.Cut();
+                // TODO: INTEGRATE:
+                // this.tab[this.currentTabIndex].TextEditor.Cut();
             }
         }
 
@@ -811,14 +815,16 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
-                Clipboard.SetText(this.tab[this.currentTabIndex].TextEditor.SelectedText);
+                // TODO: INTEGRATE:
+                // Clipboard.SetText(this.tab[this.currentTabIndex].TextEditor.SelectedText);
             }
         }
         private void CommandPaste(object sender, ExecutedRoutedEventArgs e)
         {
             if (this.currentTabIndex >= 0 && Clipboard.ContainsText())
             {
-                this.tab[this.currentTabIndex].TextEditor.Paste();
+                // TODO: INTEGRATE:
+                // this.tab[this.currentTabIndex].TextEditor.Paste();
             }
         }
         #endregion
@@ -843,7 +849,8 @@ namespace Bend
                     this.lastKeyWasEnter = false;
                     if (e.Key == Key.Escape)
                     {
-                        this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                        // TODO: INTEGRATE: 
+                        //this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
                         this.tab[this.currentTabIndex].TextEditor.Focus();
                         this.currentSearchIndex = 0;
                         this.SetStatusText("");
@@ -854,82 +861,86 @@ namespace Bend
 
         internal void FindNextStringOnPage(string findText, bool backward, bool resetSearch, bool matchCase, bool useRegex)
         {
-            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
-            {
-                bool thisSearchWasFromBegin;
-                int matchLength = 0;
-            repeatSearch:
-                if (backward)
-                {
-                    // Search backwards
-                    currentSearchIndex--;
-                    if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Text.Length) currentSearchIndex = 0;
-                    thisSearchWasFromBegin = (currentSearchIndex == 0);
-                    currentSearchIndex = tab[this.currentTabIndex].TextEditor.Text.LastIndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    matchLength = findText.Length;
-                }
-                else
-                {
-                    // Search forwards
-                    currentSearchIndex++;
-                    if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Text.Length) currentSearchIndex = 0;
-                    thisSearchWasFromBegin = (currentSearchIndex == 0);
-                    if (useRegex)
-                    {
-                        try
-                        {
-                            System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                            System.Text.RegularExpressions.Match regExMatch = regEx.Match(tab[this.currentTabIndex].TextEditor.Text, currentSearchIndex);
-                            if (regExMatch.Success)
-                            {
-                                currentSearchIndex = regExMatch.Index;
-                                matchLength = regExMatch.Length;
-                            }
-                            else
-                            {
-                                currentSearchIndex = -1;
-                            }
-                        }
-                        catch
-                        {
-                            currentSearchIndex = -1;
-                        }
-                    }
-                    else
-                    {
-                        currentSearchIndex = tab[this.currentTabIndex].TextEditor.Text.IndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                        matchLength = findText.Length;
-                    }
-                }
-                if (!this.lastKeyWasEnter)
-                {
-                    this.lastKeyWasEnter = true;
-                    goto repeatSearch;
-                }
+            // TODO: INTEGRATE:
+            //if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+            //{
+            //    bool thisSearchWasFromBegin;
+            //    int matchLength = 0;
+            //repeatSearch:
+            //    if (backward)
+            //    {
+            //        // Search backwards
+            //        currentSearchIndex--;
 
-                if (currentSearchIndex >= 0)
-                {
-                    tab[this.currentTabIndex].TextEditor.Select(currentSearchIndex, matchLength, /*isFindOnPageSelection*/true);
+            //        if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Text.Length) currentSearchIndex = 0;
+            //        thisSearchWasFromBegin = (currentSearchIndex == 0);
+            //        currentSearchIndex = tab[this.currentTabIndex].TextEditor.Text.LastIndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            //        matchLength = findText.Length;
+            //    }
+            //    else
+            //    {
+            //        // Search forwards
+            //        currentSearchIndex++;
                     
-                    // We are looping and changed to status text to "NO MORE MATCHES", change it back to the match count.
-                    if (thisSearchWasFromBegin)
-                    {
-                        UpdateFind(findText, false, matchCase, useRegex);
-                    }
-                }
-                else
-                {
-                    if (thisSearchWasFromBegin)
-                    {
-                        this.SetStatusText("NO MATCHES FOUND");
-                    }
-                    else
-                    {
-                        this.SetStatusText("NO MORE MATCHES");
-                    }
-                    tab[this.currentTabIndex].TextEditor.Select(0, 0);
-                }
-            }            
+            //        if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Text.Length) currentSearchIndex = 0;
+            //        thisSearchWasFromBegin = (currentSearchIndex == 0);
+            //        if (useRegex)
+            //        {
+            //            try
+            //            {
+            //                System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            //                System.Text.RegularExpressions.Match regExMatch = regEx.Match(tab[this.currentTabIndex].TextEditor.Text, currentSearchIndex);
+            //                if (regExMatch.Success)
+            //                {
+            //                    currentSearchIndex = regExMatch.Index;
+            //                    matchLength = regExMatch.Length;
+            //                }
+            //                else
+            //                {
+            //                    currentSearchIndex = -1;
+            //                }
+            //            }
+            //            catch
+            //            {
+            //                currentSearchIndex = -1;
+            //            }
+            //        }
+            //        else
+            //        {
+            //            currentSearchIndex = tab[this.currentTabIndex].TextEditor.Text.IndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            //            matchLength = findText.Length;
+            //        }
+            //    }
+            //    if (!this.lastKeyWasEnter)
+            //    {
+            //        this.lastKeyWasEnter = true;
+            //        goto repeatSearch;
+            //    }
+
+            //    if (currentSearchIndex >= 0)
+            //    {
+            //        tab[this.currentTabIndex].TextEditor.Select(currentSearchIndex, matchLength, /*isFindOnPageSelection*/true);
+                    
+            //        // We are looping and changed to status text to "NO MORE MATCHES", change it back to the match count.
+            //        if (thisSearchWasFromBegin)
+            //        {
+            //            UpdateFind(findText, false, matchCase, useRegex);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (thisSearchWasFromBegin)
+            //        {
+            //            this.SetStatusText("NO MATCHES FOUND");
+            //        }
+            //        else
+            //        {
+            //            this.SetStatusText("NO MORE MATCHES");
+            //        }
+            //        tab[this.currentTabIndex].TextEditor.Select(0, 0);
+            //    }
+            //}            
+
         }
 
         private void FindText_TextChanged(object sender, TextChangedEventArgs e)
@@ -945,138 +956,140 @@ namespace Bend
         // TODO: this is hacky this must not be public. Code needs to be merged
         public void UpdateFind(string findText, bool highLightFirstMatch, bool matchCase, bool useRegex)
         {
-            if (this.currentTabIndex >= 0)
-            {
-                string text = tab[this.currentTabIndex].TextEditor.Text;
-                TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
-                if (this.findOnPageThread != null)
-                {
-                    this.findOnPageThread.Abort();
-                    this.findOnPageThread = null;
-                }
-                if (findText.Length > 0 && text.Length > 0)
-                {
-                    this.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(UpdateFind_WorkerThread));
-                    this.findOnPageThread.IsBackground = true;
-                    Object[] parameters = new Object[7];
-                    parameters[0] = text;
-                    parameters[1] = findText;
-                    parameters[2] = highLightFirstMatch;
-                    parameters[3] = matchCase;
-                    parameters[4] = useRegex;
-                    parameters[5] = null;
-                    parameters[6] = textEditor;
-                    this.findOnPageThread.Start(parameters);
-                }
-                else
-                {
-                    textEditor.Select(0, 0, true);
-                    this.SetStatusText("NO MATCHES FOUND");
-                }
-            }            
+            // TODO: INTEGRATE:
+            //if (this.currentTabIndex >= 0)
+            //{
+            //    string text = tab[this.currentTabIndex].TextEditor.Text;
+            //    TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
+            //    if (this.findOnPageThread != null)
+            //    {
+            //        this.findOnPageThread.Abort();
+            //        this.findOnPageThread = null;
+            //    }
+            //    if (findText.Length > 0 && text.Length > 0)
+            //    {
+            //        this.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(UpdateFind_WorkerThread));
+            //        this.findOnPageThread.IsBackground = true;
+            //        Object[] parameters = new Object[7];
+            //        parameters[0] = text;
+            //        parameters[1] = findText;
+            //        parameters[2] = highLightFirstMatch;
+            //        parameters[3] = matchCase;
+            //        parameters[4] = useRegex;
+            //        parameters[5] = null;
+            //        parameters[6] = textEditor;
+            //        this.findOnPageThread.Start(parameters);
+            //    }
+            //    else
+            //    {
+            //        textEditor.Select(0, 0, true);
+            //        this.SetStatusText("NO MATCHES FOUND");
+            //    }
+            //}            
         }        
 
         private delegate void EditorFindOnPageSelection_Delegate(int slectionStart, int selectionLength, bool isFindOnPageSelection);
         private void UpdateFind_WorkerThread(object parameters)
         {
-            string text = (string) ((object[])parameters)[0];
-            string findText = (string) ((object[])parameters)[1];
-            bool highLightFirstMatch = (bool)((object[])parameters)[2];
-            bool matchCase = (bool)((object[])parameters)[3];
-            bool useRegEx = (bool)((object[])parameters)[4];
-            string replacementText = (string)((object[])parameters)[5];
-            TextEditor textEditor = (TextEditor)((object[])parameters)[6];            
-            int findIndex = 0;
-            int matchLength = 0;
-            int count = 0;
+            // TODO: INTEGRATE:
+            //string text = (string) ((object[])parameters)[0];
+            //string findText = (string) ((object[])parameters)[1];
+            //bool highLightFirstMatch = (bool)((object[])parameters)[2];
+            //bool matchCase = (bool)((object[])parameters)[3];
+            //bool useRegEx = (bool)((object[])parameters)[4];
+            //string replacementText = (string)((object[])parameters)[5];
+            //TextEditor textEditor = (TextEditor)((object[])parameters)[6];            
+            //int findIndex = 0;
+            //int matchLength = 0;
+            //int count = 0;
 
-            System.Text.RegularExpressions.Regex regEx = null;
-            if (useRegEx)
-            {
-                try
-                {
-                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                }
-                catch
-                {
-                    return;
-                }
-            }
+            //System.Text.RegularExpressions.Regex regEx = null;
+            //if (useRegEx)
+            //{
+            //    try
+            //    {
+            //        regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            //    }
+            //    catch
+            //    {
+            //        return;
+            //    }
+            //}
 
-            while (true)
-            {
-                if (useRegEx)
-                {
-                    try
-                    {                        
-                        System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
-                        if (regExMatch.Success)
-                        {
-                            findIndex = regExMatch.Index;
-                            matchLength = regExMatch.Length;
-                        }
-                        else
-                        {
-                            findIndex = -1;
-                            matchLength = 0;
-                        }
-                    }
-                    catch
-                    {
-                        findIndex = -1;
-                        matchLength = 0;
-                    }
-                }
-                else
-                {
-                    findIndex = text.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    matchLength = findText.Length;
-                }
+            //while (true)
+            //{
+            //    if (useRegEx)
+            //    {
+            //        try
+            //        {                        
+            //            System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
+            //            if (regExMatch.Success)
+            //            {
+            //                findIndex = regExMatch.Index;
+            //                matchLength = regExMatch.Length;
+            //            }
+            //            else
+            //            {
+            //                findIndex = -1;
+            //                matchLength = 0;
+            //            }
+            //        }
+            //        catch
+            //        {
+            //            findIndex = -1;
+            //            matchLength = 0;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        findIndex = text.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            //        matchLength = findText.Length;
+            //    }
 
-                if (findIndex >= 0)
-                {
-                    count++;
-                    if (count == 1 && highLightFirstMatch == true)
-                    {
-                        Object[] callingParameters = new Object[3];
-                        callingParameters[0] = findIndex;
-                        callingParameters[1] = matchLength;
-                        callingParameters[2] = true;
-                        this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
-                    }
-                    if (count % 10 == 0)
-                    {
-                        this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
-                    }
-                    if (replacementText != null)
-                    {
-                        textEditor.ReplaceText(findIndex, matchLength, replacementText);
-                    }
+            //    if (findIndex >= 0)
+            //    {
+            //        count++;
+            //        if (count == 1 && highLightFirstMatch == true)
+            //        {
+            //            Object[] callingParameters = new Object[3];
+            //            callingParameters[0] = findIndex;
+            //            callingParameters[1] = matchLength;
+            //            callingParameters[2] = true;
+            //            this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
+            //        }
+            //        if (count % 10 == 0)
+            //        {
+            //            this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
+            //        }
+            //        if (replacementText != null)
+            //        {
+            //            textEditor.ReplaceText(findIndex, matchLength, replacementText);
+            //        }
 
-                    findIndex++;
-                    if (findIndex >= text.Length)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }                
-            }
-            if (count == 0)
-            {                
-                this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), "NO MATCHES FOUND");
-                Object[] callingParameters = new Object[3];
-                callingParameters[0] = 0;
-                callingParameters[1] = 0;
-                callingParameters[2] = true;
-                this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
-            }
-            else
-            {
-                this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
-            }            
+            //        findIndex++;
+            //        if (findIndex >= text.Length)
+            //        {
+            //            break;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        break;
+            //    }                
+            //}
+            //if (count == 0)
+            //{                
+            //    this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), "NO MATCHES FOUND");
+            //    Object[] callingParameters = new Object[3];
+            //    callingParameters[0] = 0;
+            //    callingParameters[1] = 0;
+            //    callingParameters[2] = true;
+            //    this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
+            //}
+            //else
+            //{
+            //    this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
+            //}            
         }
         
         private void FindText_LostFocus(object sender, RoutedEventArgs e)
@@ -1086,33 +1099,35 @@ namespace Bend
 
         public void ReplaceSelectedText(string replacementText)
         {
-            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
-            {
-                if (this.tab[this.currentTabIndex].TextEditor.SelectedText.Length > 0)
-                {
-                    this.tab[this.currentTabIndex].TextEditor.SelectedText = replacementText;
-                }
-            }
+            // TODO: INTEGRATE:
+            //if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+            //{
+            //    if (this.tab[this.currentTabIndex].TextEditor.SelectedText.Length > 0)
+            //    {
+            //        this.tab[this.currentTabIndex].TextEditor.SelectedText = replacementText;
+            //    }
+            //}
         }
 
         public void ReplaceStringOnPage(string searchText, string replacementText, bool matchCase, bool useRegex)
         {
-            if (replacementText.Length > 0 && this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count && searchText != replacementText)
-            {
-                Object[] parameters = new Object[7];
-                string text = tab[this.currentTabIndex].TextEditor.Text;
-                TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
-                textEditor.BeginChange();
-                parameters[0] = text;
-                parameters[1] = searchText;
-                parameters[2] = false;
-                parameters[3] = matchCase; //matchCase;
-                parameters[4] = useRegex; //useRegex;
-                parameters[5] = replacementText;
-                parameters[6] = textEditor;
-                this.UpdateFind_WorkerThread(parameters);
-                textEditor.EndChange();
-            }
+            // TODO: INTEGRATE:     
+            //if (replacementText.Length > 0 && this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count && searchText != replacementText)
+            //{
+            //    Object[] parameters = new Object[7];
+            //    string text = tab[this.currentTabIndex].TextEditor.Text;
+            //    TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
+            //    textEditor.BeginChange();
+            //    parameters[0] = text;
+            //    parameters[1] = searchText;
+            //    parameters[2] = false;
+            //    parameters[3] = matchCase; //matchCase;
+            //    parameters[4] = useRegex; //useRegex;
+            //    parameters[5] = replacementText;
+            //    parameters[6] = textEditor;
+            //    this.UpdateFind_WorkerThread(parameters);
+            //    textEditor.EndChange();
+            //}
         }
         #endregion
 
@@ -1138,12 +1153,13 @@ namespace Bend
         #region Status Bar
         void Caret_PositionChanged(object sender, EventArgs e)
         {
-            Tab activeTab = this.GetActiveTab();
-            if (activeTab != null)
-            {
-                Line.Content = activeTab.TextEditor.TextArea.Caret.Line.ToString();
-                Column.Content = activeTab.TextEditor.TextArea.Caret.VisualColumn.ToString();
-            }
+            // TODO: INTEGRATE:
+            //Tab activeTab = this.GetActiveTab();
+            //if (activeTab != null)
+            //{
+            //    Line.Content = activeTab.TextEditor.TextArea.Caret.Line.ToString();
+            //    Column.Content = activeTab.TextEditor.TextArea.Caret.VisualColumn.ToString();
+            //}
         }
         #endregion
     }

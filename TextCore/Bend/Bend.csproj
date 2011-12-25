@@ -91,9 +91,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Plugins\eftidynet1013\EfTidyNet.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.AvalonEdit, Version=4.0.0.5048, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Windows.Shell, Version=3.0.1.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\bin\Release\ICSharpCode.AvalonEdit.dll</HintPath>
+      <HintPath>..\Microsoft.Windows.Shell.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
@@ -168,12 +168,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Windows.Shell\Microsoft.Windows.Shell.csproj">
-      <Project>{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}</Project>
-      <Name>Microsoft.Windows.Shell</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Arrow-icon.png" />
   </ItemGroup>
   <ItemGroup>
@@ -240,6 +234,12 @@
     <Resource Include="Images\min.png" />
     <Resource Include="Images\quit.png" />
     <Resource Include="Images\restore.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TextCore\TextCoreControl\TextCoreControl.csproj">
+      <Project>{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}</Project>
+      <Name>TextCoreControl</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
