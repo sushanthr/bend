@@ -8,6 +8,7 @@ namespace TextCoreControl
 {
     internal class Caret
     {
+        internal static bool DBG_CARET_HIDE;
 
         public Caret(HwndRenderTarget renderTarget, int defaultHeight)
         {
@@ -45,11 +46,12 @@ namespace TextCoreControl
         public void MoveCaretToLine(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
         {
             float x = visualLine.CharPosition(document, ordinal);
-            if ((int)visualLine.Height != caretHeight || ordinal == 0)
+            int lineHeight = (int)Math.Ceiling(visualLine.Height);
+            if (lineHeight != caretHeight || ordinal == 0)
             {
-                this.caretHeight = (int) visualLine.Height;
+                this.caretHeight = lineHeight;
                 DestroyCaret();
-                CreateCaret(windowHandle, 0, 1, caretHeight);
+                CreateCaret(windowHandle, 0, 0, caretHeight);
                 ShowCaret();
             }
 
@@ -136,10 +138,10 @@ namespace TextCoreControl
         public void OnGetFocus()
         {
             // Create a solid black caret. 
-            CreateCaret(windowHandle, 0, 1, caretHeight);
+            CreateCaret(windowHandle, 0, 0, this.caretHeight);
 
             // Adjust the caret position, in client coordinates. 
-            SetCaretPos(xPos, yPos);
+            SetCaretPos(xPos, yPos + 1);
 
             // Display the caret. 
             ShowCaret();
@@ -147,6 +149,7 @@ namespace TextCoreControl
 
         public void OnLostFocus()
         {
+            this.HideCaret();
             DestroyCaret();
         }
         #endregion
@@ -156,11 +159,13 @@ namespace TextCoreControl
         public void HideCaret()
         {
             HideCaret(windowHandle);
+            DBG_CARET_HIDE = true;
         }
 
         public void ShowCaret()
         {
             ShowCaret(windowHandle);
+            DBG_CARET_HIDE = false;
         }
 
         #endregion

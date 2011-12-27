@@ -46,7 +46,7 @@ namespace TextCoreControl
 
         public bool IsEmpty
         {
-            get { return fileContents == null || fileContents.Length == 0; }
+            get { return fileContents == null || fileContents.Length == 0 || (fileContents[0] == '\0' && fileContents.Length == 1); }
         }
         
         internal int LastOrdinal()
@@ -149,6 +149,16 @@ namespace TextCoreControl
             }
         }
 
+        public string Text
+        {
+            get { return this.fileContents; }
+        }
+
+        public int GetOrdinalForTextIndex(int textIndex)
+        {
+            return textIndex;
+        }
+        
         // A delegate type for hooking up change notifications.
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal, string content);
         public event ContentChangeEventHandler ContentChange;

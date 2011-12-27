@@ -49,6 +49,7 @@ namespace TextCoreControl
         {
             SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
             renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
+            System.Diagnostics.Debug.Assert(Caret.DBG_CARET_HIDE, "Caret should be hidden.");
         }
 
         public void HitTest(Point2F position, out uint offset)
@@ -200,6 +201,8 @@ namespace TextCoreControl
         public bool HasHardBreak { get { return this.hasHardBreak;} }
 
         public string Text { get { return this.textLayout.Text; } }
+
+        public bool ContainsOrdinal(int ordinal) { return this.beginOrdinal <= ordinal && this.nextOrdinal > ordinal; }
 
         private Point2F position;
         private TextLayout textLayout;

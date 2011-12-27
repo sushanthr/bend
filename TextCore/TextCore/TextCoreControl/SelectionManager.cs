@@ -14,17 +14,21 @@ namespace TextCoreControl
             defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
             defaultSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionOutlineColor);
+            highlightSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(60 / 255f, 179 / 255f, 113 / 255f));
+            highlightSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(60 / 255f, 179 / 255f, 113 / 255f, 0.95f));
             whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1.0f, 1.0f, 1.0f));
+            dimBrush = renderTarget.CreateSolidColorBrush(new ColorF(245/255f, 245/255f, 245/255f, 0.75f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
+            this.forceRedraw = false;
         }
 
         public void DrawSelection(
             int oldSelectionBegin,
             int oldSelectionEnd,
             List<VisualLine> visualLines,
-            Document document, 
+            Document document,
             SizeF scrollOffset,
             RenderTarget renderTarget)
         {
@@ -48,25 +52,35 @@ namespace TextCoreControl
             int firstLine = -1;
             int lastLine = 0;
             float minX = renderTarget.Size.Width;
-            for (int k = 0; k < visualLines.Count; k++)
+            if (this.ShouldUseHighlightColors || forceRedraw)
             {
-                VisualLine visualLine = (VisualLine)visualLines[k];
-                bool oldSelection = (visualLine.BeginOrdinal <= oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
-                    (visualLine.BeginOrdinal >= oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
-                oldSelection = oldSelection && oldSelectionBegin != oldSelectionEnd;
-
-                bool currentSelection = (visualLine.BeginOrdinal <= selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
-                    (visualLine.BeginOrdinal >= selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
-                currentSelection = currentSelection && selectionBeginOrdinal != selectionEndOrdinal;
-
-                if (oldSelection || currentSelection)
+                // Full screen needs repaint
+                firstLine = 0;
+                lastLine = visualLines.Count - 1;
+                minX = visualLines.Count == 0 ? 0 : visualLines[0].Position.X;
+            }
+            else
+            {
+                for (int k = 0; k < visualLines.Count; k++)
                 {
-                    minX = Math.Min(minX, visualLine.Position.X);
-                    lastLine = k;
-                    if (firstLine == -1) firstLine = k;
+                    VisualLine visualLine = (VisualLine)visualLines[k];
+                    bool oldSelection = (visualLine.BeginOrdinal <= oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
+                        (visualLine.BeginOrdinal >= oldSelectionBegin && visualLine.BeginOrdinal < oldSelectionEnd);
+                    oldSelection = oldSelection && oldSelectionBegin != oldSelectionEnd;
+
+                    bool currentSelection = (visualLine.BeginOrdinal <= selectionBeginOrdinal && visualLine.NextOrdinal > selectionBeginOrdinal) ||
+                        (visualLine.BeginOrdinal >= selectionBeginOrdinal && visualLine.BeginOrdinal < selectionEndOrdinal);
+                    currentSelection = currentSelection && selectionBeginOrdinal != selectionEndOrdinal;
+
+                    if (oldSelection || currentSelection)
+                    {
+                        minX = Math.Min(minX, visualLine.Position.X);
+                        lastLine = k;
+                        if (firstLine == -1) firstLine = k;
+                    }
                 }
             }
-
+            
             // If there was atleast one affected line.
             if (firstLine != -1)
             {
@@ -91,7 +105,11 @@ namespace TextCoreControl
                         {
                             if (selectRectangles[i].Width > 0.0f)
                             {
-                                RoundedRect roundedRect = new RoundedRect(selectRectangles[i], 0.0f, 0.0f);
+                                RoundedRect roundedRect;
+                                if (ShouldUseHighlightColors)
+                                    roundedRect = new RoundedRect(selectRectangles[i], 2.0f, 2.0f);
+                                else 
+                                    roundedRect = new RoundedRect(selectRectangles[i], 0.0f, 0.0f);
                                 geometryList.Add(d2dFactory.CreateRoundedRectangleGeometry(roundedRect));
                             }
                         }
@@ -115,6 +133,7 @@ namespace TextCoreControl
                 }
                 bounds.Left -= 3.0f;
 
+                // Begin Render
                 GeometryGroup selectionGeometry = null;
                 if (geometryList.Count != 0)
                 {
@@ -137,9 +156,18 @@ namespace TextCoreControl
                     ((VisualLine)visualLines[j]).Draw(renderTarget);
                 }
 
+                // Draw dimness
+                if (this.ShouldUseHighlightColors && geometryList.Count != 0)
+                {
+                    renderTarget.FillRectangle(new RectF(minX, 0, float.MaxValue, float.MaxValue), dimBrush);
+                }
+
                 if (selectionGeometry != null)
                 {
-                    renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 1.0f);
+                    if (this.ShouldUseHighlightColors)
+                        renderTarget.DrawGeometry(selectionGeometry, highlightSelectionOutlineBrush, 3.0f);
+                    else
+                        renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 1.0f);
 
                     // Clip to selection shape.
                     Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height));
@@ -154,7 +182,10 @@ namespace TextCoreControl
 
                     renderTarget.PushLayer(layerParameters, layer);
 
-                    renderTarget.FillRectangle(bounds, defaultSelectionBrush);
+                    if (this.ShouldUseHighlightColors)
+                        renderTarget.FillRectangle(bounds, highlightSelectionBrush);
+                    else
+                        renderTarget.FillRectangle(bounds, defaultSelectionBrush);
 
                     // Draw content layer - white lines.
                     for (int j = firstLine; j <= lastLine; j++)
@@ -246,13 +277,29 @@ namespace TextCoreControl
             if (selectionEndOrdinal > beginOrdinal) selectionEndOrdinal += shift;
         }
 
+        public bool ShouldUseHighlightColors {
+            get { return this.shouldUseHighlightColors;  }
+            set 
+            {
+                if (this.shouldUseHighlightColors = true && value == false)
+                    this.forceRedraw = true;
+                this.shouldUseHighlightColors = value; 
+            }
+        }
+
         int selectionBeginOrdinal;
         int selectionEndOrdinal;
         bool leftToRightSelection;
+        internal bool shouldUseHighlightColors;
+        private bool forceRedraw;
+
         SolidColorBrush defaultBackgroundBrush;
         SolidColorBrush defaultSelectionBrush;
         SolidColorBrush defaultSelectionOutlineBrush;
         SolidColorBrush whiteBrush;
+        SolidColorBrush dimBrush;
+        SolidColorBrush highlightSelectionBrush;
+        SolidColorBrush highlightSelectionOutlineBrush;
         D2DFactory d2dFactory;
         DWriteFactory dwriteFactory;
     }

@@ -28,6 +28,7 @@ namespace TextCoreControl
             this.currentWidth = 0;
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
             this.verticalScrollBound = 0;
+            this.horizontalScrollBound = 0;
 
             this.scrollLengthEstimator = new BackgroundWorker();
             this.scrollLengthEstimator.WorkerReportsProgress = true;
@@ -49,9 +50,11 @@ namespace TextCoreControl
             vScrollBar.LargeChange = this.displayManager.AvailableHeight;
         }
 
-        internal void UpdateVerticalScrollBoundsDueToContentChange(double delta)
+        internal void UpdateVerticalScrollBoundsDueToContentChange(double deltaVertical, double maxNewVisualLineWidth)
         {
-            this.SetVerticalScrollBarLimits(this.verticalScrollBound + delta);
+            this.SetVerticalScrollBarLimits(this.verticalScrollBound + deltaVertical);
+            if (maxNewVisualLineWidth > this.horizontalScrollBound)
+                this.SetHorizontalScrollBarLimits(maxNewVisualLineWidth);
 
             if (scrollLengthEstimator.IsBusy)
             {
@@ -103,6 +106,7 @@ namespace TextCoreControl
             {
                 int ordinal = document.FirstOrdinal();
                 double verticalScrollBound = 0;
+                double horizontalScrollBound = 0;
 
                 bool pageTopFound = false;
                 int newPageBeginOrdinal = 0;
@@ -134,6 +138,7 @@ namespace TextCoreControl
                     }
 
                     verticalScrollBound += vl.Height;
+                    horizontalScrollBound = Math.Max(horizontalScrollBound, vl.Width);
 
                     progressCount++;
                     if (progressCount % UPDATE_INTERVAL == 0)
@@ -149,7 +154,7 @@ namespace TextCoreControl
 
                 if (!e.Cancel)
                 {
-                    object[] resultArray = { verticalScrollBound, newPageBeginOrdinal, newPageTop, contentLines };
+                    object[] resultArray = { verticalScrollBound, horizontalScrollBound, newPageBeginOrdinal, newPageTop, contentLines };
                     e.Result = resultArray;
                 }
             }
@@ -174,11 +179,13 @@ namespace TextCoreControl
                 // We have a valid result.
                 object[] resultArray = (object []) e.Result;
                 double verticalScrollBound = (double)resultArray[0];
-                int newPageBeginOrdinal = (int)resultArray[1];
-                double newPageTop = (double)resultArray[2];
-                int maxContentLines = (int)resultArray[3];
+                double horizontalScrollBound = (double)resultArray[1];
+                int newPageBeginOrdinal = (int)resultArray[2];
+                double newPageTop = (double)resultArray[3];
+                int maxContentLines = (int)resultArray[4];
 
                 this.SetVerticalScrollBarLimits(verticalScrollBound);
+                this.SetHorizontalScrollBarLimits(horizontalScrollBound);
                 if (this.vScrollBar.IsEnabled)
                 {
                     this.vScrollBar.Value = newPageTop;
@@ -221,12 +228,10 @@ namespace TextCoreControl
             }
         }
 
-        #endregion
-
-        #region Horizonatal scroll bounds setter API
-        internal void InitializeHorizontalScrollBounds(double maxLineWidth, double renderHostWidth)
+        private void SetHorizontalScrollBarLimits(double horizontalScrollBound)
         {
-            if (maxLineWidth > renderHostWidth)
+            this.horizontalScrollBound = horizontalScrollBound;
+            if (horizontalScrollBound > displayManager.AvailbleWidth)
             {
                 // Need to show scrollbars
                 this.vScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
@@ -236,13 +241,13 @@ namespace TextCoreControl
                         {
                             this.hScrollBar.IsEnabled = true;
                             this.hScrollBar.Minimum = 0;
-                            this.hScrollBar.Maximum = maxLineWidth;
+                            this.hScrollBar.Maximum = horizontalScrollBound;
                             this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
 
                             // Guesstimate the thumb hieght
-                            if (renderHostWidth < maxLineWidth)
+                            if (displayManager.AvailbleWidth < horizontalScrollBound)
                             {
-                                this.hScrollBar.ViewportSize = maxLineWidth * renderHostWidth / (maxLineWidth - renderHostWidth);
+                                this.hScrollBar.ViewportSize = horizontalScrollBound * displayManager.AvailbleWidth / (horizontalScrollBound - displayManager.AvailbleWidth);
                             }
                             else
                             {
@@ -296,7 +301,7 @@ namespace TextCoreControl
                     delegate()
                     {
                         this.hScrollBar.IsEnabled = false;
-                        this.hScrollBar.Track.Thumb.Height = 0;
+                        this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
                     }
                 )
             );
@@ -316,7 +321,7 @@ namespace TextCoreControl
         int currentFirstVisibleOrdinal;
 
         double verticalScrollBound;
-
+        double horizontalScrollBound;
         #endregion
     }
 }

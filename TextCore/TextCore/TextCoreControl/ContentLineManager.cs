@@ -10,9 +10,9 @@ namespace TextCoreControl
     /// <summary>
     ///     Takes care of tracking and displaying document line numbers when enabled.
     /// </summary>
-    internal class ContentLineManager
+    public class ContentLineManager
     {
-        const int LEFT_PADDING_PX = 15;
+        const int LEFT_PADDING_PX = 5;
         const int RIGHT_ONE_PADDING_PX = 10;
         const int RIGHT_TWO_PADDING_PX = 10;
         const float VERTICAL_LINE_WIDTH_PX = 1.0f;
@@ -27,7 +27,7 @@ namespace TextCoreControl
             document.ContentChange += new Document.ContentChangeEventHandler(document_ContentChange);
             document.OrdinalShift += new Document.OrdinalShiftEventHandler(document_OrdinalShift);
 
-            this.cachedOrdinal = Document.UNDEFINED_ORDINAL;
+            this.cachedOrdinal = 0;
             this.cachedLineNumber = 0;
             this.maxContentLine = 0;
 
@@ -38,60 +38,57 @@ namespace TextCoreControl
 
         private void document_ContentChange(int beginOrdinal, int endOrdinal, string content)
         {
-            if (Settings.ShowLineNumber)
+            if (beginOrdinal == Document.UNDEFINED_ORDINAL && endOrdinal == Document.UNDEFINED_ORDINAL)
             {
-                if (beginOrdinal == Document.UNDEFINED_ORDINAL && endOrdinal == Document.UNDEFINED_ORDINAL)
+                // Change affects the cachedOrdinal itself, clear cache.
+                cachedOrdinal = Document.BEFOREBEGIN_ORDINAL;
+                cachedLineNumber = 0;
+            }
+            else
+            {
+                int breakCount = 0;
+                for (int i = 0; i < content.Length - 1; i++)
                 {
-                    // Change affects the cachedOrdinal itself, clear cache.
-                    cachedOrdinal = Document.BEFOREBEGIN_ORDINAL;
-                    cachedLineNumber = 0;
-                }
-                else
-                {
-                    int breakCount = 0;
-                    for (int i = 0; i < content.Length - 1; i++)
-                    {
-                        if (TextLayoutBuilder.IsHardBreakChar(content[i], content[i + 1]))
-                        {
-                            breakCount++;
-                        }
-                    }
-                    if (content.Length != 0)
-                    {
-                        if (TextLayoutBuilder.IsHardBreakChar(content[content.Length - 1], '\0'))
-                        {
-                            breakCount++;
-                        }
-                    }
-                    if (endOrdinal == Document.UNDEFINED_ORDINAL)
+                    if (TextLayoutBuilder.IsHardBreakChar(content[i], content[i + 1]))
                     {
                         breakCount++;
                     }
-
-                    if (breakCount != 0)
+                }
+                if (content.Length != 0)
+                {
+                    if (TextLayoutBuilder.IsHardBreakChar(content[content.Length - 1], '\0'))
                     {
-                        int lineNumberDelta;
-                        if (beginOrdinal < endOrdinal)
-                        {
-                            // insertion
-                            lineNumberDelta = breakCount;
-                        }
-                        else
-                        {
-                            lineNumberDelta = -breakCount;
-                        }
+                        breakCount++;
+                    }
+                }
+                if (endOrdinal == Document.UNDEFINED_ORDINAL)
+                {
+                    breakCount++;
+                }
 
-                        maxContentLine += lineNumberDelta;
-                        if (cachedOrdinal > endOrdinal)
-                        {
-                            cachedLineNumber += lineNumberDelta;
-                        }
-                        else if (cachedOrdinal >= beginOrdinal && cachedOrdinal <= endOrdinal)
-                        {
-                            // Change affects the cachedOrdinal itself, clear cache.
-                            cachedOrdinal = Document.BEFOREBEGIN_ORDINAL;
-                            cachedLineNumber = 0;
-                        }
+                if (breakCount != 0)
+                {
+                    int lineNumberDelta;
+                    if (beginOrdinal < endOrdinal)
+                    {
+                        // insertion
+                        lineNumberDelta = breakCount;
+                    }
+                    else
+                    {
+                        lineNumberDelta = -breakCount;
+                    }
+
+                    maxContentLine += lineNumberDelta;
+                    if (cachedOrdinal > endOrdinal)
+                    {
+                        cachedLineNumber += lineNumberDelta;
+                    }
+                    else if (cachedOrdinal >= beginOrdinal && cachedOrdinal <= endOrdinal)
+                    {
+                        // Change affects the cachedOrdinal itself, clear cache.
+                        cachedOrdinal = Document.BEFOREBEGIN_ORDINAL;
+                        cachedLineNumber = 0;
                     }
                 }
             }
@@ -268,7 +265,7 @@ namespace TextCoreControl
 
             return addDelta ? lineNumber + delta : lineNumber - delta;
         }
-
+        
         /// <summary>
         ///     Count of the number of content lines that are present in the document.
         /// </summary>

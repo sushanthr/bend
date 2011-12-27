@@ -139,8 +139,37 @@ namespace TextCoreControl
             this.displayManager.NotifyOfSettingsChange();
         }
 
+        public void ReplaceText(int index, int length, string newText)
+        {
+            this.document.DeleteAt(index, length);
+            this.document.InsertAt(index, newText);
+        }
+
+        public void Select(int index, uint length)
+        {
+            int beginOrdinal = this.document.GetOrdinalForTextIndex(index);
+            this.displayManager.ScrollOrdinalIntoView(index);
+            this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ true);
+            this.displayManager.SelectRange(beginOrdinal, this.document.NextOrdinal(beginOrdinal, length));
+        }
+
+        public string SelectedText
+        {
+            get 
+            {
+                int selectionBeginOrdinal;
+                return this.displayManager.GetSelectedText(out selectionBeginOrdinal);
+            }
+            set 
+            {
+                int selectionBeginOrdinal;
+                string text = this.displayManager.GetSelectedText(out selectionBeginOrdinal);
+                this.ReplaceText(selectionBeginOrdinal, text.Length, value);                
+            }
+        }
+
         public Document Document { get { return this.document; } }
-        internal DisplayManager DisplayManager { get { return this.displayManager; } }
+        public DisplayManager DisplayManager { get { return this.displayManager; } }
 
         private Document document;
         private DisplayManager displayManager;

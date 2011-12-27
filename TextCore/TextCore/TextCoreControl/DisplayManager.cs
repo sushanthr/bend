@@ -14,7 +14,7 @@ using Microsoft.WindowsAPICodePack.DirectX.WindowsImagingComponent;
 
 namespace TextCoreControl
 {
-    internal class DisplayManager
+    public class DisplayManager
     {
         const int MOUSEWHEEL_WINDOWS_STEP_QUANTUM = 120;
 
@@ -72,23 +72,25 @@ namespace TextCoreControl
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
 
+                document.ContentChange += this.Document_ContentChanged;
+                document.OrdinalShift += this.Document_OrdinalShift;
+
+                if (this.syntaxHighlightingService != null)
+                    this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
+
+                // Force create an empty line
+                double maxVisualLineWidth;
+                int changeStart, changeEnd;
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
+                System.Diagnostics.Debug.Assert(this.VisualLineCount != 0);
+
+                this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height);                
+                this.document.OrdinalShift += this.caret.Document_OrdinalShift;
+
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
 
                 this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget, this.d2dFactory);
                 this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
-
-                if (this.visualLines.Count > 0)
-                {
-                    this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height);
-                }
-                else
-                {
-                    this.caret = new Caret(this.hwndRenderTarget, (int)(Settings.DefaultTextFormat.FontSize * 1.3f));
-                }
-                this.document.OrdinalShift += this.caret.Document_OrdinalShift;
-
-                document.ContentChange += this.Document_ContentChanged;
-                document.OrdinalShift += this.Document_OrdinalShift;
             }
         }
 
@@ -119,8 +121,9 @@ namespace TextCoreControl
                 // Resize the render target to the actual host size
                 hwndRenderTarget.Resize(new SizeU((uint)(renderHost.ActualWidth), (uint)(renderHost.ActualHeight)));
 
+                double maxVisualLineWidth;
                 int changeStart, changeEnd;
-                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
                 this.UpdateCaret(this.caret.Ordinal);
 
                 this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
@@ -164,8 +167,10 @@ namespace TextCoreControl
                             this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ShouldUseHighlightColors = false;
                             this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
+                            // OnGetFocus will also show the caret after recreating it.
                             this.caret.ShowCaret();
                         }
                     }
@@ -189,6 +194,7 @@ namespace TextCoreControl
                             this.document.GetWordBoundary(selectionBeginOrdinal, out beginOrdinal, out endOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ShouldUseHighlightColors = false;
                             this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
@@ -217,6 +223,7 @@ namespace TextCoreControl
                             this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionEndOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ShouldUseHighlightColors = false;
                             this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
                             this.caret.ShowCaret();
@@ -473,6 +480,7 @@ namespace TextCoreControl
                         //  Control A was pressed - select all
                         this.caret.HideCaret();
                         this.hwndRenderTarget.BeginDraw();
+                        this.selectionManager.ShouldUseHighlightColors = false;
                         this.selectionManager.ResetSelection(this.document.FirstOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.hwndRenderTarget.EndDraw();
@@ -486,6 +494,7 @@ namespace TextCoreControl
             {
                 this.caret.HideCaret();
                 this.hwndRenderTarget.BeginDraw();
+                this.selectionManager.ShouldUseHighlightColors = false;
                 if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
                 {
                     this.selectionManager.ExpandSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
@@ -503,7 +512,7 @@ namespace TextCoreControl
 
         #region Scrolling
 
-        public void vScrollBar_Scroll(object sender, ScrollEventArgs e)
+        internal void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             int initialLineCount = this.VisualLineCount;
             this.scrollOffset.Height = (float)e.NewValue;
@@ -639,7 +648,7 @@ namespace TextCoreControl
         /// </summary>
         /// <param name="delta">Number of lines added</param>
         /// <param name="newScrollOffset">Resulting new scroll offset</param>
-        public void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop)
+        internal void AdjustVScrollPositionForResize(int newPageBeginOrdinal, double newPageTop)
         {
             if (this.scrollOffset.Height != newPageTop)
             {
@@ -711,10 +720,68 @@ namespace TextCoreControl
 
             this.scrollBoundsManager.ScrollBy(offset);
         }
+        
+        public void ScrollToContentLineNumber(int contentLineNumber, bool moveCaret)
+        {
+            if (this.contentLineManager != null)
+            {
+                this.caret.HideCaret();
+
+                // Internally we are zero based, so subtract one.
+                contentLineNumber--;
+                int currentLineNumber = this.contentLineManager.GetLineNumber(document, this.FirstVisibleOrdinal());
+                
+                bool success = true;
+                while (contentLineNumber != currentLineNumber && success)
+                {
+                    int delta = contentLineNumber - currentLineNumber;
+                    float oldScrollOffset = this.scrollOffset.Height;
+                    this.ScrollBy(delta);
+                    success = (this.scrollOffset.Height != oldScrollOffset);
+                    currentLineNumber = this.contentLineManager.GetLineNumber(document, this.FirstVisibleOrdinal());
+                }
+                int index = this.FirstVisibleLine();
+                if (index >= 0 && index < this.VisualLineCount)
+                {
+                    float delta = this.visualLines[index].Position.Y - this.scrollOffset.Height;
+                    this.scrollBoundsManager.ScrollBy(delta);
+                    if (VisualLineCount != 0 && moveCaret)
+                        this.caret.MoveCaretToLine(this.visualLines[0], this.document, this.scrollOffset, this.visualLines[0].BeginOrdinal);
+                }
+
+                this.caret.ShowCaret();
+            }
+        }
+
+        public void ScrollOrdinalIntoView(int ordinal)
+        {
+            if (this.contentLineManager != null)
+            {
+                int targetLineNumber = this.contentLineManager.GetLineNumber(this.document, ordinal);
+                int lastVisibleLine = this.LastVisibleLine();
+                int firstVisibleLine = this.FirstVisibleLine();
+                if (lastVisibleLine >= 0 && lastVisibleLine < this.VisualLineCount && 
+                    firstVisibleLine >= 0 && firstVisibleLine < this.VisualLineCount)
+                {
+                    if (this.contentLineManager.GetLineNumber(this.document, this.visualLines[firstVisibleLine].BeginOrdinal) <= targetLineNumber &&
+                        this.contentLineManager.GetLineNumber(this.document, this.visualLines[lastVisibleLine].BeginOrdinal) >= targetLineNumber)
+                    {
+                        // already visible
+                        return;
+                    }
+                }
+                this.ScrollToContentLineNumber(targetLineNumber, /*moveCaret*/ false);
+            }
+        }
 
         #endregion
 
         #region Selection
+
+        public void SetHighlightMode(bool shouldUseHighlightColors)
+        {
+            this.selectionManager.ShouldUseHighlightColors = shouldUseHighlightColors;
+        }
 
         public void SelectRange(int beginAtOrdinal, int endBeforeOrdinal)
         {
@@ -726,6 +793,7 @@ namespace TextCoreControl
                 this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
             }
             this.hwndRenderTarget.EndDraw();
+            this.UpdateCaret(endBeforeOrdinal);
             this.caret.ShowCaret();
         }
 
@@ -770,8 +838,9 @@ namespace TextCoreControl
                 this.pageTop = 0;
                 this.SelectRange(this.pageBeginOrdinal, this.pageBeginOrdinal);
 
+                double maxVisualLineWidth;
                 int changeStart, changeEnd;
-                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
                 this.UpdateCaret(endOrdinal);
 
                 this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
@@ -817,8 +886,9 @@ namespace TextCoreControl
                 }
 
                 visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
+                double maxVisualLineWidth;
                 int changeStart, changeEnd;
-                this.UpdateVisualLines(visualLineStartIndex, /*forceRelayout*/ false, out changeStart, out changeEnd);
+                this.UpdateVisualLines(visualLineStartIndex, /*forceRelayout*/ false, out maxVisualLineWidth, out changeStart, out changeEnd);
 
                 // Scrollbounds: Estimate delta due to change (only works when change is above the last ordinal on page).
                 //               forces full document scroll bounds computation otherwise.
@@ -876,7 +946,7 @@ namespace TextCoreControl
                     // scrollBoundsDelta is accurate and the scrollBoundsManager has to be updated with it.
                     if (scrollBoundsDelta != 0)
                     {
-                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(scrollBoundsDelta);
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(scrollBoundsDelta, maxVisualLineWidth);
                     }
                 }
 
@@ -888,7 +958,7 @@ namespace TextCoreControl
                     // scroll to the next line. The async scrollbounds estimator will fix the scroll bounds up later.
                     if (forceDocumentBoundsMeasure)
                     {
-                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(this.visualLines[this.VisualLineCount - 1].Height);
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(this.visualLines[this.VisualLineCount - 1].Height, maxVisualLineWidth);
                     }
                     this.ScrollBy(+1);
                     contentRendered = true;
@@ -903,6 +973,7 @@ namespace TextCoreControl
                 this.caret.HideCaret();
                 this.UpdateCaret(endOrdinal);
                 hwndRenderTarget.BeginDraw();
+                this.selectionManager.ShouldUseHighlightColors = false;
                 this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                 if (!contentRendered)
                 {
@@ -951,9 +1022,10 @@ namespace TextCoreControl
             }
 
             this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
-            
+
+            double maxVisualLineWidth;
             int changeStart, changeEnd;
-            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
             this.UpdateCaret(this.caret.Ordinal);
 
             this.caret.HideCaret();
@@ -964,11 +1036,13 @@ namespace TextCoreControl
         private void UpdateVisualLines(
             int visualLineStartIndex, 
             bool forceRelayout,
+            out double maxVisualLineWidth, 
             out int changeStartIndex,
             out int changeEndIndex)
         {
             int ordinal = this.pageBeginOrdinal;
             double y = this.pageTop;
+            maxVisualLineWidth = 0;
             if (forceRelayout)
             {
                 this.visualLines.Clear();
@@ -998,6 +1072,7 @@ namespace TextCoreControl
                 visualLine.Position = new Point2F(this.LeftMargin, (float)y);
                 y += visualLine.Height;
                 previousLineHasHardBreak = visualLine.HasHardBreak;
+                maxVisualLineWidth = Math.Max(maxVisualLineWidth, visualLine.Width);
 
                 changeEndIndex = visualLineStartIndex;
                 if (changeStartIndex == -1)
@@ -1101,10 +1176,12 @@ namespace TextCoreControl
             if (hwndRenderTarget.IsOccluded)
                 return;
 
+            this.caret.HideCaret();
             hwndRenderTarget.BeginDraw();
             this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
             hwndRenderTarget.Flush();
             hwndRenderTarget.EndDraw();
+            this.caret.ShowCaret();
         }
 
         private void RenderToRenderTarget(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
@@ -1131,7 +1208,7 @@ namespace TextCoreControl
             this.selectionManager.DrawSelection(
                 selectionManager.GetSelectionBeginOrdinal(),
                 selectionManager.GetSelectionEndOrdinal(), 
-                this.visualLines, 
+                this.visualLines,
                 this.document, 
                 this.scrollOffset, 
                 renderTarget);
@@ -1237,7 +1314,7 @@ namespace TextCoreControl
         [DllImport("gdi32.dll", ExactSpelling = true, SetLastError = true)]
         static extern bool DeleteDC(IntPtr hdc);
 
-        public System.Windows.Media.Imaging.BitmapSource Rasterize()
+        internal System.Windows.Media.Imaging.BitmapSource Rasterize()
         {
             IntPtr hBitmap = IntPtr.Zero;
 
@@ -1281,12 +1358,12 @@ namespace TextCoreControl
 
         #region Accessors
 
-        public int VisualLineCount
+        internal int VisualLineCount
         {
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
         }
-
-        public int FirstVisibleOrdinal() 
+        
+        internal int FirstVisibleOrdinal() 
         {
             int firstVisibleLine = this.FirstVisibleLine();
             if (firstVisibleLine >= 0)
@@ -1298,7 +1375,7 @@ namespace TextCoreControl
             return this.pageBeginOrdinal;
         }
 
-        public int FirstVisibleLine()
+        internal int FirstVisibleLine()
         {
             for (int i = 0; i < this.VisualLineCount; i++)
             {
@@ -1312,7 +1389,7 @@ namespace TextCoreControl
             return -1;
         }
 
-        public int LastVisibleLine()
+        internal int LastVisibleLine()
         {
             double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
             for (int i = this.VisualLineCount - 1; i >= 0; i--)
@@ -1352,15 +1429,14 @@ namespace TextCoreControl
                     this.leftMargin = value;
 
                     // Need to update all lines and recompute scroll bounds.
+                    double maxVisualLineWidth;
                     int changeStart, changeEnd;
-                    this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out changeStart, out changeEnd);
+                    this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
                     this.UpdateCaret(this.caret.Ordinal);
                     this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
 
                     // Render the newly shifted lines.
-                    this.caret.HideCaret();
-                    this.Render();
-                    this.caret.ShowCaret();
+                    this.renderHost.InvalidateVisual();
                 }
             }
         }
@@ -1375,7 +1451,7 @@ namespace TextCoreControl
             get { return (float)renderHost.ActualHeight; }
         }
 
-        public int CaretOrdinal { get { return this.caret.Ordinal; } }
+        internal int CaretOrdinal { get { return this.caret.Ordinal; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
 
@@ -1386,9 +1462,11 @@ namespace TextCoreControl
         void LanguageDetector_LanguageChange(SyntaxHighlighting.SyntaxHighlighterService syntaxHighlightingService)
         {
             this.syntaxHighlightingService = syntaxHighlightingService;
-            this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
-
-            this.NotifyOfSettingsChange();
+            if (this.hwndRenderTarget != null)
+            {
+                this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
+                this.NotifyOfSettingsChange();
+            }
         }
 
         #endregion
