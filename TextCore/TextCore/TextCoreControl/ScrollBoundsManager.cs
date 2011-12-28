@@ -287,6 +287,7 @@ namespace TextCoreControl
                     delegate()
                     {
                         this.vScrollBar.IsEnabled = false;
+                        this.vScrollBar.Maximum = 0.0f;
                         this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
                     }
                 )
@@ -301,6 +302,7 @@ namespace TextCoreControl
                     delegate()
                     {
                         this.hScrollBar.IsEnabled = false;
+                        this.hScrollBar.Maximum = 0.0f;
                         this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
                     }
                 )

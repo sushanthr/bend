@@ -156,10 +156,10 @@ namespace TextCoreControl
                     ((VisualLine)visualLines[j]).Draw(renderTarget);
                 }
 
-                // Draw dimness
-                if (this.ShouldUseHighlightColors && geometryList.Count != 0)
+                // Draw dimness if there is something selected now
+                if (this.ShouldUseHighlightColors && selectionBeginOrdinal != selectionEndOrdinal)
                 {
-                    renderTarget.FillRectangle(new RectF(minX, 0, float.MaxValue, float.MaxValue), dimBrush);
+                    renderTarget.FillRectangle(new RectF(scrollOffset.Width + minX, scrollOffset.Height, scrollOffset.Width + renderTarget.Size.Width, scrollOffset.Height + renderTarget.Size.Height), dimBrush);
                 }
 
                 if (selectionGeometry != null)
