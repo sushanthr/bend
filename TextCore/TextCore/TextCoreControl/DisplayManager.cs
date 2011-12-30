@@ -1299,6 +1299,12 @@ namespace TextCoreControl
                 VisualLine beginLine = this.visualLines[redrawBegin];
                 VisualLine endLine = this.visualLines[redrawEnd];
                 wipeBounds = new RectF(0.0f, beginLine.Position.Y, renderTarget.Size.Width, endLine.Position.Y + endLine.Height);
+                if (redrawEnd == this.VisualLineCount - 1 && this.VisualLineCount > 0 && this.visualLines[redrawEnd].NextOrdinal == Document.UNDEFINED_ORDINAL)
+                {
+                    // There are no more lines after the last visual line, erase the area. Since this
+                    // redraw could be because of content deletion that moved lines up.
+                    wipeBounds.Bottom = this.scrollOffset.Height + renderTarget.Size.Height;
+                }
                 renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
             }
 
