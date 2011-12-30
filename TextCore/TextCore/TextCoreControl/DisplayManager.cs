@@ -277,7 +277,12 @@ namespace TextCoreControl
         {
             char key = (char)wparam;
             int insertOrdinal = this.caret.Ordinal;
-            document.InsertAt(insertOrdinal, key.ToString());
+            string content;
+            if (key == '\r' && Settings.returnKeyInsertsNewLineCharacter)
+                content = "\r\n";
+            else 
+                content = key.ToString();
+            document.InsertAt(insertOrdinal, content);
         }
 
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -290,6 +295,15 @@ namespace TextCoreControl
                     if (this.caret.Ordinal > this.document.FirstOrdinal())
                     {
                         int newCaretPosition = this.document.PreviousOrdinal(this.caret.Ordinal);
+                        if (newCaretPosition != Document.UNDEFINED_ORDINAL && document.CharacterAt(newCaretPosition) == '\n')
+                        {
+                            int previousOrdinal = document.PreviousOrdinal(newCaretPosition);
+                            if (previousOrdinal != Document.BEFOREBEGIN_ORDINAL && document.CharacterAt(previousOrdinal) == '\r')
+                            {
+                                newCaretPosition = previousOrdinal;
+                            }                         
+                        }
+
                         if (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > newCaretPosition && this.pageBeginOrdinal != document.FirstOrdinal())
                         {
                             this.ScrollBy(/*numberOfLines*/ -1);
@@ -302,8 +316,14 @@ namespace TextCoreControl
                     break;
                 case System.Windows.Input.Key.Right:
                     if (this.document.NextOrdinal(this.caret.Ordinal) != Document.UNDEFINED_ORDINAL)
-                    {
+                    {                        
                         int newCaretPosition = this.document.NextOrdinal(this.caret.Ordinal);
+                        char charAt = this.document.CharacterAt(this.caret.Ordinal);
+                        if (charAt == '\r' && newCaretPosition != Document.UNDEFINED_ORDINAL && document.CharacterAt(newCaretPosition) == '\n')
+                        {
+                            newCaretPosition = this.document.NextOrdinal(newCaretPosition);
+                        }
+
                         if (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= newCaretPosition)
                         {
                             this.ScrollBy(/*numberOfLines*/ +1);
@@ -371,6 +391,13 @@ namespace TextCoreControl
 
                             if (newCaretOrdinal >= vl.BeginOrdinal)
                             {
+                                if (document.CharacterAt(newCaretOrdinal) == '\n')
+                                {
+                                    int previousOrdinal = document.PreviousOrdinal(newCaretOrdinal);
+                                    if (previousOrdinal != Document.BEFOREBEGIN_ORDINAL && document.CharacterAt(previousOrdinal) == '\r')
+                                        newCaretOrdinal = previousOrdinal;
+                                }
+
                                 this.caret.MoveCaretToLine(vl, this.document, this.scrollOffset, newCaretOrdinal);
                                 adjustSelection = true;
                             }
@@ -453,7 +480,7 @@ namespace TextCoreControl
                         }
                         else if (this.caret.Ordinal > document.FirstOrdinal())
                         {
-                            document.DeleteAt(document.PreviousOrdinal(this.caret.Ordinal), 1);
+                            this.DeleteSingleCharRespectingLineBreak(document.PreviousOrdinal(this.caret.Ordinal));
                         }
                         e.Handled = true;
                     }
@@ -469,7 +496,7 @@ namespace TextCoreControl
                         }
                         else if (this.caret.Ordinal != Document.UNDEFINED_ORDINAL)
                         {
-                            document.DeleteAt(this.caret.Ordinal, 1);
+                            this.DeleteSingleCharRespectingLineBreak(this.caret.Ordinal);
                         }
                         e.Handled = true;
                     }
@@ -485,6 +512,16 @@ namespace TextCoreControl
                         this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.hwndRenderTarget.EndDraw();
                         this.caret.ShowCaret();
+                        e.Handled = true;
+                    }
+                    break;
+                case System.Windows.Input.Key.Tab:
+                    {
+                        int insertOrdinal = this.caret.Ordinal;
+                        if (Settings.useStringForTab)
+                            document.InsertAt(insertOrdinal, Settings.tabString);
+                        else
+                            document.InsertAt(insertOrdinal, "\t");
                         e.Handled = true;
                     }
                     break;
@@ -508,6 +545,48 @@ namespace TextCoreControl
             }
         }
 
+        /// <summary>
+        ///     Used by backspace and delete, removes a single character while handling 
+        ///     '\r\n' '\r' '\n' dualities.
+        /// </summary>
+        /// <param name="ordinalToBeginDelete">Valid ordinal to delete</param>
+        private void DeleteSingleCharRespectingLineBreak(int ordinalToBeginDelete)
+        {
+            System.Diagnostics.Debug.Assert(Document.BEFOREBEGIN_ORDINAL != ordinalToBeginDelete);
+            System.Diagnostics.Debug.Assert(Document.UNDEFINED_ORDINAL != ordinalToBeginDelete);
+
+            int length = 1;
+            if (Settings.returnKeyInsertsNewLineCharacter)
+            {
+                char ch = document.CharacterAt(ordinalToBeginDelete);
+                if (ch == '\n')
+                {
+                    int previousOrdinal = document.PreviousOrdinal(ordinalToBeginDelete);
+                    if (previousOrdinal != Document.BEFOREBEGIN_ORDINAL)
+                    {
+                        char chBefore = document.CharacterAt(previousOrdinal);
+                        if (chBefore == '\r')
+                        {
+                            ordinalToBeginDelete = previousOrdinal;
+                            length = 2;
+                        }
+                    }
+                }
+                else if (ch == '\r')
+                {
+                    int nextOrdinal = document.NextOrdinal(ordinalToBeginDelete);
+                    if (nextOrdinal != Document.UNDEFINED_ORDINAL)
+                    {
+                        char chAfter = document.CharacterAt(nextOrdinal);
+                        if (chAfter == '\n')
+                        {
+                            length = 2;
+                        }
+                    }
+                }
+            }
+            document.DeleteAt(ordinalToBeginDelete, length);
+        }
         #endregion
 
         #region Scrolling

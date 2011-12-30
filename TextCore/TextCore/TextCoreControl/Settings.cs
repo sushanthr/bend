@@ -33,6 +33,11 @@ namespace TextCoreControl
 
             Settings.ShowLineNumber                      = false;
             Settings.MinLineNumberDigits                 = 3;
+
+            Settings.useStringForTab                     = true;
+            Settings.tabString                           = "    ";
+
+            Settings.returnKeyInsertsNewLineCharacter    = true;
         }
 
         private static DWriteFactory dwriteFactory;
@@ -56,5 +61,10 @@ namespace TextCoreControl
         public static bool          ShowDebugHUD;
         public static bool          ShowLineNumber;
         public static int           MinLineNumberDigits;
+
+        public static bool          useStringForTab;
+        public static string        tabString;
+
+        public static bool          returnKeyInsertsNewLineCharacter;
     }
 }
