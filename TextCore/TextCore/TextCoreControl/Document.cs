@@ -149,6 +149,17 @@ namespace TextCoreControl
             }
         }
 
+        public static void AdjustOrdinalForShift(int shiftBeginOrdinal , int shift, ref int ordinal)
+        {
+            if (ordinal != Document.UNDEFINED_ORDINAL)
+            {
+                if (ordinal > shiftBeginOrdinal)
+                    ordinal += shift;
+                else if (shift < 0 && ordinal > shiftBeginOrdinal + shift)
+                    ordinal = shiftBeginOrdinal + 1 + shift;
+            }
+        }
+
         public string Text
         {
             get { return this.fileContents; }

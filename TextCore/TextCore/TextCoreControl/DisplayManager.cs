@@ -1079,8 +1079,7 @@ namespace TextCoreControl
                 vl.OrdinalShift(beginOrdinal, shift);
             }
 
-            if (this.pageBeginOrdinal > beginOrdinal && this.pageBeginOrdinal != Document.UNDEFINED_ORDINAL) 
-                this.pageBeginOrdinal += shift;
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.pageBeginOrdinal);
 
             if (this.selectionManager != null)            
                 this.selectionManager.NotifyOfOrdinalShift(beginOrdinal, shift);

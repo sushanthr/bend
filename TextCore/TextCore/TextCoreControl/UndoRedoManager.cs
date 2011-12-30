@@ -329,11 +329,11 @@ namespace TextCoreControl
                 this.maxInterestingOrdinal = Document.BEFOREBEGIN_ORDINAL;
             }
 
-            if (this.maxInterestingOrdinal > beginOrdinal)
+            if (this.maxInterestingOrdinal > beginOrdinal && this.maxInterestingOrdinal != Document.UNDEFINED_ORDINAL)
             {
                 OrdinalShiftAction ordinalShiftAction = new OrdinalShiftAction(beginOrdinal, shift);
                 this.actionList.AddFirst(ordinalShiftAction);
-                this.maxInterestingOrdinal += shift;
+                Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.maxInterestingOrdinal);
             }
         }
 

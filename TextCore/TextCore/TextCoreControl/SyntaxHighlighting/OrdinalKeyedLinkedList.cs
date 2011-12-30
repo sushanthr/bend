@@ -39,6 +39,9 @@ namespace TextCoreControl.SyntaxHighlighting
 
         internal void NotifyOfOrdinalShift(Document document, int beginOrdinal, int shift)
         {
+            if (shift < 0)
+                this.Delete(beginOrdinal + 1 + shift, beginOrdinal);
+
             OrdinalKeyedLinkedListNode foundNode;
             int foundOrdinal;
             if (this.Find(beginOrdinal, out foundNode, out foundOrdinal))
@@ -50,15 +53,10 @@ namespace TextCoreControl.SyntaxHighlighting
                 if (adjustNode != null)
                     adjustNode.ordinalDelta += shift;
             }
-
-            if (this.firstOrdinal > beginOrdinal && this.firstOrdinal != Document.UNDEFINED_ORDINAL)
-                this.firstOrdinal += shift;
-
-            if (this.lastOrdinal > beginOrdinal && this.lastOrdinal != Document.UNDEFINED_ORDINAL)
-                this.lastOrdinal += shift;
-
-            if (this.memoizationOrdinal > beginOrdinal && this.memoizationOrdinal != Document.UNDEFINED_ORDINAL)
-                this.memoizationOrdinal += shift;
+            
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.firstOrdinal);
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.lastOrdinal);
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.memoizationOrdinal);
         }
 
         private bool Find(int ordinal, out OrdinalKeyedLinkedListNode foundNode, out int foundOrdinal)
@@ -260,13 +258,6 @@ namespace TextCoreControl.SyntaxHighlighting
                     if (endOrdinalFound < beginOrdinal)
                         return;
 
-                    // Now we have both begin and end;
-                    // Delete inclusive begin and end nodes.
-                    if (firstOrdinal >= beginOrdinal && firstOrdinal <= endOrdinal)
-                    {
-                        first = endNode.next;
-                        firstOrdinal = endOrdinalFound + endNode.ordinalDelta;
-                    }
                     if (lastOrdinal >= beginOrdinal && lastOrdinal <= endOrdinal)
                     {
                         last = beginNode.previous;
@@ -297,6 +288,18 @@ namespace TextCoreControl.SyntaxHighlighting
                         endNode.next.previous = beginNode.previous;
                         int deleteOrdinalDelta = endOrdinalFound - (beginOrdinalFound - beginNode.ordinalDelta);
                         endNode.next.ordinalDelta += deleteOrdinalDelta;
+                    }
+
+                    // Now we have both begin and end;
+                    // Delete inclusive begin and end nodes.
+                    if (firstOrdinal >= beginOrdinal && firstOrdinal <= endOrdinal)
+                    {
+                        first = endNode.next;
+                        if (first != null)
+                        {
+                            firstOrdinal = endNode.next.ordinalDelta;
+                            endNode.next.ordinalDelta = 0;
+                        }
                     }
                 }
             }

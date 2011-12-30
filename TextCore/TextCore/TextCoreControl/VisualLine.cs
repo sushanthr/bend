@@ -194,8 +194,8 @@ namespace TextCoreControl
 
         public void OrdinalShift(int shiftBeginOrdinal, int shift)
         {
-            if (beginOrdinal != Document.UNDEFINED_ORDINAL && beginOrdinal > shiftBeginOrdinal) beginOrdinal += shift;
-            if (nextOrdinal  != Document.UNDEFINED_ORDINAL && nextOrdinal > shiftBeginOrdinal) nextOrdinal += shift;
+            Document.AdjustOrdinalForShift(shiftBeginOrdinal, shift, ref beginOrdinal);
+            Document.AdjustOrdinalForShift(shiftBeginOrdinal, shift, ref nextOrdinal);
         }
 
         public bool HasHardBreak { get { return this.hasHardBreak;} }

@@ -96,7 +96,7 @@ namespace TextCoreControl
 
         void document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
-            if (this.cachedOrdinal > beginOrdinal && this.cachedOrdinal != Document.UNDEFINED_ORDINAL) this.cachedOrdinal += shift;
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.cachedOrdinal);
         }
 
         internal void NotifyOfSettingsChange()

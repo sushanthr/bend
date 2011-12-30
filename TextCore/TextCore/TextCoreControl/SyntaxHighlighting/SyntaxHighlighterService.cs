@@ -44,6 +44,9 @@ namespace TextCoreControl.SyntaxHighlighting
             else
             {
                 this.syntaxHighlighterStates.Delete(beginOrdinal, endOrdinal);
+                if (beginOrdinal == document.FirstOrdinal())
+                    this.syntaxHighlighterStates.Insert(document.FirstOrdinal(), this.syntaxHighlighterEngine.GetInitialState());
+
                 this.dirtySyntaxStateBeginOrdinal = Math.Min(document.PreviousOrdinal(beginOrdinal), this.dirtySyntaxStateBeginOrdinal);
                 this.dirtySyntaxHighlightBeginOrdinal = this.dirtySyntaxStateBeginOrdinal;
             }

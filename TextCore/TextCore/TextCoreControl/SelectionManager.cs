@@ -273,8 +273,8 @@ namespace TextCoreControl
 
         public void NotifyOfOrdinalShift(int beginOrdinal, int shift)
         {
-            if (selectionBeginOrdinal > beginOrdinal) selectionBeginOrdinal += shift;
-            if (selectionEndOrdinal > beginOrdinal) selectionEndOrdinal += shift;
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionBeginOrdinal);
+            Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionEndOrdinal);
         }
 
         public bool ShouldUseHighlightColors {
