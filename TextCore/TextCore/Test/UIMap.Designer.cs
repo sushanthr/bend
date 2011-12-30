@@ -44,7 +44,7 @@ namespace Test
             WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
             #endregion
 
-            // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+            // Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
             ApplicationUnderTest uIMainWindowWindow = ApplicationUnderTest.Launch(this.OpenSampleTextParams.UIMainWindowWindowExePath, this.OpenSampleTextParams.UIMainWindowWindowAlternateExePath);
 
             // Click 'MainWindow' title bar
@@ -53,7 +53,7 @@ namespace Test
             // Click 'load' button
             Mouse.Click(uILoadButton, new Point(11, 9));
 
-            // Select 'D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
+            // Select 'D:\Projects\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.OpenSampleTextParams.UIFilenameComboBoxEditableItem;
 
             // Click 'Open' Dialog
@@ -147,7 +147,7 @@ namespace Test
             WinClient uIRenderHostClient1 = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient1;
             #endregion
 
-            // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+            // Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
             ApplicationUnderTest uIMainWindowWindow = ApplicationUnderTest.Launch(this.TypeASentanceParams.UIMainWindowWindowExePath, this.TypeASentanceParams.UIMainWindowWindowAlternateExePath);
 
             // Click 'RenderHost' client
@@ -263,7 +263,7 @@ namespace Test
         public void LaunchTextCoreDemo()
         {
 
-            // Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+            // Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
             ApplicationUnderTest textCoreApplication = ApplicationUnderTest.Launch(this.LaunchTextCoreDemoParams.ExePath, this.LaunchTextCoreDemoParams.AlternateExePath);
         }
         
@@ -283,7 +283,7 @@ namespace Test
             // Click 'load' button
             Mouse.Click(uILoadButton, new Point(29, 10));
 
-            // Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
+            // Select 'D:\Projects\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.OpenSample2XMLParams.UIFilenameComboBoxEditableItem;
 
             // Click 'Open' Dialog
@@ -882,7 +882,7 @@ namespace Test
             // Click 'load' button
             Mouse.Click(uILoadButton, new Point(5, 12));
 
-            // Select 'D:\assembla\trunk\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
+            // Select 'D:\Projects\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
             uIFilenameComboBox.EditableItem = this.LoadSampleTextParams.UIFilenameComboBoxEditableItem;
 
             // Type '{Enter}' in 'File name:' text box
@@ -1399,19 +1399,19 @@ namespace Test
         
         #region Fields
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string UIMainWindowWindowExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string UIMainWindowWindowAlternateExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         
         /// <summary>
-        /// Select 'D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
+        /// Select 'D:\Projects\TextCore\TextCore\Test\Data\SampleText.txt' in 'File name:' combo box
         /// </summary>
-        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\Test\\Data\\SampleText.txt";
+        public string UIFilenameComboBoxEditableItem = "D:\\Projects\\TextCore\\TextCore\\Test\\Data\\SampleText.txt";
         #endregion
     }
     
@@ -1424,14 +1424,14 @@ namespace Test
         
         #region Fields
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string UIMainWindowWindowExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string UIMainWindowWindowExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string UIMainWindowWindowAlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string UIMainWindowWindowAlternateExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         
         /// <summary>
         /// Type 'Save{Space}the{Space}world{Back}{Back}ld.,{Back}{Back}{Space}!{Space}Make{Space}it{Space}a{Space}better{Space}place{Space}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Left}{Delete}{Delete}r{Space}{Right}{Right}{Right}{Right}{Right}{Space}for{Space}you{Space}and{Space}for{Space}me{Space}and{Space}the{Space}entire{Space}human{Space}race{Space}' in 'RenderHost' client
@@ -1521,14 +1521,14 @@ namespace Test
         
         #region Fields
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string ExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string ExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         
         /// <summary>
-        /// Launch 'D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
+        /// Launch 'D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe'
         /// </summary>
-        public string AlternateExePath = "D:\\assembla\\trunk\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
+        public string AlternateExePath = "D:\\Projects\\TextCore\\TextCore\\TextCore\\bin\\Debug\\TextCore.exe";
         #endregion
     }
     
@@ -1541,9 +1541,9 @@ namespace Test
         
         #region Fields
         /// <summary>
-        /// Select 'D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
+        /// Select 'D:\Projects\TextCore\TextCore\test\data\Sample2.xml' in 'File name:' combo box
         /// </summary>
-        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\test\\data\\Sample2.xml";
+        public string UIFilenameComboBoxEditableItem = "D:\\Projects\\TextCore\\TextCore\\test\\data\\Sample2.xml";
         #endregion
     }
     
@@ -2134,9 +2134,9 @@ namespace Test
         
         #region Fields
         /// <summary>
-        /// Select 'D:\assembla\trunk\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
+        /// Select 'D:\Projects\TextCore\TextCore\test\data\SampleText.txt' in 'File name:' combo box
         /// </summary>
-        public string UIFilenameComboBoxEditableItem = "D:\\assembla\\trunk\\TextCore\\TextCore\\test\\data\\SampleText.txt";
+        public string UIFilenameComboBoxEditableItem = "D:\\Projects\\TextCore\\TextCore\\test\\data\\SampleText.txt";
         
         /// <summary>
         /// Type '{Enter}' in 'File name:' text box

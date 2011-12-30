@@ -8,12 +8,14 @@ namespace TextCoreControl
 {
     internal class Caret
     {
-        internal static bool DBG_CARET_HIDE;
+        internal static volatile bool DBG_IS_CARET_HIDDEN;
 
         public Caret(HwndRenderTarget renderTarget, int defaultHeight)
         {
             this.caretHeight = defaultHeight;
             windowHandle = renderTarget.WindowHandle;
+            isCaretHidden = true;
+            DBG_IS_CARET_HIDDEN = true;
 
             xPos = 0;
             yPos = 0;
@@ -52,7 +54,9 @@ namespace TextCoreControl
                 this.caretHeight = lineHeight;
                 DestroyCaret();
                 CreateCaret(windowHandle, 0, 0, caretHeight);
-                ShowCaret();
+
+                if (!this.isCaretHidden)
+                    ShowCaret();
             }
 
             xPos = (int)(visualLine.Position.X + x - scrollOffset.Width);
@@ -159,13 +163,15 @@ namespace TextCoreControl
         public void HideCaret()
         {
             HideCaret(windowHandle);
-            DBG_CARET_HIDE = true;
+            isCaretHidden = true;
+            DBG_IS_CARET_HIDDEN = true;
         }
 
         public void ShowCaret()
         {
             ShowCaret(windowHandle);
-            DBG_CARET_HIDE = false;
+            isCaretHidden = false;
+            DBG_IS_CARET_HIDDEN = false;
         }
 
         #endregion
@@ -191,6 +197,7 @@ namespace TextCoreControl
         int xPos;
         int yPos;
         IntPtr windowHandle;
+        bool isCaretHidden;
 
         #endregion
     }

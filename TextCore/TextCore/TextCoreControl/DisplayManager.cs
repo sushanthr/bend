@@ -969,7 +969,7 @@ namespace TextCoreControl
                     contentRendered = true;
                 }
 
-                // Render 
+                // Render
                 this.caret.HideCaret();
                 this.UpdateCaret(endOrdinal);
                 hwndRenderTarget.BeginDraw();

@@ -49,7 +49,7 @@ namespace TextCoreControl
         {
             SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
             renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
-            System.Diagnostics.Debug.Assert(Caret.DBG_CARET_HIDE, "Caret should be hidden.");
+            System.Diagnostics.Debug.Assert(Caret.DBG_IS_CARET_HIDDEN, "Caret should be hidden.");
         }
 
         public void HitTest(Point2F position, out uint offset)

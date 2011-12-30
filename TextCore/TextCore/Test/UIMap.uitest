@@ -43,8 +43,8 @@
   <ExecuteActions>
     <LaunchApplicationAction UIObjectName="UIMap.UIMainWindowWindow">
       <ParameterName />
-      <FileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
-      <AlternateFileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
+      <FileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
+      <AlternateFileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
     </LaunchApplicationAction>
     <MouseAction UIObjectName="UIMap.UIMainWindowWindow.UIMainWindowTitleBar">
       <ParameterName />
@@ -66,7 +66,7 @@
     </MouseAction>
     <SetValueAction UIObjectName="UIMap.UIOpenWindow.UIItemWindow.UIFilenameComboBox">
       <ParameterName />
-      <Value Encoded="false">D:\assembla\trunk\TextCore\TextCore\Test\Data\SampleText.txt</Value>
+      <Value Encoded="false">D:\Projects\TextCore\TextCore\Test\Data\SampleText.txt</Value>
       <Type>String</Type>
       <PreferEdit>True</PreferEdit>
     </SetValueAction>
@@ -205,8 +205,8 @@
     </TestStepMarkerAction>
     <LaunchApplicationAction UIObjectName="UIMap.UIMainWindowWindow">
       <ParameterName />
-      <FileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
-      <AlternateFileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
+      <FileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
+      <AlternateFileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
     </LaunchApplicationAction>
     <MouseAction UIObjectName="UIMap.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient">
       <ParameterName />
@@ -445,8 +445,8 @@
     </TestStepMarkerAction>
     <LaunchApplicationAction>
       <ParameterName />
-      <FileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
-      <AlternateFileName>D:\assembla\trunk\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
+      <FileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</FileName>
+      <AlternateFileName>D:\Projects\TextCore\TextCore\TextCore\bin\Debug\TextCore.exe</AlternateFileName>
     </LaunchApplicationAction>
     <TestStepMarkerAction MarkerInformation="LaunchTextCoreDemo">
       <ParameterName />
@@ -468,7 +468,7 @@
     </MouseAction>
     <SetValueAction UIObjectName="UIMap.UIOpenWindow.UIItemWindow.UIFilenameComboBox">
       <ParameterName />
-      <Value Encoded="false">D:\assembla\trunk\TextCore\TextCore\test\data\Sample2.xml</Value>
+      <Value Encoded="false">D:\Projects\TextCore\TextCore\test\data\Sample2.xml</Value>
       <Type>String</Type>
       <PreferEdit>True</PreferEdit>
     </SetValueAction>
@@ -1489,7 +1489,7 @@
     </MouseAction>
     <SetValueAction UIObjectName="UIMap.UIOpenWindow.UIItemWindow.UIFilenameComboBox">
       <ParameterName />
-      <Value Encoded="false">D:\assembla\trunk\TextCore\TextCore\test\data\SampleText.txt</Value>
+      <Value Encoded="false">D:\Projects\TextCore\TextCore\test\data\SampleText.txt</Value>
       <Type>String</Type>
       <PreferEdit>True</PreferEdit>
     </SetValueAction>
