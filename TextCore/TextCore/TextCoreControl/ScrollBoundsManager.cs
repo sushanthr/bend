@@ -50,7 +50,7 @@ namespace TextCoreControl
             vScrollBar.LargeChange = this.displayManager.AvailableHeight;
         }
 
-        internal void UpdateVerticalScrollBoundsDueToContentChange(double deltaVertical, double maxNewVisualLineWidth)
+        internal void UpdateVerticalScrollBoundsDueToContentChange(double deltaVertical, double maxNewVisualLineWidth = -1)
         {
             this.SetVerticalScrollBarLimits(this.verticalScrollBound + deltaVertical);
             if (maxNewVisualLineWidth > this.horizontalScrollBound)

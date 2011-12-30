@@ -638,6 +638,7 @@ namespace TextCoreControl
                 this.visualLines.RemoveRange(0, indexLastLineAboveScreenWithHardBreak + 1);
             }
 
+            // Update page begin ordinal
             if (this.VisualLineCount > 0)
             {
                 this.pageBeginOrdinal = this.visualLines[0].BeginOrdinal;
@@ -832,25 +833,61 @@ namespace TextCoreControl
             }
         }
 
-        public void ScrollOrdinalIntoView(int ordinal)
+        public bool ScrollOrdinalIntoView(int ordinal, bool ignoreScrollBounds = false)
         {
-            if (this.contentLineManager != null)
+            bool didScroll = false;
+
+            int firstVisibleLine = this.FirstVisibleLine();
+            int lastVisibleLine  = this.LastVisibleLine();
+            if (this.VisualLineCount > 0 && firstVisibleLine != -1 && lastVisibleLine != -1)
             {
-                int targetLineNumber = this.contentLineManager.GetLineNumber(this.document, ordinal);
-                int lastVisibleLine = this.LastVisibleLine();
-                int firstVisibleLine = this.FirstVisibleLine();
-                if (lastVisibleLine >= 0 && lastVisibleLine < this.VisualLineCount && 
-                    firstVisibleLine >= 0 && firstVisibleLine < this.VisualLineCount)
+                // Scroll Down
+                int lineToVerify = lastVisibleLine;
+                int startLineToVerify = lineToVerify;
+                double startBottom = this.visualLines[startLineToVerify].Position.Y + this.visualLines[this.VisualLineCount - 1].Height;                
+                while (this.visualLines[lineToVerify].NextOrdinal <= ordinal)
                 {
-                    if (this.contentLineManager.GetLineNumber(this.document, this.visualLines[firstVisibleLine].BeginOrdinal) <= targetLineNumber &&
-                        this.contentLineManager.GetLineNumber(this.document, this.visualLines[lastVisibleLine].BeginOrdinal) >= targetLineNumber)
+                    this.AddLinesBelow(1);
+                    lineToVerify++;
+                    if (lineToVerify == this.VisualLineCount)
                     {
-                        // already visible
-                        return;
+                        // We failed to add a line.
+                        lineToVerify = this.VisualLineCount - 1; 
+                        break;
                     }
                 }
-                this.ScrollToContentLineNumber(targetLineNumber, /*moveCaret*/ false);
+                if (startLineToVerify != lineToVerify)
+                {
+                    if (ignoreScrollBounds)
+                    {
+                        double delta = this.visualLines[lineToVerify].Position.Y + this.visualLines[lineToVerify].Height - startBottom;
+                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(delta);
+                    }
+                    this.ScrollBy(lineToVerify - startLineToVerify);
+                    didScroll = true;
+                }
+
+                // Scroll Up
+                int countMinusCheckIndex = this.VisualLineCount - firstVisibleLine;
+                int startCountMinusCheckIndex = countMinusCheckIndex;
+                while (this.visualLines[this.VisualLineCount - countMinusCheckIndex].BeginOrdinal > ordinal)
+                {
+                    this.AddLinesAbove(+1);
+                    countMinusCheckIndex++;
+                    if (this.VisualLineCount - countMinusCheckIndex < 0)
+                    {
+                        // we failed to add a line
+                        countMinusCheckIndex = this.VisualLineCount;
+                        break;
+                    }
+                }
+                if (countMinusCheckIndex != startCountMinusCheckIndex)
+                {
+                    this.ScrollBy(-(countMinusCheckIndex - startCountMinusCheckIndex));
+                    didScroll = true;
+                }
             }
+            return didScroll;
         }
 
         #endregion
@@ -940,7 +977,15 @@ namespace TextCoreControl
                         trackableLineFound = true;
                     }
                 }
-
+                                
+                // Ensure that pageBegin is outside the change region
+                if (this.pageBeginOrdinal == Document.BEFOREBEGIN_ORDINAL || 
+                    this.pageBeginOrdinal >= beginOrdinal && this.pageBeginOrdinal <= endOrdinal)
+                {
+                    this.pageBeginOrdinal = this.document.FirstOrdinal();
+                    this.pageTop = 0;
+                }
+                
                 int visualLineStartIndex = -1;
                 for (int i = 0; i < visualLines.Count; i++)
                 {
@@ -957,13 +1002,7 @@ namespace TextCoreControl
                         }
                     }
                 }
-
-                if (this.pageBeginOrdinal == Document.BEFOREBEGIN_ORDINAL)
-                {
-                    this.pageBeginOrdinal = this.document.FirstOrdinal();
-                    this.pageTop = 0;
-                }
-
+                                
                 visualLineStartIndex = (visualLineStartIndex > 0) ? visualLineStartIndex - 1 : 0;
                 double maxVisualLineWidth;
                 int changeStart, changeEnd;
@@ -1030,23 +1069,9 @@ namespace TextCoreControl
                 }
 
                 // Scroll the endOrdinal into view
-                bool contentRendered = false;
-                while (this.VisualLineCount > 0 && this.visualLines[this.VisualLineCount - 1].NextOrdinal <= endOrdinal)
-                {
-                    // Since the scroll bounds are not correct at this point, simply increment it so that scrollby can
-                    // scroll to the next line. The async scrollbounds estimator will fix the scroll bounds up later.
-                    if (forceDocumentBoundsMeasure)
-                    {
-                        this.scrollBoundsManager.UpdateVerticalScrollBoundsDueToContentChange(this.visualLines[this.VisualLineCount - 1].Height, maxVisualLineWidth);
-                    }
-                    this.ScrollBy(+1);
-                    contentRendered = true;
-                }
-                while (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > endOrdinal)
-                {
-                    this.ScrollBy(-1);
-                    contentRendered = true;
-                }
+                // Since the scroll bounds are not correct at this point, simply increment it so that scrollby can
+                // scroll to the next line. The async scrollbounds estimator will fix the scroll bounds up later.
+                bool contentRendered = this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);
 
                 // Render
                 this.caret.HideCaret();
