@@ -47,6 +47,7 @@ namespace TextCoreControl
 
         public void MoveCaretToLine(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
         {
+            System.Diagnostics.Debug.WriteLine("Moving caret to ordinal " + ordinal);
             float x = visualLine.CharPosition(document, ordinal);
             int lineHeight = (int)Math.Ceiling(visualLine.Height);
             if (lineHeight != caretHeight || ordinal == 0)

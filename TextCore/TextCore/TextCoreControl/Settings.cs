@@ -38,6 +38,7 @@ namespace TextCoreControl
             Settings.tabString                           = "    ";
 
             Settings.returnKeyInsertsNewLineCharacter    = true;
+            Settings.allowSmoothScrollBy                 = true;
         }
 
         private static DWriteFactory dwriteFactory;
@@ -66,5 +67,6 @@ namespace TextCoreControl
         public static string        tabString;
 
         public static bool          returnKeyInsertsNewLineCharacter;
+        public static bool          allowSmoothScrollBy;
     }
 }

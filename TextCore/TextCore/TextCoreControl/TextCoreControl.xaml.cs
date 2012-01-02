@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Runtime.InteropServices;
 
 using Microsoft.WindowsAPICodePack.DirectX.Controls;
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
@@ -116,6 +117,7 @@ namespace TextCoreControl
         {
             RenderHost.Visibility = System.Windows.Visibility.Visible;
             RasterHost.Visibility = System.Windows.Visibility.Hidden;
+            this.SetFocus();
         }
 
         public void Undo()
@@ -134,7 +136,7 @@ namespace TextCoreControl
             set { this.copyPasteManager = value; }
         }
 
-        public void NotifyOfSettingsChange()
+        public void RefreshDisplay()
         {
             this.displayManager.NotifyOfSettingsChange();
         }
@@ -166,6 +168,22 @@ namespace TextCoreControl
                 string text = this.displayManager.GetSelectedText(out selectionBeginOrdinal);
                 this.ReplaceText(selectionBeginOrdinal, text.Length, value);                
             }
+        }
+
+        #region WIN32 API references
+
+        [DllImport("user32.dll")]
+        static extern IntPtr SetFocus(IntPtr hWnd);
+
+        #endregion
+
+        public bool SetFocus()
+        {
+            if (RenderHost.Visibility == System.Windows.Visibility.Visible)
+            {
+                SetFocus(RenderHost.Handle);
+            }
+            return false;
         }
 
         public Document Document { get { return this.document; } }

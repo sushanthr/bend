@@ -79,7 +79,7 @@ namespace TextCoreControl
             for (beginOrdinal = ordinal; beginOrdinal > this.FirstOrdinal(); beginOrdinal = this.PreviousOrdinal(beginOrdinal))
             {
                 char character = this.CharacterAt(beginOrdinal);
-                if (char.IsSeparator(character) || char.IsControl(character))
+                if (!char.IsLetterOrDigit(character))
                     break;
             }
 
@@ -89,7 +89,7 @@ namespace TextCoreControl
             for (endOrdinal = ordinal; this.NextOrdinal(endOrdinal) != Document.UNDEFINED_ORDINAL; endOrdinal = this.NextOrdinal(endOrdinal))
             {   
                 char character = this.CharacterAt(endOrdinal);
-                if (char.IsSeparator(character) || char.IsControl(character))
+                if (!char.IsLetterOrDigit(character))
                     break;
             }
         }
@@ -158,6 +158,55 @@ namespace TextCoreControl
                 else if (shift < 0 && ordinal > shiftBeginOrdinal + shift)
                     ordinal = shiftBeginOrdinal + 1 + shift;
             }
+        }
+
+        public int ReplaceText(string findText, string replaceText, bool matchCase, bool useRegEx)
+        {
+            int count = 0;
+            if (useRegEx)
+            {
+                try
+                {
+                    System.Text.RegularExpressions.Regex regEx;
+                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(this.fileContents);
+
+                    int delta = 0;
+                    for (int i = 0; i < matches.Count; i++)
+                    {
+                        int findIndex = matches[i].Index + delta;
+                        this.fileContents = this.fileContents.Remove(findIndex, matches[i].Length);
+                        this.fileContents = this.fileContents.Insert(findIndex, replaceText);
+                        delta += (replaceText.Length - matches[i].Length);
+                    }
+                    count = matches.Count;
+                }
+                catch
+                {
+                    count =  0;
+                }
+            }
+            else
+            {
+                int findIndex = 0;
+                while (true)
+                {
+                    findIndex = this.fileContents.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    if (findIndex >= 0)
+                    {
+                        this.fileContents.Remove(findIndex, findText.Length);
+                        this.fileContents.Insert(findIndex, replaceText);
+                        findIndex += replaceText.Length;
+                        count++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+                        
+            return count;
         }
 
         public string Text

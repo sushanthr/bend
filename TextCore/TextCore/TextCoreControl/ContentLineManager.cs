@@ -243,29 +243,76 @@ namespace TextCoreControl
             int delta = 0;
             while (ordinalBegin != ordinalEnd && ordinalBegin != Document.UNDEFINED_ORDINAL)
             {
-                // Determine if ordinal is a hard break
-                bool isHardBreak;
-                char firstChar = document.CharacterAt(ordinalBegin);
-                char nextChar;
-                int nextOrdinal = document.NextOrdinal(ordinalBegin);
-                if (nextOrdinal != Document.UNDEFINED_ORDINAL)
-                {
-                    nextChar = document.CharacterAt(nextOrdinal);
-                }
-                else
-                {
-                    nextChar = '\0';
-                }
-                isHardBreak = TextLayoutBuilder.IsHardBreakChar(firstChar, nextChar);
-
-                if (isHardBreak)
+                if (IsHardBreakOrdinal(document, ordinalBegin))
                     delta++;
                 ordinalBegin = document.NextOrdinal(ordinalBegin);
             }
 
             return addDelta ? lineNumber + delta : lineNumber - delta;
         }
-        
+
+        /// <summary>
+        ///     Finds the first ordinal for a line number.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="lineNumber"></param>
+        /// <returns>The first ordinal for a line number</returns>
+        internal int GetBeginOrdinal(Document document, int lineNumber)
+        {
+            if (lineNumber == this.cachedLineNumber)
+                return this.cachedOrdinal;
+
+            bool isBackWardSearch = this.cachedLineNumber > lineNumber;
+            int currentOrdinal = this.cachedOrdinal;
+            int currentLineNumber = this.cachedLineNumber;
+            while (currentOrdinal != Document.UNDEFINED_ORDINAL && 
+                currentOrdinal != Document.BEFOREBEGIN_ORDINAL && 
+                currentLineNumber != lineNumber)
+            {                
+                bool isLookingForward = currentLineNumber < lineNumber;
+                if (IsHardBreakOrdinal(document, currentOrdinal))
+                    currentLineNumber = isLookingForward ? currentLineNumber + 1 : currentLineNumber - 1;
+
+                if (isLookingForward)
+                    currentOrdinal = document.NextOrdinal(currentOrdinal);
+                else
+                    currentOrdinal = document.PreviousOrdinal(currentOrdinal);
+            }
+
+            if (isBackWardSearch)
+            {
+                // If found searching backward, then we need to move more to find the first ordinal
+                while (currentOrdinal != Document.BEFOREBEGIN_ORDINAL)
+                {
+                    if (IsHardBreakOrdinal(document, currentOrdinal))
+                    {
+                        break;
+                    }
+                    currentOrdinal = document.PreviousOrdinal(currentOrdinal);
+                }
+                currentOrdinal = document.NextOrdinal(currentOrdinal);
+            }
+
+            return currentOrdinal;
+        }
+
+        private static bool IsHardBreakOrdinal(Document document, int ordinal)
+        {
+            // Determine if ordinal is a hard break
+            char firstChar = document.CharacterAt(ordinal);
+            char nextChar;
+            int nextOrdinal = document.NextOrdinal(ordinal);
+            if (nextOrdinal != Document.UNDEFINED_ORDINAL)
+            {
+                nextChar = document.CharacterAt(nextOrdinal);
+            }
+            else
+            {
+                nextChar = '\0';
+            }
+            return TextLayoutBuilder.IsHardBreakChar(firstChar, nextChar);
+        }
+
         /// <summary>
         ///     Count of the number of content lines that are present in the document.
         /// </summary>
@@ -288,7 +335,7 @@ namespace TextCoreControl
 
         SolidColorBrush lineNumberBrush;
         StrokeStyle     leftMarginStrokeStyle;
-
+        
         #endregion
     }
 }
