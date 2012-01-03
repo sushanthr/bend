@@ -73,7 +73,7 @@ namespace TextCore
             {
                 TextCoreControl.Settings.ShowLineNumber = showLineNumnber.IsChecked.Value;
             }
-            TextEditor.NotifyOfSettingsChange();
+            TextEditor.RefreshDisplay();
         }
 
         private void showHUD_Click(object sender, RoutedEventArgs e)
