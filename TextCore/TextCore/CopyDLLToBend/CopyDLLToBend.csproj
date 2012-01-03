@@ -8,7 +8,7 @@
     <ProjectGuid>{E79DEC36-9D1A-4DA3-A48F-3849AB81A1B6}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TransferToBend</RootNamespace>
+    <RootNamespace>CopyDLLToBend</RootNamespace>
     <AssemblyName>CopyDLLToBend</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
