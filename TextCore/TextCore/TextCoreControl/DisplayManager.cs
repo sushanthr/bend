@@ -553,6 +553,24 @@ namespace TextCoreControl
                         e.Handled = true;
                     }
                     break;
+                case System.Windows.Input.Key.OemPlus:
+                case System.Windows.Input.Key.Add:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    {
+                        Settings.IncreaseFontSize();
+                        this.NotifyOfSettingsChange();
+                        e.Handled = true;
+                    }
+                    break;
+                case System.Windows.Input.Key.OemMinus:
+                case System.Windows.Input.Key.Subtract:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    {
+                        Settings.DecreaseFontSize();
+                        this.NotifyOfSettingsChange();
+                        e.Handled = true;
+                    }
+                    break;
             }
 
             if (adjustSelection)
