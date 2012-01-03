@@ -63,6 +63,15 @@ namespace TextCoreControl
             }
         }
 
+        internal void NotifyOfSettingsChange()
+        {
+            this.textLayoutBuilder = new TextLayoutBuilder();
+            this.currentWidth = 0;
+            this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
+            this.verticalScrollBound = 0;
+            this.horizontalScrollBound = 0;
+        }
+
         #endregion
 
         #region Vertical scroll bounds estimation

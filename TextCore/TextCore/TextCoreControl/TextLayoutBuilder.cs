@@ -17,6 +17,13 @@ namespace TextCoreControl
             this.averageDigitWidth = -1;
         }
 
+        internal void NotifyOfSettingsChange()
+        {
+            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat);
+            this.averageLineHeight = -1;
+            this.averageDigitWidth = -1;
+        }
+
         internal VisualLine GetNextLine(Document document, int beginOrdinal, float layoutWidth, out int nextOrdinal)
         {
             nextOrdinal = beginOrdinal;

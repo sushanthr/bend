@@ -41,6 +41,36 @@ namespace TextCoreControl
             Settings.allowSmoothScrollBy                 = true;
         }
 
+        public static void IncreaseFontSize()
+        {            
+            Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName, 
+                Settings.DefaultTextFormat.FontSize + 2,
+                Settings.DefaultTextFormat.FontWeight,
+                Settings.DefaultTextFormat.FontStyle,
+                Settings.DefaultTextFormat.FontStretch);
+        }
+
+        public static void DecreaseFontSize()
+        {
+            if (Settings.DefaultTextFormat.FontSize > 3)
+            {                
+                Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                    Settings.DefaultTextFormat.FontSize - 2,
+                    Settings.DefaultTextFormat.FontWeight,
+                    Settings.DefaultTextFormat.FontStyle,
+                    Settings.DefaultTextFormat.FontStretch);
+            }
+        }
+
+        public static void ResetFontSize()
+        {
+            Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                14,
+                Settings.DefaultTextFormat.FontWeight,
+                Settings.DefaultTextFormat.FontStyle,
+                Settings.DefaultTextFormat.FontStretch);
+        }
+
         private static DWriteFactory dwriteFactory;
 
         public static TextFormat    DefaultTextFormat;

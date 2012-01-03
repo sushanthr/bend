@@ -270,7 +270,15 @@ namespace TextCoreControl
                         }
                         else
                         {
-                            // TODO: Implement mouse wheel zooom
+                            if (deltaAmount < 0)
+                            {
+                                Settings.IncreaseFontSize();
+                            }
+                            else
+                            {
+                                Settings.DecreaseFontSize();
+                            }
+                            this.NotifyOfSettingsChange();
                         }
                     }
                     break;
@@ -534,6 +542,14 @@ namespace TextCoreControl
                             document.InsertAt(insertOrdinal, Settings.tabString);
                         else
                             document.InsertAt(insertOrdinal, "\t");
+                        e.Handled = true;
+                    }
+                    break;
+                case System.Windows.Input.Key.D0:
+                case System.Windows.Input.Key.NumPad0:
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control){
+                        Settings.ResetFontSize();
+                        this.NotifyOfSettingsChange();
                         e.Handled = true;
                     }
                     break;
@@ -1178,14 +1194,18 @@ namespace TextCoreControl
 
         internal void NotifyOfSettingsChange()
         {
+            this.textLayoutBuilder.NotifyOfSettingsChange();
+
             if (this.syntaxHighlightingService != null)
                 this.syntaxHighlightingService.NotifyOfContentChange(Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL, "");
 
             if (this.contentLineManager != null)
             {
-                this.contentLineManager.NotifyOfSettingsChange();                
+                this.contentLineManager.NotifyOfSettingsChange();
+                this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
             }
 
+            this.scrollBoundsManager.NotifyOfSettingsChange();
             this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
 
             double maxVisualLineWidth;
@@ -1581,11 +1601,8 @@ namespace TextCoreControl
             { 
                 if (this.contentLineManager != null) 
                 {
-                    if (this.contentLineManager.MaxContentLines != value)
-                    {
-                        this.contentLineManager.MaxContentLines = value;
-                        this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
-                    }
+                    this.contentLineManager.MaxContentLines = value;
+                    this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
                 }
             } 
         }
