@@ -17,6 +17,7 @@ namespace TextCoreControl
             highlightSelectionBrush = renderTarget.CreateSolidColorBrush(new ColorF(60 / 255f, 179 / 255f, 113 / 255f));
             highlightSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(60 / 255f, 179 / 255f, 113 / 255f, 0.95f));
             whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1.0f, 1.0f, 1.0f));
+            defaultForegroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
             dimBrush = renderTarget.CreateSolidColorBrush(new ColorF(245/255f, 245/255f, 245/255f, 0.75f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
@@ -153,7 +154,12 @@ namespace TextCoreControl
                 // Draw content layer black lines.
                 for (int j = firstLine; j <= lastLine; j++)
                 {
-                    ((VisualLine)visualLines[j]).Draw(renderTarget);
+                    VisualLine blackLine = ((VisualLine)visualLines[j]);
+                    // If line is completely selected then simply skip the line.
+                    if (blackLine.BeginOrdinal > this.selectionBeginOrdinal && blackLine.NextOrdinal < this.selectionEndOrdinal)
+                        continue;
+
+                    blackLine.Draw(defaultForegroundBrush, renderTarget);
                 }
 
                 // Draw dimness if there is something selected now
@@ -190,15 +196,12 @@ namespace TextCoreControl
                     // Draw content layer - white lines.
                     for (int j = firstLine; j <= lastLine; j++)
                     {
-                        VisualLine whiteVisualLine = new VisualLine(this.dwriteFactory, 
-                            ((VisualLine)visualLines[j]).Text,
-                            Settings.DefaultTextFormat,
-                            ((VisualLine)visualLines[j]).BeginOrdinal,
-                            ((VisualLine)visualLines[j]).NextOrdinal,
-                            ((VisualLine)visualLines[j]).HasHardBreak);
-                        whiteVisualLine.SetDrawingEffect(whiteBrush, 0, (uint)((VisualLine)visualLines[j]).Text.Length);
-                        whiteVisualLine.Position = ((VisualLine)visualLines[j]).Position;
-                        whiteVisualLine.Draw(renderTarget);
+                        VisualLine whiteLine = ((VisualLine)visualLines[j]);
+                        // If line is completely unselected then simply skip the line.
+                        if (whiteLine.BeginOrdinal > this.selectionEndOrdinal || whiteLine.NextOrdinal < this.selectionBeginOrdinal)
+                            continue;
+
+                        whiteLine.DrawWhite(this.dwriteFactory, Settings.DefaultTextFormat, whiteBrush, renderTarget);
                     }
 
                     renderTarget.PopLayer();
@@ -281,7 +284,7 @@ namespace TextCoreControl
             get { return this.shouldUseHighlightColors;  }
             set 
             {
-                if (this.shouldUseHighlightColors = true && value == false)
+                if (this.shouldUseHighlightColors == true && value == false)
                     this.forceRedraw = true;
                 this.shouldUseHighlightColors = value; 
             }
@@ -297,6 +300,7 @@ namespace TextCoreControl
         SolidColorBrush defaultSelectionBrush;
         SolidColorBrush defaultSelectionOutlineBrush;
         SolidColorBrush whiteBrush;
+        SolidColorBrush defaultForegroundBrush;
         SolidColorBrush dimBrush;
         SolidColorBrush highlightSelectionBrush;
         SolidColorBrush highlightSelectionOutlineBrush;

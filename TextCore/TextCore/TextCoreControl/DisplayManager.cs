@@ -1181,7 +1181,6 @@ namespace TextCoreControl
                     // Nothing to render if scrolling already rendered content on screen.
                     this.RenderToRenderTarget(changeStart, changeEnd, hwndRenderTarget);
                 }
-                hwndRenderTarget.Flush();
                 hwndRenderTarget.EndDraw();
                 this.caret.ShowCaret();
 
@@ -1382,7 +1381,6 @@ namespace TextCoreControl
             this.caret.HideCaret();
             hwndRenderTarget.BeginDraw();
             this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
-            hwndRenderTarget.Flush();
             hwndRenderTarget.EndDraw();
             this.caret.ShowCaret();
         }
@@ -1411,7 +1409,7 @@ namespace TextCoreControl
             for (int i = redrawBegin; i <= redrawEnd; i++)
             {
                 VisualLine visualLine = this.visualLines[i];
-                visualLine.Draw(renderTarget);
+                visualLine.Draw(defaultForegroundBrush, renderTarget);
             }
 
             this.selectionManager.DrawSelection(

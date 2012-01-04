@@ -104,7 +104,10 @@ namespace TextCoreControl
                             int newOrdinal = document.NextOrdinal(newVl.BeginOrdinal, offset);
                             if (newOrdinal >= newVl.NextOrdinal)
                             {
-                                newOrdinal = document.PreviousOrdinal(newVl.NextOrdinal, 1);
+                                if (newVl.NextOrdinal == Document.UNDEFINED_ORDINAL)
+                                    newOrdinal = document.LastOrdinal();
+                                else
+                                    newOrdinal = document.PreviousOrdinal(newVl.NextOrdinal, 1);
                             }
 
                             if (newOrdinal != Document.UNDEFINED_ORDINAL)

@@ -17,9 +17,11 @@ namespace TextCoreControl
         }
 
         public void LoadFile(string fullFilePath)
-        {
-            fileContents = System.IO.File.OpenText(fullFilePath).ReadToEnd();
+        {   
+            System.IO.StreamReader streamReader = System.IO.File.OpenText(fullFilePath);
+            fileContents = streamReader.ReadToEnd();
             fileContents += "\0";
+            streamReader.Close();
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
             if (this.ContentChange != null)
             {

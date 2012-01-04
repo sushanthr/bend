@@ -32,6 +32,7 @@ namespace TextCoreControl
             this.beginOrdinal = beginOrdinal;
             this.nextOrdinal = nextOrdinal;
             this.hasHardBreak = hasHardBreak;
+            this.whiteTextLayout = null;
         }
 
         /// <summary>
@@ -45,11 +46,22 @@ namespace TextCoreControl
             this.textLayout.SetDrawingEffect(effect, new TextRange(beginOffset, length));
         }
 
-        public void Draw(RenderTarget renderTarget)
+        public void Draw(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
-            SolidColorBrush blackBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
-            renderTarget.DrawTextLayout(this.position, this.textLayout, blackBrush, DrawTextOptions.NoSnap);
+            renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);
             System.Diagnostics.Debug.Assert(Caret.DBG_IS_CARET_HIDDEN, "Caret should be hidden.");
+        }
+
+        public void DrawWhite(DWriteFactory dwriteFactory, TextFormat defaultFormat, SolidColorBrush whiteBrush, RenderTarget renderTarget)
+        {
+            if (this.whiteTextLayout == null)
+            {
+                this.whiteTextLayout = dwriteFactory.CreateTextLayout(this.textLayout.Text,
+                                            defaultFormat,
+                                            float.MaxValue,
+                                            float.MaxValue);
+            }
+            renderTarget.DrawTextLayout(this.position, this.whiteTextLayout, whiteBrush, DrawTextOptions.NoSnap);
         }
 
         public void HitTest(Point2F position, out uint offset)
@@ -206,6 +218,7 @@ namespace TextCoreControl
 
         private Point2F position;
         private TextLayout textLayout;
+        private TextLayout whiteTextLayout;
         private float height;
         private int beginOrdinal;
         private int nextOrdinal;

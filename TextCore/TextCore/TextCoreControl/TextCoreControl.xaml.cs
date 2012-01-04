@@ -118,6 +118,7 @@ namespace TextCoreControl
             RenderHost.Visibility = System.Windows.Visibility.Visible;
             RasterHost.Visibility = System.Windows.Visibility.Hidden;
             this.SetFocus();
+            this.InvalidateVisual();
         }
 
         public void Undo()
