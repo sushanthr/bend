@@ -161,6 +161,9 @@ namespace TextCoreControl
 
         #region Keyboard / Mouse Input handling
 
+        public delegate void ShowContextMenuEventHandler();
+        public event ShowContextMenuEventHandler ContextMenu;
+
         private void MouseHandler(int x, int y, int type, int flags)
         {
             switch (type)
@@ -216,7 +219,12 @@ namespace TextCoreControl
                     break;
                 case 0x0205:
                     // WM_RBUTTONUP
-
+                    {
+                        if (this.ContextMenu != null)
+                        {
+                            this.ContextMenu();
+                        }
+                    }
                     break;
                 case 0X0204:
                     // WM_RBUTTONDOWN
