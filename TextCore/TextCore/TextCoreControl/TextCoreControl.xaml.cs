@@ -156,6 +156,14 @@ namespace TextCoreControl
             this.displayManager.SelectRange(beginOrdinal, this.document.NextOrdinal(beginOrdinal, length));
         }
 
+        public void CancelSelect()
+        {
+            this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ false);
+            int caretOrdinal = this.displayManager.CaretOrdinal;
+            this.displayManager.ScrollOrdinalIntoView(caretOrdinal, /*allowSmoothScroll*/true);
+            this.displayManager.SelectRange(caretOrdinal, caretOrdinal);
+        }
+
         public string SelectedText
         {
             get 
