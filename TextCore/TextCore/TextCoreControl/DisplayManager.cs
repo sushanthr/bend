@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Collections;
 using System.Runtime.InteropServices;
@@ -178,15 +178,15 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
                         {
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.HideCaret();
+                            this.caret.PrepareBeforeRender();
                             this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
                             this.selectionManager.ShouldUseHighlightColors = false;
                             this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
-                            // OnGetFocus will also show the caret after recreating it.
-                            this.caret.ShowCaret();
+                            this.caret.UnprepareAfterRender();
+                            this.caret.OnGetFocus();
                         }
                     }
                     break;
@@ -202,7 +202,7 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
                         {
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.HideCaret();
+                            this.caret.PrepareBeforeRender();
                             this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
                             int beginOrdinal, endOrdinal;
@@ -213,7 +213,8 @@ namespace TextCoreControl
                             this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
-                            this.caret.ShowCaret();
+                            this.caret.UnprepareAfterRender();
+                            this.caret.OnGetFocus();
                         }
                     }
                     break;
@@ -239,14 +240,14 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionEndOrdinal, out iLine))
                         {
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.HideCaret();
+                            this.caret.PrepareBeforeRender();
                             this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionEndOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
                             this.selectionManager.ShouldUseHighlightColors = false;
                             this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
                             this.hwndRenderTarget.EndDraw();
-                            this.caret.ShowCaret();
+                            this.caret.UnprepareAfterRender();
                         }
                     }
                     break;
@@ -533,13 +534,13 @@ namespace TextCoreControl
                     if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
                     {
                         //  Control A was pressed - select all
-                        this.caret.HideCaret();
+                        this.caret.PrepareBeforeRender();
                         this.hwndRenderTarget.BeginDraw();
                         this.selectionManager.ShouldUseHighlightColors = false;
                         this.selectionManager.ResetSelection(this.document.FirstOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.hwndRenderTarget.EndDraw();
-                        this.caret.ShowCaret();
+                        this.caret.UnprepareAfterRender();
                         e.Handled = true;
                     }
                     break;
@@ -583,7 +584,7 @@ namespace TextCoreControl
 
             if (adjustSelection)
             {
-                this.caret.HideCaret();
+                this.caret.PrepareBeforeRender();
                 this.hwndRenderTarget.BeginDraw();
                 this.selectionManager.ShouldUseHighlightColors = false;
                 if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
@@ -595,7 +596,7 @@ namespace TextCoreControl
                     this.selectionManager.ResetSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                 }
                 this.hwndRenderTarget.EndDraw();
-                this.caret.ShowCaret();
+                this.caret.UnprepareAfterRender();
             }
         }
 
@@ -711,9 +712,9 @@ namespace TextCoreControl
                 hwndRenderTarget.Transform = Matrix3x2F.Identity;
             }
 
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
             this.Render();
-            this.caret.ShowCaret();
+            this.caret.UnprepareAfterRender();
         }
 
         private void AddLinesAbove(int minLinesToAdd)
@@ -1006,7 +1007,7 @@ namespace TextCoreControl
 
         public void SelectRange(int beginAtOrdinal, int endBeforeOrdinal)
         {
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
             this.hwndRenderTarget.BeginDraw();
             this.selectionManager.ResetSelection(beginAtOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
             if (beginAtOrdinal != endBeforeOrdinal)
@@ -1015,7 +1016,7 @@ namespace TextCoreControl
             }
             this.hwndRenderTarget.EndDraw();
             this.UpdateCaret(endBeforeOrdinal);
-            this.caret.ShowCaret();
+            this.caret.UnprepareAfterRender();
         }
 
         public string GetSelectedText(out int selectionBeginOrdinal)
@@ -1179,7 +1180,7 @@ namespace TextCoreControl
                 bool contentRendered = this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);
 
                 // Render
-                this.caret.HideCaret();
+                this.caret.PrepareBeforeRender();
                 this.UpdateCaret(endOrdinal);
                 hwndRenderTarget.BeginDraw();
                 this.selectionManager.ShouldUseHighlightColors = false;
@@ -1190,7 +1191,7 @@ namespace TextCoreControl
                     this.RenderToRenderTarget(changeStart, changeEnd, hwndRenderTarget);
                 }
                 hwndRenderTarget.EndDraw();
-                this.caret.ShowCaret();
+                this.caret.UnprepareAfterRender();
 
                 if (forceDocumentBoundsMeasure)
                 {
@@ -1238,9 +1239,9 @@ namespace TextCoreControl
             this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
             this.UpdateCaret(this.caret.Ordinal);
 
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
             this.Render();
-            this.caret.ShowCaret();
+            this.caret.UnprepareAfterRender();
         }
 
         private void UpdateVisualLines(
@@ -1386,11 +1387,11 @@ namespace TextCoreControl
             if (hwndRenderTarget.IsOccluded)
                 return;
 
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
             hwndRenderTarget.BeginDraw();
             this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
             hwndRenderTarget.EndDraw();
-            this.caret.ShowCaret();
+            this.caret.UnprepareAfterRender();
         }
 
         private void RenderToRenderTarget(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
@@ -1533,7 +1534,7 @@ namespace TextCoreControl
         {
             IntPtr hBitmap = IntPtr.Zero;
 
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
             hwndRenderTarget.BeginDraw();
 
             this.RenderToRenderTarget(0, this.visualLines.Count - 1, hwndRenderTarget);
@@ -1558,7 +1559,7 @@ namespace TextCoreControl
             hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
 
             hwndRenderTarget.EndDraw();
-            this.caret.HideCaret();
+            this.caret.PrepareBeforeRender();
 
             System.Windows.Media.Imaging.BitmapSource bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                  hBitmap,

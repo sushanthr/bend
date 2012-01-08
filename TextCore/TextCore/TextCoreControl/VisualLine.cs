@@ -49,7 +49,7 @@ namespace TextCoreControl
         public void Draw(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
             renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);
-            System.Diagnostics.Debug.Assert(Caret.DBG_IS_CARET_HIDDEN, "Caret should be hidden.");
+            System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
 
         public void DrawWhite(DWriteFactory dwriteFactory, TextFormat defaultFormat, SolidColorBrush whiteBrush, RenderTarget renderTarget)

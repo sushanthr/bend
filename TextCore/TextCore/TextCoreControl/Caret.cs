@@ -8,14 +8,14 @@ namespace TextCoreControl
 {
     internal class Caret
     {
-        internal static volatile bool DBG_IS_CARET_HIDDEN;
+        internal static volatile bool DBG_CARET_IS_PREPARED_FOR_RENDER;
 
         public Caret(HwndRenderTarget renderTarget, int defaultHeight)
         {
             this.caretHeight = defaultHeight;
             windowHandle = renderTarget.WindowHandle;
             isCaretHidden = true;
-            DBG_IS_CARET_HIDDEN = true;
+            DBG_CARET_IS_PREPARED_FOR_RENDER = true;
 
             xPos = 0;
             yPos = 0;
@@ -57,7 +57,9 @@ namespace TextCoreControl
                 CreateCaret(windowHandle, 0, 0, caretHeight);
 
                 if (!this.isCaretHidden)
-                    ShowCaret();
+                {
+                    ShowCaret(windowHandle);
+                }
             }
 
             xPos = (int)(visualLine.Position.X + x - scrollOffset.Width);
@@ -152,30 +154,33 @@ namespace TextCoreControl
             SetCaretPos(xPos, yPos + 1);
 
             // Display the caret. 
-            ShowCaret();
+            ShowCaret(windowHandle);
+            isCaretHidden = false;
         }
 
         public void OnLostFocus()
         {
-            this.HideCaret();
+            HideCaret(windowHandle);
+            isCaretHidden = true;
             DestroyCaret();
         }
         #endregion
 
         #region Show / Hide caret
 
-        public void HideCaret()
+        public void PrepareBeforeRender()
         {
             HideCaret(windowHandle);
-            isCaretHidden = true;
-            DBG_IS_CARET_HIDDEN = true;
+            DBG_CARET_IS_PREPARED_FOR_RENDER = true;
         }
 
-        public void ShowCaret()
+        public void UnprepareAfterRender()
         {
-            ShowCaret(windowHandle);
-            isCaretHidden = false;
-            DBG_IS_CARET_HIDDEN = false;
+            if (!this.isCaretHidden)
+            {
+                ShowCaret(windowHandle);
+            }
+            DBG_CARET_IS_PREPARED_FOR_RENDER = false;
         }
 
         #endregion
