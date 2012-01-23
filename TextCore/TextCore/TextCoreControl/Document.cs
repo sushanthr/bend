@@ -34,7 +34,7 @@ namespace TextCoreControl
         {
             System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1));
+            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1), System.Text.Encoding.Default);
         }
 
         internal char CharacterAt(int ordinal)
