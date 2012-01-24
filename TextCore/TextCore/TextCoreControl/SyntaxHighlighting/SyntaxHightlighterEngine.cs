@@ -536,7 +536,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 {
                     if (((highlightState & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, index))
                     {
-                        continueFromIndex = index + 1;
+                        continueFromIndex = index;
                         newHighlightState = (int)HighlightState.NONE;
                         transitionedIntoSyntaxRegion = true;
                         this.highlightRange((uint)index, (uint)this.syntaxStart.Length, HighlightStyle.BRACKET);

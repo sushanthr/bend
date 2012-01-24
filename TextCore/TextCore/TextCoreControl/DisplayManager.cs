@@ -201,12 +201,12 @@ namespace TextCoreControl
                         int iLine;
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
                         {
-                            VisualLine vl = this.visualLines[iLine];
-                            this.caret.PrepareBeforeRender();
-                            this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
-
                             int beginOrdinal, endOrdinal;
                             this.document.GetWordBoundary(selectionBeginOrdinal, out beginOrdinal, out endOrdinal);
+
+                            VisualLine vl = this.visualLines[iLine];
+                            this.caret.PrepareBeforeRender();
+                            this.caret.MoveCaretToLine(vl, this.document, scrollOffset, endOrdinal);
 
                             this.hwndRenderTarget.BeginDraw();
                             this.selectionManager.ShouldUseHighlightColors = false;
@@ -304,6 +304,17 @@ namespace TextCoreControl
         /// <param name="lparam"></param>
         private void KeyHandler(int wparam, int lparam)
         {
+            if (this.SelectionBegin != this.SelectionEnd)
+            {
+                // Active selection needs to be deleted
+                int selectionBeginOrdinal;
+                string cutString = this.GetSelectedText(out selectionBeginOrdinal);
+                if (cutString.Length > 0)
+                {
+                    this.document.DeleteAt(selectionBeginOrdinal, cutString.Length);
+                }
+            }
+
             char key = (char)wparam;
             int insertOrdinal = this.caret.Ordinal;
             string content;
