@@ -422,82 +422,98 @@ namespace TextCoreControl.SyntaxHighlighting
                     {
                         stateAtStart |= (int)HighlightState.IN_NO_SYNTAX;
                         i += (this.syntaxEnd.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.commentStart, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_COMMENT;
                         i += (this.commentStart.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.commentStartAlt, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_COMMENT_ALT;
                         i += (this.commentStartAlt.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.singleComment, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT;
                         i += (this.singleComment.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.singleCommentAlt, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT_ALT;
                         i += (this.singleCommentAlt.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.stringStart, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_STRING;
                         i += (this.stringStart.Length - 1);
+                        continue;
                     }
                     else if (CompareStrings(this.charStart, 0, text, i))
                     {
                         stateAtStart |= (int)HighlightState.IN_CHAR;
                         i += (this.charStart.Length - 1);
+                        continue;
                     }
                 }
-                else if (this.IsPossibleHighlightRangeEnd(ch))
+
+                if (this.IsPossibleHighlightRangeEnd(ch))
                 {
                     if (((stateAtStart & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, i))
                     {
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
-
                     else if (((stateAtStart & (int)HighlightState.IN_COMMENT) != 0) && CompareStrings(this.commentEnd, 0, text, i))
                     {
                         i += (this.commentEnd.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                     else if (((stateAtStart & (int)HighlightState.IN_COMMENT_ALT) != 0) && CompareStrings(this.commentEndAlt, 0, text, i))
                     {
                         i += (this.commentEndAlt.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                     else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringEnd, 0, text, i))
                     {
                         i += (this.stringEnd.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                     else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringAlt, 0, text, i))
                     {
                         i += (this.stringAlt.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                     else if (((stateAtStart & (int)HighlightState.IN_CHAR) != 0) && CompareStrings(this.charEnd, 0, text, i))
                     {
                         i += (this.charEnd.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                     else if ((((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) || ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT_ALT) != 0))
                         && CompareStrings(this.singleCommentEsc, 0, text, i))
                     {
                         i += (this.singleCommentEsc.Length - 1);
                         stateAtStart = (int)HighlightState.NONE;
+                        continue;
                     }
                 }
-                else if (ch == '\r' || ch == '\n')
+
+                if (ch == '\r' || ch == '\n')
                 {
                     if ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) stateAtStart = (int)HighlightState.NONE;
                     if ((stateAtStart & (int)HighlightState.IN_STRING) != 0 && !this.stringsSpanLines) stateAtStart = (int)HighlightState.NONE;
                     if ((stateAtStart & (int)HighlightState.IN_CHAR) != 0) stateAtStart = (int)HighlightState.NONE;
+                    continue;
                 }
             }
             if (text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
