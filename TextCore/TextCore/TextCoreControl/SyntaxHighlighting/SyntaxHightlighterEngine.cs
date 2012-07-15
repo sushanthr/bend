@@ -536,7 +536,7 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <param name="findStartIndex">index in text to start highlighting form</param>
         /// <param name="continueFromIndex">index for other systems to continue highlighting at</param>
         /// <param name="newHighlightState">the new state for the highlighter</param>
-        private void FindAndHighlightRange(int highlightState, string text, int highlightStartIndex, int findStartIndex, out int continueFromIndex, out int newHighlightState, out bool transitionedIntoSyntaxRegion)
+        private void FindGivenHighLightStateEndAndHighLight(int highlightState, string text, int highlightStartIndex, int findStartIndex, out int continueFromIndex, out int newHighlightState, out bool transitionedIntoSyntaxRegion)
         {
             System.Diagnostics.Debug.Assert(highlightState != 0);
             newHighlightState = highlightState;
@@ -649,7 +649,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 bool previousTokenIsSyntaxStart = false;
 
                 if (opaqueStateIn != 0)
-                    this.FindAndHighlightRange(opaqueStateIn, text, i, i, out i, out opaqueStateOut, out previousTokenIsSyntaxStart);
+                    this.FindGivenHighLightStateEndAndHighLight(opaqueStateIn, text, i, i, out i, out opaqueStateOut, out previousTokenIsSyntaxStart);
                 else
                 {
                     // Sniff for preprocessor directives
@@ -756,7 +756,7 @@ namespace TextCoreControl.SyntaxHighlighting
                                     if (highlightState != HighlightState.NONE)
                                     {
                                         opaqueStateOut |= (int)highlightState;
-                                        this.FindAndHighlightRange(opaqueStateOut, text, highlightStartIndex, beginNonKeywordScan, out beginNonKeywordScan, out opaqueStateOut, out previousTokenIsSyntaxStart);
+                                        this.FindGivenHighLightStateEndAndHighLight(opaqueStateOut, text, highlightStartIndex, beginNonKeywordScan, out beginNonKeywordScan, out opaqueStateOut, out previousTokenIsSyntaxStart);
                                         break;
                                     }
                                 }

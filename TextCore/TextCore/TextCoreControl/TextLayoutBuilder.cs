@@ -50,7 +50,7 @@ namespace TextCoreControl
                     }
                 }
 
-                if (letter == '\n' || letter == '\v' || letter == '\r')
+                if (IsHardBreakChar(letter))
                 {
                     lineText += letter;
                     nextOrdinal = document.NextOrdinal(nextOrdinal);
@@ -169,7 +169,7 @@ namespace TextCoreControl
                 while (firstHardBreakOrdinal != Document.BEFOREBEGIN_ORDINAL)
                 {
                     char letter = document.CharacterAt(firstHardBreakOrdinal);
-                    if (letter == '\r' || letter == '\n' || letter == '\v')
+                    if (IsHardBreakChar(letter))
                         break;
 
                     firstHardBreakOrdinal = document.PreviousOrdinal(firstHardBreakOrdinal);
@@ -194,9 +194,9 @@ namespace TextCoreControl
         /// <param name="letter">First character</param>
         /// <param name="nextLetter">Next character (pass \0, if there are no more characters)</param>
         /// <returns>True if character pair constitute a hard break</returns>
-        internal static bool IsHardBreakChar(char letter, char nextLetter)
+        internal static bool IsHardBreakChar(char letter, char nextLetter = '\0')
         {
-            return letter == '\n' || letter == '\v' || (letter == '\r' && nextLetter != '\n');
+            return letter == '\n' || letter == '\v' || letter == '\f' || (letter == '\r' && nextLetter != '\n');
         }
 
         internal float AverageLineHeight()
