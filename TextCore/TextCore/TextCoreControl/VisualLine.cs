@@ -96,7 +96,7 @@ namespace TextCoreControl
             // get local text position.
             uint localPosition = 0;
             int tempOrdinal = this.beginOrdinal;
-            while (tempOrdinal != ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
+            while (tempOrdinal < ordinal) { localPosition++; tempOrdinal = document.NextOrdinal(tempOrdinal); }
 
             if (tempOrdinal >= nextOrdinal)
             {

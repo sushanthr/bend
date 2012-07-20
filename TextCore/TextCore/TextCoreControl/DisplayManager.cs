@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Controls.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using TextCoreControl.SyntaxHighlighting;
 
 using Microsoft.WindowsAPICodePack.DirectX.Controls;
@@ -137,7 +138,12 @@ namespace TextCoreControl
             {
                 /*WM_SETFOCUS*/
                 case 0x0007:
-                    if (this.caret != null && this.renderHost.Visibility == Visibility.Visible) this.caret.OnGetFocus();
+                    if (this.renderHost.Visibility == Visibility.Visible)
+                    {
+                        // Work around from some machines that fail to paint when the renderhost gets focus.
+                        this.renderHost.InvalidateVisual();
+                        if (this.caret != null) this.caret.OnGetFocus();
+                    }                    
                     break;
                 /*WM_KILLFOCUS*/
                 case 0x0008:
@@ -178,14 +184,23 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
                         {
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.PrepareBeforeRender();
-                            this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
 
-                            this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ShouldUseHighlightColors = false;
-                            this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                            this.hwndRenderTarget.EndDraw();
-                            this.caret.UnprepareAfterRender();
+                            try
+                            {
+                                this.caret.PrepareBeforeRender();
+                                this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionBeginOrdinal);
+
+                                this.hwndRenderTarget.BeginDraw();
+                                this.selectionManager.ShouldUseHighlightColors = false;
+                                this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                                this.hwndRenderTarget.EndDraw();
+                                this.caret.UnprepareAfterRender();
+                            }
+                            catch
+                            {
+                                this.RecoverFromRenderException();
+                            }
+
                             this.caret.OnGetFocus();
                         }
                     }
@@ -205,15 +220,24 @@ namespace TextCoreControl
                             this.document.GetWordBoundary(selectionBeginOrdinal, out beginOrdinal, out endOrdinal);
 
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.PrepareBeforeRender();
-                            this.caret.MoveCaretToLine(vl, this.document, scrollOffset, endOrdinal);
 
-                            this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ShouldUseHighlightColors = false;
-                            this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                            this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                            this.hwndRenderTarget.EndDraw();
-                            this.caret.UnprepareAfterRender();
+                            try
+                            {
+                                this.caret.PrepareBeforeRender();
+                                this.caret.MoveCaretToLine(vl, this.document, scrollOffset, endOrdinal);
+
+                                this.hwndRenderTarget.BeginDraw();
+                                this.selectionManager.ShouldUseHighlightColors = false;
+                                this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                                this.selectionManager.ExpandSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                                this.hwndRenderTarget.EndDraw();
+                                this.caret.UnprepareAfterRender();
+                            }
+                            catch
+                            {                
+                                this.RecoverFromRenderException();
+                            }            
+                            
                             this.caret.OnGetFocus();
                         }
                     }
@@ -240,14 +264,22 @@ namespace TextCoreControl
                         if (this.HitTest(new Point2F(x, y), out selectionEndOrdinal, out iLine))
                         {
                             VisualLine vl = this.visualLines[iLine];
-                            this.caret.PrepareBeforeRender();
-                            this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionEndOrdinal);
 
-                            this.hwndRenderTarget.BeginDraw();
-                            this.selectionManager.ShouldUseHighlightColors = false;
-                            this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
-                            this.hwndRenderTarget.EndDraw();
-                            this.caret.UnprepareAfterRender();
+                            try
+                            {
+                                this.caret.PrepareBeforeRender();
+                                this.caret.MoveCaretToLine(vl, this.document, scrollOffset, selectionEndOrdinal);
+
+                                this.hwndRenderTarget.BeginDraw();
+                                this.selectionManager.ShouldUseHighlightColors = false;
+                                this.selectionManager.ExpandSelection(selectionEndOrdinal, visualLines, document, this.scrollOffset, this.hwndRenderTarget);
+                                this.hwndRenderTarget.EndDraw();
+                                this.caret.UnprepareAfterRender();
+                            }
+                            catch
+                            {                
+                                this.RecoverFromRenderException();
+                            }            
                         }
                     }
                     break;
@@ -486,12 +518,12 @@ namespace TextCoreControl
                     break;
                 case System.Windows.Input.Key.PageDown:
                     if (this.VisualLineCount > 1)
-                    {
-                        int lineIndex;
+                    {                        
                         Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
-
-                        if (this.visualLines[this.VisualLineCount - 1].NextOrdinal != Document.UNDEFINED_ORDINAL)
+                        int lastVisibleLine = this.LastVisibleLine();
+                        if (lastVisibleLine == -1 || this.visualLines[lastVisibleLine].NextOrdinal != Document.UNDEFINED_ORDINAL)
                         {
+                            // If we find no visible lines, it is better to try scroll to the end and fail.
                             this.scrollBoundsManager.ScrollBy(this.AvailableHeight);
                         }
                         else
@@ -501,6 +533,7 @@ namespace TextCoreControl
                         }
 
                         int ordinal;
+                        int lineIndex;
                         if (this.HitTest(caretPosition, out ordinal, out lineIndex))
                         {
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
@@ -545,13 +578,20 @@ namespace TextCoreControl
                     if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
                     {
                         //  Control A was pressed - select all
-                        this.caret.PrepareBeforeRender();
-                        this.hwndRenderTarget.BeginDraw();
-                        this.selectionManager.ShouldUseHighlightColors = false;
-                        this.selectionManager.ResetSelection(this.document.FirstOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.hwndRenderTarget.EndDraw();
-                        this.caret.UnprepareAfterRender();
+                        try
+                        {
+                            this.caret.PrepareBeforeRender();
+                            this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ShouldUseHighlightColors = false;
+                            this.selectionManager.ResetSelection(this.document.FirstOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                            this.selectionManager.ExpandSelection(this.document.LastOrdinal(), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                            this.hwndRenderTarget.EndDraw();
+                            this.caret.UnprepareAfterRender();
+                        }
+                        catch
+                        {                
+                            this.RecoverFromRenderException();
+                        }            
                         e.Handled = true;
                     }
                     break;
@@ -595,19 +635,26 @@ namespace TextCoreControl
 
             if (adjustSelection)
             {
-                this.caret.PrepareBeforeRender();
-                this.hwndRenderTarget.BeginDraw();
-                this.selectionManager.ShouldUseHighlightColors = false;
-                if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                try
                 {
-                    this.selectionManager.ExpandSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    this.caret.PrepareBeforeRender();
+                    this.hwndRenderTarget.BeginDraw();
+                    this.selectionManager.ShouldUseHighlightColors = false;
+                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                    {
+                        this.selectionManager.ExpandSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    }
+                    else
+                    {
+                        this.selectionManager.ResetSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    }
+                    this.hwndRenderTarget.EndDraw();
+                    this.caret.UnprepareAfterRender();
                 }
-                else
-                {
-                    this.selectionManager.ResetSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                }
-                this.hwndRenderTarget.EndDraw();
-                this.caret.UnprepareAfterRender();
+                catch
+                {                
+                    this.RecoverFromRenderException();
+                }            
             }
         }
 
@@ -1018,22 +1065,29 @@ namespace TextCoreControl
 
         public void SelectRange(int beginAtOrdinal, int endBeforeOrdinal)
         {
-            this.caret.PrepareBeforeRender();
-            this.hwndRenderTarget.BeginDraw();
-            this.selectionManager.ResetSelection(beginAtOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-            if (beginAtOrdinal != endBeforeOrdinal)
+            try
             {
-                this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                this.caret.PrepareBeforeRender();
+                this.hwndRenderTarget.BeginDraw();
+                this.selectionManager.ResetSelection(beginAtOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                if (beginAtOrdinal != endBeforeOrdinal)
+                {
+                    this.selectionManager.ExpandSelection(endBeforeOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                }
+                this.hwndRenderTarget.EndDraw();
+                this.UpdateCaret(endBeforeOrdinal);
+                this.caret.UnprepareAfterRender();
             }
-            this.hwndRenderTarget.EndDraw();
-            this.UpdateCaret(endBeforeOrdinal);
-            this.caret.UnprepareAfterRender();
+            catch
+            {
+                this.RecoverFromRenderException();
+            }
         }
 
         public string GetSelectedText(out int selectionBeginOrdinal)
         {
-            string selectedString = "";
-
+            StringBuilder selectedString = new System.Text.StringBuilder();
+            
             selectionBeginOrdinal = this.SelectionBegin;
             int selectionEndOrdinal = this.SelectionEnd;
 
@@ -1047,12 +1101,12 @@ namespace TextCoreControl
                 int tempOrdinal = selectionBeginOrdinal;
                 while (tempOrdinal != selectionEndOrdinal)
                 {
-                    selectedString += document.CharacterAt(tempOrdinal);
+                    selectedString.Append(document.CharacterAt(tempOrdinal));
                     tempOrdinal = document.NextOrdinal(tempOrdinal);
                 }
             }
 
-            return selectedString;
+            return selectedString.ToString();
         }
 
         #endregion
@@ -1191,18 +1245,25 @@ namespace TextCoreControl
                 bool contentRendered = this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);
 
                 // Render
-                this.caret.PrepareBeforeRender();
-                this.UpdateCaret(endOrdinal);
-                hwndRenderTarget.BeginDraw();
-                this.selectionManager.ShouldUseHighlightColors = false;
-                this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                if (!contentRendered)
+                try
                 {
-                    // Nothing to render if scrolling already rendered content on screen.
-                    this.RenderToRenderTarget(changeStart, changeEnd, hwndRenderTarget);
+                    this.caret.PrepareBeforeRender();
+                    this.UpdateCaret(endOrdinal);
+                    hwndRenderTarget.BeginDraw();
+                    this.selectionManager.ShouldUseHighlightColors = false;
+                    this.selectionManager.ResetSelection(endOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    if (!contentRendered)
+                    {
+                        // Nothing to render if scrolling already rendered content on screen.
+                        this.RenderToRenderTarget(changeStart, changeEnd, hwndRenderTarget);
+                    }
+                    hwndRenderTarget.EndDraw();
+                    this.caret.UnprepareAfterRender();
                 }
-                hwndRenderTarget.EndDraw();
-                this.caret.UnprepareAfterRender();
+                catch
+                {                
+                    this.RecoverFromRenderException();
+                }            
 
                 if (forceDocumentBoundsMeasure)
                 {
@@ -1397,12 +1458,19 @@ namespace TextCoreControl
             CreateDeviceResources();
             if (hwndRenderTarget.IsOccluded)
                 return;
-
-            this.caret.PrepareBeforeRender();
-            hwndRenderTarget.BeginDraw();
-            this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
-            hwndRenderTarget.EndDraw();
-            this.caret.UnprepareAfterRender();
+                        
+            try
+            {
+                this.caret.PrepareBeforeRender();
+                hwndRenderTarget.BeginDraw();
+                this.RenderToRenderTarget(/*redrawBegin*/ 0, /*redrawEnd*/ this.visualLines.Count - 1, hwndRenderTarget);
+                hwndRenderTarget.EndDraw();
+                this.caret.UnprepareAfterRender();
+            }
+            catch
+            {                
+                this.RecoverFromRenderException();
+            }            
         }
 
         private void RenderToRenderTarget(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
@@ -1486,6 +1554,14 @@ namespace TextCoreControl
             return false;
         }
 
+        private void RecoverFromRenderException()
+        {
+            // Release the render target so that it can be recreated.
+            this.hwndRenderTarget = null;
+            this.CreateDeviceResources();
+            this.renderHost.InvalidateVisual();
+        }
+
         #endregion
 
         #region Rasterize
@@ -1545,32 +1621,39 @@ namespace TextCoreControl
         {
             IntPtr hBitmap = IntPtr.Zero;
 
-            this.caret.PrepareBeforeRender();
-            hwndRenderTarget.BeginDraw();
+            try
+            {
+                this.caret.PrepareBeforeRender();
+                hwndRenderTarget.BeginDraw();
 
-            this.RenderToRenderTarget(0, this.visualLines.Count - 1, hwndRenderTarget);
+                this.RenderToRenderTarget(0, this.visualLines.Count - 1, hwndRenderTarget);
 
-            IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
-            IntPtr compatibleDC = CreateCompatibleDC(windowDC);
+                IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
+                IntPtr compatibleDC = CreateCompatibleDC(windowDC);
 
-            int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width);
-            int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height);
-            hBitmap = CreateCompatibleBitmap(windowDC,
-                nWidth,
-                nHeight);
+                int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width);
+                int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height);
+                hBitmap = CreateCompatibleBitmap(windowDC,
+                    nWidth,
+                    nHeight);
 
-            IntPtr hOld = SelectObject(compatibleDC, hBitmap);
-            //	blit bits from screen to target buffer
-            BitBlt(compatibleDC, 0, 0, nWidth, nHeight, windowDC, 0, 0, TernaryRasterOperations.SRCCOPY);
-            //	de-select bitmap	
-            SelectObject(compatibleDC, hOld);
+                IntPtr hOld = SelectObject(compatibleDC, hBitmap);
+                //	blit bits from screen to target buffer
+                BitBlt(compatibleDC, 0, 0, nWidth, nHeight, windowDC, 0, 0, TernaryRasterOperations.SRCCOPY);
+                //	de-select bitmap	
+                SelectObject(compatibleDC, hOld);
 
-            //	free DCs	
-            DeleteDC(compatibleDC);
-            hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
+                //	free DCs	
+                DeleteDC(compatibleDC);
+                hwndRenderTarget.GdiInteropRenderTarget.ReleaseDC();
 
-            hwndRenderTarget.EndDraw();
-            this.caret.PrepareBeforeRender();
+                hwndRenderTarget.EndDraw();
+                this.caret.UnprepareAfterRender();
+            }
+            catch
+            {                
+                this.RecoverFromRenderException();
+            }
 
             System.Windows.Media.Imaging.BitmapSource bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
                  hBitmap,
