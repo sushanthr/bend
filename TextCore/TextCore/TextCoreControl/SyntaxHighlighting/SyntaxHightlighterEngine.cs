@@ -48,6 +48,8 @@ namespace TextCoreControl.SyntaxHighlighting
             this.highlightRangeEndStringsHash = 0;
 
             this.LoadDefinition(fullSyntaxFilePath);
+
+            this.synthesizeStateHightlightRange = new HighlightRange(noOperation_highlightRange);
         }
 
         #region Syn file Parse support
@@ -411,116 +413,19 @@ namespace TextCoreControl.SyntaxHighlighting
             return false;
         }
 
+        private void noOperation_highlightRange(uint beginOffset, uint length, SyntaxHightlighterEngine.HighlightStyle style)
+        {
+            // Do nothing - simply let the hightlighter continue to generate the final state.
+        }
+
         internal int SynthesizeStateForward(string text, int stateAtStart)
         {
-            for (int i = 0; i < text.Length; i++)
-            {
-                char ch = text[i];
-                if (this.IsPossibleHighlightRangeStart(ch))
-                {
-                    if (CompareStrings(this.syntaxEnd, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_NO_SYNTAX;
-                        i += (this.syntaxEnd.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.commentStart, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_COMMENT;
-                        i += (this.commentStart.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.commentStartAlt, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_COMMENT_ALT;
-                        i += (this.commentStartAlt.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.singleComment, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT;
-                        i += (this.singleComment.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.singleCommentAlt, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_SINGLE_COMMENT_ALT;
-                        i += (this.singleCommentAlt.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.stringStart, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_STRING;
-                        i += (this.stringStart.Length - 1);
-                        continue;
-                    }
-                    else if (CompareStrings(this.charStart, 0, text, i))
-                    {
-                        stateAtStart |= (int)HighlightState.IN_CHAR;
-                        i += (this.charStart.Length - 1);
-                        continue;
-                    }
-                }
-
-                if (this.IsPossibleHighlightRangeEnd(ch))
-                {
-                    if (((stateAtStart & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, i))
-                    {
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if (((stateAtStart & (int)HighlightState.IN_COMMENT) != 0) && CompareStrings(this.commentEnd, 0, text, i))
-                    {
-                        i += (this.commentEnd.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if (((stateAtStart & (int)HighlightState.IN_COMMENT_ALT) != 0) && CompareStrings(this.commentEndAlt, 0, text, i))
-                    {
-                        i += (this.commentEndAlt.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringEnd, 0, text, i))
-                    {
-                        i += (this.stringEnd.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if (((stateAtStart & (int)HighlightState.IN_STRING) != 0) && CompareStrings(this.stringAlt, 0, text, i))
-                    {
-                        i += (this.stringAlt.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if (((stateAtStart & (int)HighlightState.IN_CHAR) != 0) && CompareStrings(this.charEnd, 0, text, i))
-                    {
-                        i += (this.charEnd.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                    else if ((((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) || ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT_ALT) != 0))
-                        && CompareStrings(this.singleCommentEsc, 0, text, i))
-                    {
-                        i += (this.singleCommentEsc.Length - 1);
-                        stateAtStart = (int)HighlightState.NONE;
-                        continue;
-                    }
-                }
-
-                if (ch == '\r' || ch == '\n')
-                {
-                    if ((stateAtStart & (int)HighlightState.IN_SINGLE_COMMENT) != 0) stateAtStart = (int)HighlightState.NONE;
-                    if ((stateAtStart & (int)HighlightState.IN_STRING) != 0 && !this.stringsSpanLines) stateAtStart = (int)HighlightState.NONE;
-                    if ((stateAtStart & (int)HighlightState.IN_CHAR) != 0) stateAtStart = (int)HighlightState.NONE;
-                    continue;
-                }
-            }
-            if (text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
-            {
-                stateAtStart |= (int)HighlightState.AFTER_HARD_BREAK;
-            }
-            return stateAtStart;
+            HighlightRange originalHighlighter = this.highlightRange;
+            this.highlightRange = this.synthesizeStateHightlightRange;
+            int opaqueStateOut;
+            this.HighlightText(text, stateAtStart, out opaqueStateOut);
+            this.highlightRange = originalHighlighter;
+            return opaqueStateOut;
         }
 
         #endregion
@@ -536,9 +441,10 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <param name="findStartIndex">index in text to start highlighting form</param>
         /// <param name="continueFromIndex">index for other systems to continue highlighting at</param>
         /// <param name="newHighlightState">the new state for the highlighter</param>
-        private void FindGivenHighLightStateEndAndHighLight(int highlightState, string text, int highlightStartIndex, int findStartIndex, out int continueFromIndex, out int newHighlightState, out bool transitionedIntoSyntaxRegion)
+        private void FindStateEndAndHighLight(int highlightState, string text, int highlightStartIndex, int findStartIndex, out int continueFromIndex, out int newHighlightState, out bool transitionedIntoSyntaxRegion)
         {
             System.Diagnostics.Debug.Assert(highlightState != 0);
+            System.Diagnostics.Debug.Assert(this.highlightRange != null);
             newHighlightState = highlightState;
             continueFromIndex = findStartIndex;
             transitionedIntoSyntaxRegion = false;
@@ -641,185 +547,182 @@ namespace TextCoreControl.SyntaxHighlighting
             opaqueStateIn = opaqueStateIn & (int)HighlightState.STATE_FLAGS;
             opaqueStateOut = (int)HighlightState.NONE; 
 
-            if (this.highlightRange != null)
+            int i = 0;
+            char ch;
+            bool onlyDetectKeywords = false;
+            bool previousTokenIsSyntaxStart = false;
+
+            if (opaqueStateIn != 0)
+                this.FindStateEndAndHighLight(opaqueStateIn, text, i, i, out i, out opaqueStateOut, out previousTokenIsSyntaxStart);
+            else
             {
-                int i = 0;
-                char ch;
-                bool onlyDetectKeywords = false;
-                bool previousTokenIsSyntaxStart = false;
-
-                if (opaqueStateIn != 0)
-                    this.FindGivenHighLightStateEndAndHighLight(opaqueStateIn, text, i, i, out i, out opaqueStateOut, out previousTokenIsSyntaxStart);
-                else
-                {
-                    // Sniff for preprocessor directives
-                    // Skip over leading whitespaces
-                    for (; i < text.Length; i++)
-                    {
-                        if (!char.IsWhiteSpace(ch = text[i]))
-                        {
-                            // highlight whole line as preprocessor line
-                            if (ch == preProcessorCharacter)
-                            {
-                                this.highlightRange(0, (uint)text.Length, HighlightStyle.PREPROCESSOR);
-                                onlyDetectKeywords = true;
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                string keyword = "";
+                // Sniff for preprocessor directives
+                // Skip over leading whitespaces
                 for (; i < text.Length; i++)
                 {
-                    // Look for keywords
-                    ch = text[i];
-                    if (this.keywordCharacters.Contains(ch) &&
-                        (this.keywordLength == 0 || keyword.Length < this.keywordLength))
+                    if (!char.IsWhiteSpace(ch = text[i]))
                     {
-                        keyword += ch;
-                    }
-                    else
-                    {
-                        int beginNonKeywordScan = i;
-                        int endNonKeywordScan = i + 1;
-                        int style;
-                        if (keyword.Length != 0)
+                        // highlight whole line as preprocessor line
+                        if (ch == preProcessorCharacter)
                         {
-                            if (this.keywordsMapNamespace1.TryGetValue(keyword, out style) ||
-                                (!previousTokenIsSyntaxStart && this.keywordsMapNamespace2.TryGetValue(keyword, out style)))
-                            {
-                                // Found a keyword
-                                HighlightStyle highlightStyle = (HighlightStyle)style;
-                                uint length = (uint)keyword.Length;
-                                uint rangeBegin = (uint)(i - length);
-                                this.highlightRange(rangeBegin, length, highlightStyle);
-                            }
-                            else
-                            {
-                                // It wasnt a keyword so make a pass scanning for non keyword
-                                beginNonKeywordScan = (i - keyword.Length);
-                            }
+                            this.highlightRange(0, (uint)text.Length, HighlightStyle.PREPROCESSOR);
+                            onlyDetectKeywords = true;
                         }
-                        keyword = "";
-                        previousTokenIsSyntaxStart = false;
+                        break;
+                    }
+                }
+            }
 
-                        if (!onlyDetectKeywords)
+            string keyword = "";
+            for (; i < text.Length; i++)
+            {
+                // Look for keywords
+                ch = text[i];
+                if (this.keywordCharacters.Contains(ch) &&
+                    (this.keywordLength == 0 || keyword.Length < this.keywordLength))
+                {
+                    keyword += ch;
+                }
+                else
+                {
+                    int beginNonKeywordScan = i;
+                    int endNonKeywordScan = i + 1;
+                    int style;
+                    if (keyword.Length != 0)
+                    {
+                        if (this.keywordsMapNamespace1.TryGetValue(keyword, out style) ||
+                            (!previousTokenIsSyntaxStart && this.keywordsMapNamespace2.TryGetValue(keyword, out style)))
                         {
-                            // Now detect this non keyword character
-                            while (beginNonKeywordScan < endNonKeywordScan)
+                            // Found a keyword
+                            HighlightStyle highlightStyle = (HighlightStyle)style;
+                            uint length = (uint)keyword.Length;
+                            uint rangeBegin = (uint)(i - length);
+                            this.highlightRange(rangeBegin, length, highlightStyle);
+                        }
+                        else
+                        {
+                            // It wasnt a keyword so make a pass scanning for non keyword
+                            beginNonKeywordScan = (i - keyword.Length);
+                        }
+                    }
+                    keyword = "";
+                    previousTokenIsSyntaxStart = false;
+
+                    if (!onlyDetectKeywords)
+                    {
+                        // Now detect this non keyword character
+                        while (beginNonKeywordScan < endNonKeywordScan)
+                        {
+                            ch = text[beginNonKeywordScan];
+
+                            // Look for single line comment
+                            if (this.IsPossibleHighlightRangeStart(ch))
                             {
-                                ch = text[beginNonKeywordScan];
-
-                                // Look for single line comment
-                                if (this.IsPossibleHighlightRangeStart(ch))
+                                HighlightState highlightState = HighlightState.NONE;
+                                int highlightStartIndex = beginNonKeywordScan;
+                                if (CompareStrings(this.syntaxEnd, 0, text, beginNonKeywordScan))
                                 {
-                                    HighlightState highlightState = HighlightState.NONE;
-                                    int highlightStartIndex = beginNonKeywordScan;
-                                    if (CompareStrings(this.syntaxEnd, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_NO_SYNTAX;
-                                        this.highlightRange((uint)beginNonKeywordScan, (uint)this.syntaxEnd.Length, HighlightStyle.BRACKET);
-                                        beginNonKeywordScan += this.syntaxEnd.Length;
-                                    }
-                                    else if (CompareStrings(this.commentStart, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_COMMENT;
-                                        beginNonKeywordScan += this.commentStart.Length;
-                                    }
-                                    else if (CompareStrings(this.commentStartAlt, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_COMMENT_ALT;
-                                        beginNonKeywordScan += this.commentStartAlt.Length;
-                                    }
-                                    else if (CompareStrings(this.singleComment, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_SINGLE_COMMENT;
-                                        beginNonKeywordScan += this.singleComment.Length;
-                                    }
-                                    else if (CompareStrings(this.singleCommentAlt, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_SINGLE_COMMENT_ALT;
-                                        beginNonKeywordScan += this.singleCommentAlt.Length;
-                                    }
-                                    else if (CompareStrings(this.stringStart, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_STRING;
-                                        beginNonKeywordScan += this.stringStart.Length;
-                                    }
-                                    else if (CompareStrings(this.charStart, 0, text, beginNonKeywordScan))
-                                    {
-                                        highlightState = HighlightState.IN_CHAR;
-                                        beginNonKeywordScan += this.charStart.Length;
-                                    }
-
-                                    if (highlightState != HighlightState.NONE)
-                                    {
-                                        opaqueStateOut |= (int)highlightState;
-                                        this.FindGivenHighLightStateEndAndHighLight(opaqueStateOut, text, highlightStartIndex, beginNonKeywordScan, out beginNonKeywordScan, out opaqueStateOut, out previousTokenIsSyntaxStart);
-                                        break;
-                                    }
+                                    highlightState = HighlightState.IN_NO_SYNTAX;
+                                    this.highlightRange((uint)beginNonKeywordScan, (uint)this.syntaxEnd.Length, HighlightStyle.BRACKET);
+                                    beginNonKeywordScan += this.syntaxEnd.Length;
+                                }
+                                else if (CompareStrings(this.commentStart, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_COMMENT;
+                                    beginNonKeywordScan += this.commentStart.Length;
+                                }
+                                else if (CompareStrings(this.commentStartAlt, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_COMMENT_ALT;
+                                    beginNonKeywordScan += this.commentStartAlt.Length;
+                                }
+                                else if (CompareStrings(this.singleComment, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_SINGLE_COMMENT;
+                                    beginNonKeywordScan += this.singleComment.Length;
+                                }
+                                else if (CompareStrings(this.singleCommentAlt, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_SINGLE_COMMENT_ALT;
+                                    beginNonKeywordScan += this.singleCommentAlt.Length;
+                                }
+                                else if (CompareStrings(this.stringStart, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_STRING;
+                                    beginNonKeywordScan += this.stringStart.Length;
+                                }
+                                else if (CompareStrings(this.charStart, 0, text, beginNonKeywordScan))
+                                {
+                                    highlightState = HighlightState.IN_CHAR;
+                                    beginNonKeywordScan += this.charStart.Length;
                                 }
 
-                                bool detectFollowingDigit = false; 
-                                // Look for operator
-                                if (this.operatorCharacters.Contains(ch))
+                                if (highlightState != HighlightState.NONE)
                                 {
-                                    this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.OPERATOR);
-                                    detectFollowingDigit = true;
+                                    opaqueStateOut |= (int)highlightState;
+                                    this.FindStateEndAndHighLight(opaqueStateOut, text, highlightStartIndex, beginNonKeywordScan, out beginNonKeywordScan, out opaqueStateOut, out previousTokenIsSyntaxStart);
+                                    break;
+                                }
+                            }
+
+                            bool detectFollowingDigit = false; 
+                            // Look for operator
+                            if (this.operatorCharacters.Contains(ch))
+                            {
+                                this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.OPERATOR);
+                                detectFollowingDigit = true;
+                            }
+
+                            // Look for bracket characters
+                            else if (this.bracketCharacters.Contains(ch))
+                            {
+                                this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.BRACKET);
+                                detectFollowingDigit = true;
+                            }
+
+                            detectFollowingDigit |= (ch == ' ' || ch == ',' || ch == '.');
+                            beginNonKeywordScan++;
+
+                            // look for hex prefix
+                            if (detectFollowingDigit)
+                            {
+                                bool isHexNumber = false;
+                                if (CompareStrings(hexPrefix, 0, text, beginNonKeywordScan))
+                                {
+                                    this.highlightRange((uint)beginNonKeywordScan, (uint)hexPrefix.Length, HighlightStyle.NUMBER);
+                                    beginNonKeywordScan += hexPrefix.Length;
+                                    isHexNumber = true;
                                 }
 
-                                // Look for bracket characters
-                                else if (this.bracketCharacters.Contains(ch))
+                                while (beginNonKeywordScan < text.Length)
                                 {
-                                    this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.BRACKET);
-                                    detectFollowingDigit = true;
-                                }
-
-                                detectFollowingDigit |= (ch == ' ' || ch == ',' || ch == '.');
-                                beginNonKeywordScan++;
-
-                                // look for hex prefix
-                                if (detectFollowingDigit)
-                                {
-                                    bool isHexNumber = false;
-                                    if (CompareStrings(hexPrefix, 0, text, beginNonKeywordScan))
+                                    if (char.IsDigit(text[beginNonKeywordScan]))
                                     {
-                                        this.highlightRange((uint)beginNonKeywordScan, (uint)hexPrefix.Length, HighlightStyle.NUMBER);
-                                        beginNonKeywordScan += hexPrefix.Length;
-                                        isHexNumber = true;
+                                        this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.NUMBER);
+                                        beginNonKeywordScan++;
+                                        continue;
                                     }
-
-                                    while (beginNonKeywordScan < text.Length)
+                                    else if (isHexNumber)
                                     {
-                                        if (char.IsDigit(text[beginNonKeywordScan]))
+                                        char chHex = char.ToLower(text[beginNonKeywordScan]);
+                                        if (chHex >= 'a' && chHex <= 'f')
                                         {
                                             this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.NUMBER);
                                             beginNonKeywordScan++;
                                             continue;
                                         }
-                                        else if (isHexNumber)
-                                        {
-                                            char chHex = char.ToLower(text[beginNonKeywordScan]);
-                                            if (chHex >= 'a' && chHex <= 'f')
-                                            {
-                                                this.highlightRange((uint)beginNonKeywordScan, 1, HighlightStyle.NUMBER);
-                                                beginNonKeywordScan++;
-                                                continue;
-                                            }
-                                        }
-                                        break;
                                     }
+                                    break;
                                 }
                             }
-
-                            // we could have covered a lot more ground update i.
-                            i = beginNonKeywordScan - 1;
                         }
+
+                        // we could have covered a lot more ground update i.
+                        i = beginNonKeywordScan - 1;
                     }
                 }
             }
-
+            
             if (text.Length > 0 && (text[text.Length - 1] == '\r' || text[text.Length - 1] == '\n'))
             {
                 opaqueStateOut |= (int)HighlightState.AFTER_HARD_BREAK;
@@ -847,33 +750,32 @@ namespace TextCoreControl.SyntaxHighlighting
             }
             return true;
         }
+        
+        #endregion
 
         #region Highlighter callbacks
 
-        public enum HighlightStyle 
-        { 
-            NONE = 0, 
-            KEYWORD1 = 1, 
-            KEYWORD2 = 2, 
-            KEYWORD3 = 3, 
-            KEYWORD4 = 4, 
-            KEYWORD5 = 5, 
-            KEYWORD6 = 6, 
-            PREPROCESSORKEYWORD = 7, 
+        public enum HighlightStyle
+        {
+            NONE = 0,
+            KEYWORD1 = 1,
+            KEYWORD2 = 2,
+            KEYWORD3 = 3,
+            KEYWORD4 = 4,
+            KEYWORD5 = 5,
+            KEYWORD6 = 6,
+            PREPROCESSORKEYWORD = 7,
             PREPROCESSOR = 8,
             COMMENT = 9,
             OPERATOR = 10,
             BRACKET = 11,
             NUMBER = 12,
             STRING = 13,
-            CHAR   = 14
+            CHAR = 14
         }
 
         public delegate void HighlightRange(uint beginOffset, uint length, HighlightStyle style);
         public event HighlightRange highlightRange;
-
-        #endregion
-
 
         #endregion
 
@@ -915,5 +817,7 @@ namespace TextCoreControl.SyntaxHighlighting
 
         private Dictionary<string, int> keywordsMapNamespace1;
         private Dictionary<string, int> keywordsMapNamespace2;
+
+        private HighlightRange synthesizeStateHightlightRange;
     }
 }
