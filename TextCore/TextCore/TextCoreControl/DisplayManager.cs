@@ -74,9 +74,6 @@ namespace TextCoreControl
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
 
-                document.ContentChange += this.Document_ContentChanged;
-                document.OrdinalShift += this.Document_OrdinalShift;
-
                 if (this.syntaxHighlightingService != null)
                     this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
 
@@ -93,6 +90,10 @@ namespace TextCoreControl
 
                 this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget, this.d2dFactory);
                 this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
+                
+                // Register for document content change in the end, so that the other subsystems get to handle the change first.
+                document.ContentChange += this.Document_ContentChanged;
+                document.OrdinalShift += this.Document_OrdinalShift;
             }
         }
 
