@@ -143,11 +143,11 @@ namespace TextCoreControl.SyntaxHighlighting
             }
             else
             {
-                bool insertedDiffentValue = this.syntaxHighlighterStates.Insert(visualLine.NextOrdinal, opaqueStateOut);
+                bool insertedDifferentValue = this.syntaxHighlighterStates.Insert(visualLine.NextOrdinal, opaqueStateOut);
 
                 if (visualLine.NextOrdinal > this.dirtySyntaxStateBeginOrdinal)
                 {
-                    if (insertedDiffentValue)
+                    if (insertedDifferentValue)
                     {
                         this.dirtySyntaxStateBeginOrdinal = Math.Max(this.dirtySyntaxStateBeginOrdinal, visualLine.NextOrdinal);
                     }

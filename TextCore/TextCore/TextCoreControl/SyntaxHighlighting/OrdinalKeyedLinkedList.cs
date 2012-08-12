@@ -34,7 +34,6 @@ namespace TextCoreControl.SyntaxHighlighting
             this.lastOrdinal = Document.UNDEFINED_ORDINAL;
             this.memoizationNode = null;
             this.memoizationOrdinal = Document.UNDEFINED_ORDINAL;
-            this.compressionCount = 0;
         }
 
         internal void NotifyOfOrdinalShift(Document document, int beginOrdinal, int shift)
@@ -137,7 +136,6 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <returns>false if inserted value is the same as the one already in place</returns>
         internal bool Insert(int ordinal, T value)
         {
-            this.compressionCount++;
             OrdinalKeyedLinkedListNode foundNode;
             int foundOrdinal;
             if (this.Find(ordinal, out foundNode, out foundOrdinal))
@@ -154,7 +152,7 @@ namespace TextCoreControl.SyntaxHighlighting
                     if (foundNode.value.CompareTo(value) == 0 &&
                         foundNode.previous != null &&
                         previousNodeOrdinal != ordinal &&
-                        this.compressionCount % 10 != 0)
+                        (ordinal - foundOrdinal + foundNode.ordinalDelta) < 1000)
                     {
                         int oldOrdinalDelta = foundNode.ordinalDelta;
                         foundNode.ordinalDelta = ordinal - previousNodeOrdinal;
@@ -323,7 +321,5 @@ namespace TextCoreControl.SyntaxHighlighting
         ///     Ordinal value for the memoization node.
         /// </summary>
         int memoizationOrdinal;
-
-        uint compressionCount;
     }
 }

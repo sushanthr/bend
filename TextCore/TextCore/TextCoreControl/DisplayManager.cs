@@ -716,6 +716,7 @@ namespace TextCoreControl
             // Remove lines going offscreen
             int indexLastLineAboveScreenWithHardBreak = -1;
             int indexFirstLineBelowScreenWithHardBreak = int.MaxValue;
+            int indexFirstVisibleLine = int.MaxValue;
             for (int j = 0; j < visualLines.Count; j++)
             {
                 VisualLine vl = visualLines[j];
@@ -738,6 +739,10 @@ namespace TextCoreControl
                         indexLastLineAboveScreenWithHardBreak = Math.Max(indexLastLineAboveScreenWithHardBreak, j);
                     }
                 }
+                else if (indexFirstVisibleLine == int.MaxValue)
+                {
+                    indexFirstVisibleLine = j;
+                }
             }
             if (indexFirstLineBelowScreenWithHardBreak != int.MaxValue)
             {
@@ -750,13 +755,20 @@ namespace TextCoreControl
             if (indexLastLineAboveScreenWithHardBreak > 0)
             {
                 this.visualLines.RemoveRange(0, indexLastLineAboveScreenWithHardBreak + 1);
+                if (indexFirstVisibleLine != int.MaxValue)
+                {
+                    indexFirstVisibleLine -= (indexLastLineAboveScreenWithHardBreak + 1);
+                }
             }
 
             // Update page begin ordinal
             if (this.VisualLineCount > 0)
             {
-                this.pageBeginOrdinal = this.visualLines[0].BeginOrdinal;
-                this.pageTop = this.visualLines[0].Position.Y;
+                if (indexFirstVisibleLine == int.MaxValue || indexFirstVisibleLine >= this.VisualLineCount)
+                    indexFirstVisibleLine = 0;
+
+                this.pageBeginOrdinal = this.visualLines[indexFirstVisibleLine].BeginOrdinal;
+                this.pageTop = this.visualLines[indexFirstVisibleLine].Position.Y;
             }
 
             // Update caret
@@ -923,38 +935,31 @@ namespace TextCoreControl
         {
             if (Settings.allowSmoothScrollBy)
             {
-                int singles;
-                int tens;
-                int hundreds;
-                int other;
-                int sign = (numberOfLines > 0 ? +1 : - 1);
+                int sign = (numberOfLines > 0 ? +1 : -1);
                 int value = Math.Abs(numberOfLines);
 
-                singles = value >= 10 ? 10 : value;
-                value = value - singles;
-                tens = value >= 100 ? 10 : value / 10;
-                value = value - tens * 10;
-                hundreds = value >= 500 ? 5 : value / 100;
-                value = value - hundreds * 100;
-                other = value;
-                Debug.Assert(Math.Abs(numberOfLines) == other + hundreds * 100 + tens * 10 + singles);
+                int slow1 = 0;
+                if (value > 5) { slow1 = 5; value -= 5; }
+                int slow5 = 0;
+                if (value > 5) { slow5 = 5; value -= 5; }
+                int slow2 = 0;
+                if (value > 10) { slow2 = 10; value -= 10; }
+                int slow6 = 0;
+                if (value > 10) { slow6 = 10; value -= 10; }
 
-                this.ScrollBy(other * sign);
-                while (tens != 0)
-                {
-                    this.ScrollBy(10 * sign);
-                    tens--;
-                }
-                while (hundreds != 0)
-                {
-                    this.ScrollBy(100 * sign);
-                    hundreds--;
-                }
-                while (singles != 0)
-                {
-                    this.ScrollBy(sign);
-                    singles--;
-                }
+                int fast3 = (value / 2);
+                value -= fast3;
+
+                int fast4 = value;
+
+                Debug.Assert(Math.Abs(numberOfLines) == slow1 + slow2 + fast3 + fast4 + slow5 + slow6);
+
+                this.ScrollBy(slow1 * sign);
+                this.ScrollBy(slow2 * sign);
+                this.ScrollBy(fast3 * sign);
+                this.ScrollBy(fast4 * sign);
+                this.ScrollBy(slow5 * sign);
+                this.ScrollBy(slow6 * sign);
             }
             else
             {
@@ -992,6 +997,13 @@ namespace TextCoreControl
             bool didScroll = false;
 
             int firstVisibleLine = this.FirstVisibleLine();
+            if (this.VisualLineCount > 0 && firstVisibleLine == -1)
+            {
+                // Line collection is completely out of view, bring couple of lines into view.
+                this.scrollBoundsManager.ScrollBy(this.visualLines[0].Position.Y - scrollOffset.Height);
+                firstVisibleLine = this.FirstVisibleLine();
+            }
+
             int lastVisibleLine  = this.LastVisibleLine();
             if (this.VisualLineCount > 0 && firstVisibleLine != -1 && lastVisibleLine != -1)
             {
@@ -1688,9 +1700,10 @@ namespace TextCoreControl
 
         internal int FirstVisibleLine()
         {
+            double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
             for (int i = 0; i < this.VisualLineCount; i++)
             {
-                if (visualLines[i].Position.Y + this.visualLines[i].Height > this.scrollOffset.Height)
+                if (visualLines[i].Position.Y + this.visualLines[i].Height > this.scrollOffset.Height && visualLines[i].Position.Y < screenBottom)
                 {
                     // We have a cached line that is visible on screen
                     return i;
@@ -1705,7 +1718,7 @@ namespace TextCoreControl
             double screenBottom = this.scrollOffset.Height + this.renderHost.ActualHeight;
             for (int i = this.VisualLineCount - 1; i >= 0; i--)
             {
-                if (visualLines[i].Position.Y < screenBottom)
+                if (visualLines[i].Position.Y < screenBottom && (visualLines[i].Position.Y + this.visualLines[i].Height) > this.scrollOffset.Height)
                 {
                     // We have a cached line that is visible on screen
                     return i;
