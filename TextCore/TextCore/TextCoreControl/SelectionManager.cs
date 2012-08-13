@@ -29,6 +29,8 @@ namespace TextCoreControl
             int oldSelectionBegin,
             int oldSelectionEnd,
             List<VisualLine> visualLines,
+            int firstVisibleLine,
+            int lastVisibleLine,
             Document document,
             SizeF scrollOffset,
             RenderTarget renderTarget)
@@ -56,13 +58,13 @@ namespace TextCoreControl
             if (this.ShouldUseHighlightColors || forceRedraw)
             {
                 // Full screen needs repaint
-                firstLine = 0;
-                lastLine = visualLines.Count - 1;
+                firstLine = firstVisibleLine;
+                lastLine = lastVisibleLine;
                 minX = visualLines.Count == 0 ? 0 : visualLines[0].Position.X;
             }
             else
             {
-                for (int k = 0; k < visualLines.Count; k++)
+                for (int k = firstVisibleLine; k < lastVisibleLine; k++)
                 {
                     VisualLine visualLine = (VisualLine)visualLines[k];
                     bool oldSelection = (visualLine.BeginOrdinal <= oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||
@@ -219,7 +221,7 @@ namespace TextCoreControl
             this.selectionEndOrdinal = beginOrdinal;
 
             // Draw selection bails when there is no actual selection area change.
-            this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, document, scrollOffset, renderTarget);
+            this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, 0, visualLines.Count - 1, document, scrollOffset, renderTarget);
         }
 
         /// <summary>
@@ -271,7 +273,7 @@ namespace TextCoreControl
                 }
             }
 
-            this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, document, scrollOffset, renderTarget);
+            this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, 0, visualLines.Count - 1, document, scrollOffset, renderTarget);
         }
 
         public void NotifyOfOrdinalShift(int beginOrdinal, int shift)

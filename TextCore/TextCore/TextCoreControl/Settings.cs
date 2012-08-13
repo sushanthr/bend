@@ -34,11 +34,11 @@ namespace TextCoreControl
             Settings.ShowLineNumber                      = false;
             Settings.MinLineNumberDigits                 = 3;
 
-            Settings.useStringForTab                     = true;
-            Settings.tabString                           = "    ";
+            Settings.UseStringForTab                     = true;
+            Settings.TabString                           = "    ";
 
-            Settings.returnKeyInsertsNewLineCharacter    = true;
-            Settings.allowSmoothScrollBy                 = true;
+            Settings.ReturnKeyInsertsNewLineCharacter    = true;
+            Settings.AllowSmoothScrollBy                 = true;
         }
 
         public static void IncreaseFontSize()
@@ -93,10 +93,10 @@ namespace TextCoreControl
         public static bool          ShowLineNumber;
         public static int           MinLineNumberDigits;
 
-        public static bool          useStringForTab;
-        public static string        tabString;
+        public static bool          UseStringForTab;
+        public static string        TabString;
 
-        public static bool          returnKeyInsertsNewLineCharacter;
-        public static bool          allowSmoothScrollBy;
+        public static bool          ReturnKeyInsertsNewLineCharacter;
+        public static bool          AllowSmoothScrollBy;
     }
 }

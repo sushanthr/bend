@@ -351,7 +351,7 @@ namespace TextCoreControl
             char key = (char)wparam;
             int insertOrdinal = this.caret.Ordinal;
             string content;
-            if (key == '\r' && Settings.returnKeyInsertsNewLineCharacter)
+            if (key == '\r' && Settings.ReturnKeyInsertsNewLineCharacter)
                 content = "\r\n";
             else 
                 content = key.ToString();
@@ -361,6 +361,7 @@ namespace TextCoreControl
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             bool adjustSelection = false;
+            bool isShiftKeyDown = (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift);
 
             switch (e.Key)
             {
@@ -509,7 +510,8 @@ namespace TextCoreControl
                             caretPosition.Y = 0;
                         }
                         int ordinal;
-                        if (this.HitTest(caretPosition, out ordinal, out lineIndex))
+                        // Change caret if we are not in selection mode.
+                        if ((isShiftKeyDown || this.SelectionBegin == this.SelectionEnd) && this.HitTest(caretPosition, out ordinal, out lineIndex))
                         {
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
                             adjustSelection = true;
@@ -535,7 +537,8 @@ namespace TextCoreControl
 
                         int ordinal;
                         int lineIndex;
-                        if (this.HitTest(caretPosition, out ordinal, out lineIndex))
+                        // Change caret if we are not in selection mode.
+                        if ((isShiftKeyDown || this.SelectionBegin == this.SelectionEnd) && this.HitTest(caretPosition, out ordinal, out lineIndex))
                         {
                             this.caret.MoveCaretToLine(this.visualLines[lineIndex], this.document, this.scrollOffset, ordinal);
                             adjustSelection = true;
@@ -599,8 +602,8 @@ namespace TextCoreControl
                 case System.Windows.Input.Key.Tab:
                     {
                         int insertOrdinal = this.caret.Ordinal;
-                        if (Settings.useStringForTab)
-                            document.InsertAt(insertOrdinal, Settings.tabString);
+                        if (Settings.UseStringForTab)
+                            document.InsertAt(insertOrdinal, Settings.TabString);
                         else
                             document.InsertAt(insertOrdinal, "\t");
                         e.Handled = true;
@@ -641,7 +644,7 @@ namespace TextCoreControl
                     this.caret.PrepareBeforeRender();
                     this.hwndRenderTarget.BeginDraw();
                     this.selectionManager.ShouldUseHighlightColors = false;
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                    if (isShiftKeyDown)
                     {
                         this.selectionManager.ExpandSelection(this.CaretOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                     }
@@ -670,7 +673,7 @@ namespace TextCoreControl
             System.Diagnostics.Debug.Assert(Document.UNDEFINED_ORDINAL != ordinalToBeginDelete);
 
             int length = 1;
-            if (Settings.returnKeyInsertsNewLineCharacter)
+            if (Settings.ReturnKeyInsertsNewLineCharacter)
             {
                 char ch = document.CharacterAt(ordinalToBeginDelete);
                 if (ch == '\n')
@@ -933,33 +936,40 @@ namespace TextCoreControl
         /// <param name="numberOfLines">Number of lines to scroll by</param>
         public void SmoothScrollBy(int numberOfLines)
         {
-            if (Settings.allowSmoothScrollBy)
+            if (Settings.AllowSmoothScrollBy)
             {
+                int singles;
+                int tens;
+                int hundreds;
+                int other;
                 int sign = (numberOfLines > 0 ? +1 : -1);
                 int value = Math.Abs(numberOfLines);
 
-                int slow1 = 0;
-                if (value > 5) { slow1 = 5; value -= 5; }
-                int slow5 = 0;
-                if (value > 5) { slow5 = 5; value -= 5; }
-                int slow2 = 0;
-                if (value > 10) { slow2 = 10; value -= 10; }
-                int slow6 = 0;
-                if (value > 10) { slow6 = 10; value -= 10; }
+                singles = value >= 10 ? 10 : value;
+                value = value - singles;
+                tens = value >= 100 ? 10 : value / 10;
+                value = value - tens * 10;
+                hundreds = value >= 500 ? 5 : value / 100;
+                value = value - hundreds * 100;
+                other = value;
+                Debug.Assert(Math.Abs(numberOfLines) == other + hundreds * 100 + tens * 10 + singles);
 
-                int fast3 = (value / 2);
-                value -= fast3;
-
-                int fast4 = value;
-
-                Debug.Assert(Math.Abs(numberOfLines) == slow1 + slow2 + fast3 + fast4 + slow5 + slow6);
-
-                this.ScrollBy(slow1 * sign);
-                this.ScrollBy(slow2 * sign);
-                this.ScrollBy(fast3 * sign);
-                this.ScrollBy(fast4 * sign);
-                this.ScrollBy(slow5 * sign);
-                this.ScrollBy(slow6 * sign);
+                while (tens != 0)
+                {
+                    this.ScrollBy(10 * sign);
+                    tens--;
+                }
+                this.ScrollBy(other * sign);
+                while (hundreds != 0)
+                {
+                    this.ScrollBy(100 * sign);
+                    hundreds--;
+                }
+                while (singles != 0)
+                {
+                    this.ScrollBy(sign);
+                    singles--;
+                }
             }
             else
             {
@@ -1012,16 +1022,19 @@ namespace TextCoreControl
                 if (this.visualLines[lineToVerify].NextOrdinal <= ordinal)
                 {
                     int startLineToVerify = lineToVerify;
-                    double startBottom = this.visualLines[startLineToVerify].Position.Y + this.visualLines[this.VisualLineCount - 1].Height;
+                    double startBottom = this.visualLines[startLineToVerify].Position.Y + this.visualLines[startLineToVerify].Height;
                     while (this.visualLines[lineToVerify].NextOrdinal <= ordinal)
                     {
-                        this.AddLinesBelow(1);
                         lineToVerify++;
                         if (lineToVerify == this.VisualLineCount)
                         {
+                            this.AddLinesBelow(1);
                             // We failed to add a line.
-                            lineToVerify = this.VisualLineCount - 1;
-                            break;
+                            if (lineToVerify == this.VisualLineCount)
+                            {
+                                lineToVerify = this.VisualLineCount - 1;
+                                break;
+                            }
                         }
                     }
                     if (startLineToVerify != lineToVerify)
@@ -1046,13 +1059,16 @@ namespace TextCoreControl
                     int startCountMinusCheckIndex = countMinusCheckIndex;
                     while (this.visualLines[this.VisualLineCount - countMinusCheckIndex].BeginOrdinal > ordinal)
                     {
-                        this.AddLinesAbove(+1);
                         countMinusCheckIndex++;
                         if (this.VisualLineCount - countMinusCheckIndex < 0)
                         {
-                            // we failed to add a line
-                            countMinusCheckIndex = this.VisualLineCount;
-                            break;
+                            this.AddLinesAbove(+1);
+                            if (this.VisualLineCount - countMinusCheckIndex < 0)
+                            {
+                                // we failed to add a line
+                                countMinusCheckIndex = this.VisualLineCount;
+                                break;
+                            }
                         }
                     }
                     if (countMinusCheckIndex != startCountMinusCheckIndex)
@@ -1147,6 +1163,9 @@ namespace TextCoreControl
             }
             else
             {
+                // Bring the end ordinal into view.
+                this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);
+
                 // ScrollBounds Prep for estimate scroll bounds delta due to change.
                 int lastVisualLineNextOrdinal = Document.UNDEFINED_ORDINAL;
                 float trackedVisualLineTop = 0f;
@@ -1305,28 +1324,31 @@ namespace TextCoreControl
 
         internal void NotifyOfSettingsChange()
         {
-            this.textLayoutBuilder.NotifyOfSettingsChange();
-
-            if (this.syntaxHighlightingService != null)
-                this.syntaxHighlightingService.NotifyOfContentChange(Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL, "");
-
-            if (this.contentLineManager != null)
+            if (hwndRenderTarget != null)
             {
-                this.contentLineManager.NotifyOfSettingsChange();
-                this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
+                this.textLayoutBuilder.NotifyOfSettingsChange();
+
+                if (this.syntaxHighlightingService != null)
+                    this.syntaxHighlightingService.NotifyOfContentChange(Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL, "");
+
+                if (this.contentLineManager != null)
+                {
+                    this.contentLineManager.NotifyOfSettingsChange();
+                    this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
+                }
+
+                this.scrollBoundsManager.NotifyOfSettingsChange();
+                this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
+
+                double maxVisualLineWidth;
+                int changeStart, changeEnd;
+                this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
+                this.UpdateCaret(this.caret.Ordinal);
+
+                this.caret.PrepareBeforeRender();
+                this.Render();
+                this.caret.UnprepareAfterRender();
             }
-
-            this.scrollBoundsManager.NotifyOfSettingsChange();
-            this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
-
-            double maxVisualLineWidth;
-            int changeStart, changeEnd;
-            this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
-            this.UpdateCaret(this.caret.Ordinal);
-
-            this.caret.PrepareBeforeRender();
-            this.Render();
-            this.caret.UnprepareAfterRender();
         }
 
         private void UpdateVisualLines(
@@ -1492,6 +1514,8 @@ namespace TextCoreControl
             if (redrawBegin == 0 && redrawEnd == visualLines.Count - 1)
             {
                 renderTarget.Clear(defaultBackgroundBrush.Color);
+                redrawBegin = this.FirstVisibleLine();
+                redrawEnd = this.LastVisibleLine();
             }
             else
             {
@@ -1517,6 +1541,8 @@ namespace TextCoreControl
                 selectionManager.GetSelectionBeginOrdinal(),
                 selectionManager.GetSelectionEndOrdinal(), 
                 this.visualLines,
+                redrawBegin,
+                redrawEnd,
                 this.document, 
                 this.scrollOffset, 
                 renderTarget);
