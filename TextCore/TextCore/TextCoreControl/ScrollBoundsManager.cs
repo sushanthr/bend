@@ -239,6 +239,7 @@ namespace TextCoreControl
 
         private void SetHorizontalScrollBarLimits(double horizontalScrollBound)
         {
+            horizontalScrollBound = horizontalScrollBound / Settings.DefaultTextFormat.FontSize;
             this.horizontalScrollBound = horizontalScrollBound;
             if (horizontalScrollBound > displayManager.AvailbleWidth)
             {
@@ -250,13 +251,13 @@ namespace TextCoreControl
                         {
                             this.hScrollBar.IsEnabled = true;
                             this.hScrollBar.Minimum = 0;
-                            this.hScrollBar.Maximum = horizontalScrollBound;
+                            this.hScrollBar.Maximum = horizontalScrollBound - displayManager.AvailbleWidth;
                             this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
 
                             // Guesstimate the thumb hieght
                             if (displayManager.AvailbleWidth < horizontalScrollBound)
                             {
-                                this.hScrollBar.ViewportSize = horizontalScrollBound * displayManager.AvailbleWidth / (horizontalScrollBound - displayManager.AvailbleWidth);
+                                this.hScrollBar.ViewportSize = horizontalScrollBound * displayManager.AvailbleWidth  / (horizontalScrollBound - displayManager.AvailbleWidth);
                             }
                             else
                             {

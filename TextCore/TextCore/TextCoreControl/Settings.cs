@@ -39,6 +39,7 @@ namespace TextCoreControl
 
             Settings.ReturnKeyInsertsNewLineCharacter    = true;
             Settings.AllowSmoothScrollBy                 = true;
+            Settings.EnableSyntaxHighlighting            = true;
         }
 
         public static void IncreaseFontSize()
@@ -98,5 +99,7 @@ namespace TextCoreControl
 
         public static bool          ReturnKeyInsertsNewLineCharacter;
         public static bool          AllowSmoothScrollBy;
+
+        public static bool          EnableSyntaxHighlighting;
     }
 }

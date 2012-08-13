@@ -88,6 +88,9 @@ namespace TextCoreControl.SyntaxHighlighting
 
         internal void HighlightLine(ref VisualLine visualLine)
         {
+            if (!Settings.EnableSyntaxHighlighting)
+                return;
+
             this.currentVisualLine = visualLine;
             this.dirtySyntaxHighlightBeginOrdinal = Math.Max(this.dirtySyntaxHighlightBeginOrdinal, visualLine.BeginOrdinal);
 

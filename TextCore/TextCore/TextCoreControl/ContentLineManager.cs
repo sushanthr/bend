@@ -21,6 +21,7 @@ namespace TextCoreControl
         internal ContentLineManager(Document document, HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             lineNumberBrush = renderTarget.CreateSolidColorBrush(Settings.LineNumberColor);
+            backgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
             float[] dashArray = { 0.75f, 2.25f };
             leftMarginStrokeStyle = d2dFactory.CreateStrokeStyle(new StrokeStyleProperties(CapStyle.Flat, CapStyle.Flat, CapStyle.Square, LineJoin.Round, 10.0f, DashStyle.Custom, 0.50f), dashArray);
 
@@ -123,14 +124,10 @@ namespace TextCoreControl
                 System.Diagnostics.Debug.Assert(redrawBegin >= 0 && redrawBegin < visualLines.Count);
                 System.Diagnostics.Debug.Assert(redrawEnd >= 0 && redrawEnd < visualLines.Count);
 
-                // Draw the vertical line
-                Point2F topPoint = new Point2F(leftMargin - RIGHT_TWO_PADDING_PX + scrollOffset.Width + PIXEL_SNAP_FACTOR_PX, scrollOffset.Height);
-                Point2F bottomPoint = new Point2F(topPoint.X, topPoint.Y + renderTarget.PixelSize.Height);
-                renderTarget.DrawLine(topPoint, bottomPoint, lineNumberBrush, VERTICAL_LINE_WIDTH_PX, leftMarginStrokeStyle);
-
                 if (visualLines.Count > 0)
                 {
-                    RectF rect = new RectF(LEFT_PADDING_PX, 0, leftMargin - LEFT_PADDING_PX, 0);
+                    RectF rect = new RectF(LEFT_PADDING_PX + scrollOffset.Width, 0, leftMargin - LEFT_PADDING_PX + scrollOffset.Width, 0);
+                    RectF rectBack = new RectF(scrollOffset.Width, 0, leftMargin - LEFT_PADDING_PX + scrollOffset.Width, 0);
                     int maxNumberOfDigits = this.MaxNumberOfDigits;
                     bool lastLineHadHardBreak = false;
                     if (redrawBegin <= 0)
@@ -156,6 +153,10 @@ namespace TextCoreControl
                     // Cache the line number info to speed up future request
                     this.cachedLineNumber = lineNumber;
                     this.cachedOrdinal = firstOrdinal;
+                    
+                    rectBack.Top    = visualLines[redrawBegin].Position.Y;
+                    rectBack.Bottom = visualLines[redrawEnd].Position.Y + visualLines[redrawEnd].Height;
+                    renderTarget.FillRectangle(rectBack, backgroundBrush);
 
                     for (int i = redrawBegin; i <= redrawEnd; i++)
                     {
@@ -173,6 +174,11 @@ namespace TextCoreControl
                         if (lastLineHadHardBreak) lineNumber++;
                     }
                 }
+
+                // Draw the vertical line
+                Point2F topPoint = new Point2F(leftMargin - RIGHT_TWO_PADDING_PX + scrollOffset.Width + PIXEL_SNAP_FACTOR_PX, scrollOffset.Height);
+                Point2F bottomPoint = new Point2F(topPoint.X, topPoint.Y + renderTarget.PixelSize.Height);
+                renderTarget.DrawLine(topPoint, bottomPoint, lineNumberBrush, VERTICAL_LINE_WIDTH_PX, leftMarginStrokeStyle);
             }
         }
 
@@ -334,6 +340,7 @@ namespace TextCoreControl
         int             maxContentLine;
 
         SolidColorBrush lineNumberBrush;
+        SolidColorBrush backgroundBrush;
         StrokeStyle     leftMarginStrokeStyle;
         
         #endregion

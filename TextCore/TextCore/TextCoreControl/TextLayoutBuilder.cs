@@ -29,7 +29,7 @@ namespace TextCoreControl
             nextOrdinal = beginOrdinal;
 
             // Compute line contents
-            string lineText = "";
+            StringBuilder lineText = new StringBuilder();
             float autoWrapLineWidth = 0;
             bool hasHardBreak = false;
 
@@ -44,7 +44,7 @@ namespace TextCoreControl
                     if (tempNextOrdinal != Document.UNDEFINED_ORDINAL &&
                         document.CharacterAt(tempNextOrdinal) == '\n')
                     {
-                        lineText += letter;
+                        lineText.Append(letter);
                         nextOrdinal = tempNextOrdinal;
                         letter = '\n';
                     }
@@ -52,7 +52,7 @@ namespace TextCoreControl
 
                 if (IsHardBreakChar(letter))
                 {
-                    lineText += letter;
+                    lineText.Append(letter);
                     nextOrdinal = document.NextOrdinal(nextOrdinal);
                     hasHardBreak = true;
                     break;
@@ -68,7 +68,7 @@ namespace TextCoreControl
                         // include it inorder to consume atleast one ordinal.
                         if (!mustBreak || nextOrdinal == beginOrdinal)
                         {
-                            lineText += letter;
+                            lineText.Append(letter);
                             autoWrapLineWidth += charWidth;
                             nextOrdinal = document.NextOrdinal(nextOrdinal);
                         }
@@ -116,7 +116,7 @@ namespace TextCoreControl
                         if (wordFitsInLine)
                         {
                             // We have a valid word that fits in the line
-                            lineText += nextWord;
+                            lineText.Append(nextWord);
                             autoWrapLineWidth += wordWidth;
                             nextOrdinal = tempOrdinal;
                         }
@@ -129,14 +129,14 @@ namespace TextCoreControl
                 else
                 {
                     // We dont update line width because it only matters when AutoWrap is enabled.
-                    lineText += letter;
+                    lineText.Append(letter);
                     nextOrdinal = document.NextOrdinal(nextOrdinal);
                 }
             }
 
             System.Diagnostics.Debug.Assert(beginOrdinal != nextOrdinal, "Line building should have consumed atleast 1 ordinal.");
             if (nextOrdinal == Document.UNDEFINED_ORDINAL) hasHardBreak = true;
-            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText, glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
+            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText.ToString(), glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
         }
 

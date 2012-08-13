@@ -38,6 +38,7 @@ namespace TextCoreControl
 
             this.scrollBoundsManager = new ScrollBoundsManager(vScrollBar, hScrollBar, this, renderHost, this.document);
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
+            hScrollBar.Scroll += new ScrollEventHandler(hScrollBar_Scroll);
 
             this.lastMouseWheelTime = System.DateTime.Now.Ticks;
             this.leftMargin = 0;
@@ -777,6 +778,24 @@ namespace TextCoreControl
             // Update caret
             this.UpdateCaret(this.caret.Ordinal);
 
+            if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
+            {
+                hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));
+            }
+            else
+            {
+                hwndRenderTarget.Transform = Matrix3x2F.Identity;
+            }
+
+            this.caret.PrepareBeforeRender();
+            this.Render();
+            this.caret.UnprepareAfterRender();
+        }
+
+
+        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            this.scrollOffset.Width = (float)e.NewValue * Settings.DefaultTextFormat.FontSize;
             if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
             {
                 hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));
