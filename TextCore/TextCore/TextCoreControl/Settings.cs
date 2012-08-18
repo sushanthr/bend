@@ -42,6 +42,15 @@ namespace TextCoreControl
             Settings.EnableSyntaxHighlighting            = true;
         }
 
+        public static void SetFontFamily(string fontfamily)
+        {
+            Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(fontfamily,
+             Settings.DefaultTextFormat.FontSize,
+             Settings.DefaultTextFormat.FontWeight,
+             Settings.DefaultTextFormat.FontStyle,
+             Settings.DefaultTextFormat.FontStretch);
+        }
+        
         public static void IncreaseFontSize()
         {            
             Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName, 

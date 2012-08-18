@@ -166,6 +166,9 @@ namespace TextCoreControl
         public int ReplaceText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
             int count = 0;
+            int lastFindEndIndex = 0;
+            StringBuilder outputString = new StringBuilder();
+
             if (useRegEx)
             {
                 try
@@ -174,13 +177,11 @@ namespace TextCoreControl
                     regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(this.fileContents);
 
-                    int delta = 0;
                     for (int i = 0; i < matches.Count; i++)
                     {
-                        int findIndex = matches[i].Index + delta;
-                        this.fileContents = this.fileContents.Remove(findIndex, matches[i].Length);
-                        this.fileContents = this.fileContents.Insert(findIndex, replaceText);
-                        delta += (replaceText.Length - matches[i].Length);
+                        outputString.Append(this.fileContents.Substring(lastFindEndIndex, matches[i].Index - lastFindEndIndex));
+                        outputString.Append(replaceText);                        
+                        lastFindEndIndex = matches[i].Index + matches[i].Length;
                     }
                     count = matches.Count;
                 }
@@ -191,16 +192,18 @@ namespace TextCoreControl
             }
             else
             {
-                int findIndex = 0;
+                int currentFindIndex = 0;
+
                 while (true)
                 {
-                    findIndex = this.fileContents.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    if (findIndex >= 0)
+                    currentFindIndex = this.fileContents.IndexOf(findText, currentFindIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    if (currentFindIndex >= 0)
                     {
-                        this.fileContents.Remove(findIndex, findText.Length);
-                        this.fileContents.Insert(findIndex, replaceText);
-                        findIndex += replaceText.Length;
+                        outputString.Append(this.fileContents.Substring(lastFindEndIndex, currentFindIndex - lastFindEndIndex));
+                        outputString.Append(replaceText);
                         count++;
+                        currentFindIndex = currentFindIndex + findText.Length;
+                        lastFindEndIndex = currentFindIndex;
                     }
                     else
                     {
@@ -208,7 +211,12 @@ namespace TextCoreControl
                     }
                 }
             }
-                        
+
+            if (count != 0)
+            {
+                outputString.Append(this.fileContents.Substring(lastFindEndIndex));
+                this.fileContents = outputString.ToString();
+            }
             return count;
         }
 
