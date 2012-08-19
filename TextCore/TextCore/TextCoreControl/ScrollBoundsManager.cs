@@ -278,14 +278,20 @@ namespace TextCoreControl
 
         internal void ScrollBy(double offset)
         {
+            this.AdjustVScrollOffset(offset);
+            this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(
+                offset > 0 ? ScrollEventType.SmallIncrement : ScrollEventType.SmallDecrement, 
+                this.vScrollBar.Value));
+        }
+
+        internal double AdjustVScrollOffset(double offset) 
+        {
             double newScrollValue = this.vScrollBar.Value + offset;
             if (newScrollValue < 0) newScrollValue = 0;
             if (newScrollValue > this.vScrollBar.Maximum) newScrollValue = this.vScrollBar.Maximum;
 
             this.vScrollBar.Value = newScrollValue;
-            this.displayManager.vScrollBar_Scroll(this, new ScrollEventArgs(
-                offset > 0 ? ScrollEventType.SmallIncrement : ScrollEventType.SmallDecrement, 
-                this.vScrollBar.Value));
+            return this.vScrollBar.Value;
         }
 
         private void DisableVScrollbar()

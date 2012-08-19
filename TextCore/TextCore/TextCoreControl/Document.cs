@@ -57,7 +57,7 @@ namespace TextCoreControl
             return fileContents != null && fileContents.Length > 0 ? fileContents.Length - 1 : UNDEFINED_ORDINAL;
         }
 
-        internal int NextOrdinal(int ordinal, uint offset = 1)
+        public int NextOrdinal(int ordinal, uint offset = 1)
         {
             ordinal += (int)offset;
             if (ordinal < fileContents.Length)
@@ -65,7 +65,7 @@ namespace TextCoreControl
             return UNDEFINED_ORDINAL;
         }
 
-        internal int PreviousOrdinal(int ordinal, uint offset = 1)
+        public int PreviousOrdinal(int ordinal, uint offset = 1)
         {
             if (ordinal == Document.UNDEFINED_ORDINAL)
                 return Document.UNDEFINED_ORDINAL;

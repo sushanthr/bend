@@ -151,7 +151,7 @@ namespace TextCoreControl
         public void Select(int index, uint length)
         {
             int beginOrdinal = this.document.GetOrdinalForTextIndex(index);
-            this.displayManager.ScrollOrdinalIntoView(index);
+            this.displayManager.ScrollOrdinalIntoView(beginOrdinal);
             this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ true);
             this.displayManager.SelectRange(beginOrdinal, this.document.NextOrdinal(beginOrdinal, length));
         }

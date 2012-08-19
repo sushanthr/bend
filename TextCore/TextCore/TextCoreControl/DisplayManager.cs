@@ -812,7 +812,6 @@ namespace TextCoreControl
 
         private void AddLinesAbove(int minLinesToAdd)
         {
-            float pageBottom = this.scrollOffset.Height + (float)renderHost.ActualHeight;
             // add lines coming in at the top.
             int nextOrdinalBack = this.pageBeginOrdinal;
             double yBottom = this.pageTop;
@@ -888,9 +887,9 @@ namespace TextCoreControl
             }
         }
 
-        public void ScrollBy(int numberOfLines)
+        public void GenerateLinesForScroll(int numberOfLines, out double heightToScrollBy)
         {
-            double offset = 0;
+            heightToScrollBy = 0;
 
             if (numberOfLines > 0)
             {
@@ -908,7 +907,7 @@ namespace TextCoreControl
                 for (int i = lastVisibleLine; i < this.VisualLineCount && numberOfLines > 0; i++)
                 {
                     numberOfLines--;
-                    offset += this.visualLines[i].Height;
+                    heightToScrollBy += this.visualLines[i].Height;
                 }
             }
             else if (numberOfLines < 0)
@@ -930,22 +929,27 @@ namespace TextCoreControl
                 for (int i = firstVisibleLine - 1; i >= 0 && absNumberOfLines > 0; i--)
                 {
                     absNumberOfLines--;
-                    offset -= this.visualLines[i].Height;
+                    heightToScrollBy -= this.visualLines[i].Height;
                 }
             }
 
-            if (offset == 0)
+            if (heightToScrollBy == 0)
             {
                 if (numberOfLines < 0)
                 {
-                    offset = -int.MaxValue;
+                    heightToScrollBy = -int.MaxValue;
                 }
                 else if (numberOfLines > 0)
                 {
-                    offset = int.MaxValue;
+                    heightToScrollBy = int.MaxValue;
                 }
             }
+        }
 
+        public void ScrollBy(int numberOfLines)
+        {
+            double offset;
+            this.GenerateLinesForScroll(numberOfLines, out offset);
             this.scrollBoundsManager.ScrollBy(offset);
         }
 
@@ -955,44 +959,61 @@ namespace TextCoreControl
         /// <param name="numberOfLines">Number of lines to scroll by</param>
         public void SmoothScrollBy(int numberOfLines)
         {
-            if (Settings.AllowSmoothScrollBy)
+            if (numberOfLines != 0)
             {
-                int singles;
-                int tens;
-                int hundreds;
-                int other;
-                int sign = (numberOfLines > 0 ? +1 : -1);
-                int value = Math.Abs(numberOfLines);
+                if (Settings.AllowSmoothScrollBy)
+                {
+                    int finalScroll = (numberOfLines > 0) ? 1 : -1;
+                    numberOfLines = numberOfLines - finalScroll;
+                    double heightToScrollBy;
+                    this.GenerateLinesForScroll(numberOfLines, out heightToScrollBy);
 
-                singles = value >= 10 ? 10 : value;
-                value = value - singles;
-                tens = value >= 100 ? 10 : value / 10;
-                value = value - tens * 10;
-                hundreds = value >= 500 ? 5 : value / 100;
-                value = value - hundreds * 100;
-                other = value;
-                Debug.Assert(Math.Abs(numberOfLines) == other + hundreds * 100 + tens * 10 + singles);
+                    int sign = (heightToScrollBy > 0 ? +1 : -1);
+                    double value = Math.Abs(heightToScrollBy);
+                    double[] offsets = new double[10];
 
-                while (tens != 0)
-                {
-                    this.ScrollBy(10 * sign);
-                    tens--;
+                    offsets[0] = 0;
+                    if (value > 5) { offsets[0] = 5; value -= 5; }
+                    offsets[9] = 0;
+                    if (value > 5) { offsets[9] = 5; value -= 5; }
+                    offsets[1] = 0;
+                    if (value > 10) { offsets[1] = 10; value -= 10; }
+                    offsets[8] = 0;
+                    if (value > 10) { offsets[8] = 10; value -= 10; }
+
+                    offsets[2] = (value / 6);
+                    offsets[3] = offsets[2];
+                    offsets[4] = offsets[2];
+                    offsets[6] = offsets[2];
+                    offsets[7] = offsets[2];
+                    value -= (offsets[2] + offsets[3] + offsets[4] + offsets[6] + offsets[7]);
+                    offsets[5] = value;
+
+                    Debug.Assert(Math.Abs(heightToScrollBy) == offsets[0] + offsets[1] + offsets[2] + offsets[3] + offsets[4] + offsets[5] + offsets[6] + offsets[7] + offsets[8] + offsets[9]);
+
+                    this.caret.PrepareBeforeRender();
+                    for (int i = 0; i <= 9; i++)
+                    {
+                        this.scrollOffset.Height = (float)this.scrollBoundsManager.AdjustVScrollOffset(sign * offsets[i]);
+                        if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
+                        {
+                            hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));
+                        }
+                        else
+                        {
+                            hwndRenderTarget.Transform = Matrix3x2F.Identity;
+                        }
+
+                        this.Render();
+                    }
+                    this.caret.UnprepareAfterRender();
+
+                    this.ScrollBy(finalScroll);
                 }
-                this.ScrollBy(other * sign);
-                while (hundreds != 0)
+                else
                 {
-                    this.ScrollBy(100 * sign);
-                    hundreds--;
+                    this.ScrollBy(numberOfLines);
                 }
-                while (singles != 0)
-                {
-                    this.ScrollBy(sign);
-                    singles--;
-                }
-            }
-            else
-            {
-                this.ScrollBy(numberOfLines);
             }
         }
 
@@ -1037,9 +1058,9 @@ namespace TextCoreControl
             if (this.VisualLineCount > 0 && firstVisibleLine != -1 && lastVisibleLine != -1)
             {
                 // Scroll Down
-                int lineToVerify = lastVisibleLine;
-                if (this.visualLines[lineToVerify].NextOrdinal <= ordinal)
+                if (this.visualLines[lastVisibleLine].NextOrdinal <= ordinal)
                 {
+                    int lineToVerify = lastVisibleLine;
                     int startLineToVerify = lineToVerify;
                     double startBottom = this.visualLines[startLineToVerify].Position.Y + this.visualLines[startLineToVerify].Height;
                     while (this.visualLines[lineToVerify].NextOrdinal <= ordinal)
@@ -1047,7 +1068,7 @@ namespace TextCoreControl
                         lineToVerify++;
                         if (lineToVerify == this.VisualLineCount)
                         {
-                            this.AddLinesBelow(1);
+                            this.AddLinesBelow(10);
                             // We failed to add a line.
                             if (lineToVerify == this.VisualLineCount)
                             {
@@ -1071,30 +1092,36 @@ namespace TextCoreControl
                         didScroll = true;
                     }
                 }
-                else
+                else if (this.visualLines[firstVisibleLine].BeginOrdinal >= ordinal)
                 {
                     // Scroll Up
-                    int countMinusCheckIndex = this.VisualLineCount - firstVisibleLine;
-                    int startCountMinusCheckIndex = countMinusCheckIndex;
-                    while (this.visualLines[this.VisualLineCount - countMinusCheckIndex].BeginOrdinal > ordinal)
+                    int numberOfLinesToScrollBy = 0;
+                    int lineToVerify = firstVisibleLine;
+                    while (this.visualLines[lineToVerify].BeginOrdinal >= ordinal)
                     {
-                        countMinusCheckIndex++;
-                        if (this.VisualLineCount - countMinusCheckIndex < 0)
+                        numberOfLinesToScrollBy++;
+                        lineToVerify--;
+                        if (lineToVerify < 0)
                         {
-                            this.AddLinesAbove(+1);
-                            if (this.VisualLineCount - countMinusCheckIndex < 0)
+                            int oldLineCount = this.VisualLineCount;
+                            this.AddLinesAbove(+10);
+                            int numberOfLinesAdded = this.VisualLineCount - oldLineCount;
+                            if (numberOfLinesAdded <= 0)
                             {
-                                // we failed to add a line
-                                countMinusCheckIndex = this.VisualLineCount;
+                                // Could not add lines. Bail.
                                 break;
+                            }
+                            else
+                            {
+                                lineToVerify += numberOfLinesAdded;
                             }
                         }
                     }
-                    if (countMinusCheckIndex != startCountMinusCheckIndex)
+
+                    if (numberOfLinesToScrollBy != 0)
                     {
-                        int deltaAdded = countMinusCheckIndex - startCountMinusCheckIndex;
                         int extraDelta = 1 * (lastVisibleLine - firstVisibleLine) / 4;
-                        this.SmoothScrollBy(-deltaAdded - extraDelta);
+                        this.SmoothScrollBy(-numberOfLinesToScrollBy - extraDelta);
                         didScroll = true;
                     }
                 }
