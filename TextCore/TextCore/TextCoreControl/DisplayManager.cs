@@ -1054,6 +1054,20 @@ namespace TextCoreControl
                 firstVisibleLine = this.FirstVisibleLine();
             }
 
+            if (this.VisualLineCount > 0 && firstVisibleLine != -1)
+            {
+                // We have a visible line check to see if jumping to start is more optimal.
+                if (Math.Abs(ordinal - this.document.FirstOrdinal()) < Math.Abs(this.visualLines[firstVisibleLine].BeginOrdinal - ordinal))
+                {
+                    // Jump to start.
+                    this.pageBeginOrdinal = this.document.FirstOrdinal();
+                    this.pageTop = 0;
+                    this.visualLines.Clear();
+                    this.scrollBoundsManager.ScrollBy(-int.MaxValue);
+                    firstVisibleLine = this.FirstVisibleLine();
+                }
+            }
+
             int lastVisibleLine  = this.LastVisibleLine();
             if (this.VisualLineCount > 0 && firstVisibleLine != -1 && lastVisibleLine != -1)
             {
