@@ -338,6 +338,7 @@ namespace TextCoreControl
         /// <param name="lparam"></param>
         private void KeyHandler(int wparam, int lparam)
         {
+            char key = (char)wparam;
             if (this.SelectionBegin != this.SelectionEnd)
             {
                 // Active selection needs to be deleted
@@ -348,8 +349,7 @@ namespace TextCoreControl
                     this.document.DeleteAt(selectionBeginOrdinal, cutString.Length);
                 }
             }
-
-            char key = (char)wparam;
+                        
             int insertOrdinal = this.caret.Ordinal;
             string content;
             if (key == '\r' && Settings.ReturnKeyInsertsNewLineCharacter)
@@ -602,11 +602,21 @@ namespace TextCoreControl
                     break;
                 case System.Windows.Input.Key.Tab:
                     {
-                        int insertOrdinal = this.caret.Ordinal;
-                        if (Settings.UseStringForTab)
-                            document.InsertAt(insertOrdinal, Settings.TabString);
-                        else
-                            document.InsertAt(insertOrdinal, "\t");
+                        bool tabsAddedToSelection = false;
+                        if (this.SelectionBegin != this.SelectionEnd)
+                        {
+                            // Need to tabify selection.
+                            tabsAddedToSelection = this.AddTabsToSelection();
+                        }
+
+                        if (!tabsAddedToSelection)
+                        {
+                            int insertOrdinal = this.caret.Ordinal;
+                            if (Settings.UseStringForTab)
+                                document.InsertAt(insertOrdinal, Settings.TabString);
+                            else
+                                document.InsertAt(insertOrdinal, "\t");
+                        }
                         e.Handled = true;
                     }
                     break;
@@ -1198,6 +1208,65 @@ namespace TextCoreControl
             return selectedString.ToString();
         }
 
+        /// <summary>
+        ///     Adds tabs after line breaks in the selected region.
+        /// </summary>
+        /// <returns>true if sucessful, false otherwise</returns>
+        private bool AddTabsToSelection()
+        {
+            bool tabsAdded = false;
+            if (this.SelectionBegin != this.SelectionEnd)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                int beginOrdinal = this.SelectionBegin;
+                // Roll back until after the previous line break.
+                // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
+                while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
+                {
+                    int temp = document.PreviousOrdinal(beginOrdinal);
+                    if (temp == Document.BEFOREBEGIN_ORDINAL)
+                    {
+                        if (Settings.UseStringForTab)
+                            stringBuilder.Append(Settings.TabString);
+                        else
+                            stringBuilder.Append('\t');
+
+                        break;
+                    }
+                    beginOrdinal = temp;
+                }
+
+                int ordinal = beginOrdinal;
+                int length = 0;                
+                while (ordinal < this.SelectionEnd)
+                {
+                    char ch = document.CharacterAt(ordinal);
+                    stringBuilder.Append(ch);
+                    ordinal = document.NextOrdinal(ordinal);
+                    if (ordinal == Document.UNDEFINED_ORDINAL)
+                    {
+                        break;
+                    }
+
+                    if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)))
+                    {
+                        if (Settings.UseStringForTab)
+                            stringBuilder.Append(Settings.TabString);
+                        else
+                            stringBuilder.Append('\t');
+                        tabsAdded = true;
+                    }
+                    length++;
+                }
+
+                if (tabsAdded)
+                {
+                    document.DeleteAt(beginOrdinal, length);
+                    document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                }
+            }
+            return tabsAdded;
+        }
         #endregion
 
         #region Content change handling

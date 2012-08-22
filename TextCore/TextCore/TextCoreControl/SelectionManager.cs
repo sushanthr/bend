@@ -64,7 +64,7 @@ namespace TextCoreControl
             }
             else
             {
-                for (int k = firstVisibleLine; k < lastVisibleLine; k++)
+                for (int k = firstVisibleLine; k <= lastVisibleLine; k++)
                 {
                     VisualLine visualLine = (VisualLine)visualLines[k];
                     bool oldSelection = (visualLine.BeginOrdinal <= oldSelectionBegin && visualLine.NextOrdinal > oldSelectionBegin) ||

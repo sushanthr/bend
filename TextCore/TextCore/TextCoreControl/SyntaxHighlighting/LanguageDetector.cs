@@ -90,17 +90,17 @@ namespace TextCoreControl.SyntaxHighlighting
             {
                 // Form the document string
                 int ordinal = document.FirstOrdinal();
-                string documentString = "";
-                while (ordinal != Document.UNDEFINED_ORDINAL && documentString.Length < 100)
+                StringBuilder documentString = new StringBuilder();
+                while (ordinal != Document.UNDEFINED_ORDINAL && documentString.Length < 1000)
                 {
                     char ch = document.CharacterAt(ordinal);
                     // replace \r's with \n's since regex doesnt like \r.
                     if (ch == '\r') ch = '\n';
 
-                    documentString += ch;
+                    documentString.Append(ch);
                     ordinal = document.NextOrdinal(ordinal);
                 }
-                if (documentString.Length == 100)
+                if (documentString.Length >= 100)
                 {
                     // We have more than 100 characters in this document 
                     // time to stop running heuristics. But run one last time.
@@ -109,8 +109,8 @@ namespace TextCoreControl.SyntaxHighlighting
                         this.heuristicsEnabled = false;
                     }
                 }
-                documentString = documentString.Trim();
-                syntaxFile = GetSyntaxFileUsingHeuristics(documentString);
+                string immutableString = document.ToString();
+                syntaxFile = GetSyntaxFileUsingHeuristics(immutableString);
             }
 
             if (syntaxFile != null)
