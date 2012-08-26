@@ -32,17 +32,6 @@ namespace Bend
             InitializeComponent();
         }
 
-        static Settings()
-        {
-            try
-            {
-                App.FirstRunEvent += new App.FirstRun(FirstRun_IntegrationFeaturesSettingsPersistance);                
-            }
-            catch
-            {        
-            }
-        }
-        
         public void UpdateFocus()
         {
             ((TabItem)this.SettingsTabs.SelectedItem).Focus();
@@ -58,6 +47,11 @@ namespace Bend
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
                 ad.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(ad_UpdateCompleted);
                 ad.UpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_UpdateProgressChanged);
+
+                if (ApplicationDeployment.CurrentDeployment.IsFirstRun)
+                {
+                    UpdateRegistryOnFirstRun();
+                }
             }
 
             this.UpdateButtons();
@@ -90,8 +84,10 @@ namespace Bend
         private void UpdateButtons()
         {
             bool enableContextMenu = true;
+            bool enableAddToPath = true;
             try
             {
+                string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
                 RegistryKey HKCU_SOFTWARE_CLASSES = HKCU.OpenSubKey("Software").OpenSubKey("Classes");
                 RegistryKey BendShortcutKey = HKCU_SOFTWARE_CLASSES.OpenSubKey("*");
@@ -99,7 +95,6 @@ namespace Bend
                 BendShortcutKey = BendShortcutKey != null ? BendShortcutKey.OpenSubKey("Bend") : null;
                 if (BendShortcutKey != null && BendShortcutKey.GetValue("").ToString() == "Bend file")
                 {
-                    string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
                     if (BendShortcutKey.GetValue("Icon").ToString() == BendExePath + ",0")
                     {
                         if (BendShortcutKey.OpenSubKey("Command").GetValue("").ToString() == "rundll32.exe dfshim.dll, ShOpenVerbExtension {29C436A6-392B-4069-8DF7-760271B08F67} %1")
@@ -116,15 +111,27 @@ namespace Bend
                         }
                     }
                 }
+
+                RegistryKey HKCU_ENVIRONMENT = Registry.CurrentUser.CreateSubKey("Environment");
+                string bendDirectory = System.IO.Path.GetDirectoryName(BendExePath);
+                string currentPath;
+                if (HKCU_ENVIRONMENT.GetValue("Path") != null)
+                {
+                    currentPath = HKCU_ENVIRONMENT.GetValue("Path").ToString();
+                    if (currentPath.IndexOf(bendDirectory) >= 0)
+                    {
+                        // We are already in the path
+                        enableAddToPath = false;
+                    }
+                }
             }
             catch
             {
             }
-            if (enableContextMenu)
-            {
-                DisableContextMenuButton.IsEnabled = false;
-                EnableContextMenuButton.IsEnabled = true;
-            }
+
+            DisableContextMenuButton.IsEnabled = !enableContextMenu;
+            EnableContextMenuButton.IsEnabled = enableContextMenu;
+            AppendToPathButton.IsEnabled = enableAddToPath;
         }
 
         private Tab CurrentTab()
@@ -193,7 +200,7 @@ namespace Bend
         }
         #endregion
 
-        #region Application Update   
+        #region Application Update
 
         private void CheckForUpdates_Click(object sender, RoutedEventArgs e)
         {
@@ -294,39 +301,39 @@ namespace Bend
         #region Integration Tab
         private static void WriteRegKeysForShellRightClickContextMenu()
         {
-            RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
-            RegistryKey HKCU_STAR_SHELL = HKCU.CreateSubKey("Software");
-            HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("Classes");
-
-            // Attempt to write the class id that describes bend
+            try
             {
-                RegistryKey HKCR_CLSID_UNIQUE = HKCU_STAR_SHELL.CreateSubKey("CLSID");
-                HKCR_CLSID_UNIQUE = HKCR_CLSID_UNIQUE.CreateSubKey("{29C436A6-392B-4069-8DF7-760271B08F67}");
-                HKCR_CLSID_UNIQUE.SetValue("", "Bend - A modern text editor (Explorer right click menu integration)");
-                string applicationId = "Bend.application, Culture = neutral, PublicKeyToken = 0000000000000000, processorArchitecture = x86";
-                HKCR_CLSID_UNIQUE.SetValue("AppId", applicationId);
-                HKCR_CLSID_UNIQUE.SetValue("DeploymentProviderUrl", "http://bend.codeplex.com/releases/clickonce/Bend.application");
-            }
+                RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                RegistryKey HKCU_STAR_SHELL = HKCU.CreateSubKey("Software");
+                HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("Classes");
 
-            // Write the registry entries that add bend to the right click menu
-            HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("*");
-            HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("Shell");
-            RegistryKey BendShortcutKey = HKCU_STAR_SHELL.CreateSubKey("Bend");
-            BendShortcutKey.SetValue("", "Bend file");
-            string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            BendShortcutKey.SetValue("Icon", BendExePath + ",0");
-            BendShortcutKey.CreateSubKey("Command").SetValue("", "rundll32.exe dfshim.dll, ShOpenVerbExtension {29C436A6-392B-4069-8DF7-760271B08F67} %1");
+                // Attempt to write the class id that describes bend
+                {
+                    RegistryKey HKCR_CLSID_UNIQUE = HKCU_STAR_SHELL.CreateSubKey("CLSID");
+                    HKCR_CLSID_UNIQUE = HKCR_CLSID_UNIQUE.CreateSubKey("{29C436A6-392B-4069-8DF7-760271B08F67}");
+                    HKCR_CLSID_UNIQUE.SetValue("", "Bend - A modern text editor (Explorer right click menu integration)");
+                    string applicationId = "Bend.application, Culture = neutral, PublicKeyToken = 0000000000000000, processorArchitecture = x86";
+                    HKCR_CLSID_UNIQUE.SetValue("AppId", applicationId);
+                    HKCR_CLSID_UNIQUE.SetValue("DeploymentProviderUrl", "http://bend.codeplex.com/releases/clickonce/Bend.application");
+                }
+
+                // Write the registry entries that add bend to the right click menu
+                HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("*");
+                HKCU_STAR_SHELL = HKCU_STAR_SHELL.CreateSubKey("Shell");
+                RegistryKey BendShortcutKey = HKCU_STAR_SHELL.CreateSubKey("Bend");
+                BendShortcutKey.SetValue("", "Bend file");
+                string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                BendShortcutKey.SetValue("Icon", BendExePath + ",0");
+                BendShortcutKey.CreateSubKey("Command").SetValue("", "rundll32.exe dfshim.dll, ShOpenVerbExtension {29C436A6-392B-4069-8DF7-760271B08F67} %1");
+            }
+            catch
+            {
+            }
         }
 
         private void EnableContextMenu_Click(object sender, RoutedEventArgs e)
-        {   
-            try
-            {
-                WriteRegKeysForShellRightClickContextMenu();
-            }
-            catch
-            {                
-            }
+        {
+            WriteRegKeysForShellRightClickContextMenu();
             this.UpdateButtons();
         }
 
@@ -350,58 +357,59 @@ namespace Bend
 
         private static void UpdateEnvironmentPathWithExecutableDirectory(bool forceWrite)
         {
-            RegistryKey HKCU_ENVIRONMENT = Registry.CurrentUser.CreateSubKey("Environment");
-            string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string bendDirectory = System.IO.Path.GetDirectoryName(BendExePath);
-            string currentPath;
-            if (HKCU_ENVIRONMENT.GetValue("Path") != null)
+            try
             {
-                currentPath = HKCU_ENVIRONMENT.GetValue("Path").ToString();
-                if (currentPath.IndexOf(bendDirectory) >= 0)
+                RegistryKey HKCU_ENVIRONMENT = Registry.CurrentUser.CreateSubKey("Environment");
+                string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                string bendDirectory = System.IO.Path.GetDirectoryName(BendExePath);
+                string currentPath;
+                if (HKCU_ENVIRONMENT.GetValue("Path") != null)
                 {
-                    // We are already in the path nothing to do here.
-                    return;
-                }
-                else if (currentPath.IndexOf("bend..tion") >= 0)
-                {
-                    // There is a previous version of bend registered in the path, we need to replace it.
-                    forceWrite = true;
-                    string[] paths = currentPath.Split(';');
-                    currentPath = "";
-                    for (int i = 0; i < paths.Length; i++)
+                    currentPath = HKCU_ENVIRONMENT.GetValue("Path").ToString();
+                    if (currentPath.IndexOf(bendDirectory) >= 0)
                     {
-                        if (paths[i].IndexOf("bend..tion") < 0)
+                        // We are already in the path nothing to do here.
+                        return;
+                    }
+                    else if (currentPath.IndexOf("bend..tion") >= 0)
+                    {
+                        // There is a previous version of bend registered in the path, we need to replace it.
+                        forceWrite = true;
+                        string[] paths = currentPath.Split(';');
+                        currentPath = "";
+                        for (int i = 0; i < paths.Length; i++)
                         {
-                            // This path is not the path the bend, retain it.
-                            currentPath += paths[i];
+                            if (paths[i].IndexOf("bend..tion") < 0)
+                            {
+                                // This path is not the path the bend, retain it.
+                                currentPath += paths[i];
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                currentPath = "";
-            }
+                else
+                {
+                    currentPath = "";
+                }
 
-            if (forceWrite)
+                if (forceWrite)
+                {
+                    currentPath = bendDirectory + ";" + currentPath;
+                    HKCU_ENVIRONMENT.SetValue("Path", currentPath);
+                }
+            }
+            catch
             {
-                currentPath = bendDirectory + ";" + currentPath;
-                HKCU_ENVIRONMENT.SetValue("Path", currentPath);
             }
         }
 
         private void AppendToPath_Click(object sender, RoutedEventArgs e)
-        {            
-            try
-            {
-                UpdateEnvironmentPathWithExecutableDirectory(/*forceWrite*/true);
-            }
-            catch
-            {                
-            }
+        {
+            UpdateEnvironmentPathWithExecutableDirectory(/*forceWrite*/true);
+            UpdateButtons();
         }
 
-        static void FirstRun_IntegrationFeaturesSettingsPersistance()
+        private void UpdateRegistryOnFirstRun()
         {
             RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
             RegistryKey HKCU_SOFTWARE_CLASSES = HKCU.OpenSubKey("Software").OpenSubKey("Classes");

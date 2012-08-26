@@ -36,10 +36,7 @@ namespace Bend
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    {        
-        public delegate void FirstRun();
-        static public event FirstRun FirstRunEvent;
-
+    {
         public App()
         {
             bool debugApplication = false;
@@ -74,15 +71,15 @@ namespace Bend
                 argument = "";
             }
 
-            if (!argumentIsFile && 
+            if (!argumentIsFile &&
                 AppDomain.CurrentDomain.SetupInformation.ActivationArguments != null &&
-                AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData != null && 
+                AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData != null &&
                 AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData.Length > 0)
             {
                 argument = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData[0];
                 argumentIsFile = System.IO.File.Exists(argument);
             }
-            
+
             IntPtr hwnd;
             if (argumentIsFile && Microsoft.Windows.Shell.WindowChrome.FindOtherApplicationInstance(out hwnd))
             {
@@ -97,12 +94,7 @@ namespace Bend
                 this.Shutdown();
             }
 
-            if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun && App.FirstRunEvent != null)
-            {
-                App.FirstRunEvent();
-            }
-
-            ICLRRuntimeInfo runtimeInfo = (ICLRRuntimeInfo)RuntimeEnvironment.GetRuntimeInterfaceAsObject(Guid.Empty, typeof(ICLRRuntimeInfo).GUID); 
+            ICLRRuntimeInfo runtimeInfo = (ICLRRuntimeInfo)RuntimeEnvironment.GetRuntimeInterfaceAsObject(Guid.Empty, typeof(ICLRRuntimeInfo).GUID);
             runtimeInfo.BindAsLegacyV2Runtime();
         }
     }

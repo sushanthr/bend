@@ -48,11 +48,11 @@
                         line.
                     </TextBlock>
                     <WrapPanel Grid.Column="1" Margin="0,10,0,10" HorizontalAlignment="Right">
-                        <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="AppendToPath_Click">APPEND TO PATH</Button>
+                            <Button x:Name="AppendToPathButton" Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="AppendToPath_Click">APPEND TO PATH</Button>
                     </WrapPanel>
                     <TextBlock Foreground="Silver" Margin="0,10,0,10" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
                         Bend automatically checks for updates once every 7 days. But, if you 
-                        want the latest and greatest now - go ahead and give this button a push.                         
+                        want the latest and greatest now - go ahead and give this button a push.
                     </TextBlock>
                     <Rectangle Height="3" Fill="#19A2DE" Width="125"  HorizontalAlignment="Right" Margin="0, 10, 10, 0" ClipToBounds="True">
                             <Rectangle.Clip>
