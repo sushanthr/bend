@@ -98,10 +98,6 @@
     <Reference Include="EfTidyNet">
       <HintPath>Plugins\EfTidyNet.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Windows.Shell, Version=3.0.50506.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dll\Microsoft.Windows.Shell.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
       <HintPath>.\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
@@ -257,7 +253,6 @@
     <Resource Include="Images\restore.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dll\Microsoft.Windows.Shell.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
     <Resource Include="Images\SetttingsPattern.png" />
@@ -409,6 +404,12 @@
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Microsoft.Windows.Shell\Microsoft.Windows.Shell.csproj">
+      <Project>{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}</Project>
+      <Name>Microsoft.Windows.Shell</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

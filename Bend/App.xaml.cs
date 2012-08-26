@@ -39,44 +39,50 @@ namespace Bend
     {
         public App()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed)
+            bool debugApplication = false;
+            // this application was started up from the exe that isnt good.
+            // restart application through clickonce.
+            string[] commandLineArgs = Environment.GetCommandLineArgs();
+            bool argumentIsFile = false;
+            string argument;
+            if (commandLineArgs.Length > 1)
             {
-                bool debugApplication = false;
-                // this application was started up from the exe that isnt good.
-                // restart application through clickonce.
-                string[] commandLineArgs = Environment.GetCommandLineArgs();
-                string argument;
-                if (commandLineArgs.Length > 1)
+                if (commandLineArgs[1] == "/DEBUG")
                 {
-                    if (commandLineArgs[1] == "/DEBUG")
-                    {
-                        // To allow debugging continue to run this application.
-                        debugApplication = true;
-                        argument = "";
-                    }
-                    else
-                    {
-                        if (System.IO.Path.IsPathRooted(commandLineArgs[1]))
-                        {
-                            argument = commandLineArgs[1];
-                        }
-                        else
-                        {
-                            argument = Environment.CurrentDirectory + "\\" + commandLineArgs[1];
-                        }
-                    }
+                    // To allow debugging continue to run this application.
+                    debugApplication = true;
+                    argument = "";
                 }
                 else
                 {
-                    argument = "";
+                    if (System.IO.Path.IsPathRooted(commandLineArgs[1]))
+                    {
+                        argument = commandLineArgs[1];
+                    }
+                    else
+                    {
+                        argument = Environment.CurrentDirectory + "\\" + commandLineArgs[1];
+                    }
+                    argumentIsFile = System.IO.File.Exists(argument);
                 }
-
-                if (!debugApplication)                
-                {
-                    string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
-                    System.Diagnostics.Process.Start(clickOnceApplication, argument);
-                    this.Shutdown();
-                }
+            }
+            else
+            {
+                argument = "";
+            }
+                        
+            IntPtr hwnd;
+            if (argumentIsFile && Microsoft.Windows.Shell.WindowChrome.FindOtherApplicationInstance(out hwnd))
+            {
+                // There is another instance of bend running somewhere, send this file to it.
+                Microsoft.Windows.Shell.WindowChrome.SendFileNameToHwnd(hwnd, argument);
+                this.Shutdown();
+            }
+            else if (!ApplicationDeployment.IsNetworkDeployed && !debugApplication)
+            {
+                string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
+                System.Diagnostics.Process.Start(clickOnceApplication, argument);
+                this.Shutdown();
             }
 
             ICLRRuntimeInfo runtimeInfo = (ICLRRuntimeInfo)RuntimeEnvironment.GetRuntimeInterfaceAsObject(Guid.Empty, typeof(ICLRRuntimeInfo).GUID); 

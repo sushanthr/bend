@@ -86,12 +86,13 @@ namespace Bend
             this.windowChrome.CaptionHeight = 40;
             this.windowChrome.GlassFrameThickness = new Thickness(0);
             this.windowChrome.CornerRadius = new CornerRadius(0);
+            this.windowChrome.RecivedFileNameEvent += new WindowChrome.RecivedFileNameEventHandler(windowChrome_RecivedFileNameEvent);
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.findResults = new List<FindResult>();
             this.showFindOnPageResult = new System.Threading.SemaphoreSlim(0, 1);
         }
-        
+
         internal Tab GetActiveTab()
         {
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
@@ -121,8 +122,10 @@ namespace Bend
             int style = GetWindowLong(this.mainWindow.Handle, GWL_STYLE);
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
             this.shadowWindow = new ShadowWindow(this);
+#if DEBUG
             System.Diagnostics.Debug.Assert(RenderCapability.Tier == 0x00020000);
-            RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);
+            RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);            
+#endif
 
             maximizeImage = new BitmapImage();
             maximizeImage.BeginInit();
@@ -216,49 +219,58 @@ namespace Bend
 
         }
 
+        void windowChrome_RecivedFileNameEvent(string fileName)
+        {
+            this.AddTabWithFile(fileName);
+        }
+        
+        private void AddTabWithFile(string filePath)
+        {
+            if (System.IO.File.Exists(filePath))
+            {
+                Tab newTab = new Tab();
+                tab.Add(newTab);
+                // Hook up tab band event handlers
+                newTab.Title.MouseLeftButtonUp += this.TabClick;
+                newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
+                newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
+                // TODO: INTEGRATE:
+                // newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+
+                newTab.Title.Opacity = 0.5;
+                newTab.TextEditor.Visibility = Visibility.Hidden;
+
+                TabBar.Children.Add(newTab.Title);
+                Editor.Children.Add(newTab.TextEditor);
+                newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+                newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
+
+                newTab.OpenFile(filePath);
+
+                // Switch focus to the new file
+                if (currentTabIndex >= 0)
+                {
+                    tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                    tab[currentTabIndex].Title.Opacity = 0.5;
+                }
+
+                int newTabFocus = tab.Count - 1;
+                this.currentTabIndex = newTabFocus;
+                tab[newTabFocus].Title.Opacity = 1.0;
+                tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
+                tab[newTabFocus].TextEditor.SetFocus();
+            }
+        }
+
         private void Window_Drop(object sender, DragEventArgs e)
         {
             if (e.Data is System.Windows.DataObject &&
                 ((System.Windows.DataObject)e.Data).ContainsFileDropList())
             {
-                bool fileAdded = false;
-                foreach (string filePath in ((System.Windows.DataObject)e.Data).GetFileDropList())
+                System.Collections.Specialized.StringCollection filePaths = ((System.Windows.DataObject)e.Data).GetFileDropList();
+                foreach (string filePath in filePaths)
                 {
-                    Tab newTab = new Tab();
-                    tab.Add(newTab);
-                    // Hook up tab band event handlers
-                    newTab.Title.MouseLeftButtonUp += this.TabClick;
-                    newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
-                    newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
-                    // TODO: INTEGRATE:
-                    // newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
-
-                    newTab.Title.Opacity = 0.5;
-                    newTab.TextEditor.Visibility = Visibility.Hidden;
-
-                    TabBar.Children.Add(newTab.Title);
-                    Editor.Children.Add(newTab.TextEditor);
-                    newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
-                    newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
-                    
-                    newTab.OpenFile(filePath);                    
-                    fileAdded = true;
-                }
-
-                if (fileAdded)
-                {
-                    // Switch focus to the new file
-                    if (currentTabIndex >= 0)
-                    {
-                        tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
-                        tab[currentTabIndex].Title.Opacity = 0.5;
-                    }
-                    
-                    int newTabFocus = tab.Count - 1;
-                    this.currentTabIndex = newTabFocus;
-                    tab[newTabFocus].Title.Opacity = 1.0;
-                    tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
-                    tab[newTabFocus].TextEditor.SetFocus();
+                    this.AddTabWithFile(filePath);
                 }
             }
         }
@@ -301,7 +313,7 @@ namespace Bend
                 this.WindowState = System.Windows.WindowState.Maximized;
                 this.isFullScreen = true;
                 // Neon Carrot (Crayola) (Hex: #FF9933) (RGB: 255, 153, 51)
-                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(255, 153, 51));
+                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(25, 162, 222));
             }
         }
 

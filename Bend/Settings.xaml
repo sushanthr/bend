@@ -54,16 +54,16 @@
                         Bend automatically checks for updates once every 7 days. But, if you 
                         want the latest and greatest now - go ahead and give this button a push.                         
                     </TextBlock>
-                    <WrapPanel Grid.Column="1" Margin="0,10,0,0" HorizontalAlignment="Right">
-                        <Button x:Name="CheckForUpdatesButton" Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="CheckForUpdates_Click">CHECK FOR UPDATES</Button>                        
-                    </WrapPanel>
-                        <Rectangle Height="3" Fill="#19A2DE" Width="125"  HorizontalAlignment="Right" Margin="0, 0, 10, 10" ClipToBounds="True">
+                    <Rectangle Height="3" Fill="#19A2DE" Width="125"  HorizontalAlignment="Right" Margin="0, 10, 10, 0" ClipToBounds="True">
                             <Rectangle.Clip>
                                 <RectangleGeometry x:Name="ProgressBar" Rect="0,0,0,5">
-                                    
+
                                 </RectangleGeometry>
                             </Rectangle.Clip>
                         </Rectangle>
+                    <WrapPanel Grid.Column="1" Margin="0,0,0,10" HorizontalAlignment="Right">
+                        <Button x:Name="CheckForUpdatesButton" Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="CheckForUpdates_Click">CHECK FOR UPDATES</Button>                        
+                    </WrapPanel>                    
                     </StackPanel>
                 </Grid>
             </TabItem>
