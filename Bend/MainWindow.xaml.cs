@@ -491,6 +491,16 @@ namespace Bend
                 BackImage_MouseDown(null, null);
             }
         }
+        
+        private void CommandResetZoom(object sender, ExecutedRoutedEventArgs e)
+        {
+            TextCoreControl.Settings.ResetFontSize();
+            if (this.currentTabIndex >= 0)
+            {
+                TextCoreControl.TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
+                textEditor.RefreshDisplay();
+            }            
+        }
         #endregion
 
         #region Menu band management
@@ -574,17 +584,22 @@ namespace Bend
                 SettingsGridRotateTransform.CenterX = this.Width / 1.5;
                 SettingsGridRotateTransform.CenterY = this.Height;
 
+                if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+                    this.tab[this.currentTabIndex].TextEditor.Rasterize();
+
                 if (PersistantStorage.StorageObject.SettingsPageAnimation)
                 {
                     settingsAnimation.SpeedRatio = 1;
+                    settingsAnimation.Begin(this);
                 }
                 else
                 {
-                    settingsAnimation.SpeedRatio = 1000;                    
-                }
-                if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
-                    this.tab[this.currentTabIndex].TextEditor.Rasterize();
-                settingsAnimation.Begin(this);
+                    Settings.Visibility = System.Windows.Visibility.Visible;
+                    MainWindowGridRotateTransform.Angle = 180;                    
+                    SettingsGridRotateTransform.Angle = 0;
+                    settingsAnimation.SpeedRatio = 1000;
+                    settingsAnimation.Begin(this);
+                }                
             }
             catch
             {
@@ -604,12 +619,17 @@ namespace Bend
                 if (PersistantStorage.StorageObject.SettingsPageAnimation)
                 {
                     settingsAnimation.SpeedRatio = 1;
+                    settingsAnimation.Begin(this);
                 }
                 else
-                {
-                    settingsAnimation.SpeedRatio = 1000;                  
+                {                    
+                    MainWindowGridRotateTransform.Angle = 0;                    
+                    SettingsGridRotateTransform.Angle = -180;
+                    Settings.Visibility = System.Windows.Visibility.Hidden;
+                    settingsAnimation.SpeedRatio = 1000;
+                    settingsAnimation.Begin(this);
                 }
-                settingsAnimation.Begin(this);
+                
             }
             catch
             {

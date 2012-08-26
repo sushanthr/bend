@@ -99,8 +99,6 @@ namespace Bend
                 textEditor.HorizontalAlignment = HorizontalAlignment.Stretch;
                 textEditor.Margin = new Thickness(0);
                 textEditor.VerticalAlignment = VerticalAlignment.Stretch;
-                textEditor.PreviewMouseWheel += Tab.EditorPreviewMouseWheel;
-                textEditor.PreviewKeyDown += Tab.EditorPreviewKeyDown;
                 TextCoreControl.Settings.ShowLineNumber = true;
 
                 this.fileChangedWatcher = null;
@@ -177,76 +175,6 @@ namespace Bend
             }
             this.Title.Opacity = originalOpacity;
             showFileModifiedDialog.Release();
-        }
-
-        private static void EditorPreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                switch (e.Key)
-                {
-                    case Key.Add:
-                    case Key.OemPlus:
-                        // Zoom In
-                        {
-                            Control control = (Control)sender;
-                            double fontSize = control.FontSize + 1;
-                            if (fontSize > 0)
-                            {
-                                control.FontSize = fontSize;
-                            }
-                            else
-                            {
-                                control.FontSize = 1;
-                            }
-                            e.Handled = true;
-                        }
-                        break;
-                    case Key.Subtract:
-                    case Key.OemMinus:
-                        // Zoom Out
-                        {
-                            Control control = (Control)sender;
-                            double fontSize = control.FontSize - 1;
-                            if (fontSize > 0)
-                            {
-                                control.FontSize = fontSize;
-                            }
-                            else
-                            {
-                                control.FontSize = 1;
-                            }
-                            e.Handled = true;
-                        }
-                        break;
-                    case Key.D0:
-                        {
-                            // Reset Zoom
-                            Control control = (Control)sender;
-                            control.FontSize = 14;
-                            e.Handled = true;
-                        }
-                        break;
-                }
-            }
-        }
-
-        private static void EditorPreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                Control control = (Control)sender;
-                double fontSize = control.FontSize + (e.Delta > 0 ? 1 : -1);
-                if (fontSize > 0)
-                {
-                    control.FontSize = fontSize;
-                }
-                else
-                {
-                    control.FontSize = 1;
-                }
-                e.Handled = true;
-            }
         }
 
         internal void Close()

@@ -62,6 +62,7 @@ namespace Bend
                 else
                 {
                     this.Shadow.Opacity = 1.0;
+                    this.Show();
                 }                
                 this.isMinimized = false;
             }
@@ -69,7 +70,7 @@ namespace Bend
 
         void fadeInTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            this.Dispatcher.Invoke(new Action(delegate { this.Shadow.Opacity = 1.0; }));
+            this.Dispatcher.Invoke(new Action(delegate { this.Shadow.Opacity = 1.0; this.Show(); }));
             fadeInTimer.Stop();
         }
 
