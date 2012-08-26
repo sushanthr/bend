@@ -1,0 +1,359 @@
+;   TextPad syntax definitions for 
+;   XSL formatting objects
+;   W3C Candidate Recommendation 21 November 2000
+;   Copyright (C) 2001 Pavel Zampach - zampach@nemcb.cz
+
+HTML=1
+
+[Syntax]
+Namespace1 = 2
+IgnoreCase = No
+KeyWordLength =
+BracketChars =
+OperatorChars = ?/
+PreprocStart =
+SyntaxStart = <
+SyntaxEnd = >
+CommentStart = !--
+CommentEnd = -->
+CommentStartAlt = &
+CommentEndAlt = ;
+SingleComment =
+SingleCommentCol =
+SingleCommentAlt =
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines = Yes
+StringStart = "
+StringEnd = "
+StringAlt = '
+StringEsc =
+CharStart = &
+CharEnd = ;
+CharEsc =
+;
+;   top-level elements
+;
+[Keywords 1]
+fo:root
+fo:block
+fo:block-container
+fo:table-and-caption
+fo:table
+;
+; general XML keywords
+;
+!DOCTYPE
+xml
+xml-stylesheet
+version
+encoding
+;
+;   elements
+;
+[Keywords 2]
+fo:page-sequence
+fo:page-sequence-master
+fo:single-page-master-reference
+fo:repeatable-page-master-reference
+fo:repeatable-page-master-alternatives
+fo:conditional-page-master-reference
+fo:layout-master-set
+fo:simple-page-master
+fo:region-body
+fo:region-before
+fo:region-after
+fo:region-start
+fo:region-end
+fo:declarations
+fo:color-profile
+fo:flow
+fo:static-content
+fo:title
+fo:bidi-override
+fo:character
+fo:initial-property-set
+fo:external-graphic
+fo:instream-foreign-object
+fo:inline
+fo:inline-container
+fo:leader
+fo:page-number
+fo:page-number-citation
+fo:table-column
+fo:table-caption
+fo:table-header
+fo:table-footer
+fo:table-body
+fo:table-row
+fo:table-cell
+fo:list-block
+fo:list-item
+fo:list-item-body
+fo:list-item-label
+fo:basic-link
+fo:multi-switch
+fo:multi-case
+fo:multi-toggle
+fo:multi-properties
+fo:multi-property-set
+fo:float
+fo:footnote
+fo:footnote-body
+fo:wrapper
+fo:marker
+fo:retrieve-marker
+;
+;   attributes
+;
+[Keywords 3]
+absolute-position
+active-state
+alignment-adjust
+alignment-baseline
+auto-restore
+azimuth
+background
+background-attachment
+background-color
+background-image
+background-position
+background-position-horizontal
+background-position-vertical
+background-repeat
+baseline-shift
+blank-or-not-blank
+block-progression-dimension
+border
+border-after-color
+border-after-precedence
+border-after-style
+border-after-width
+border-before-color
+border-before-precedence
+border-before-style
+border-before-width
+border-bottom
+border-bottom-color
+border-bottom-style
+border-bottom-width
+border-collapse
+border-color
+border-end-color
+border-end-precedence
+border-end-style
+border-end-width
+border-left
+border-left-color
+border-left-style
+border-left-width
+border-right
+border-right-color
+border-right-style
+border-right-width
+border-separation
+border-spacing
+border-start-color
+border-start-precedence
+border-start-style
+border-start-width
+border-style
+border-top
+border-top-color
+border-top-style
+border-top-width
+border-width
+bottom
+break-after
+break-before
+caption-side
+case-name
+case-title
+character
+clear
+clip
+color
+color-profile-name
+column-count
+column-gap
+column-number
+column-width
+content-height
+content-type
+content-width
+country
+cue
+cue-after
+cue-before
+destination-placement-offset
+direction
+display-align
+dominant-baseline
+elevation
+empty-cells
+end-indent
+ends-row
+extent
+external-destination
+float
+flow-name
+font
+font-family
+font-selection-strategy
+font-size
+font-size-adjust
+font-stretch
+font-style
+font-variant
+font-weight
+force-page-count
+format
+glyph-orientation-horizontal
+glyph-orientation-vertical
+grouping-separator
+grouping-size
+height
+hyphenate
+hyphenation-character
+hyphenation-keep
+hyphenation-ladder-count
+hyphenation-push-character-count
+hyphenation-remain-character-count
+id
+indicate-destination
+initial-page-number
+inline-progression-dimension
+internal-destination
+keep-together
+keep-with-next
+keep-with-previous
+language
+last-line-end-indent
+leader-alignment
+leader-length
+leader-pattern
+leader-pattern-width
+left
+letter-spacing
+letter-value
+linefeed-treatment
+line-height
+line-height-shift-adjustment
+line-stacking-strategy
+margin
+margin-bottom
+margin-left
+margin-right
+margin-top
+marker-class-name
+master-name
+max-height
+maximum-repeats
+max-width
+media-usage
+min-height
+min-width
+number-columns-repeated
+number-columns-spanned
+number-rows-spanned
+odd-or-even
+orphans
+overflow
+padding
+padding-after
+padding-before
+padding-bottom
+padding-end
+padding-left
+padding-right
+padding-start
+padding-top
+page-break-after
+page-break-before
+page-break-inside
+page-height
+page-position
+page-width
+pause
+pause-after
+pause-before
+pitch
+pitch-range
+play-during
+position
+precedence
+provisional-distance-between-starts
+provisional-label-separation
+reference-orientation
+ref-id
+region-name
+relative-align
+relative-position
+rendering-intent
+retrieve-boundary
+retrieve-class-name
+retrieve-position
+richness
+right
+role
+rule-style
+rule-thickness
+scaling
+scaling-method
+score-spaces
+script
+show-destination
+size
+source-document
+space-after
+space-before
+space-end
+space-start
+space-treatment
+span
+speak
+speak-header
+speak-numeral
+speak-punctuation
+speech-rate
+src
+start-indent
+starting-state
+starts-row
+stress
+suppress-at-line-break
+switch-to
+table-layout
+table-omit-footer-at-break
+table-omit-header-at-break
+target-presentation-context
+target-processing-context
+target-stylesheet
+text-align
+text-align-last
+text-altitude
+text-decoration
+text-depth
+text-indent
+text-shadow
+text-transform
+top
+treat-as-word-space
+unicode-bidi
+vertical-align
+visibility
+voice-family
+volume
+white-space
+white-space-collapse
+widows
+width
+word-spacing
+wrap-option
+writing-mode
+z-index
+;
+xml:lang
+xml:space
+xmlns
+

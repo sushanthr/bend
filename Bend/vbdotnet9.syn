@@ -1,0 +1,256 @@
+; TextPad syntax definitions for VB 9.0 (Visual Studio 2008)
+
+
+; Updated: 12/Apr/2005 by Guillermo 'guille' Som (guille@mvps.org)
+; Updated: 02/Apr/2007 By Guillermo 'guille' Som (guille@mvps.org)
+; Updated: 03/Jan/2008 By Guillermo 'guille' Som (guille@mvps.org)
+
+
+; Author: Guillermo 'guille' Som
+;         http://www.elguille.info/
+;         guille@mvps.org
+
+; This file is freely distributable and modifiable.
+
+; If you modify this file to keep it current with VB.Net,
+; Please send your updated file to support@textpad.com so that others may benefit from it.
+
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = Yes
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_
+BracketChars = {[()]}
+OperatorChars = ^*/\+-&<>=%
+PreprocStart = #
+SyntaxStart =
+SyntaxEnd =
+CommentStart =
+CommentEnd =
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = '
+SingleCommentCol =
+SingleCommentAlt = '@
+SingleCommentColAlt =
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc =
+CharStart =
+CharEnd =
+CharEsc =
+
+[Preprocessor keywords]
+#Const
+#If
+#ElseIf
+#Else
+;#End If
+#End
+#Region
+#ExternalSource
+
+[Keywords 1]
+; shows bright blue by default
+
+;------------------------------------------------------------------
+; Keywords list update by the keywords shown in the documentation:
+; Visual Basic Language Keywords
+;------------------------------------------------------------------
+AddHandler
+AddressOf
+Aggregate
+Alias
+And
+AndAlso
+Ansi
+As
+Assembly
+Auto
+Binary
+Boolean
+By
+ByRef
+Byte
+ByVal
+Call
+Case
+Catch
+CBool
+CByte
+CChar
+CDate
+CDbl
+CDec
+Char
+CInt
+Class
+CLng
+CObj
+Compare
+Const
+Continue
+CSByte
+CShort
+CSng
+CStr
+CType
+CUInt
+CULng
+CUShort
+Custom
+Date
+Decimal
+Declare
+Default
+Delegate
+Dim
+DirectCast
+Distinct
+Do
+Double
+Each
+Else
+ElseIf
+End
+;EndIf
+Enum
+Equals
+Erase
+Error
+Event
+Exit
+Explicit
+False
+Finally
+For
+Friend
+From
+Function
+Get
+GetType
+GetXMLNamespace
+Global
+;GoSub
+GoTo
+Group
+Handles
+If
+Implements
+Imports
+In
+Infer
+Inherits
+Integer
+Interface
+Into
+Is
+IsFalse
+IsNot
+IsTrue
+Join
+Key
+Let
+Lib
+Like
+Long
+Loop
+Me
+Mid
+Mod
+Module
+MustInherit
+MustOverride
+My
+MyBase
+MyClass
+Namespace
+Narrowing
+New
+Next
+Not
+Nothing
+NotInheritable
+NotOverridable
+Object
+Of
+Off
+On
+Operator
+Option
+Optional
+Or
+Order
+OrElse
+Overloads
+Overridable
+Overrides
+ParamArray
+Partial
+Preserve
+Private
+Property
+Protected
+Public
+RaiseEvent
+ReadOnly
+ReDim
+REM
+RemoveHandler
+Resume
+Return
+SByte
+Select
+Set
+Shadows
+Shared
+Short
+Single
+Skip
+Static
+Step
+Stop
+Strict
+String
+Structure
+Sub
+SyncLock
+Take
+Text
+Then
+Throw
+To
+True
+Try
+TryCast
+TypeOf
+UInteger
+ULong
+Unicode
+Until
+UShort
+Using
+;Variant
+;Wend
+When
+Where
+While
+Widening
+With
+WithEvents
+WriteOnly
+Xor
+;------------------------------------------------------------------
+
+[Keywords 2]
+; shows dark blue by default
+
+[Keywords 3]
+; Functions
+
+[Keywords 4]
+; Constants
