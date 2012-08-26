@@ -10,12 +10,12 @@ namespace CopyDLLToBend
     {
         static void Main(string[] args)
         {
-            File.SetAttributes("D:\\Projects\\Bend\\Dll\\TextCoreControl.dll", FileAttributes.Normal);
-            File.Copy("TextCoreControl.dll", "D:\\Projects\\Bend\\Dll\\TextCoreControl.dll", true);
-            File.SetAttributes("D:\\Projects\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.Controls.dll", FileAttributes.Normal);
-            File.Copy("Microsoft.WindowsAPICodePack.DirectX.Controls.dll", "D:\\Projects\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.Controls.dll", true);
-            File.SetAttributes("D:\\Projects\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.dll", FileAttributes.Normal);
-            File.Copy("Microsoft.WindowsAPICodePack.DirectX.dll", "D:\\Projects\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.dll", true);
+            File.SetAttributes("..\\..\\..\\..\\..\\Bend\\Dll\\TextCoreControl.dll", FileAttributes.Normal);
+            File.Copy("TextCoreControl.dll", "..\\..\\..\\..\\..\\Bend\\Dll\\TextCoreControl.dll", true);
+            File.SetAttributes("..\\..\\..\\..\\..\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.Controls.dll", FileAttributes.Normal);
+            File.Copy("Microsoft.WindowsAPICodePack.DirectX.Controls.dll", "..\\..\\..\\..\\..\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.Controls.dll", true);
+            File.SetAttributes("..\\..\\..\\..\\..\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.dll", FileAttributes.Normal);
+            File.Copy("Microsoft.WindowsAPICodePack.DirectX.dll", "..\\..\\..\\..\\..\\Bend\\Dll\\Microsoft.WindowsAPICodePack.DirectX.dll", true);
         }
     }
 }
