@@ -227,6 +227,6 @@
         </TabControl>        
     </Grid>
     <UserControl.Background>
-        <ImageBrush ImageSource="/Bend;component/Images/SetttingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,56.022644294809,32.0129395970337" ViewportUnits="Absolute" />
+        <ImageBrush ImageSource="/Bend;component/Images/SettingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />
     </UserControl.Background>
 </UserControl>
