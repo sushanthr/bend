@@ -1,0 +1,148 @@
+;--------------------------------------------------------------------------------
+; TextPad syntax definitions for TCL & EXPECT files
+; TADIMETI KESHAV. tadimetikeshav@yahoo.com
+;--------------------------------------------------------------------------------
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = Yes
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_
+BracketChars = {[()]}
+OperatorChars = -+*/<>!~%^&|=><?:
+PreprocStart = 
+SyntaxStart =
+SyntaxEnd =
+HexPrefix = 
+CommentStart = 
+CommentEnd = 
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = #
+SingleCommentCol =
+SingleCommentAlt = ;#
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines = No
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc = 
+CharStart = 
+CharEnd = 
+CharEsc = 
+
+[Keywords 1]
+append
+break
+catch
+cd
+close
+concat
+continue
+else
+elseif
+eof
+error
+eval
+exec
+exit
+expect
+expr
+file
+flush
+for
+foreach
+format
+gets
+glob
+global
+history
+if
+incr
+info
+interact
+join
+list
+lappend
+lindex
+linsert
+llength
+lrange
+lreplace
+lsearch
+lsort
+open
+pid
+proc
+puts
+pwd
+read
+regexp
+regsub
+rename
+return
+send
+scan
+seek
+set
+source
+spawn
+split
+string
+switch
+tell
+time
+trace
+unknown
+unset
+uplevel
+upvar
+while
+[Keywords 2]
+acos
+argc
+argv
+argv0
+array
+asin
+atan
+atan2
+auto_index
+auto_noload
+auto_noexec
+auto_path
+ceil
+cos
+cosh
+dirname
+env
+errorInfo
+exists
+exp
+extension
+first
+floor
+fmod
+geometry
+global
+index
+last
+length
+log
+log10
+lsort
+match
+pow
+range
+rootname
+sin
+size
+tcl_interactive
+tcl_prompt1
+tcl_prompt2
+tolower
+-nonewline
+[Preprocessor keywords]
