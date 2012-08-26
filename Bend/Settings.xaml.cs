@@ -47,11 +47,11 @@ namespace Bend
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
                 ad.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(ad_UpdateCompleted);
                 ad.UpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_UpdateProgressChanged);
+            }
 
-                if (ApplicationDeployment.CurrentDeployment.IsFirstRun)
-                {
-                    UpdateRegistryOnFirstRun();
-                }
+            if (PersistantStorage.StorageObject.IsFirstRun)
+            {
+                UpdateRegistryOnFirstRun();
             }
 
             this.UpdateButtons();

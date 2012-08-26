@@ -11,7 +11,7 @@ namespace Bend
     {
         static PersistantStorage singletonPersistantStorageObject;
         const string settingsFileName = "Settings.xml";
-        
+
         #region Member Data
         public string[] mruFile;
         public double mainWindowTop;
@@ -21,6 +21,7 @@ namespace Bend
 
         public bool SettingsPageAnimation;
         public bool ShowStatusBar;
+        public bool IsFirstRun;
 
         // JSBeautifier Options
         public bool JSBeautifyPreserveLine;
@@ -47,9 +48,10 @@ namespace Bend
             mainWindowLeft = System.Windows.SystemParameters.PrimaryScreenWidth / 2 - 400;
             mainWindowWidth = 800.0;
             mainWindowHeight = 600.0;
-                        
+
             SettingsPageAnimation = true;
             ShowStatusBar = false;
+            IsFirstRun = true;
 
             JSBeautifyPreserveLine = false;
             JSBeautifyIndent = 4;
@@ -93,6 +95,7 @@ namespace Bend
         {
             try
             {
+                this.IsFirstRun = false;
                 XmlSerializer serializer = new XmlSerializer(this.GetType());
                 String filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\";
                 TextWriter writer = new StreamWriter(filePath + settingsFileName);
@@ -102,6 +105,6 @@ namespace Bend
             catch
             {
             }
-        }        
-    }    
+        }
+    }
 }
