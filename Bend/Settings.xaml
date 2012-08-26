@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800" Background="Black" Initialized="ControlInitialized" IsVisibleChanged="Settings_IsVisibleChanged">    
+             d:DesignHeight="600" d:DesignWidth="800" Initialized="ControlInitialized" IsVisibleChanged="Settings_IsVisibleChanged">    
     <UserControl.Resources>
         <Style TargetType="{x:Type TabItem}">
             <Setter Property="Template">
@@ -23,7 +23,7 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <TabControl Name="SettingsTabs" FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,36,0,0" VerticalAlignment="Stretch" Background="Black" BorderThickness="0" Padding="4" SelectionChanged="TabControl_SelectionChanged">
+        <TabControl Name="SettingsTabs" Background="Transparent" FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,38,0,0" VerticalAlignment="Stretch" BorderThickness="0" Padding="4" SelectionChanged="TabControl_SelectionChanged">
             <TabItem>
                 <TabItem.Header>
                     <Label Foreground="WhiteSmoke" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="62,5,10,5">Integration</Label>
@@ -213,4 +213,7 @@
             </TabItem>
         </TabControl>        
     </Grid>
+    <UserControl.Background>
+        <ImageBrush ImageSource="/Bend;component/Images/SetttingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,56.022644294809,32.0129395970337" ViewportUnits="Absolute" />
+    </UserControl.Background>
 </UserControl>

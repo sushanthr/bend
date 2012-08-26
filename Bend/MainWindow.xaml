@@ -353,7 +353,7 @@
                 <RotateTransform x:Name="SettingsGridRotateTransform" Angle="-180"></RotateTransform>
             </Grid.RenderTransform>
             <local:Settings x:Name="SettingsControl"/>            
-            <Label Width="50" Margin="0,0,160,0" Padding="0,10" HorizontalAlignment="Right" VerticalAlignment="Top" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="BackImage_MouseDown" FontWeight="Bold" FontSize="10" Foreground="#FFFF9900">BACK</Label>            
+            <Label Width="50" Margin="0,0,250,0" Padding="0,8" HorizontalAlignment="Right" VerticalAlignment="Top" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="BackImage_MouseDown" FontWeight="Bold" FontSize="10" Foreground="#FFFF9900">BACK</Label>            
         </Grid>
         <WrapPanel HorizontalAlignment="Right" Name="WindowControls" VerticalAlignment="Top" Margin="0,8,18,0">
             <TextBlock Name="FullscreenButton"  Width="20" Height="20" PreviewMouseLeftButtonUp="FullscreenButtonUp" TextAlignment="Center" FontWeight="Bold" Foreground="Gray" FontSize="14" shell:WindowChrome.IsHitTestVisibleInChrome="True" >F</TextBlock>

@@ -259,6 +259,7 @@
     <Content Include="Dll\Microsoft.Windows.Shell.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
+    <Resource Include="Images\SetttingsPattern.png" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
