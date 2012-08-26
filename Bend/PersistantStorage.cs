@@ -39,6 +39,7 @@ namespace Bend
         public bool TextShowFormatting;
         public bool TextWordWrap;
         public bool SmoothScrolling;
+        public bool SyntaxHighlighting;
         #endregion
 
         private PersistantStorage()
@@ -68,6 +69,7 @@ namespace Bend
             TextShowFormatting = false;
             TextWordWrap = true;
             SmoothScrolling = true;
+            SyntaxHighlighting = true;
         }
 
         static PersistantStorage()

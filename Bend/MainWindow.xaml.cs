@@ -1073,7 +1073,6 @@ namespace Bend
                 {
                     this.findResults.RemoveRange(0, this.findResults.Count);
                     this.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
-                    this.findOnPageThread.IsBackground = true;
                     Object[] parameters = new Object[5];
                     parameters[0] = text;
                     parameters[1] = findText;                    
