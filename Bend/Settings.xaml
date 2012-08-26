@@ -15,7 +15,6 @@
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center"
                                 ContentSource="Header"
-                                Margin="12,2,12,2"
                             />
                         </Grid>
                     </ControlTemplate>
@@ -24,10 +23,10 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <TabControl FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,45,0,0" VerticalAlignment="Stretch" Background="Black" BorderThickness="0">
+        <TabControl FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,35,0,0" VerticalAlignment="Stretch" Background="Black" BorderThickness="0" Padding="4">
             <TabItem GotFocus="Tab_GotFocus">
                 <TabItem.Header>
-                    <Label Foreground="WhiteSmoke" FontStretch="Normal" FontWeight="Black" FontFamily="Segoe UI" FontSize="12">INTEGRATION</Label>
+                    <Label Foreground="WhiteSmoke" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="27,5,10,5">Integration</Label>
                 </TabItem.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -63,7 +62,7 @@
             </TabItem>
             <TabItem GotFocus="Tab_GotFocus">
                 <TabItem.Header>
-                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="Black" FontFamily="Segoe UI" FontSize="12">PLUGINS</Label>
+                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5">Plugins</Label>
                 </TabItem.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -101,7 +100,7 @@
             </TabItem>
             <TabItem GotFocus="Tab_GotFocus">
                 <TabItem.Header>
-                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="Black" FontFamily="Segoe UI" FontSize="12">OPTIONS</Label>
+                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5"> Options</Label>
                 </TabItem.Header>
                 <Grid Margin="0,0,0,50">
                     <Grid.ColumnDefinitions>
@@ -137,17 +136,7 @@
                             <CheckBox Name="SettingsPageAnimation" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Settings page animation</CheckBox>
                             <CheckBox Name="ShowStatusBar" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Status bar</CheckBox>
                         </StackPanel>
-                    </StackPanel>
-                    <Rectangle Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="0.5" Margin="0,25,0,25">
-                        <Rectangle.Fill>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                <GradientStop Color="Transparent" Offset="0" />
-                                <GradientStop Color="Transparent" Offset="1" />
-                                <GradientStop Color="Gray" Offset="0.209" />
-                                <GradientStop Color="Gray" Offset="0.814" />
-                            </LinearGradientBrush>
-                        </Rectangle.Fill>
-                    </Rectangle>                    
+                    </StackPanel>   
                     <WrapPanel Grid.Column="2" Margin="0,0,0,-20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                         <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="OptionsSave_Click">SAVE</Button>
                         <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" IsDefault="True" Focusable="True" TabIndex="0" IsTabStop="True" Click="OptionsCancel_Click">CANCEL</Button>
@@ -156,7 +145,7 @@
             </TabItem>
             <TabItem GotFocus="Tab_GotFocus">
                 <TabItem.Header>
-                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="Black" FontFamily="Segoe UI" FontSize="12">ABOUT</Label>
+                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5">About</Label>
                 </TabItem.Header>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -215,7 +204,6 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-        </TabControl>
-        <Label FontFamily="Segoe UI" Content="settings" HorizontalAlignment="Left" Margin="60,3,0,0" VerticalAlignment="Top" Foreground="Gold" FontSize="24" FontWeight="ExtraLight"/>
+        </TabControl>        
     </Grid>
 </UserControl>

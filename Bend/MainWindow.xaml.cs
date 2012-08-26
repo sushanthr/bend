@@ -935,14 +935,14 @@ namespace Bend
         {
             this.currentSearchIndex = 0;
             this.findResults.RemoveRange(0, this.findResults.Count);
-            this.FindOnPage(FindText.Text, /*matchCase*/false, /*useRegEx*/ false);
+            this.FindOnPage(FindText.Text, /*matchCase*/false, /*useRegEx*/ false);            
         }
 
         private void FindText_LostFocus(object sender, RoutedEventArgs e)
         {
             this.SetStatusText("");
         }
-                
+        
         public void ReplaceSelectedText(string replacementText)
         {
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
