@@ -169,7 +169,7 @@ namespace Bend
                 }
 
                 Label header = (Label)tabItem.Header;
-                header.Foreground = Brushes.WhiteSmoke;
+                header.Foreground = new SolidColorBrush(Color.FromArgb(255,25,162,222));
                 ProgressBar.Rect = new Rect(0, 0, 0, 5);
             }
             catch

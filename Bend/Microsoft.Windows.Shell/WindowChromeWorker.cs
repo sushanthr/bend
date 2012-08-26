@@ -257,7 +257,7 @@ namespace Microsoft.Windows.Shell
             _UpdateSystemMenu(_window.WindowState);
             _UpdateFrameState(true);
 
-            NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0, _SwpFlags);
+            NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0, _SwpFlags);            
         }
 
         private void _FixupFrameworkIssues()
@@ -493,6 +493,14 @@ namespace Microsoft.Windows.Shell
             return lRet;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        struct NCCALCSIZE_PARAMS {
+            public RECT        rgrc1;
+            public RECT rgrc2;
+            public RECT rgrc3;
+            public IntPtr lppos;
+        };
+
         private IntPtr _HandleNCCalcSize(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled)
         {
             // lParam is an [in, out] that can be either a RECT* (wParam == FALSE) or an NCCALCSIZE_PARAMS*.
@@ -501,8 +509,11 @@ namespace Microsoft.Windows.Shell
 
             // Since we always want the client size to equal the window size, we can unconditionally handle it
             // without having to modify the parameters.
-
+            NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
+            ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
             handled = true;
+            ncCalcSize.rgrc1.Bottom = ncCalcSize.rgrc1.Bottom - 1;            
+            Marshal.StructureToPtr(ncCalcSize, lParam, false);
             return new IntPtr((int)WVR.REDRAW);
         }
 
@@ -573,8 +584,7 @@ namespace Microsoft.Windows.Shell
             {
                 state = WindowState.Maximized;
             }
-            _UpdateSystemMenu(state);
-
+            _UpdateSystemMenu(state);            
             // Still let the default WndProc handle this.
             handled = false;
             return IntPtr.Zero;
@@ -596,8 +606,7 @@ namespace Microsoft.Windows.Shell
                 Assert.IsNotDefault(lParam);
                 var wp = (WINDOWPOS)Marshal.PtrToStructure(lParam, typeof(WINDOWPOS));
                 _SetRoundingRegion(wp);
-            }
-
+            }            
             // Still want to pass this to DefWndProc
             handled = false;
             return IntPtr.Zero;
@@ -1062,7 +1071,7 @@ namespace Microsoft.Windows.Shell
                 // The Window's Background needs to be changed independent of this.
 
                 // Apply the transparent background to the HWND
-                _hwndSource.CompositionTarget.BackgroundColor = Colors.Transparent;
+                _hwndSource.CompositionTarget.BackgroundColor = Colors.WhiteSmoke;
 
                 // Thickness is going to be DIPs, need to convert to system coordinates.
                 Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.GlassFrameThickness.Left, _chromeInfo.GlassFrameThickness.Top));
@@ -1079,6 +1088,13 @@ namespace Microsoft.Windows.Shell
 
                 NativeMethods.DwmExtendFrameIntoClientArea(_hwnd, ref dwmMargin);
             }
+
+
+            RGBQUAD rgb = new RGBQUAD();
+            rgb.rgbRed = 245;
+            rgb.rgbGreen = 245;
+            rgb.rgbBlue = 245;
+            NativeMethods.SetClassLongPtr(_hwnd, GCLP.HBRBACKGROUND, NativeMethods.CreateSolidBrush(rgb.ToInt32()));
         }
 
         /// <summary>

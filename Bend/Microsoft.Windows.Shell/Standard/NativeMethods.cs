@@ -1358,6 +1358,10 @@ namespace Standard
 
             [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
             [DllImport("user32.dll")]
+            public static extern SafeDC GetWindowDC(IntPtr hwnd);
+
+            [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+            [DllImport("user32.dll")]
             public static extern SafeDC GetDC(IntPtr hwnd);
 
             // Weird legacy function, documentation is unclear about how to use it...
@@ -1471,6 +1475,30 @@ namespace Standard
             try
             {
                 dc = NativeMethods.GetDC(hwnd);
+            }
+            finally
+            {
+                if (dc != null)
+                {
+                    dc.Hwnd = hwnd;
+                }
+            }
+
+            if (dc.IsInvalid)
+            {
+                // GetDC does not set the last error...
+                HRESULT.E_FAIL.ThrowIfFailed();
+            }
+
+            return dc;
+        }
+
+        public static SafeDC GetWindowDC(IntPtr hwnd)
+        {
+            SafeDC dc = null;
+            try
+            {
+                dc = NativeMethods.GetWindowDC(hwnd);
             }
             finally
             {
@@ -1655,6 +1683,16 @@ namespace Standard
         public byte rgbGreen;
         public byte rgbRed;
         public byte rgbReserved;
+
+        public Int32 ToInt32()
+        {
+            byte[] RGBCOLORS = new byte[4];
+            RGBCOLORS[0] = rgbRed;
+            RGBCOLORS[1] = rgbGreen;
+            RGBCOLORS[2] = rgbBlue;
+            RGBCOLORS[3] = rgbReserved;
+            return BitConverter.ToInt32(RGBCOLORS, 0);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 2)]
@@ -2685,6 +2723,10 @@ namespace Standard
         public static extern bool DwmDefWindowProc(IntPtr hwnd, WM msg, IntPtr wParam, IntPtr lParam, out IntPtr plResult);
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [DllImport("dwmapi.dll", EntryPoint = "DwmModifyPreviousDxFrameDuration")]
+        public static extern HRESULT DwmModifyPreviousDxFrameDuration(IntPtr hwnd, int cRefreshes, out  bool fRelative);
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         [DllImport("dwmapi.dll", EntryPoint = "DwmSetWindowAttribute")]
         private static extern void _DwmSetWindowAttribute(IntPtr hwnd, DWMWA dwAttribute, ref int pvAttribute, int cbAttribute);
 
@@ -2702,6 +2744,14 @@ namespace Standard
             Assert.IsTrue(Utility.IsOSWindows7OrNewer);
             int dwDisallow = (int)(disallowPeek ? Win32Value.TRUE : Win32Value.FALSE);
             _DwmSetWindowAttribute(hwnd, DWMWA.DISALLOW_PEEK, ref dwDisallow, sizeof(int));
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public static void DwmSetWindowAttributeNCRender(IntPtr hwnd, bool renderInNonClientArea)
+        {
+            Assert.IsTrue(Utility.IsOSWindows7OrNewer);
+            int dwDisallow = (int)(renderInNonClientArea ? DWMNCRP.ENABLED : DWMNCRP.USEWINDOWSTYLE);
+            _DwmSetWindowAttribute(hwnd, DWMWA.NCRENDERING_POLICY, ref dwDisallow, sizeof(int));
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
