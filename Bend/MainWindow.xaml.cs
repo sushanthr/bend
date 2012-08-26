@@ -228,6 +228,8 @@ namespace Bend
 
                     TabBar.Children.Add(newTab.Title);
                     Editor.Children.Add(newTab.TextEditor);
+                    newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+                    newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
                     
                     newTab.OpenFile(filePath);                    
                     fileAdded = true;
@@ -685,9 +687,19 @@ namespace Bend
             // TODO: INTEGRATE:
             //newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
 
-            TabBar.Children.Add(newTab.Title);
+            TabBar.Children.Add(newTab.Title);            
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+            newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
+        }
+
+        void DisplayManager_ContextMenu()
+        {
+            if( Editor.ContextMenu != null )
+            {
+                Editor.ContextMenu.PlacementTarget = Editor;
+                Editor.ContextMenu.IsOpen = true;
+            }    
         }
 
         void Document_ContentChange(int beginOrdinal, int endOrdinal, string content)
@@ -903,15 +915,17 @@ namespace Bend
         #region Editor Context Menu
         private void ContextCopy(object sender, RoutedEventArgs e)
         {
-            //this.CommandCopy(sender, null);
+            if (this.currentTabIndex >= 0)
+            {
+                Tab.CopyPasteManager.Copy(this.tab[this.currentTabIndex].TextEditor);
+            }
         }
 
         private void ContextCut(object sender, RoutedEventArgs e)
         {
             if (this.currentTabIndex >= 0)
             {
-                // TODO: INTEGRATE:
-                // this.tab[this.currentTabIndex].TextEditor.Cut();
+                Tab.CopyPasteManager.Cut(this.tab[this.currentTabIndex].TextEditor);
             }
         }
 
@@ -933,7 +947,10 @@ namespace Bend
 
         private void ContextPaste(object sender, RoutedEventArgs e)
         {
-            //this.CommandPaste(sender, null);
+            if (this.currentTabIndex >= 0)
+            {
+                Tab.CopyPasteManager.Paste(this.tab[this.currentTabIndex].TextEditor);
+            }
         }
         #endregion
 

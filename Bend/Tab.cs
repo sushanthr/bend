@@ -29,7 +29,7 @@ namespace Bend
 
             private static FontFamily fontFamilySegoeUI;
             private static FontFamily fontFamilyConsolas;
-            private static TextCoreControl.CopyPasteManager copyPasteManager;
+            public static readonly TextCoreControl.CopyPasteManager CopyPasteManager;
 
             private System.IO.FileSystemWatcher fileChangedWatcher;
             long lastFileChangeTime;
@@ -59,7 +59,7 @@ namespace Bend
                 // Static constructor
                 fontFamilySegoeUI = new FontFamily("Segoe UI");
                 fontFamilyConsolas = new FontFamily("Consolas");
-                copyPasteManager = new CopyPasteManager();
+                CopyPasteManager = new CopyPasteManager();
             }
 
             public Tab()
@@ -95,7 +95,7 @@ namespace Bend
                 Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(title, /*isHitTestable*/true);
 
                 textEditor = new TextEditor();
-                textEditor.CopyPasteManager = Tab.copyPasteManager;
+                textEditor.CopyPasteManager = Tab.CopyPasteManager;
                 textEditor.HorizontalAlignment = HorizontalAlignment.Stretch;
                 textEditor.Margin = new Thickness(0);
                 textEditor.VerticalAlignment = VerticalAlignment.Stretch;
