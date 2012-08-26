@@ -509,12 +509,31 @@ namespace Microsoft.Windows.Shell
 
             // Since we always want the client size to equal the window size, we can unconditionally handle it
             // without having to modify the parameters.
-            NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
-            ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
+            IntPtr returnValue;
             handled = true;
-            ncCalcSize.rgrc1.Bottom = ncCalcSize.rgrc1.Bottom - 1;            
-            Marshal.StructureToPtr(ncCalcSize, lParam, false);
-            return new IntPtr((int)WVR.REDRAW);
+
+            if (wParam.ToInt32() == 0)
+            {
+                returnValue = IntPtr.Zero;
+            }
+            else
+            {
+                NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
+                ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
+
+                ncCalcSize.rgrc3 = ncCalcSize.rgrc2;
+
+                // Showing 1px of glass seems to reduce flickering during resize.
+                ncCalcSize.rgrc1.Bottom = ncCalcSize.rgrc1.Bottom - 1;
+
+                ncCalcSize.rgrc2 = ncCalcSize.rgrc1;
+
+                Marshal.StructureToPtr(ncCalcSize, lParam, false);
+
+                returnValue = new IntPtr((int)WVR.VALIDRECTS);
+            }
+
+            return returnValue;
         }
 
         private IntPtr _HandleNCHitTest(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled)
@@ -619,7 +638,7 @@ namespace Microsoft.Windows.Shell
             handled = false;
             return IntPtr.Zero;
         }
-
+        
         private IntPtr _HandleCopyData(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled)
         {            
             NativeMethods.COPYDATASTRUCT copyDataStruct = (NativeMethods.COPYDATASTRUCT) System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(NativeMethods.COPYDATASTRUCT));
