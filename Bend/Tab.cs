@@ -191,10 +191,19 @@ namespace Bend
 
         internal void LoadOptions()
         {
+            TextCoreControl.Settings.AutoWrap = PersistantStorage.StorageObject.TextWordWrap;
+            TextCoreControl.Settings.UseStringForTab = PersistantStorage.StorageObject.TextUseSpaces;
+            string tabString = "";
+            for (int i = 0; i < PersistantStorage.StorageObject.TextIndent; i++)
+            {
+                tabString += " ";
+            }
+            TextCoreControl.Settings.TabString = tabString;
+            TextCoreControl.Settings.AllowSmoothScrollBy = PersistantStorage.StorageObject.SmoothScrolling;
+
             // TODO: INTEGRATE:
             /*
-            this.textEditor.Options.ConvertTabsToSpaces = PersistantStorage.StorageObject.TextUseSpaces;
-            this.textEditor.Options.IndentationSize = PersistantStorage.StorageObject.TextIndent;
+            
             this.textEditor.Options.ShowBoxForControlCharacters = PersistantStorage.StorageObject.TextFormatControlCharacters;
             this.textEditor.Options.EnableHyperlinks = PersistantStorage.StorageObject.TextFormatHyperLinks;
             this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks;
@@ -210,8 +219,9 @@ namespace Bend
                 this.textEditor.Options.ShowTabs = false;
                 this.textEditor.Options.ShowEndOfLine = false;
             }
-            this.textEditor.WordWrap = PersistantStorage.StorageObject.TextWordWrap;
+            
             */
+            this.textEditor.RefreshDisplay();
         }
         #endregion
     }

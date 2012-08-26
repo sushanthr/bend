@@ -142,6 +142,7 @@
                         <StackPanel HorizontalAlignment="Center" Margin="20,10,0,0">                            
                             <CheckBox Name="SettingsPageAnimation" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Settings page animation</CheckBox>
                             <CheckBox Name="ShowStatusBar" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Status bar</CheckBox>
+                            <CheckBox Name="SmoothScrolling" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Smooth scrolling</CheckBox>
                         </StackPanel>
                     </StackPanel>   
                     <WrapPanel Grid.Column="2" Margin="0,0,0,-20" HorizontalAlignment="Right" VerticalAlignment="Bottom">

@@ -38,6 +38,7 @@ namespace Bend
         public bool TextFormatEmailLinks;
         public bool TextShowFormatting;
         public bool TextWordWrap;
+        public bool SmoothScrolling;
         #endregion
 
         private PersistantStorage()
@@ -65,7 +66,8 @@ namespace Bend
             TextFormatHyperLinks = true;
             TextFormatEmailLinks = true;
             TextShowFormatting = false;
-            TextWordWrap = false;
+            TextWordWrap = true;
+            SmoothScrolling = true;
         }
 
         static PersistantStorage()
