@@ -22,11 +22,7 @@
                                 Opacity="0.5"/>
         </Border.BitmapEffect>
         <StackPanel Margin="20" Background="WhiteSmoke">
-            <Grid>
-                <Grid Margin="0,0,55,0" MouseDown="TitleBar_PreviewMouseDown" Background="WhiteSmoke"></Grid>
-                <Label HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,15,0" Foreground="Red" Background="WhiteSmoke" MouseDown="Close_MouseDown" FontWeight="Regular" FontFamily="Segoe UI">close</Label>
-            </Grid>
-            <Grid>
+            <Grid Margin="0,20,0,0">
                 <Canvas VerticalAlignment="Stretch" Width="10" Background="#EF2A4579" HorizontalAlignment="Left" MouseDown="TitleBar_PreviewMouseDown"></Canvas>
                 <StackPanel Margin="30,0,15,0" MinHeight="46">
                     <TextBlock  Name="MessageTitle" Text="GOTO LINE" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap">
