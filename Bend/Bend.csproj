@@ -213,9 +213,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Close.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\refresh 48.png" />
   </ItemGroup>
   <ItemGroup>
