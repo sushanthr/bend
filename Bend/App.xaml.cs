@@ -70,7 +70,16 @@ namespace Bend
             {
                 argument = "";
             }
-                        
+
+            if (!argumentIsFile && 
+                AppDomain.CurrentDomain.SetupInformation.ActivationArguments != null &&
+                AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData != null && 
+                AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData.Length > 0)
+            {
+                argument = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData[0];
+                argumentIsFile = System.IO.File.Exists(argument);
+            }
+            
             IntPtr hwnd;
             if (argumentIsFile && Microsoft.Windows.Shell.WindowChrome.FindOtherApplicationInstance(out hwnd))
             {

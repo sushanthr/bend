@@ -495,7 +495,7 @@ namespace Microsoft.Windows.Shell
 
         [StructLayout(LayoutKind.Sequential)]
         struct NCCALCSIZE_PARAMS {
-            public RECT        rgrc1;
+            public RECT rgrc1;
             public RECT rgrc2;
             public RECT rgrc3;
             public IntPtr lppos;
@@ -514,7 +514,7 @@ namespace Microsoft.Windows.Shell
 
             if (wParam.ToInt32() == 0)
             {
-                returnValue = IntPtr.Zero;
+                returnValue = new IntPtr((int)WVR.REDRAW);
             }
             else
             {
