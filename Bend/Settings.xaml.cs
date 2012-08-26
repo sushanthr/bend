@@ -27,6 +27,11 @@ namespace Bend
             InitializeComponent();
         }
 
+        public void UpdateFocus()
+        {
+            ((TabItem)this.SettingsTabs.SelectedItem).Focus();
+        }
+
         private void CheckForUpdates_Click(object sender, RoutedEventArgs e)
         {
             UpdateCheckInfo info = null;
@@ -215,7 +220,7 @@ namespace Bend
 
             this.UpdateOptions();
         }
-
+        
         private void AppendToPath_Click(object sender, RoutedEventArgs e)
         {            
             try
@@ -245,25 +250,6 @@ namespace Bend
             }
         }
  
-        private void Tab_GotFocus(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                TabItem tabItem = (TabItem)sender;
-                TabControl tabControl = (TabControl)tabItem.Parent;                
-                for (int i = 0; i < tabControl.Items.Count; i++)
-                {
-                    ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
-                }
-
-                Label header = (Label)tabItem.Header;
-                header.Foreground = Brushes.WhiteSmoke;
-            }
-            catch
-            {
-            }
-        }
-
         private Tab CurrentTab()
         {
             MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
@@ -488,6 +474,25 @@ namespace Bend
             {
                 
             }
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                TabItem tabItem = (TabItem)SettingsTabs.SelectedItem;
+                TabControl tabControl = (TabControl)tabItem.Parent;                
+                for (int i = 0; i < tabControl.Items.Count; i++)
+                {
+                    ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
+                }
+
+                Label header = (Label)tabItem.Header;
+                header.Foreground = Brushes.WhiteSmoke;
+            }
+            catch
+            {
+            }        
         }
     }
 }

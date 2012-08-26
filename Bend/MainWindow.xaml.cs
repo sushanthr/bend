@@ -174,9 +174,11 @@ namespace Bend
             tab[this.currentTabIndex].TextEditor.SetFocus();
 
             System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
-            settingsAnimation.Completed += new EventHandler(settingsAnimation_Completed);
+            settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
+            settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
+            settingsAnimation.Completed += new EventHandler(slideSettingsInAnimation_Completed);
         }
-
+        
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Save file name to MRU list
@@ -635,8 +637,13 @@ namespace Bend
             {
             }
         }
+        
+        void slideSettingsInAnimation_Completed(object sender, EventArgs e)
+        {
+            this.SettingsControl.UpdateFocus();
+        }
 
-        void settingsAnimation_Completed(object sender, EventArgs e)
+        void slideSettingsOutAnimation_Completed(object sender, EventArgs e)
         {
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
             {

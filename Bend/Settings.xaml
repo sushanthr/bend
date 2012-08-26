@@ -23,8 +23,8 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <TabControl FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,36,0,0" VerticalAlignment="Stretch" Background="Black" BorderThickness="0" Padding="4">
-            <TabItem GotFocus="Tab_GotFocus">
+        <TabControl Name="SettingsTabs" FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,36,0,0" VerticalAlignment="Stretch" Background="Black" BorderThickness="0" Padding="4" SelectionChanged="TabControl_SelectionChanged">
+            <TabItem>
                 <TabItem.Header>
                     <Label Foreground="WhiteSmoke" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="62,5,10,5">Integration</Label>
                 </TabItem.Header>
@@ -60,7 +60,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem GotFocus="Tab_GotFocus">
+            <TabItem>
                 <TabItem.Header>
                     <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5">Plugins</Label>
                 </TabItem.Header>
@@ -98,7 +98,7 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem GotFocus="Tab_GotFocus">
+            <TabItem>
                 <TabItem.Header>
                     <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5"> Options</Label>
                 </TabItem.Header>
@@ -143,7 +143,7 @@
                     </WrapPanel>
                 </Grid>
             </TabItem>
-            <TabItem GotFocus="Tab_GotFocus">
+            <TabItem>
                 <TabItem.Header>
                     <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5">About</Label>
                 </TabItem.Header>
