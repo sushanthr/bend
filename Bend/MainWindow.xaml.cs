@@ -91,7 +91,7 @@ namespace Bend
             this.findResults = new List<FindResult>();
             this.showFindOnPageResult = new System.Threading.SemaphoreSlim(0, 1);
         }
-
+        
         internal Tab GetActiveTab()
         {
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
@@ -121,6 +121,8 @@ namespace Bend
             int style = GetWindowLong(this.mainWindow.Handle, GWL_STYLE);
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
             this.shadowWindow = new ShadowWindow(this);
+            System.Diagnostics.Debug.Assert(RenderCapability.Tier == 0x00020000);
+            RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);
 
             maximizeImage = new BitmapImage();
             maximizeImage.BeginInit();
@@ -181,7 +183,12 @@ namespace Bend
             settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
             settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
             settingsAnimation.Completed += new EventHandler(slideSettingsInAnimation_Completed);
-            isInSettingsAnimation = false;
+            isInSettingsAnimation = false;            
+        }
+
+        void RenderCapability_TierChanged(object sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.Assert(false, "Switching to software rendering mode !");
         }
         
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -1219,6 +1226,6 @@ namespace Bend
             //    Column.Content = activeTab.TextEditor.TextArea.Caret.VisualColumn.ToString();
             //}
         }
-        #endregion
+        #endregion        
     }
 }

@@ -41,7 +41,7 @@ namespace Bend
         {
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
-                bool debugApplication = true;
+                bool debugApplication = false;
                 // this application was started up from the exe that isnt good.
                 // restart application through clickonce.
                 string[] commandLineArgs = Environment.GetCommandLineArgs();

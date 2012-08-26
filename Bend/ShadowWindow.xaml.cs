@@ -35,13 +35,28 @@ namespace Bend
             this.Show();
             fadeInTimer = new System.Timers.Timer();
             fadeInTimer.Elapsed += new System.Timers.ElapsedEventHandler(fadeInTimer_Elapsed);
-            fadeInTimer.Interval = 350;
-            fadeInTimer.Start();
             isMinimized = false;
+            compositionRendered = new EventHandler(CompositionTarget_Rendering);
+            CompositionTarget.Rendering += compositionRendered;
+        }
+
+        void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            CompositionTarget.Rendering -= compositionRendered;
+            fadeInTimer.Interval = 300;
+            fadeInTimer.Start();
+        }
+
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
         }
 
         void targetWindow_StateChanged(object sender, EventArgs e)
         {
+            fadeInTimer.Stop();
+
             if (((Window)sender).WindowState == System.Windows.WindowState.Minimized)
             {
                 this.Shadow.Opacity = 0.0;
@@ -57,7 +72,7 @@ namespace Bend
                 if (this.isMinimized)
                 {
                     fadeInTimer.Interval = 350;
-                    fadeInTimer.Start();                    
+                    fadeInTimer.Start();
                 }
                 else
                 {
@@ -89,5 +104,6 @@ namespace Bend
         System.Timers.Timer fadeInTimer;    
         Window targetWindow;
         bool isMinimized;
+        EventHandler compositionRendered;
     }
 }
