@@ -330,14 +330,12 @@ namespace Bend
                 this.MainWindowGrid.Margin = new Thickness(0, 0, 6, 6);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Hidden;
                 MaxButton.Source = this.restoreImage;
-                this.windowChrome.GlassFrameThickness = new Thickness(0);
             }
             if (this.WindowState == System.Windows.WindowState.Normal)
             {
                 this.MainWindowGrid.Margin = new Thickness(0);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Visible;
                 MaxButton.Source = this.maximizeImage;
-                this.windowChrome.GlassFrameThickness = new Thickness(1);
             }
         }
 

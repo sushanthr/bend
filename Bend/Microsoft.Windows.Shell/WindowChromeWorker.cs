@@ -331,58 +331,6 @@ namespace Microsoft.Windows.Shell
             }
         }
 
-        // There was a regression in DWM in Windows 7 with regard to handling WM_NCCALCSIZE to effect custom chrome.
-        // When windows with glass are maximized on a multimonitor setup the glass frame tends to turn black.
-        // Also when windows are resized they tend to flicker black, sometimes staying that way until resized again.
-        //
-        // This appears to be a bug in DWM related to device bitmap optimizations.  At least on RTM Win7 we can
-        // evoke a legacy code path that bypasses the bug by calling an esoteric DWM function.  This doesn't affect
-        // the system, just the application.
-        // WPF also tends to call this function anyways during animations, so we're just forcing the issue
-        // consistently and a bit earlier.
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        private void _FixupWindows7Issues()
-        {
-            if (_blackGlassFixupAttemptCount > 5)
-            {
-                // Don't keep trying if there's an endemic problem with this.
-                return;
-            }
-
-            if (Utility.IsOSWindows7OrNewer && NativeMethods.DwmIsCompositionEnabled())
-            {
-                ++_blackGlassFixupAttemptCount;
-
-                bool success = false;
-                try
-                {
-                    DWM_TIMING_INFO? dti = NativeMethods.DwmGetCompositionTimingInfo(_hwnd);
-                    success = dti != null;
-                }
-                catch (Exception)
-                {
-                    // We aren't sure of all the reasons this could fail.
-                    // If we find new ones we should consider making the NativeMethod swallow them as well.
-                    // Since we have a limited number of retries and this method isn't actually critical, just repost.
-
-                    // Disabling this for the published code to reduce debug noise.  This will get compiled away for retail binaries anyways.
-                    //Assert.Fail(e.Message);
-                }
-
-                // NativeMethods.DwmGetCompositionTimingInfo swallows E_PENDING.
-                // If the call wasn't successful, try again later.
-                if (!success)
-                {
-                    Dispatcher.BeginInvoke(DispatcherPriority.Loaded, (_Action)_FixupWindows7Issues);
-                }
-                else
-                {
-                    // Reset this.  We will want to force this again if DWM composition changes.
-                    _blackGlassFixupAttemptCount = 0;
-                }
-            }
-        }
-
         private void _FixupRestoreBounds(object sender, EventArgs e)
         {
             Assert.IsTrue(Utility.IsPresentationFrameworkVersionLessThan4);
@@ -845,7 +793,7 @@ namespace Microsoft.Windows.Shell
         {
             if (IntPtr.Zero == _hwnd)
             {
-                return;
+                 return;
             }
 
             // Don't rely on SystemParameters2 for this, just make the check ourselves.
@@ -863,8 +811,6 @@ namespace Microsoft.Windows.Shell
                 {
                     _ClearRoundingRegion();
                     _ExtendGlassFrame();
-
-                    _FixupWindows7Issues();
                 }
 
                 NativeMethods.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, 0, 0, _SwpFlags);
