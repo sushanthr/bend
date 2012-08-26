@@ -64,6 +64,8 @@ namespace Bend
 
         bool isFullScreen;
         bool isInSettingsAnimation;
+
+        System.Threading.SemaphoreSlim showFindOnPageResult;
         #endregion
 
         #region Public API
@@ -87,6 +89,7 @@ namespace Bend
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.findResults = new List<FindResult>();
+            this.showFindOnPageResult = new System.Threading.SemaphoreSlim(0, 1);
         }
 
         internal Tab GetActiveTab()
@@ -721,7 +724,6 @@ namespace Bend
                     }
                     // Clear find on page state
                     this.currentSearchIndex = 0;
-                    tab[this.currentTabIndex].TextEditor.Select(0,0);
 
                     this.currentTabIndex = i;                    
                     tab[i].Title.Opacity = 1.0;
@@ -975,10 +977,13 @@ namespace Bend
                     {
                         this.HighlightNextMatch();
                     }
+
+                    this.showFindOnPageResult.Wait(0);
+                    this.showFindOnPageResult.Release();
                 }
                 else if (e.Key == Key.Escape)
                 {
-                    this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                    this.tab[this.currentTabIndex].TextEditor.CancelSelect();
                     this.tab[this.currentTabIndex].TextEditor.SetFocus();
                     this.currentSearchIndex = 0;
                     this.SetStatusText("");
@@ -1040,6 +1045,7 @@ namespace Bend
                     this.findOnPageThread.Abort();
                     this.findOnPageThread = null;
                 }
+
                 if (findText.Length > 0 && text.Length > 0)
                 {
                     this.findResults.RemoveRange(0, this.findResults.Count);
@@ -1055,8 +1061,11 @@ namespace Bend
                 }
                 else
                 {
-                    textEditor.Select(0, 0);
-                    this.SetStatusText("NO MATCHES FOUND");
+                    textEditor.CancelSelect();
+                    if (findText.Length == 0)
+                        this.SetStatusText("");
+                    else
+                        this.SetStatusText("NO MATCHES FOUND");
                 }
             }          
         }
@@ -1068,6 +1077,7 @@ namespace Bend
             bool matchCase = (bool)((object[])parameters)[2];
             bool useRegEx = (bool)((object[])parameters)[3];
             TextEditor textEditor = (TextEditor)((object[])parameters)[4];
+            long startTicks = System.DateTime.Now.Ticks;
 
             int findIndex = 0;
             int matchLength = -1;
@@ -1126,6 +1136,13 @@ namespace Bend
                 }
             }
 
+            TimeSpan elapsedTime;            
+            elapsedTime = new TimeSpan(System.DateTime.Now.Ticks - startTicks);
+            if ((int)elapsedTime.TotalMilliseconds < 1000)
+            {
+                this.showFindOnPageResult.Wait(1000 - (int)elapsedTime.TotalMilliseconds);
+            }
+            
             this.Dispatcher.BeginInvoke(new Action(delegate {
                 this.currentSearchIndex = -1;
                 this.findResults = findResults;
@@ -1140,13 +1157,13 @@ namespace Bend
             {
                 this.currentSearchIndex = 0;
                 this.SetStatusText("NO MATCHES FOUND");
-                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                this.tab[this.currentTabIndex].TextEditor.CancelSelect();
             }
             else if (this.currentSearchIndex == this.findResults.Count)
             {
                 // No more results to show
                 this.SetStatusText("NO MORE MATCHES");
-                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                this.tab[this.currentTabIndex].TextEditor.CancelSelect();
             }
             else
             {
@@ -1167,13 +1184,13 @@ namespace Bend
             {
                 this.currentSearchIndex = 0;
                 this.SetStatusText("NO MATCHES FOUND");
-                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                this.tab[this.currentTabIndex].TextEditor.CancelSelect();
             }
             else if (this.currentSearchIndex == 0)
             {
                 // No more results to show
                 this.SetStatusText("NO MORE MATCHES");
-                this.tab[this.currentTabIndex].TextEditor.Select(0 ,0);
+                this.tab[this.currentTabIndex].TextEditor.CancelSelect();
                 this.currentSearchIndex--;
             }
             else
