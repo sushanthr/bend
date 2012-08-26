@@ -39,12 +39,6 @@ namespace Bend
     {
         public App()
         {
-            if (PersistantStorage.StorageObject.ShowSplashScreen)
-            {
-                System.Windows.SplashScreen splashScreen = new System.Windows.SplashScreen("images/splash.png");
-                splashScreen.Show(true);
-            }
-                        
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
                 bool debugApplication = true;

@@ -19,7 +19,6 @@ namespace Bend
         public double mainWindowWidth;
         public double mainWindowHeight;
 
-        public bool ShowSplashScreen;
         public bool SettingsPageAnimation;
         public bool ShowStatusBar;
 
@@ -48,8 +47,7 @@ namespace Bend
             mainWindowLeft = System.Windows.SystemParameters.PrimaryScreenWidth / 2 - 400;
             mainWindowWidth = 800.0;
             mainWindowHeight = 600.0;
-
-            ShowSplashScreen = true;
+                        
             SettingsPageAnimation = true;
             ShowStatusBar = false;
 

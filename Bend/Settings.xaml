@@ -133,13 +133,12 @@
                     </StackPanel>
                     <StackPanel Grid.Column="2" MinWidth="170" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <Label FontFamily="Segoe UI" Content="Display" Margin="0,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>
-                        <StackPanel HorizontalAlignment="Center" Margin="20,10,0,0">
-                            <CheckBox Name="ShowSplashScreen" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Startup splash screen</CheckBox>
+                        <StackPanel HorizontalAlignment="Center" Margin="20,10,0,0">                            
                             <CheckBox Name="SettingsPageAnimation" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Settings page animation</CheckBox>
                             <CheckBox Name="ShowStatusBar" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Status bar</CheckBox>
                         </StackPanel>
                     </StackPanel>
-                    <Rectangle Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="1" Margin="0,25,0,25">
+                    <Rectangle Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="0.5" Margin="0,25,0,25">
                         <Rectangle.Fill>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="Transparent" Offset="0" />

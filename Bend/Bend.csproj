@@ -40,7 +40,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationRevision>13</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -95,9 +95,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EfTidyNet, Version=1.0.1.3, Culture=neutral, PublicKeyToken=107ff28d6d0c6c27, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Plugins\eftidynet1013\EfTidyNet.dll</HintPath>
+    <Reference Include="EfTidyNet">
+      <HintPath>Plugins\EfTidyNet.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Windows.Shell">
       <HintPath>.\Microsoft.Windows.Shell.dll</HintPath>
@@ -122,7 +121,7 @@
     </Reference>
     <Reference Include="TextCoreControl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\TextCoreControl.dll</HintPath>
+      <HintPath>Dll\TextCoreControl.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -161,6 +160,9 @@
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ShadowWindow.xaml.cs">
+      <DependentUpon>ShadowWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StyledMessageBox.xaml.cs">
       <DependentUpon>StyledMessageBox.xaml</DependentUpon>
     </Compile>
@@ -172,6 +174,10 @@
     <Page Include="Settings.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ShadowWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="StyledMessageBox.xaml">
       <SubType>Designer</SubType>
@@ -237,9 +243,6 @@
     <Resource Include="Images\Crimp.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Splash.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Redo.png" />
     <Resource Include="Images\Undo.png" />
   </ItemGroup>
@@ -253,6 +256,9 @@
     <Resource Include="Images\restore.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Dll\Microsoft.Windows.Shell.dll" />
+    <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
+    <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -358,8 +364,13 @@
     <Content Include="SyntaxHighlighting\LanguageDetector.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Dll\TextCoreControl.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

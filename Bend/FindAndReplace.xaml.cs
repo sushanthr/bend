@@ -59,7 +59,7 @@ namespace Bend
         {
             if (e.AddedItems.Count != 0)
             {
-                mainWindow.UpdateFind(e.AddedItems[0].ToString(), true, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                mainWindow.FindOnPage(FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);                
             }
         }
 
@@ -99,7 +99,7 @@ namespace Bend
             }
             else
             {
-                mainWindow.FindNextStringOnPage(FindText.Text, false, true, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                mainWindow.FindOnPage(FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
             }
         }
 
@@ -127,7 +127,7 @@ namespace Bend
             {
                 FindText.Items.Insert(0, FindText.Text);
             }
-            mainWindow.FindNextStringOnPage(FindText.Text, false, false, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+            mainWindow.HighlightNextMatch();
         }
 
         private void Replace_Click(object sender, RoutedEventArgs e)
@@ -137,21 +137,19 @@ namespace Bend
                 FindText.Items.Insert(0, FindText.Text);
             }
             if (replaceall.IsChecked ?? true)
-            {
-                mainWindow.ReplaceStringOnPage(FindText.Text, ReplaceText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
-                mainWindow.FindNextStringOnPage("", false, false, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
-                this.mainWindow.SetStatusText("");
+            {                
+                mainWindow.ReplaceText(FindText.Text, ReplaceText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
             }
             else
             {
                 this.mainWindow.ReplaceSelectedText(ReplaceText.Text);
-                mainWindow.FindNextStringOnPage(FindText.Text, false, false, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                mainWindow.HighlightNextMatch();
             }            
         }
 
         private void FindOptionsChanged(object sender, RoutedEventArgs e)
         {
-            mainWindow.FindNextStringOnPage(FindText.Text, false, true, true, this.RegexFind.IsChecked ?? true);
+            mainWindow.FindOnPage(FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
         }
     }
 }

@@ -37,20 +37,35 @@ namespace Bend
         #region Member Data
         HwndSource mainWindow;
 
-        System.Threading.Thread findOnPageThread;
-        bool lastKeyWasEnter;
-
         Window findAndReplaceWindow;
+        System.Threading.Thread findOnPageThread;
 
         List<Tab> tab;
         int currentTabIndex;
+
+        struct FindResult {
+            internal FindResult(int beginIndex, uint length)
+            {
+                this.beginIndex = beginIndex;
+                this.length = length;
+            }
+
+            internal int beginIndex;
+            internal uint length;
+        };
+        List<FindResult> findResults;
         int currentSearchIndex;
 
         BitmapImage maximizeImage;
         BitmapImage restoreImage;
+
+        WindowChrome windowChrome;
+        ShadowWindow shadowWindow;
+
+        bool isFullScreen;
         #endregion
 
-        #region Window management
+        #region Public API
 
         public MainWindow()
         {
@@ -63,7 +78,35 @@ namespace Bend
             this.Left = PersistantStorage.StorageObject.mainWindowLeft;
             this.Width = PersistantStorage.StorageObject.mainWindowWidth;
             this.Height = PersistantStorage.StorageObject.mainWindowHeight;
+            this.windowChrome = new WindowChrome();
+            this.windowChrome.ResizeBorderThickness = new Thickness(4);
+            this.windowChrome.CaptionHeight = 40;
+            this.windowChrome.GlassFrameThickness = new Thickness(0);
+            this.windowChrome.CornerRadius = new CornerRadius(0);
+            WindowChrome.SetWindowChrome(this, this.windowChrome);
+            this.isFullScreen = false;
+            this.findResults = new List<FindResult>();
         }
+
+        internal Tab GetActiveTab()
+        {
+            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+            {
+                return this.tab[this.currentTabIndex];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        internal void LoadOptions()
+        {
+            StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+        }
+        #endregion
+
+        #region Window management
 
         public void Window_SourceInitialized(object sender, EventArgs e)
         {
@@ -73,6 +116,7 @@ namespace Bend
             // Remove the devfault window buttons
             int style = GetWindowLong(this.mainWindow.Handle, GWL_STYLE);
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
+            this.shadowWindow = new ShadowWindow(this);
 
             maximizeImage = new BitmapImage();
             maximizeImage.BeginInit();
@@ -127,7 +171,7 @@ namespace Bend
             this.currentTabIndex = this.tab.Count - 1;
             this.tab[this.currentTabIndex].Title.Opacity = 1;
             this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-            tab[this.currentTabIndex].TextEditor.Focus();
+            tab[this.currentTabIndex].TextEditor.SetFocus();
 
             System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
             settingsAnimation.Completed += new EventHandler(settingsAnimation_Completed);
@@ -198,7 +242,7 @@ namespace Bend
                     this.currentTabIndex = newTabFocus;
                     tab[newTabFocus].Title.Opacity = 1.0;
                     tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
-                    tab[newTabFocus].TextEditor.Focus();
+                    tab[newTabFocus].TextEditor.SetFocus();
                 }
             }
         }
@@ -212,10 +256,11 @@ namespace Bend
         {
             if (this.WindowState == System.Windows.WindowState.Maximized)
             {
-                this.WindowState = System.Windows.WindowState.Normal;
+                this.ResetFullScreen();
             }
             else
             {
+                this.shadowWindow.Hide();
                 this.WindowState = System.Windows.WindowState.Maximized;
             }
         }
@@ -224,7 +269,37 @@ namespace Bend
         {
             Application.Current.Shutdown();
         }
-                
+        
+        private void FullscreenButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (this.isFullScreen)
+            {
+                this.ResetFullScreen();
+            }
+            else
+            {
+                this.shadowWindow.Hide();
+                this.WindowStyle = System.Windows.WindowStyle.None;
+                WindowChrome.SetWindowChrome(this, null);
+                this.WindowState = System.Windows.WindowState.Normal;
+                this.WindowState = System.Windows.WindowState.Maximized;
+                this.isFullScreen = true;
+                // Neon Carrot (Crayola) (Hex: #FF9933) (RGB: 255, 153, 51)
+                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(255, 153, 51));
+            }
+        }
+
+        private void ResetFullScreen()
+        {
+            WindowChrome.SetWindowChrome(this, windowChrome);
+            this.shadowWindow.Show();
+            this.WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
+            this.ResizeMode = System.Windows.ResizeMode.CanResizeWithGrip;
+            this.WindowState = System.Windows.WindowState.Normal;
+            FullscreenButton.Foreground = Brushes.Gray;
+            this.isFullScreen = false;
+        }
+
         private void Window_StateChanged(object sender, EventArgs e)
         {
             if (this.WindowState == System.Windows.WindowState.Maximized)
@@ -333,7 +408,7 @@ namespace Bend
                     this.AddNewTab();
 
                     this.currentTabIndex = tab.Count - 1;
-                    tab[this.currentTabIndex].TextEditor.Focus();
+                    tab[this.currentTabIndex].TextEditor.SetFocus();
                 }
 
                 this.tab[this.currentTabIndex].OpenFile(dlg.FileName);
@@ -351,7 +426,7 @@ namespace Bend
             this.AddNewTab();
             
             this.currentTabIndex = tab.Count - 1;
-            tab[this.currentTabIndex].TextEditor.Focus();
+            tab[this.currentTabIndex].TextEditor.SetFocus();
         }
 
         private void CommandRefresh(object sender, ExecutedRoutedEventArgs e)
@@ -383,6 +458,10 @@ namespace Bend
 
         private void CommandGoto(object sender, ExecutedRoutedEventArgs e)
         {
+            if (this.currentTabIndex >= 0)
+            {
+                tab[this.currentTabIndex].TextEditor.SetFocus();
+            }            
             GotoLine.ShowGotoLineWindow(this);   
         }
 
@@ -542,7 +621,6 @@ namespace Bend
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
             {
                 this.tab[this.currentTabIndex].TextEditor.UnRasterize();
-                this.tab[this.currentTabIndex].TextEditor.Focus();
             }
         }
 
@@ -571,6 +649,12 @@ namespace Bend
 
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
+            newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+        }
+
+        void Document_ContentChange(int beginOrdinal, int endOrdinal, string content)
+        {
+            this.findResults.RemoveRange(0, this.findResults.Count);
         }
 
         private void TabClick(object sender, MouseButtonEventArgs e)
@@ -587,13 +671,12 @@ namespace Bend
                     }
                     // Clear find on page state
                     this.currentSearchIndex = 0;
-                    // TODO: INTEGRATE:
-                    // tab[this.currentTabIndex].TextEditor.Select(0,0);
+                    tab[this.currentTabIndex].TextEditor.Select(0,0);
 
                     this.currentTabIndex = i;                    
                     tab[i].Title.Opacity = 1.0;
                     tab[i].TextEditor.Visibility = Visibility.Visible;
-                    tab[i].TextEditor.Focus();
+                    tab[i].TextEditor.SetFocus();
                     break;
                 }
             }
@@ -637,7 +720,7 @@ namespace Bend
                 this.currentTabIndex = 0;
                 tab[this.currentTabIndex].Title.Opacity = 1.0;
                 tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-                tab[this.currentTabIndex].TextEditor.Focus();
+                tab[this.currentTabIndex].TextEditor.SetFocus();
             }
         }
 
@@ -711,7 +794,7 @@ namespace Bend
                     {
                         tab[this.currentTabIndex].Title.Opacity = 1.0;
                         tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-                        tab[this.currentTabIndex].TextEditor.Focus();
+                        tab[this.currentTabIndex].TextEditor.SetFocus();
                     }
                 }
                 else
@@ -721,7 +804,7 @@ namespace Bend
 
                     tab[this.currentTabIndex + 1].Title.Opacity = 1.0;
                     tab[this.currentTabIndex + 1].TextEditor.Visibility = Visibility.Visible;
-                    tab[this.currentTabIndex + 1].TextEditor.Focus();
+                    tab[this.currentTabIndex + 1].TextEditor.SetFocus();
                 }
             }
             else
@@ -739,6 +822,7 @@ namespace Bend
             // Delete current tab                    
             TabBar.Children.Remove(tab[tabIndex].Title);
             Editor.Children.Remove(tab[tabIndex].TextEditor);
+            tab[tabIndex].TextEditor.Document.ContentChange -= Document_ContentChange;
             tab[tabIndex].Close();
             tab.RemoveAt(tabIndex);
         }
@@ -827,118 +911,70 @@ namespace Bend
             if (this.currentTabIndex >= 0)
             {
                 if (e.Key == Key.Enter)
-                {   
-                    this.FindNextStringOnPage(FindText.Text, (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)), false, false, false);
-                }
-                else
                 {
-                    this.lastKeyWasEnter = false;
-                    if (e.Key == Key.Escape)
+                    if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
                     {
-                        // TODO: INTEGRATE: 
-                        //this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
-                        this.tab[this.currentTabIndex].TextEditor.Focus();
-                        this.currentSearchIndex = 0;
-                        this.SetStatusText("");
+                        this.HighlightPreviousMatch();
                     }
+                    else
+                    {
+                        this.HighlightNextMatch();
+                    }
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+                    this.tab[this.currentTabIndex].TextEditor.SetFocus();
+                    this.currentSearchIndex = 0;
+                    this.SetStatusText("");
                 }
             }
         }
 
-        internal void FindNextStringOnPage(string findText, bool backward, bool resetSearch, bool matchCase, bool useRegex)
+        private void FindText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            this.currentSearchIndex = 0;
+            this.findResults.RemoveRange(0, this.findResults.Count);
+            this.FindOnPage(FindText.Text, /*matchCase*/false, /*useRegEx*/ false);
+        }
+
+        private void FindText_LostFocus(object sender, RoutedEventArgs e)
+        {
+            this.SetStatusText("");
+        }
+                
+        public void ReplaceSelectedText(string replacementText)
         {
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
             {
-                bool thisSearchWasFromBegin;
-                int matchLength = 0;
-            repeatSearch:
-                if (backward)
+                if (this.tab[this.currentTabIndex].TextEditor.SelectedText.Length > 0)
                 {
-                    // Search backwards
-                    currentSearchIndex--;
-
-                    if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Document.Text.Length) currentSearchIndex = 0;
-                    thisSearchWasFromBegin = (currentSearchIndex == 0);
-                    currentSearchIndex = tab[this.currentTabIndex].TextEditor.Document.Text.LastIndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    matchLength = findText.Length;
+                    this.tab[this.currentTabIndex].TextEditor.SelectedText = replacementText;
                 }
-                else
-                {
-                    // Search forwards
-                    currentSearchIndex++;
-                    
-                    if (resetSearch || currentSearchIndex < 0 || currentSearchIndex >= tab[this.currentTabIndex].TextEditor.Document.Text.Length) currentSearchIndex = 0;
-                    thisSearchWasFromBegin = (currentSearchIndex == 0);
-                    if (useRegex)
-                    {
-                        try
-                        {
-                            System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                            System.Text.RegularExpressions.Match regExMatch = regEx.Match(tab[this.currentTabIndex].TextEditor.Document.Text, currentSearchIndex);
-                            if (regExMatch.Success)
-                            {
-                                currentSearchIndex = regExMatch.Index;
-                                matchLength = regExMatch.Length;
-                            }
-                            else
-                            {
-                                currentSearchIndex = -1;
-                            }
-                        }
-                        catch
-                        {
-                            currentSearchIndex = -1;
-                        }
-                    }
-                    else
-                    {
-                        currentSearchIndex = tab[this.currentTabIndex].TextEditor.Document.Text.IndexOf(findText, this.currentSearchIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                        matchLength = findText.Length;
-                    }
-                }
-                if (!this.lastKeyWasEnter)
-                {
-                    this.lastKeyWasEnter = true;
-                    goto repeatSearch;
-                }
-
-                if (currentSearchIndex >= 0)
-                {
-                    tab[this.currentTabIndex].TextEditor.Select(currentSearchIndex, (uint)matchLength);
-                    
-                    // We are looping and changed to status text to "NO MORE MATCHES", change it back to the match count.
-                    if (thisSearchWasFromBegin)
-                    {
-                        UpdateFind(findText, false, matchCase, useRegex);
-                    }
-                }
-                else
-                {
-                    if (thisSearchWasFromBegin)
-                    {
-                        this.SetStatusText("NO MATCHES FOUND");
-                    }
-                    else
-                    {
-                        this.SetStatusText("NO MORE MATCHES");
-                    }
-                    tab[this.currentTabIndex].TextEditor.Select(0, 0);
-                }
-            } 
+            }
         }
 
-        private void FindText_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// Replaces all occurances of the searchString with the replacementText in this document.
+        /// </summary>
+        public void ReplaceText(string searchString, string replacementText, bool matchCase, bool useRegex)
         {
-            UpdateFind(FindText.Text, true, false, false);            
+            int count = this.tab[this.currentTabIndex].TextEditor.Document.ReplaceText(searchString, replacementText, matchCase, useRegex);
+            if (count == 0)
+            {
+                this.SetStatusText("NO MATCHES FOUND");
+            }
+            else
+            {
+                this.tab[this.currentTabIndex].TextEditor.RefreshDisplay();
+                this.SetStatusText(count + " MATCHES REPLACED");
+            }
         }
 
-        private void Editor_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            this.currentSearchIndex = 0;
-        }
-
-        // TODO: this is hacky this must not be public. Code needs to be merged
-        public void UpdateFind(string findText, bool highLightFirstMatch, bool matchCase, bool useRegex)
+        /// <summary>
+        ///     Find searchstring and highlights the first instance. Also populates this.findResults.
+        /// </summary>
+        public void FindOnPage(string findText, bool matchCase, bool useRegex)
         {
             if (this.currentTabIndex >= 0)
             {
@@ -951,16 +987,15 @@ namespace Bend
                 }
                 if (findText.Length > 0 && text.Length > 0)
                 {
-                    this.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(UpdateFind_WorkerThread));
+                    this.findResults.RemoveRange(0, this.findResults.Count);
+                    this.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
                     this.findOnPageThread.IsBackground = true;
-                    Object[] parameters = new Object[7];
+                    Object[] parameters = new Object[5];
                     parameters[0] = text;
-                    parameters[1] = findText;
-                    parameters[2] = highLightFirstMatch;
-                    parameters[3] = matchCase;
-                    parameters[4] = useRegex;
-                    parameters[5] = null;
-                    parameters[6] = textEditor;
+                    parameters[1] = findText;                    
+                    parameters[2] = matchCase;
+                    parameters[3] = useRegex;                    
+                    parameters[4] = textEditor;
                     this.findOnPageThread.Start(parameters);
                 }
                 else
@@ -968,24 +1003,20 @@ namespace Bend
                     textEditor.Select(0, 0);
                     this.SetStatusText("NO MATCHES FOUND");
                 }
-            }            
-        }        
+            }          
+        }
 
-        private delegate void EditorFindOnPageSelection_Delegate(int slectionStart, uint selectionLength);
-        private void UpdateFind_WorkerThread(object parameters)
+        private void FindOnPage_WorkerThread(object parameters)
         {
-            string text = (string) ((object[])parameters)[0];
-            string findText = (string) ((object[])parameters)[1];
-            bool highLightFirstMatch = (bool)((object[])parameters)[2];
-            bool matchCase = (bool)((object[])parameters)[3];
-            bool useRegEx = (bool)((object[])parameters)[4];
-            string replacementText = (string)((object[])parameters)[5];
-            TextEditor textEditor = (TextEditor)((object[])parameters)[6];            
-            int findIndex = 0;
-            int matchLength = 0;
-            int delta = 0;
-            int count = 0;
+            string text = (string)((object[])parameters)[0];
+            string findText = (string)((object[])parameters)[1];
+            bool matchCase = (bool)((object[])parameters)[2];
+            bool useRegEx = (bool)((object[])parameters)[3];
+            TextEditor textEditor = (TextEditor)((object[])parameters)[4];
 
+            int findIndex = 0;
+            int matchLength = -1;
+            List<FindResult> findResults = new List<FindResult>();
             System.Text.RegularExpressions.Regex regEx = null;
             if (useRegEx)
             {
@@ -1001,55 +1032,33 @@ namespace Bend
 
             while (true)
             {
+                matchLength = -1;
                 if (useRegEx)
                 {
                     try
-                    {                        
+                    {
                         System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
                         if (regExMatch.Success)
                         {
                             findIndex = regExMatch.Index;
                             matchLength = regExMatch.Length;
-                        }
-                        else
-                        {
-                            findIndex = -1;
-                            matchLength = 0;
-                        }
+                        }                            
                     }
-                    catch
-                    {
-                        findIndex = -1;
-                        matchLength = 0;
-                    }
+                    catch {}
                 }
                 else
                 {
                     findIndex = text.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    matchLength = findText.Length;
+                    matchLength = findIndex >= 0 ? findText.Length : -1;
                 }
 
-                if (findIndex >= 0)
+                if (matchLength >= 0)
                 {
-                    count++;
-                    if (count == 1 && highLightFirstMatch == true)
+                    findResults.Add(new FindResult(findIndex, (uint)matchLength));
+                    if (findResults.Count % 10 == 0)
                     {
-                        Object[] callingParameters = new Object[2];
-                        callingParameters[0] = findIndex;
-                        callingParameters[1] = (uint)matchLength;
-                        this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
+                        this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), findResults.Count.ToString() + " MATCHES");
                     }
-                    if (count % 10 == 0)
-                    {
-                        this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
-                    }
-                    if (replacementText != null)
-                    {
-                        int deleteIndex = findIndex + delta;
-                        textEditor.ReplaceText(deleteIndex, matchLength, replacementText);
-                        delta += (replacementText.Length - findText.Length);
-                    }
-
                     findIndex += findText.Length;
                     if (findIndex >= text.Length)
                     {
@@ -1059,73 +1068,71 @@ namespace Bend
                 else
                 {
                     break;
-                }                
-            }
-            if (count == 0)
-            {                
-                this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), "NO MATCHES FOUND");
-                Object[] callingParameters = new Object[2];
-                callingParameters[0] = 0;
-                callingParameters[1] = (uint)0;
-                this.Dispatcher.BeginInvoke(new EditorFindOnPageSelection_Delegate(textEditor.Select), callingParameters);
-            }
-            else
-            {
-                this.Dispatcher.BeginInvoke(new SetStatusText_Delegate(this.SetStatusText), count.ToString() + " MATCHES");
-            }            
-        }
-        
-        private void FindText_LostFocus(object sender, RoutedEventArgs e)
-        {
-            this.SetStatusText("");
-        }
-
-        public void ReplaceSelectedText(string replacementText)
-        {
-            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
-            {
-                if (this.tab[this.currentTabIndex].TextEditor.SelectedText.Length > 0)
-                {
-                    this.tab[this.currentTabIndex].TextEditor.SelectedText = replacementText;
                 }
             }
+
+            this.Dispatcher.BeginInvoke(new Action(delegate {
+                this.currentSearchIndex = -1;
+                this.findResults = findResults;
+                this.HighlightNextMatch();
+            }));            
         }
 
-        public void ReplaceStringOnPage(string searchText, string replacementText, bool matchCase, bool useRegex)
-        {            
-            if (replacementText.Length > 0 && this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count && searchText != replacementText)
-            {
-                Object[] parameters = new Object[7];
-                string text = tab[this.currentTabIndex].TextEditor.Document.Text;
-                TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
-                parameters[0] = text;
-                parameters[1] = searchText;
-                parameters[2] = false;
-                parameters[3] = matchCase; //matchCase;
-                parameters[4] = useRegex; //useRegex;
-                parameters[5] = replacementText;
-                parameters[6] = textEditor;
-                this.UpdateFind_WorkerThread(parameters);
-            }
-        }
-        #endregion
-
-        #region Public API
-        internal Tab GetActiveTab()
+        public void HighlightNextMatch()            
         {
-            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+            this.currentSearchIndex++;
+            if (this.findResults.Count == 0)
             {
-                return this.tab[this.currentTabIndex];
+                this.currentSearchIndex = 0;
+                this.SetStatusText("NO MATCHES FOUND");
+                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+            }
+            else if (this.currentSearchIndex == this.findResults.Count)
+            {
+                // No more results to show
+                this.SetStatusText("NO MORE MATCHES");
+                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
             }
             else
             {
-                return null;
+                if (this.currentSearchIndex > this.findResults.Count)
+                {
+                    // loop over results
+                    this.currentSearchIndex = 0;
+                }
+                FindResult findResult = this.findResults[this.currentSearchIndex];
+                this.tab[this.currentTabIndex].TextEditor.Select(findResult.beginIndex, findResult.length);
+                this.SetStatusText("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
             }
         }
 
-        internal void LoadOptions()
+        public void HighlightPreviousMatch()
         {
-            StatusBar.Visibility =  PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+            if (this.findResults.Count == 0)
+            {
+                this.currentSearchIndex = 0;
+                this.SetStatusText("NO MATCHES FOUND");
+                this.tab[this.currentTabIndex].TextEditor.Select(0, 0);
+            }
+            else if (this.currentSearchIndex == 0)
+            {
+                // No more results to show
+                this.SetStatusText("NO MORE MATCHES");
+                this.tab[this.currentTabIndex].TextEditor.Select(0 ,0);
+                this.currentSearchIndex--;
+            }
+            else
+            {
+                this.currentSearchIndex--;
+                if (this.currentSearchIndex < 0)
+                {
+                    // loop over results
+                    this.currentSearchIndex = this.findResults.Count - 1;
+                }
+                FindResult findResult = this.findResults[this.currentSearchIndex];
+                this.tab[this.currentTabIndex].TextEditor.Select(findResult.beginIndex, findResult.length);
+                this.SetStatusText("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+            }
         }
         #endregion
 

@@ -88,8 +88,8 @@ namespace Bend
                 closeImage.BeginInit();
                 closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close-dot.png");
                 closeImage.EndInit();                
-                closeButton.Source = closeImage;                
-                Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);
+                closeButton.Source = closeImage;
+                Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                
                 title.Children.Add(closeButton);
 
                 Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(title, /*isHitTestable*/true);

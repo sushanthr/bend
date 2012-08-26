@@ -447,8 +447,7 @@ namespace Bend
             TextFormatHyperLinks.IsChecked = persistantStorage.TextFormatHyperLinks;
             TextFormatEmailLinks.IsChecked = persistantStorage.TextFormatEmailLinks;
             TextFormatShowFormatting.IsChecked = persistantStorage.TextShowFormatting;
-            TextWordWrap.IsChecked = persistantStorage.TextWordWrap;
-            ShowSplashScreen.IsChecked = persistantStorage.ShowSplashScreen;
+            TextWordWrap.IsChecked = persistantStorage.TextWordWrap;            
             SettingsPageAnimation.IsChecked = persistantStorage.SettingsPageAnimation;
             ShowStatusBar.IsChecked = persistantStorage.ShowStatusBar;
         }
@@ -479,7 +478,6 @@ namespace Bend
                 persistantStorage.TextFormatEmailLinks = TextFormatEmailLinks.IsChecked ?? true;
                 persistantStorage.TextShowFormatting = TextFormatShowFormatting.IsChecked ?? true;
                 persistantStorage.TextWordWrap = TextWordWrap.IsChecked ?? true;
-                persistantStorage.ShowSplashScreen = ShowSplashScreen.IsChecked ?? true;
                 persistantStorage.SettingsPageAnimation = SettingsPageAnimation.IsChecked ?? true;
                 persistantStorage.ShowStatusBar = ShowStatusBar.IsChecked ?? true;
                 CurrentTab_LoadOptions();

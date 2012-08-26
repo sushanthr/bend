@@ -37,15 +37,6 @@
     </Window.InputBindings>
     <Window.Resources>
         <Style x:Key="PlainStyle" TargetType="{x:Type local:MainWindow}">
-            <Setter Property="shell:WindowChrome.WindowChrome">
-                <Setter.Value>
-                    <shell:WindowChrome
-                        ResizeBorderThickness="4"
-                        CaptionHeight="40"
-                        GlassFrameThickness="1"
-                        CornerRadius="0"/>
-                </Setter.Value>
-            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type local:MainWindow}">
@@ -305,7 +296,7 @@
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"></RotateTransform>
             </Grid.RenderTransform>
-            <Grid Name="Editor" Margin="10,75,0,0" VerticalAlignment="Stretch" Background="WhiteSmoke" ContextMenu="{StaticResource EditorContextMenu}" PreviewMouseDown="Editor_PreviewMouseDown">
+            <Grid Name="Editor" Margin="10,75,0,0" VerticalAlignment="Stretch" Background="WhiteSmoke" ContextMenu="{StaticResource EditorContextMenu}">
             </Grid>            
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">
                 <WrapPanel MaxHeight="34" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="75,20,0,0" Name="TabBar">
@@ -366,6 +357,7 @@
             </Image>
         </Grid>
         <WrapPanel HorizontalAlignment="Right" Name="WindowControls" VerticalAlignment="Top" Margin="0,8,18,0">
+            <TextBlock Name="FullscreenButton"  Width="20" Height="20" PreviewMouseLeftButtonUp="FullscreenButtonUp" TextAlignment="Center" FontWeight="Bold" Foreground="Gray" FontSize="14" shell:WindowChrome.IsHitTestVisibleInChrome="True" >F</TextBlock>
             <Image Width="20" Height="20" PreviewMouseLeftButtonUp="MinimizeButtonUp" Source="/Bend;component/Images/min.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
             <Image Name="MaxButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MaximizeButtonUp" Source="/Bend;component/Images/max.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
             <Image Width="20" Height="20" PreviewMouseLeftButtonUp="QuitButtonUp" Source="/Bend;component/Images/quit.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
