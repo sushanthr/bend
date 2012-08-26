@@ -219,6 +219,11 @@ namespace Bend
 
         void windowChrome_RecivedFileNameEvent(string fileName)
         {
+            // If the settings page is the one in view, come out of it.
+            if (Settings.Visibility != System.Windows.Visibility.Hidden)
+            {
+                BackImage_MouseDown(null, null);
+            }
             this.AddTabWithFile(fileName);
         }
         
