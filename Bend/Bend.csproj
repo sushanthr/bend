@@ -234,9 +234,6 @@
     <Resource Include="Images\Close-dot.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Back.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Crimp.png" />
   </ItemGroup>
   <ItemGroup>
