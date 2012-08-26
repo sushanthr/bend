@@ -618,6 +618,9 @@ namespace Microsoft.Windows.Shell
             if (copyDataStruct.dwData == WindowChrome.MAGIC_NUMBER)
             {
                 string file = System.Runtime.InteropServices.Marshal.PtrToStringUni(copyDataStruct.lpData);
+                int enforceLength = (int)(copyDataStruct.cbData / 2);
+                file = file.Substring(0, enforceLength);
+
                 if (this._chromeInfo != null)
                     this._chromeInfo.NotifyOfFileNameRecieved(file);
                 handled = true;

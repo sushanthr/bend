@@ -313,7 +313,7 @@ namespace Bend
                 this.WindowState = System.Windows.WindowState.Maximized;
                 this.isFullScreen = true;
                 // Neon Carrot (Crayola) (Hex: #FF9933) (RGB: 255, 153, 51)
-                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(25, 162, 222));
+                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(255, 153, 51));
             }
         }
 
@@ -653,6 +653,10 @@ namespace Bend
 
                     if (PersistantStorage.StorageObject.SettingsPageAnimation)
                     {
+                        // Rerasterize to get the new size
+                        if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+                            this.tab[this.currentTabIndex].TextEditor.Rasterize();
+
                         settingsAnimation.SpeedRatio = 1;
                         settingsAnimation.Begin(this);
                     }

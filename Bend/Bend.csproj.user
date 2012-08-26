@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PublishUrlHistory>C:\Bend\</PublishUrlHistory>
+    <PublishUrlHistory>D:\Projects\Bend\Publish\|C:\Bend\</PublishUrlHistory>
     <InstallUrlHistory>http://bend.codeplex.com/releases/clickonce/</InstallUrlHistory>
     <SupportUrlHistory>http://bend.codeplex.com</SupportUrlHistory>
     <UpdateUrlHistory />
@@ -12,6 +12,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <StartArguments>/DEBUG</StartArguments>
+    <StartAction>Project</StartAction>
+    <StartProgram>C:\Users\sushraja\AppData\Local\Apps\2.0\LMK9D62X.PKK\C6Q2AY01.XBB\bend..tion_0000000000000000_0000.0009_6815feff578db3e3\Bend.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <StartArguments>/DEBUG</StartArguments>
