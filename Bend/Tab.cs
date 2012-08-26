@@ -201,6 +201,7 @@ namespace Bend
             TextCoreControl.Settings.TabString = tabString;
             TextCoreControl.Settings.AllowSmoothScrollBy = PersistantStorage.StorageObject.SmoothScrolling;
             TextCoreControl.Settings.EnableSyntaxHighlighting = PersistantStorage.StorageObject.SyntaxHighlighting;
+            TextCoreControl.Settings.SetFontFamily(PersistantStorage.StorageObject.DefaultFontFamily);
 
             // TODO: INTEGRATE:
             /*

@@ -577,6 +577,28 @@ namespace Bend
             SyntaxHighlighting.IsChecked = persistantStorage.SyntaxHighlighting;
             SettingsPageAnimation.IsChecked = persistantStorage.SettingsPageAnimation;
             ShowStatusBar.IsChecked = persistantStorage.ShowStatusBar;
+
+            // Set up the font picker
+            if (persistantStorage.DefaultFontFamilyIndex >= 0 && persistantStorage.DefaultFontFamilyIndex < FontPicker.Items.Count)
+            {
+                FontPicker.SelectedIndex = persistantStorage.DefaultFontFamilyIndex;
+            }
+            else
+            {
+                FontPicker.SelectedIndex = 0;
+            }
+            if (((System.Windows.Media.FontFamily)(FontPicker.Items[FontPicker.SelectedIndex])).Source != persistantStorage.DefaultFontFamily)
+            {
+                for (int fontFamilyIndex = 0; fontFamilyIndex < FontPicker.Items.Count; fontFamilyIndex++)
+                {
+                    if (((System.Windows.Media.FontFamily)(FontPicker.Items[fontFamilyIndex])).Source == persistantStorage.DefaultFontFamily)
+                    {
+                        FontPicker.SelectedIndex = fontFamilyIndex;
+                        persistantStorage.DefaultFontFamilyIndex = fontFamilyIndex;
+                        break;
+                    }
+                }
+            }
         }
 
         private void OptionsCancel_Click(object sender, RoutedEventArgs e)
@@ -609,6 +631,8 @@ namespace Bend
                 persistantStorage.TextWordWrap = TextWordWrap.IsChecked ?? true;
                 persistantStorage.SettingsPageAnimation = SettingsPageAnimation.IsChecked ?? true;
                 persistantStorage.ShowStatusBar = ShowStatusBar.IsChecked ?? true;
+                persistantStorage.DefaultFontFamilyIndex = FontPicker.SelectedIndex;
+                persistantStorage.DefaultFontFamily = ((System.Windows.Media.FontFamily)(FontPicker.Items[FontPicker.SelectedIndex])).Source;
                 CurrentTab_LoadOptions();
                 MainWindow_LoadOptions();
                 this.CancelSettingsUI();

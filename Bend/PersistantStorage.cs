@@ -40,6 +40,10 @@ namespace Bend
         public bool TextWordWrap;
         public bool SmoothScrolling;
         public bool SyntaxHighlighting;
+
+        // Font Picker
+        public int DefaultFontFamilyIndex;
+        public string DefaultFontFamily;
         #endregion
 
         private PersistantStorage()
@@ -70,6 +74,8 @@ namespace Bend
             TextWordWrap = true;
             SmoothScrolling = true;
             SyntaxHighlighting = true;
+            DefaultFontFamily = "Consolas";
+            DefaultFontFamilyIndex = -1;
         }
 
         static PersistantStorage()

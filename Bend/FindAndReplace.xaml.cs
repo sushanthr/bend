@@ -119,6 +119,14 @@ namespace Bend
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             this.mainWindow.SetStatusText("");
+            if (this.Visibility == System.Windows.Visibility.Visible)
+            {
+                // window is becoming visible.
+                if (FindText.Text != null && FindText.Text.Length != 0)
+                {
+                    mainWindow.FindOnPage(FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                }
+            }
         }
 
         private void Find_Click(object sender, RoutedEventArgs e)
@@ -127,7 +135,14 @@ namespace Bend
             {
                 FindText.Items.Insert(0, FindText.Text);
             }
-            mainWindow.HighlightNextMatch();
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                mainWindow.HighlightPreviousMatch();
+            }
+            else
+            {
+                mainWindow.HighlightNextMatch();
+            }
         }
 
         private void Replace_Click(object sender, RoutedEventArgs e)

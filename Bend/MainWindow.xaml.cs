@@ -716,6 +716,7 @@ namespace Bend
             TabBar.Children.Add(newTab.Title);            
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+            newTab.TextEditor.Document.OrdinalShift += new Document.OrdinalShiftEventHandler(Document_OrdinalShift);
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
         }
 
@@ -728,9 +729,41 @@ namespace Bend
             }    
         }
 
+        void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
+        {
+            // Only care about content deletion
+            for (int i = this.findResults.Count - 1; i >= 0; i--)
+            {
+                int beginIndex = this.findResults[i].beginIndex;
+                Document.AdjustOrdinalForShift(beginOrdinal, shift, ref beginIndex);
+                this.findResults[i] = new FindResult(beginIndex, this.findResults[i].length);
+            }
+        }
+
         void Document_ContentChange(int beginOrdinal, int endOrdinal, string content)
         {
-            this.findResults.RemoveRange(0, this.findResults.Count);
+            if (beginOrdinal == Document.UNDEFINED_ORDINAL)
+            {
+                // full reset - clear everything
+                this.findResults.RemoveRange(0, this.findResults.Count);
+            }
+            else
+            {
+                // Only care about content deletion
+                if (beginOrdinal == endOrdinal)
+                {
+                    int indexShift = 0;
+                    for (int i = this.findResults.Count - 1; i >= 0; i--)
+                    {
+                        if (this.findResults[i].beginIndex == beginOrdinal)
+                        {
+                            this.findResults.RemoveAt(i);
+                            if (this.currentSearchIndex >= i) indexShift++;
+                        }
+                    }
+                    this.currentSearchIndex -= indexShift;
+                }
+            }
         }
 
         private void TabClick(object sender, MouseButtonEventArgs e)
@@ -1174,6 +1207,9 @@ namespace Bend
 
         public void HighlightNextMatch()            
         {
+            if (this.findOnPageThread != null)
+                this.findOnPageThread.Join();
+
             this.currentSearchIndex++;
             if (this.findResults.Count == 0)
             {
@@ -1202,6 +1238,9 @@ namespace Bend
 
         public void HighlightPreviousMatch()
         {
+            if (this.findOnPageThread != null)
+                this.findOnPageThread.Join();
+
             if (this.findResults.Count == 0)
             {
                 this.currentSearchIndex = 0;

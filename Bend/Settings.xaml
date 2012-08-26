@@ -136,6 +136,17 @@
                             <CheckBox Name="TextFormatEmailLinks" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Treat Email as link</CheckBox>
                             <CheckBox Name="TextWordWrap" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Word wrap</CheckBox>
                         </StackPanel>
+                        
+                        <Label FontFamily="Segoe UI" Content="Font" Margin="0,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,10,0,0" Width="200">                            
+                            <ComboBox x:Name="FontPicker" ItemsSource="{Binding Source={x:Static Member=Fonts.SystemFontFamilies}}" SelectedIndex="0" >
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Label FontFamily="{Binding .}" Content="{Binding Source}" Height="20" Padding="2,0,0,0" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
                     </StackPanel>
                     <StackPanel Grid.Column="2" MinWidth="170" Margin="0,10,0,0" HorizontalAlignment="Center">
                         <Label FontFamily="Segoe UI" Content="Display" Margin="0,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>
