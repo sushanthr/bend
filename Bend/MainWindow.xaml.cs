@@ -117,7 +117,7 @@ namespace Bend
             this.LoadOptions();
 
             this.mainWindow = PresentationSource.FromVisual((Visual)this) as HwndSource;
-            // Remove the devfault window buttons
+            // Remove the default window buttons
             int style = GetWindowLong(this.mainWindow.Handle, GWL_STYLE);
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
 #if DEBUG

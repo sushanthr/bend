@@ -36,7 +36,10 @@ namespace Bend
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    {
+    {        
+        public delegate void FirstRun();
+        static public event FirstRun FirstRunEvent;
+
         public App()
         {
             bool debugApplication = false;
@@ -92,6 +95,11 @@ namespace Bend
                 string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
                 System.Diagnostics.Process.Start(clickOnceApplication, argument);
                 this.Shutdown();
+            }
+
+            if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun && App.FirstRunEvent != null)
+            {
+                App.FirstRunEvent();
             }
 
             ICLRRuntimeInfo runtimeInfo = (ICLRRuntimeInfo)RuntimeEnvironment.GetRuntimeInterfaceAsObject(Guid.Empty, typeof(ICLRRuntimeInfo).GUID); 
