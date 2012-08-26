@@ -22,6 +22,11 @@ namespace Bend
     /// </summary>
     public partial class Settings : UserControl
     {
+        #region Member Data
+        private bool isApplicationNetworkDeployed;
+        #endregion
+
+        #region Settings UI Maintainance
         public Settings()
         {
             InitializeComponent();
@@ -32,74 +37,251 @@ namespace Bend
             ((TabItem)this.SettingsTabs.SelectedItem).Focus();
         }
 
-        private void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+        private void ControlInitialized(object sender, EventArgs e)
         {
-            UpdateCheckInfo info = null;
-
-            if (ApplicationDeployment.IsNetworkDeployed)
+            this.isApplicationNetworkDeployed = ApplicationDeployment.IsNetworkDeployed;
+            if (isApplicationNetworkDeployed)
             {
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+                ad.CheckForUpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_UpdateProgressChanged);
+                ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
+                ad.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(ad_UpdateCompleted);
+                ad.UpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_UpdateProgressChanged);
+            }
 
+            this.UpdateButtons();
+            CheckForUpdatesButton.IsEnabled = isApplicationNetworkDeployed;
+
+            // Load defaults from persistant storage            
+            JSBeautifyPreserveLine.IsChecked = PersistantStorage.StorageObject.JSBeautifyPreserveLine;
+            JSBeautifyIndent.Text = PersistantStorage.StorageObject.JSBeautifyIndent.ToString();
+            JSBeautifyUseSpaces.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseSpaces;
+            JSBeautifyUseTabs.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseTabs;
+
+            try
+            {
+                if (isApplicationNetworkDeployed)
+                {
+                    Version.Text = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
+                }
+                else
+                {
+                    Version.Text = "DEBUG";
+                }
+            }
+            catch
+            {
+            }
+
+            this.UpdateOptions();
+        }        
+
+        private void UpdateButtons()
+        {
+            bool enableContextMenu = true;
+            try
+            {
+
+                RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                RegistryKey HKCU_SOFTWARE_CLASSES = HKCU.OpenSubKey("Software").OpenSubKey("Classes");
+                RegistryKey BendShortcutKey = HKCU_SOFTWARE_CLASSES.OpenSubKey("*");
+                BendShortcutKey = BendShortcutKey != null ? BendShortcutKey.OpenSubKey("Shell") : null;
+                BendShortcutKey = BendShortcutKey != null ? BendShortcutKey.OpenSubKey("Bend") : null;
+                if (BendShortcutKey != null && BendShortcutKey.GetValue("").ToString() == "Bend file")
+                {
+                    string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                    if (BendShortcutKey.GetValue("Icon").ToString() == BendExePath + ",0")
+                    {
+                        if (BendShortcutKey.OpenSubKey("Command").GetValue("").ToString() == "rundll32.exe dfshim.dll, ShOpenVerbExtension {29C436A6-392B-4069-8DF7-760271B08F67} %1")
+                        {
+                            RegistryKey HKCU_CLSID_UNIQUE = HKCU_SOFTWARE_CLASSES.OpenSubKey("CLSID").OpenSubKey("{29C436A6-392B-4069-8DF7-760271B08F67}");
+                            if (HKCU_CLSID_UNIQUE.GetValue("").ToString() == "Bend - A modern text editor (Explorer right click menu integration)" &&
+                                HKCU_CLSID_UNIQUE.GetValue("AppId").ToString() == "Bend.application, Culture = neutral, PublicKeyToken = 0000000000000000, processorArchitecture = x86" &&
+                                HKCU_CLSID_UNIQUE.GetValue("DeploymentProviderUrl").ToString() == "http://bend.codeplex.com/releases/clickonce/Bend.application")
+                            {
+                                DisableContextMenuButton.IsEnabled = true;
+                                EnableContextMenuButton.IsEnabled = false;
+                                enableContextMenu = false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+            if (enableContextMenu)
+            {
+                DisableContextMenuButton.IsEnabled = false;
+                EnableContextMenuButton.IsEnabled = true;
+            }
+        }
+
+        private Tab CurrentTab()
+        {
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            if (mainWindow != null)
+            {
+                return mainWindow.GetActiveTab();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void CancelSettingsUI()
+        {
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.CancelSettingsUI();
+            }
+        }
+
+        private void MainWindow_LoadOptions()
+        {
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.LoadOptions();
+            }
+        }
+
+        private void CurrentTab_LoadOptions()
+        {
+            Tab currentTab = this.CurrentTab();
+            if (currentTab != null)
+            {
+                currentTab.LoadOptions();
+            }
+        }
+        
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                TabItem tabItem = (TabItem)SettingsTabs.SelectedItem;
+                TabControl tabControl = (TabControl)tabItem.Parent;
+                for (int i = 0; i < tabControl.Items.Count; i++)
+                {
+                    ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
+                }
+
+                Label header = (Label)tabItem.Header;
+                header.Foreground = Brushes.WhiteSmoke;
+                ProgressBar.Rect = new Rect(0, 0, 0, 5);
+            }
+            catch
+            {
+            }
+        }
+        
+        private void Settings_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            ProgressBar.Rect = new Rect(0, 0, 0, 5);
+        }
+        #endregion
+
+        #region Application Update   
+
+        private void CheckForUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            CheckForUpdatesButton.IsEnabled = false;
+            ProgressBar.Rect = new Rect(0, 0, 0, 5);
+
+            if (isApplicationNetworkDeployed)
+            {
                 try
                 {
-                    info = ad.CheckForDetailedUpdate();
+                    ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+                    ad.CheckForUpdateAsync();
+                }
+                catch (Exception exception)
+                {
+                    StyledMessageBox.Show("UPDATE", "Bend cannot be updated. Error: " + exception.Message + "\n", true);
+                }                
+            }
 
-                }
-                catch (DeploymentDownloadException dde)
-                {
-                    StyledMessageBox.Show("UPDATE", "The new version of the application cannot be downloaded at this time.\nPlease check your network connection, or try again later. Error: " + dde.Message, true);                    
-                    return;
-                }
-                catch (InvalidDeploymentException ide)
-                {
-                    StyledMessageBox.Show("UPDATE", "Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Error: " + ide.Message, true);
-                    return;
-                }
-                catch (InvalidOperationException ioe)
-                {
-                    StyledMessageBox.Show("UPDATE", "This application cannot be updated. It is likely not a ClickOnce application. Error: " + ioe.Message, true);
-                    return;
-                }
+            CheckForUpdatesButton.IsEnabled = isApplicationNetworkDeployed;
+        }
 
-                if (info.UpdateAvailable)
+        void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
+        {
+            this.Dispatcher.Invoke(new Action(delegate
+            {
+                if (e.Error != null)
                 {
-                    Boolean doUpdate = true;
-
-                    if (!info.IsUpdateRequired)
+                    StyledMessageBox.Show("UPDATE", "The new version of the Bend cannot be downloaded at this time.\nPlease check your network connection, or try again later. Error: " + e.Error.Message + "\n", true);
+                }
+                else
+                {
+                    // Ask the user if they would like to update the application now.
+                    if (e.UpdateAvailable)
                     {
-                        if (!StyledMessageBox.Show("UPDATE", "An update is available. Choose OK to start update.", true))
+                        if (!e.IsUpdateRequired)
                         {
-                            doUpdate = false;
+                            if (StyledMessageBox.Show("UPDATE", "An update is available. Choose OK to start update. \n", true))
+                                this.DoUpdate();
+                        }
+                        else
+                        {
+                            // Display a message that the app MUST reboot. Display the minimum required version.
+                            StyledMessageBox.Show("UPDATE", "Bend has detected a mandatory update from your current version. Bend will now install the update.\n", true);
+                            this.DoUpdate();
                         }
                     }
                     else
                     {
-                        // Display a message that the app MUST reboot. Display the minimum required version.
-                        StyledMessageBox.Show("UPDATE", "This application has detected a mandatory update from your current " +
-                            "version to version " + info.MinimumRequiredVersion.ToString() + ". The application will now install the update.", true);
+                        StyledMessageBox.Show("UPDATE", "You already have the latest version of Bend.\n", true);
                     }
+                }
+            }));
+        }
 
-                    if (doUpdate)
-                    {
-                        try
-                        {
-                            ad.Update();
-                            StyledMessageBox.Show("UPDATE", "The application has been upgraded, please save your work and restart application.", true);
-                        }
-                        catch (DeploymentDownloadException dde)
-                        {
-                            StyledMessageBox.Show("UPDATE", "Cannot install the latest version of the application.\nPlease check your network connection, or try again later. Error: " + dde, true);
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    StyledMessageBox.Show("UPDATE", "You already have the latest version of this application.", true);
-                }
+        private void DoUpdate()
+        {
+            try
+            {
+                this.Dispatcher.Invoke(new Action(delegate { ProgressBar.Rect = new Rect(0, 0, 0, 5); }));
+
+                ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+                ad.UpdateAsync();
+            }
+            catch (Exception exception)
+            {
+                this.Dispatcher.Invoke(new Action(delegate { 
+                    StyledMessageBox.Show("UPDATE", "Cannot install the latest version of Bend.\nPlease check your network connection, or try again later. Error: " + exception.Message + "\n", true);
+                }));
             }
         }
 
+        void ad_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
+        {
+            this.Dispatcher.Invoke( new Action( delegate { ProgressBar.Rect = new Rect(0, 0, (int)(125.0f * e.ProgressPercentage / 100), 5);} ) );   
+        }
+
+        void ad_UpdateCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            this.Dispatcher.Invoke(new Action(delegate
+            {
+                CheckForUpdatesButton.IsEnabled = isApplicationNetworkDeployed;
+                if (!e.Cancelled)
+                {
+                    if (e.Error != null)
+                    {
+                        StyledMessageBox.Show("UPDATE", "Cannot install the latest version of Bend.\nPlease check your network connection, or try again later. Error: " + e.Error.Message + "\n", true);
+                    }
+                    else
+                    {
+                        StyledMessageBox.Show("UPDATE", "Bend has been upgraded, please save your work and restart application.\n", true);
+                    }
+                }
+            }));
+        }
+        #endregion
+
+        #region Integration Tab
         private void EnableContextMenu_Click(object sender, RoutedEventArgs e)
         {   
             try
@@ -150,76 +332,6 @@ namespace Bend
             }
             this.UpdateButtons();
         }
-
-        private void UpdateButtons()
-        {
-            bool enableContextMenu = true;
-            try
-            {
-
-                RegistryKey HKCU = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
-                RegistryKey HKCU_SOFTWARE_CLASSES = HKCU.OpenSubKey("Software").OpenSubKey("Classes");
-                RegistryKey BendShortcutKey = HKCU_SOFTWARE_CLASSES.OpenSubKey("*");
-                BendShortcutKey = BendShortcutKey != null ? BendShortcutKey.OpenSubKey("Shell") : null;
-                BendShortcutKey = BendShortcutKey != null ? BendShortcutKey.OpenSubKey("Bend") : null;
-                if (BendShortcutKey != null && BendShortcutKey.GetValue("").ToString() == "Bend file")
-                {
-                    string BendExePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                    if (BendShortcutKey.GetValue("Icon").ToString() == BendExePath + ",0")
-                    {
-                        if (BendShortcutKey.OpenSubKey("Command").GetValue("").ToString() == "rundll32.exe dfshim.dll, ShOpenVerbExtension {29C436A6-392B-4069-8DF7-760271B08F67} %1")
-                        {
-                            RegistryKey HKCU_CLSID_UNIQUE = HKCU_SOFTWARE_CLASSES.OpenSubKey("CLSID").OpenSubKey("{29C436A6-392B-4069-8DF7-760271B08F67}");
-                            if (HKCU_CLSID_UNIQUE.GetValue("").ToString() == "Bend - A modern text editor (Explorer right click menu integration)" &&
-                                HKCU_CLSID_UNIQUE.GetValue("AppId").ToString() == "Bend.application, Culture = neutral, PublicKeyToken = 0000000000000000, processorArchitecture = x86" &&
-                                HKCU_CLSID_UNIQUE.GetValue("DeploymentProviderUrl").ToString() == "http://bend.codeplex.com/releases/clickonce/Bend.application")
-                            {
-                                DisableContextMenuButton.IsEnabled = true;
-                                EnableContextMenuButton.IsEnabled = false;
-                                enableContextMenu = false;
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-            if (enableContextMenu)
-            {
-                DisableContextMenuButton.IsEnabled = false;
-                EnableContextMenuButton.IsEnabled = true;
-            }            
-        }
-
-        private void ControlInitialized(object sender, EventArgs e)
-        {
-            this.UpdateButtons();
-            CheckForUpdatesButton.IsEnabled = ApplicationDeployment.IsNetworkDeployed;
-
-            // Load defaults from persistant storage            
-            JSBeautifyPreserveLine.IsChecked = PersistantStorage.StorageObject.JSBeautifyPreserveLine;
-            JSBeautifyIndent.Text = PersistantStorage.StorageObject.JSBeautifyIndent.ToString();
-            JSBeautifyUseSpaces.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseSpaces;
-            JSBeautifyUseTabs.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseTabs;
-
-            try
-            {
-                if (ApplicationDeployment.IsNetworkDeployed)
-                {
-                    Version.Text = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-                }
-                else
-                {
-                    Version.Text = "DEBUG";
-                }
-            }
-            catch
-            {
-            }
-
-            this.UpdateOptions();
-        }
         
         private void AppendToPath_Click(object sender, RoutedEventArgs e)
         {            
@@ -249,47 +361,9 @@ namespace Bend
             {                
             }
         }
- 
-        private Tab CurrentTab()
-        {
-            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
-            if (mainWindow != null)
-            {
-                return mainWindow.GetActiveTab();
-            }
-            else
-            {
-                return null;
-            }
-        }
+        #endregion
 
-        private void CancelSettingsUI()
-        {
-            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
-            if (mainWindow != null)
-            {
-                mainWindow.CancelSettingsUI();
-            }
-        }
-
-        private void MainWindow_LoadOptions()
-        {
-            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
-            if (mainWindow != null)
-            {
-                mainWindow.LoadOptions();
-            }
-        }
-
-        private void CurrentTab_LoadOptions()
-        {                
-            Tab currentTab = this.CurrentTab();
-            if (currentTab != null)
-            {
-                currentTab.LoadOptions();
-            }
-        }
-
+        #region Plugins Tab
         private Plugins.JSBeautifyOptions GetAndPersistJsBeautifyOptions()
         {
             Plugins.JSBeautifyOptions jsBeautifyOptions = new Plugins.JSBeautifyOptions();
@@ -422,7 +496,9 @@ namespace Bend
             }
              * */
         }
+        #endregion
 
+        #region Options Tab
         private void UpdateOptions()
         {
             PersistantStorage persistantStorage = PersistantStorage.StorageObject;
@@ -475,24 +551,6 @@ namespace Bend
                 
             }
         }
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            try
-            {
-                TabItem tabItem = (TabItem)SettingsTabs.SelectedItem;
-                TabControl tabControl = (TabControl)tabItem.Parent;                
-                for (int i = 0; i < tabControl.Items.Count; i++)
-                {
-                    ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
-                }
-
-                Label header = (Label)tabItem.Header;
-                header.Foreground = Brushes.WhiteSmoke;
-            }
-            catch
-            {
-            }        
-        }
+        #endregion
     }
 }

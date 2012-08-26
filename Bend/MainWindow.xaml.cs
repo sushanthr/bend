@@ -63,6 +63,7 @@ namespace Bend
         ShadowWindow shadowWindow;
 
         bool isFullScreen;
+        bool isInSettingsAnimation;
         #endregion
 
         #region Public API
@@ -177,6 +178,7 @@ namespace Bend
             settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
             settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
             settingsAnimation.Completed += new EventHandler(slideSettingsInAnimation_Completed);
+            isInSettingsAnimation = false;
         }
         
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -580,28 +582,32 @@ namespace Bend
         {
             try
             {
-                System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
-                MainWindowGridRotateTransform.CenterX = this.Width / 3;
-                MainWindowGridRotateTransform.CenterY = this.Height;
-                SettingsGridRotateTransform.CenterX = this.Width / 1.5;
-                SettingsGridRotateTransform.CenterY = this.Height;
-
-                if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
-                    this.tab[this.currentTabIndex].TextEditor.Rasterize();
-
-                if (PersistantStorage.StorageObject.SettingsPageAnimation)
+                if (!this.isInSettingsAnimation)
                 {
-                    settingsAnimation.SpeedRatio = 1;
-                    settingsAnimation.Begin(this);
+                    this.isInSettingsAnimation = true;
+                    System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
+                    MainWindowGridRotateTransform.CenterX = this.Width / 3;
+                    MainWindowGridRotateTransform.CenterY = this.Height;
+                    SettingsGridRotateTransform.CenterX = this.Width / 1.5;
+                    SettingsGridRotateTransform.CenterY = this.Height;
+
+                    if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+                        this.tab[this.currentTabIndex].TextEditor.Rasterize();
+
+                    if (PersistantStorage.StorageObject.SettingsPageAnimation)
+                    {
+                        settingsAnimation.SpeedRatio = 1;
+                        settingsAnimation.Begin(this);
+                    }
+                    else
+                    {
+                        Settings.Visibility = System.Windows.Visibility.Visible;
+                        MainWindowGridRotateTransform.Angle = 180;
+                        SettingsGridRotateTransform.Angle = 0;
+                        settingsAnimation.SpeedRatio = 1000;
+                        settingsAnimation.Begin(this);
+                    }
                 }
-                else
-                {
-                    Settings.Visibility = System.Windows.Visibility.Visible;
-                    MainWindowGridRotateTransform.Angle = 180;                    
-                    SettingsGridRotateTransform.Angle = 0;
-                    settingsAnimation.SpeedRatio = 1000;
-                    settingsAnimation.Begin(this);
-                }                
             }
             catch
             {
@@ -612,26 +618,29 @@ namespace Bend
         {
             try
             {
-                System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
-                MainWindowGridRotateTransform.CenterX = this.Width / 3;
-                MainWindowGridRotateTransform.CenterY = this.Height;
-                SettingsGridRotateTransform.CenterX = this.Width / 1.5;
-                SettingsGridRotateTransform.CenterY = this.Height;
-
-                if (PersistantStorage.StorageObject.SettingsPageAnimation)
+                if (!this.isInSettingsAnimation)
                 {
-                    settingsAnimation.SpeedRatio = 1;
-                    settingsAnimation.Begin(this);
-                }
-                else
-                {                    
-                    MainWindowGridRotateTransform.Angle = 0;                    
-                    SettingsGridRotateTransform.Angle = -180;
-                    Settings.Visibility = System.Windows.Visibility.Hidden;
-                    settingsAnimation.SpeedRatio = 1000;
-                    settingsAnimation.Begin(this);
-                }
-                
+                    this.isInSettingsAnimation = true;
+                    System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
+                    MainWindowGridRotateTransform.CenterX = this.Width / 3;
+                    MainWindowGridRotateTransform.CenterY = this.Height;
+                    SettingsGridRotateTransform.CenterX = this.Width / 1.5;
+                    SettingsGridRotateTransform.CenterY = this.Height;
+
+                    if (PersistantStorage.StorageObject.SettingsPageAnimation)
+                    {
+                        settingsAnimation.SpeedRatio = 1;
+                        settingsAnimation.Begin(this);
+                    }
+                    else
+                    {
+                        MainWindowGridRotateTransform.Angle = 0;
+                        SettingsGridRotateTransform.Angle = -180;
+                        Settings.Visibility = System.Windows.Visibility.Hidden;
+                        settingsAnimation.SpeedRatio = 1000;
+                        settingsAnimation.Begin(this);
+                    }
+                }                
             }
             catch
             {
@@ -641,14 +650,16 @@ namespace Bend
         void slideSettingsInAnimation_Completed(object sender, EventArgs e)
         {
             this.SettingsControl.UpdateFocus();
+            this.isInSettingsAnimation = false;
         }
 
         void slideSettingsOutAnimation_Completed(object sender, EventArgs e)
-        {
+        {            
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
             {
                 this.tab[this.currentTabIndex].TextEditor.UnRasterize();
             }
+            this.isInSettingsAnimation = false;
         }
 
         public void CancelSettingsUI()
