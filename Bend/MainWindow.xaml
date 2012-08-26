@@ -15,14 +15,12 @@
         Height="600"
         SourceInitialized="Window_SourceInitialized" 
         Icon="/Bend;component/Images/Arrow-icon.png" 
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" PreviewKeyDown="Window_PreviewKeyDown" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" Background="WhiteSmoke" AllowsTransparency="False">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" Background="WhiteSmoke" AllowsTransparency="False">
     <Window.CommandBindings>
         <CommandBinding Command="Save" Executed="CommandSave"/>
         <CommandBinding Command="Open" Executed="CommandOpen"/>
         <CommandBinding Command="New" Executed="CommandNew"/>
         <CommandBinding Command="Refresh" Executed="CommandRefresh"/>
-        <CommandBinding Command="Copy" Executed="CommandCopy"/>
-        <CommandBinding Command="Paste" Executed="CommandPaste"/>
         <CommandBinding Command="Find" Executed="CommandFind"/>
         <CommandBinding Command="Replace" Executed="CommandReplace"/>
         <CommandBinding Command="GoToPage" Executed="CommandGoto"/>

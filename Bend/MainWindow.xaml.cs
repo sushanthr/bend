@@ -224,20 +224,7 @@ namespace Bend
         {
             Application.Current.Shutdown();
         }
-        
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                if (this.currentTabIndex > 0 && this.currentTabIndex < tab.Count)
-                {
-                    // TODO: INTEGRATE:
-                    // tab[this.currentTabIndex].TextEditor.Select(0, 0);
-                    this.currentSearchIndex = 0;
-                }
-            }
-        }
-
+                
         private void Window_StateChanged(object sender, EventArgs e)
         {
             if (this.WindowState == System.Windows.WindowState.Maximized)
@@ -794,7 +781,7 @@ namespace Bend
         #region Editor Context Menu
         private void ContextCopy(object sender, RoutedEventArgs e)
         {
-            this.CommandCopy(sender, null);
+            //this.CommandCopy(sender, null);
         }
 
         private void ContextCut(object sender, RoutedEventArgs e)
@@ -824,26 +811,7 @@ namespace Bend
 
         private void ContextPaste(object sender, RoutedEventArgs e)
         {
-            this.CommandPaste(sender, null);
-        }
-        #endregion
-
-        #region Clip board management
-        private void CommandCopy(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (this.currentTabIndex >= 0)
-            {
-                // TODO: INTEGRATE:
-                // Clipboard.SetText(this.tab[this.currentTabIndex].TextEditor.SelectedText);
-            }
-        }
-        private void CommandPaste(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (this.currentTabIndex >= 0 && Clipboard.ContainsText())
-            {
-                // TODO: INTEGRATE:
-                // this.tab[this.currentTabIndex].TextEditor.Paste();
-            }
+            //this.CommandPaste(sender, null);
         }
         #endregion
 
