@@ -59,8 +59,7 @@ namespace Bend
         BitmapImage maximizeImage;
         BitmapImage restoreImage;
 
-        WindowChrome windowChrome;
-        ShadowWindow shadowWindow;
+        WindowChrome windowChrome;        
 
         bool isFullScreen;
         bool isInSettingsAnimation;
@@ -84,7 +83,7 @@ namespace Bend
             this.windowChrome = new WindowChrome();
             this.windowChrome.ResizeBorderThickness = new Thickness(4);
             this.windowChrome.CaptionHeight = 40;
-            this.windowChrome.GlassFrameThickness = new Thickness(0);
+            this.windowChrome.GlassFrameThickness = new Thickness(1);
             this.windowChrome.CornerRadius = new CornerRadius(0);
             this.windowChrome.RecivedFileNameEvent += new WindowChrome.RecivedFileNameEventHandler(windowChrome_RecivedFileNameEvent);
             WindowChrome.SetWindowChrome(this, this.windowChrome);
@@ -121,7 +120,6 @@ namespace Bend
             // Remove the devfault window buttons
             int style = GetWindowLong(this.mainWindow.Handle, GWL_STYLE);
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
-            this.shadowWindow = new ShadowWindow(this);
 #if DEBUG
             System.Diagnostics.Debug.Assert(RenderCapability.Tier == 0x00020000);
             RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);            
@@ -288,7 +286,6 @@ namespace Bend
             }
             else
             {
-                this.shadowWindow.Hide();
                 this.WindowState = System.Windows.WindowState.Maximized;
             }
         }
@@ -306,7 +303,6 @@ namespace Bend
             }
             else
             {
-                this.shadowWindow.Hide();
                 this.WindowStyle = System.Windows.WindowStyle.None;
                 WindowChrome.SetWindowChrome(this, null);
                 this.WindowState = System.Windows.WindowState.Normal;
@@ -320,7 +316,6 @@ namespace Bend
         private void ResetFullScreen()
         {
             WindowChrome.SetWindowChrome(this, windowChrome);
-            this.shadowWindow.Show();
             this.WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
             this.ResizeMode = System.Windows.ResizeMode.CanResizeWithGrip;
             this.WindowState = System.Windows.WindowState.Normal;
