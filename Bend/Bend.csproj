@@ -40,7 +40,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>59</ApplicationRevision>
+    <ApplicationRevision>60</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -249,6 +249,7 @@
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
     <Resource Include="Images\SettingsPattern.png" />
     <Resource Include="Images\FrontBackground.png" />
+    <Resource Include="Images\Close.png" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
