@@ -109,7 +109,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         this.heuristicsEnabled = false;
                     }
                 }
-                string immutableString = document.ToString();
+                string immutableString = documentString.ToString();
                 syntaxFile = GetSyntaxFileUsingHeuristics(immutableString);
             }
 
@@ -187,19 +187,27 @@ namespace TextCoreControl.SyntaxHighlighting
 
         private string GetSyntaxFileUsingHeuristics(string documentString)
         {
+            int bestMatchIndex = -1;
+            int bestMatchCount = 0;
             for (int i = 0; i < this.heuristics.Length; i++)
             {
                 Regex regex = this.heuristics[i];
-                if (regex.IsMatch(documentString))
+                int matchCount = regex.Matches(documentString).Count;
+                if (matchCount > bestMatchCount)
                 {
-                    string syntaxFile = this.hSytaxFileNames[i];
-                    if (System.IO.File.Exists(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile))
-                    {
-                        return syntaxFile;
-                    }
+                    bestMatchCount = matchCount;
+                    bestMatchIndex = i;
                 }
             }
 
+            if (bestMatchIndex != -1)
+            {
+                string syntaxFile = this.hSytaxFileNames[bestMatchIndex];
+                if (System.IO.File.Exists(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile))
+                {
+                    return syntaxFile;
+                }
+            }
             return null;
         }
 
