@@ -203,25 +203,13 @@ namespace Bend
             TextCoreControl.Settings.EnableSyntaxHighlighting = PersistantStorage.StorageObject.SyntaxHighlighting;
             TextCoreControl.Settings.SetFontFamily(PersistantStorage.StorageObject.DefaultFontFamily);
 
+            TextCoreControl.Settings.ShowFormatting = PersistantStorage.StorageObject.TextShowFormatting;
+
             // TODO: INTEGRATE:
-            /*
-            
+            /*            
             this.textEditor.Options.ShowBoxForControlCharacters = PersistantStorage.StorageObject.TextFormatControlCharacters;
             this.textEditor.Options.EnableHyperlinks = PersistantStorage.StorageObject.TextFormatHyperLinks;
-            this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks;
-            if (PersistantStorage.StorageObject.TextShowFormatting)
-            {
-                this.textEditor.Options.ShowSpaces = true;
-                this.textEditor.Options.ShowTabs = true;
-                this.textEditor.Options.ShowEndOfLine = true;
-            }
-            else
-            {
-                this.textEditor.Options.ShowSpaces = false;
-                this.textEditor.Options.ShowTabs = false;
-                this.textEditor.Options.ShowEndOfLine = false;
-            }
-            
+            this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks; 
             */
             this.textEditor.RefreshDisplay();
         }
