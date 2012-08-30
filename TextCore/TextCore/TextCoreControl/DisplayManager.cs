@@ -78,6 +78,8 @@ namespace TextCoreControl
                 if (this.syntaxHighlightingService != null)
                     this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
 
+                ShowFormatting.InitDisplayResources(hwndRenderTarget);
+
                 // Force create an empty line
                 double maxVisualLineWidth;
                 int changeStart, changeEnd;
@@ -1455,6 +1457,8 @@ namespace TextCoreControl
         {
             if (hwndRenderTarget != null)
             {
+                ShowFormatting.NotifyOfSettingsChanged();
+
                 this.textLayoutBuilder.NotifyOfSettingsChange();
 
                 if (this.syntaxHighlightingService != null)
@@ -1468,7 +1472,7 @@ namespace TextCoreControl
 
                 this.scrollBoundsManager.NotifyOfSettingsChange();
                 this.scrollBoundsManager.InitializeVerticalScrollBounds(this.AvailbleWidth);
-
+                
                 double maxVisualLineWidth;
                 int changeStart, changeEnd;
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);

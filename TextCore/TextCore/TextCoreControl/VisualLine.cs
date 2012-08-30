@@ -17,7 +17,18 @@ namespace TextCoreControl
             int nextOrdinal,
             bool hasHardBreak)
         {
-            textLayout = dwriteFactory.CreateTextLayout(lineText, 
+            this.lineText = lineText;
+            string displayText;
+            if (Settings.ShowFormatting)
+            {
+                displayText = ShowFormatting.PrepareShowFormatting(lineText);
+            }
+            else
+            {
+                displayText = lineText;
+            }
+
+            textLayout = dwriteFactory.CreateTextLayout(displayText, 
                 defaultFormat, 
                 float.MaxValue, 
                 float.MaxValue);
@@ -33,6 +44,11 @@ namespace TextCoreControl
             this.nextOrdinal = nextOrdinal;
             this.hasHardBreak = hasHardBreak;
             this.whiteTextLayout = null;
+
+            if (Settings.ShowFormatting)
+            {
+                ShowFormatting.ApplyShowFormatting(lineText, dwriteFactory, textLayout);
+            }
         }
 
         /// <summary>
@@ -60,6 +76,10 @@ namespace TextCoreControl
                                             defaultFormat,
                                             float.MaxValue,
                                             float.MaxValue);
+                if (Settings.ShowFormatting)
+                {
+                    ShowFormatting.ApplyShowFormatting(lineText, dwriteFactory, this.whiteTextLayout);
+                }
             }
             renderTarget.DrawTextLayout(this.position, this.whiteTextLayout, whiteBrush, DrawTextOptions.NoSnap);
         }
@@ -126,53 +146,42 @@ namespace TextCoreControl
                     }
                 }
 
-                uint localEnd = 0;
+                uint localEnd = localBegin;
                 while (tempOrdinal != endOrdinal && tempOrdinal != this.nextOrdinal)
                 {
                     tempOrdinal = document.NextOrdinal(tempOrdinal);
                     localEnd++;
                 }
 
-                HitTestMetrics[] hitTestMetrics = textLayout.HitTestTextRange(localBegin, localEnd, position.X, position.Y);
-
-                // Merge all the mergeable rectangles to create a compact rectangle list.
-                if (hitTestMetrics.Length > 0)
+                int textPosition = 0;
+                float rangeWidth = 0;
+                float rangeLeft = 0;
+                bool rangeStarted = false; ;
+                foreach (ClusterMetrics clusterMetric in textLayout.ClusterMetrics)
                 {
-                    RectF previousRectangle = new RectF(hitTestMetrics[0].Left,
-                        hitTestMetrics[0].Top,
-                        hitTestMetrics[0].Left + hitTestMetrics[0].Width,
-                        hitTestMetrics[0].Top + hitTestMetrics[0].Height);
+                    if (clusterMetric.IsNewline)
+                        break;
 
-                    for (int i = 0; i < hitTestMetrics.Length; i++)
+                    if (textPosition >= localBegin)
                     {
-                        RectF hitRectangle = new RectF(hitTestMetrics[i].Left,
-                            hitTestMetrics[i].Top,
-                            hitTestMetrics[i].Left + hitTestMetrics[i].Width,
-                            hitTestMetrics[i].Top + hitTestMetrics[i].Height);
-
-                        if (previousRectangle.Right + 2 > hitRectangle.Left && previousRectangle.Left < hitRectangle.Left)
+                        rangeStarted = true;
+                        if (textPosition < localEnd)
                         {
-                            // Simply merge the rectangle with the previous
-                            previousRectangle.Right = hitRectangle.Right;
-
-                            // Expand height
-                            previousRectangle.Top = hitRectangle.Top < previousRectangle.Top ? hitRectangle.Top : previousRectangle.Top;
-                            previousRectangle.Bottom = hitRectangle.Bottom > previousRectangle.Bottom ? hitRectangle.Bottom : previousRectangle.Bottom;
+                            rangeWidth += clusterMetric.Width;
                         }
                         else
                         {
-                            // If we are the last prevent adding the last rectangle twice.
-                            if (i + 1 <  hitTestMetrics.Length)
-                                rangeRectangles.Add(previousRectangle);
-
-                            previousRectangle = hitRectangle;
+                            break;
                         }
-
-                        previousRectangle = hitRectangle;
                     }
 
-                    rangeRectangles.Add(previousRectangle);
+                    textPosition += clusterMetric.Length;
+                    if (!rangeStarted)
+                    {
+                        rangeLeft += clusterMetric.Width;
+                    }
                 }
+                rangeRectangles.Add(new RectF(this.position.X + rangeLeft, this.position.Y, this.position.X + rangeLeft + rangeWidth, this.position.Y + this.height));
             }
 
             return rangeRectangles;
@@ -212,13 +221,14 @@ namespace TextCoreControl
 
         public bool HasHardBreak { get { return this.hasHardBreak;} }
 
-        public string Text { get { return this.textLayout.Text; } }
+        public string Text { get { return this.lineText; } }
 
         public bool ContainsOrdinal(int ordinal) { return this.beginOrdinal <= ordinal && this.nextOrdinal > ordinal; }
 
         private Point2F position;
         private TextLayout textLayout;
         private TextLayout whiteTextLayout;
+        string lineText;
         private float height;
         private int beginOrdinal;
         private int nextOrdinal;

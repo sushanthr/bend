@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="276" d:DesignWidth="431"
              Background="WhiteSmoke">
-    <Grid ClipToBounds="True" Margin="3,0,0,0">
+    <Grid ClipToBounds="True" Margin="5,0,0,0">
         <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16" MinHeight="2"/>
         <Image Name="RasterHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16"></Image>
         <ScrollBar HorizontalAlignment="Right" Name="vScrollBar" VerticalAlignment="Stretch" Margin="0,0,0,16"/>

@@ -14,6 +14,7 @@ namespace TextCoreControl
             // Create the DWrite Factory
             Settings.dwriteFactory                       = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             Settings.DefaultTextFormat                   = dwriteFactory.CreateTextFormat("Consolas", 14, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
+            Settings.DefaultShowFormattingTextFormat     = dwriteFactory.CreateTextFormat("Consolas", 12, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
 
             Settings.AutoWrap                            = true;
 
@@ -34,12 +35,16 @@ namespace TextCoreControl
             Settings.ShowLineNumber                      = false;
             Settings.MinLineNumberDigits                 = 3;
 
-            Settings.UseStringForTab                     = true;
+            Settings.UseStringForTab                     = false;
             Settings.TabString                           = "    ";
 
             Settings.ReturnKeyInsertsNewLineCharacter    = true;
             Settings.AllowSmoothScrollBy                 = true;
             Settings.EnableSyntaxHighlighting            = true;
+
+            Settings.ShowFormatting                      = true;
+            Settings.DefaultShowFormattingColor          = new ColorF(0.74f, 0.74f, 0.74f);
+            Settings.DefaultShowFormattingColorAlt       = new ColorF(0.90f, 0.90f, 0.90f);
         }
 
         public static void SetFontFamily(string fontfamily)
@@ -49,6 +54,12 @@ namespace TextCoreControl
              Settings.DefaultTextFormat.FontWeight,
              Settings.DefaultTextFormat.FontStyle,
              Settings.DefaultTextFormat.FontStretch);
+
+            Settings.DefaultShowFormattingTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                Settings.DefaultTextFormat.FontSize - 2,
+                Settings.DefaultTextFormat.FontWeight,
+                Settings.DefaultTextFormat.FontStyle,
+                Settings.DefaultTextFormat.FontStretch);
         }
         
         public static void IncreaseFontSize()
@@ -58,13 +69,25 @@ namespace TextCoreControl
                 Settings.DefaultTextFormat.FontWeight,
                 Settings.DefaultTextFormat.FontStyle,
                 Settings.DefaultTextFormat.FontStretch);
+
+            Settings.DefaultShowFormattingTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                Settings.DefaultTextFormat.FontSize - 2,
+                Settings.DefaultTextFormat.FontWeight,
+                Settings.DefaultTextFormat.FontStyle,
+                Settings.DefaultTextFormat.FontStretch);
         }
 
         public static void DecreaseFontSize()
         {
-            if (Settings.DefaultTextFormat.FontSize > 3)
+            if (Settings.DefaultTextFormat.FontSize > 5)
             {                
                 Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                    Settings.DefaultTextFormat.FontSize - 2,
+                    Settings.DefaultTextFormat.FontWeight,
+                    Settings.DefaultTextFormat.FontStyle,
+                    Settings.DefaultTextFormat.FontStretch);
+
+                Settings.DefaultShowFormattingTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
                     Settings.DefaultTextFormat.FontSize - 2,
                     Settings.DefaultTextFormat.FontWeight,
                     Settings.DefaultTextFormat.FontStyle,
@@ -76,6 +99,12 @@ namespace TextCoreControl
         {
             Settings.DefaultTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
                 14,
+                Settings.DefaultTextFormat.FontWeight,
+                Settings.DefaultTextFormat.FontStyle,
+                Settings.DefaultTextFormat.FontStretch);
+
+            Settings.DefaultShowFormattingTextFormat = dwriteFactory.CreateTextFormat(Settings.DefaultTextFormat.FontFamilyName,
+                Settings.DefaultTextFormat.FontSize - 2,
                 Settings.DefaultTextFormat.FontWeight,
                 Settings.DefaultTextFormat.FontStyle,
                 Settings.DefaultTextFormat.FontStretch);
@@ -110,5 +139,10 @@ namespace TextCoreControl
         public static bool          AllowSmoothScrollBy;
 
         public static bool          EnableSyntaxHighlighting;
+
+        public static bool          ShowFormatting;
+        public static ColorF        DefaultShowFormattingColor;
+        public static ColorF        DefaultShowFormattingColorAlt;
+        public static TextFormat    DefaultShowFormattingTextFormat;
     }
 }
