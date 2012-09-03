@@ -21,7 +21,8 @@ namespace TextCoreControl
             string displayText;
             if (Settings.ShowFormatting)
             {
-                displayText = ShowFormatting.PrepareShowFormatting(lineText);
+                // The EOF file /0 character needs to be ignored for show formatting purposes, ignoreLastCharacter achieves this.
+                displayText = ShowFormatting.PrepareShowFormatting(lineText, /*ignoreLastCharacter*/nextOrdinal == Document.UNDEFINED_ORDINAL);
             }
             else
             {

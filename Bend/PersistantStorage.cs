@@ -33,7 +33,6 @@ namespace Bend
         public int TextIndent;
         public bool TextUseSpaces;
         public bool TextUseTabs;
-        public bool TextFormatControlCharacters;
         public bool TextFormatHyperLinks;
         public bool TextFormatEmailLinks;
         public bool TextShowFormatting;
@@ -67,7 +66,6 @@ namespace Bend
             TextIndent = 4;
             TextUseSpaces = true;
             TextUseTabs = false;
-            TextFormatControlCharacters = true;
             TextFormatHyperLinks = true;
             TextFormatEmailLinks = true;
             TextShowFormatting = false;

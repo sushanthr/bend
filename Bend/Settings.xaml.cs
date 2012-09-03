@@ -568,7 +568,6 @@ namespace Bend
             TextUseSpaces.IsChecked = persistantStorage.TextUseSpaces;
             TextUseTabs.IsChecked = persistantStorage.TextUseTabs;
             TextIndent.Text = persistantStorage.TextIndent.ToString();
-            TextStyleControlCharacters.IsChecked = persistantStorage.TextFormatControlCharacters;
             TextFormatHyperLinks.IsChecked = persistantStorage.TextFormatHyperLinks;
             TextFormatEmailLinks.IsChecked = persistantStorage.TextFormatEmailLinks;
             TextFormatShowFormatting.IsChecked = persistantStorage.TextShowFormatting;
@@ -622,7 +621,6 @@ namespace Bend
                     persistantStorage.TextIndent = indentSize;
                 }
 
-                persistantStorage.TextFormatControlCharacters = TextStyleControlCharacters.IsChecked ?? true;
                 persistantStorage.TextFormatHyperLinks = TextFormatHyperLinks.IsChecked ?? true;
                 persistantStorage.TextFormatEmailLinks = TextFormatEmailLinks.IsChecked ?? true;
                 persistantStorage.TextShowFormatting = TextFormatShowFormatting.IsChecked ?? true;

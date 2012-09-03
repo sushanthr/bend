@@ -30,7 +30,7 @@
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
-    <InstallUrl>http://sushanth.org.org/bend/</InstallUrl>
+    <InstallUrl>http://sushanth.ignorelist.com/bend/</InstallUrl>
     <SupportUrl>http://bend.codeplex.com</SupportUrl>
     <ErrorReportUrl>http://bend.codeplex.com</ErrorReportUrl>
     <ProductName>Bend</ProductName>

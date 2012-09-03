@@ -60,30 +60,34 @@ namespace TextCoreControl
 
         internal static void ApplyShowFormatting(string lineText, DWriteFactory dwriteFactory, TextLayout textLayout)
         {
-            for (uint i = 0; i < lineText.Length; i++)
+            for (int i = 0; i < lineText.Length; i++)
             {
-                char ch = lineText[(int)i];
-                if (IsStandardControlCharacter(ch))
+                if (textLayout.Text[i] == '*')
                 {
-                    // We have to format this character
-                    TextLayout formattingTextLayout;
-                    lock (formattingTextLayouts)
+                    char ch = lineText[(int)i];
+                    if (IsStandardControlCharacter(ch))
                     {
-                        if (!formattingTextLayouts.TryGetValue(ch, out formattingTextLayout))
+                        // We have to format this character
+                        TextLayout formattingTextLayout;
+                        lock (formattingTextLayouts)
                         {
-                            formattingTextLayout = dwriteFactory.CreateTextLayout(StandardControlCharacter[(int)ch], Settings.DefaultShowFormattingTextFormat, int.MaxValue, int.MaxValue);
-                            formattingTextLayouts.Add(ch, formattingTextLayout);
+                            if (!formattingTextLayouts.TryGetValue(ch, out formattingTextLayout))
+                            {
+                                formattingTextLayout = dwriteFactory.CreateTextLayout(StandardControlCharacter[(int)ch], Settings.DefaultShowFormattingTextFormat, int.MaxValue, int.MaxValue);
+                                formattingTextLayouts.Add(ch, formattingTextLayout);
+                            }
                         }
+                        textLayout.SetInlineObject(new ShowFormattingInlineObject(formattingTextLayout), new TextRange((uint)i, 1));
                     }
-                    textLayout.SetInlineObject(new ShowFormattingInlineObject(formattingTextLayout), new TextRange(i, 1));
                 }
             }
         }
 
-        internal static string PrepareShowFormatting(string lineText)
+        internal static string PrepareShowFormatting(string lineText, bool ignoreLastCharacter)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            for (uint i = 0; i < lineText.Length; i++)
+            int maximumIndex = ignoreLastCharacter ? lineText.Length - 1: lineText.Length;
+            for (int i = 0; i < maximumIndex; i++)
             {
                 char ch = lineText[(int)i];
                 if (IsStandardControlCharacter(ch))
@@ -94,6 +98,10 @@ namespace TextCoreControl
                 {
                     stringBuilder.Append(ch);
                 }
+            }
+            if (ignoreLastCharacter && lineText.Length > 0)
+            {
+                stringBuilder.Append(lineText[lineText.Length - 1]);
             }
             return stringBuilder.ToString();
         }

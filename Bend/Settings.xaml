@@ -132,7 +132,6 @@
                         <StackPanel HorizontalAlignment="Center" Margin="20,10,0,0">                            
                             <CheckBox Name="TextFormatHyperLinks" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver"> Clickable Hyperlinks</CheckBox>                            
                             <CheckBox Name="TextFormatShowFormatting" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Show formatting</CheckBox>
-                            <CheckBox Name="TextStyleControlCharacters"  Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Style control characters</CheckBox>
                             <CheckBox Name="TextFormatEmailLinks" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Treat Email as link</CheckBox>
                             <CheckBox Name="TextWordWrap" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Word wrap</CheckBox>
                         </StackPanel>
@@ -173,7 +172,7 @@
                         <ColumnDefinition Width="500" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="1" MaxWidth="800" Margin="0,50,0,0">
+                    <StackPanel Grid.Column="1" MaxWidth="800" Margin="0,45,0,0">
                         <WrapPanel>
                             <Image Source="/Bend;component/Arrow.ico" Height="117" Width="148"></Image>
                             <WrapPanel Width="180">
