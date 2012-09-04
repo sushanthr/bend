@@ -604,14 +604,23 @@ namespace TextCoreControl
                     break;
                 case System.Windows.Input.Key.Tab:
                     {
-                        bool tabsAddedToSelection = false;
+                        bool tabsChanged = false;
                         if (this.SelectionBegin != this.SelectionEnd)
                         {
-                            // Need to tabify selection.
-                            tabsAddedToSelection = this.AddTabsToSelection();
+                            if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                            {
+                                // Need to un-tabify selection
+                                tabsChanged = true;
+                                this.RemoveTabsFromSelection();
+                            }
+                            else
+                            {
+                                // Need to tabify selection.
+                                tabsChanged = this.AddTabsToSelection();
+                            }
                         }
 
-                        if (!tabsAddedToSelection)
+                        if (!tabsChanged)
                         {
                             int insertOrdinal = this.caret.Ordinal;
                             if (Settings.UseStringForTab)
@@ -1269,6 +1278,108 @@ namespace TextCoreControl
             }
             return tabsAdded;
         }
+
+        /// <summary>
+        ///     Removes tabs after line breaks in the selected region.
+        /// </summary>
+        /// <returns>true if sucessful, false otherwise</returns>
+        private bool RemoveTabsFromSelection()
+        {
+            bool tabsRemoved = false;
+            if (this.SelectionBegin != this.SelectionEnd)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                int beginOrdinal = this.SelectionBegin;
+                // Roll back until after the previous line break.
+                // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
+                while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
+                {
+                    int temp = document.PreviousOrdinal(beginOrdinal);
+                    if (temp == Document.BEFOREBEGIN_ORDINAL)
+                        break;
+                    beginOrdinal = temp;
+                }
+
+                int ordinal = beginOrdinal;
+                int length = 0;
+                
+                if (ordinal == document.FirstOrdinal())
+                {
+                    if (Settings.UseStringForTab)
+                    {
+                        StringBuilder tempStringBuilder = new StringBuilder();
+                        int nextOrdinal = ordinal;
+                        for (int i = Settings.TabString.Length; i > 0 && nextOrdinal != Document.UNDEFINED_ORDINAL; i--)
+                        {
+                            tempStringBuilder.Append(document.CharacterAt(nextOrdinal));
+                            nextOrdinal = document.NextOrdinal(nextOrdinal);
+                        }
+                        if (tempStringBuilder.ToString() == Settings.TabString)
+                        {
+                            length += Settings.TabString.Length;
+                            ordinal = nextOrdinal;
+                            tabsRemoved = true;
+                        }
+                    }
+                    else if (document.CharacterAt(ordinal) == '\t')
+                    {
+                        length++;
+                        ordinal = document.NextOrdinal(ordinal);
+                        tabsRemoved = true;
+                    }
+                }
+
+                while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
+                {
+                    char ch = document.CharacterAt(ordinal);
+                    stringBuilder.Append(ch);
+
+                    int skipCount = 1;
+                    if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)))
+                    {
+                        if (Settings.UseStringForTab)
+                        {
+                            StringBuilder tempStringBuilder = new StringBuilder();
+                            int nextOrdinal = document.NextOrdinal(ordinal);
+                            for (int i = Settings.TabString.Length; i > 0 && nextOrdinal != Document.UNDEFINED_ORDINAL; i--)
+                            {
+                                tempStringBuilder.Append(document.CharacterAt(nextOrdinal));
+                                nextOrdinal = document.NextOrdinal(nextOrdinal);
+                            }
+                            if (tempStringBuilder.ToString() == Settings.TabString)
+                            {
+                                skipCount += Settings.TabString.Length;
+                                tabsRemoved = true;
+                            }
+                        }
+                        else
+                        {
+                            int nextOrdinal = document.NextOrdinal(ordinal);
+                            if (nextOrdinal != Document.UNDEFINED_ORDINAL && document.CharacterAt(nextOrdinal) == '\t')
+                            {
+                                skipCount = 2;
+                                tabsRemoved = true;
+                            }
+                        }
+                    }
+                    
+                    while (skipCount > 0 && ordinal != Document.UNDEFINED_ORDINAL)
+                    {
+                        ordinal = document.NextOrdinal(ordinal);
+                        length++;
+                        skipCount--;
+                    }
+                }
+
+                if (tabsRemoved)
+                {
+                    document.DeleteAt(beginOrdinal, length);
+                    document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                }
+            }
+            return tabsRemoved;
+        }
+
         #endregion
 
         #region Content change handling
