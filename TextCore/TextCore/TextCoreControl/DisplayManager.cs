@@ -55,12 +55,14 @@ namespace TextCoreControl
             if (hwndRenderTarget == null)
             {
                 // Create the render target
-                SizeU size = new SizeU((uint)renderHost.ActualWidth, (uint)renderHost.ActualHeight);
+                float dpiX = (float)(this.d2dFactory.DesktopDpi.X / 96.0);
+                float dpiY = (float)(this.d2dFactory.DesktopDpi.Y / 96.0);
+                SizeU size = new SizeU((uint)(Math.Ceiling(renderHost.ActualWidth * dpiX)), (uint)(Math.Ceiling(renderHost.ActualHeight * dpiY)));
                 RenderTargetProperties props = new RenderTargetProperties(
                     RenderTargetType.Hardware,
                     new PixelFormat(),
-                    96,
-                    96,
+                    this.d2dFactory.DesktopDpi.X,
+                    this.d2dFactory.DesktopDpi.Y,
                     RenderTargetUsages.GdiCompatible,
                     Microsoft.WindowsAPICodePack.DirectX.Direct3D.FeatureLevel.Default);
 
@@ -86,7 +88,7 @@ namespace TextCoreControl
                 this.UpdateVisualLines(/*visualLineStartIndex*/ 0, /*forceRelayout*/ true, out maxVisualLineWidth, out changeStart, out changeEnd);
                 System.Diagnostics.Debug.Assert(this.VisualLineCount != 0);
 
-                this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height);                
+                this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height, dpiX, dpiY);                
                 this.document.OrdinalShift += this.caret.Document_OrdinalShift;
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
@@ -125,7 +127,9 @@ namespace TextCoreControl
             if (hwndRenderTarget != null)
             {
                 // Resize the render target to the actual host size
-                hwndRenderTarget.Resize(new SizeU((uint)(renderHost.ActualWidth), (uint)(renderHost.ActualHeight)));
+                float dpiX = (float)(this.d2dFactory.DesktopDpi.X / 96.0);
+                float dpiY = (float)(this.d2dFactory.DesktopDpi.Y / 96.0);
+                hwndRenderTarget.Resize(new SizeU((uint)(Math.Ceiling(renderHost.ActualWidth * dpiX)), (uint)(Math.Ceiling(renderHost.ActualHeight * dpiY))));
 
                 double maxVisualLineWidth;
                 int changeStart, changeEnd;

@@ -10,15 +10,17 @@ namespace TextCoreControl
     {
         internal static volatile bool DBG_CARET_IS_PREPARED_FOR_RENDER;
 
-        public Caret(HwndRenderTarget renderTarget, int defaultHeight)
+        public Caret(HwndRenderTarget renderTarget, int defaultHeight, float dpiX, float dpiY)
         {
-            this.caretHeight = defaultHeight;
+            this.caretHeight = (int)((float)defaultHeight * dpiY);
             windowHandle = renderTarget.WindowHandle;
             isCaretHidden = true;
             DBG_CARET_IS_PREPARED_FOR_RENDER = true;
 
             xPos = 0;
             yPos = 0;
+            this.dpiX = dpiX;
+            this.dpiY = dpiY;
         }
 
         ~Caret()
@@ -62,8 +64,8 @@ namespace TextCoreControl
                 }
             }
 
-            xPos = (int)(visualLine.Position.X + x - scrollOffset.Width);
-            yPos = (int) (visualLine.Position.Y - scrollOffset.Height);
+            xPos = (int) ((visualLine.Position.X + x - scrollOffset.Width) * dpiX);
+            yPos = (int) ((visualLine.Position.Y + 2 - scrollOffset.Height) * dpiY);
 
             SetCaretPos(xPos, yPos);
  
@@ -151,7 +153,7 @@ namespace TextCoreControl
             CreateCaret(windowHandle, 0, 0, this.caretHeight);
 
             // Adjust the caret position, in client coordinates. 
-            SetCaretPos(xPos, yPos + 1);
+            SetCaretPos(xPos, yPos);
 
             // Display the caret. 
             ShowCaret(windowHandle);
@@ -207,6 +209,8 @@ namespace TextCoreControl
         int yPos;
         IntPtr windowHandle;
         bool isCaretHidden;
+        float dpiX;
+        float dpiY;
 
         #endregion
     }
