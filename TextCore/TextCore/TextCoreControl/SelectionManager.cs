@@ -18,7 +18,7 @@ namespace TextCoreControl
             highlightSelectionOutlineBrush = renderTarget.CreateSolidColorBrush(new ColorF(60 / 255f, 179 / 255f, 113 / 255f, 0.95f));
             whiteBrush = renderTarget.CreateSolidColorBrush(new ColorF(1.0f, 1.0f, 1.0f));
             defaultForegroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultForegroundColor);
-            dimBrush = renderTarget.CreateSolidColorBrush(new ColorF(245/255f, 245/255f, 245/255f, 0.75f));
+            dimBrush = renderTarget.CreateSolidColorBrush(new ColorF(245/255f, 245/255f, 245/255f, 0.50f));
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
@@ -288,7 +288,8 @@ namespace TextCoreControl
             {
                 if (this.shouldUseHighlightColors == true && value == false)
                     this.forceRedraw = true;
-                this.shouldUseHighlightColors = value; 
+                //this.shouldUseHighlightColors = value; 
+                this.shouldUseHighlightColors = true; 
             }
         }
 

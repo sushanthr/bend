@@ -180,6 +180,9 @@ namespace TextCoreControl
 
         private void MouseHandler(int x, int y, int type, int flags)
         {
+            x = (int)(x * (96.0 / this.d2dFactory.DesktopDpi.X));
+            y = (int)(y * (96.0 / this.d2dFactory.DesktopDpi.Y));
+
             switch (type)
             {
                 case 0x0201:
