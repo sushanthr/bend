@@ -65,7 +65,7 @@ namespace TextCoreControl
             }
 
             xPos = (int) ((visualLine.Position.X + x - scrollOffset.Width) * dpiX);
-            yPos = (int) ((visualLine.Position.Y + 2 - scrollOffset.Height) * dpiY);
+            yPos = (int) ((visualLine.Position.Y - scrollOffset.Height) * dpiY);
 
             SetCaretPos(xPos, yPos);
  

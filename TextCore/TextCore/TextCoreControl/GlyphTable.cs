@@ -24,7 +24,19 @@ namespace TextCoreControl
             }
             else
             {
-                TextLayout measuringLayout = this.dwriteFactory.CreateTextLayout(new string(letter, 1), defaultFormat, float.MaxValue, float.MaxValue);
+                string letterAsString = new string(letter, 1);
+
+                TextLayout measuringLayout;
+                if (Settings.ShowFormatting)
+                {
+                    string StyledLetterAsString = ShowFormatting.PrepareShowFormatting(letterAsString, /*ignoreLastCharacter*/false);
+                    measuringLayout = this.dwriteFactory.CreateTextLayout(StyledLetterAsString, defaultFormat, float.MaxValue, float.MaxValue);
+                    ShowFormatting.ApplyShowFormatting(letterAsString, this.dwriteFactory, measuringLayout);
+                }
+                else
+                {
+                    measuringLayout = this.dwriteFactory.CreateTextLayout(letterAsString, defaultFormat, float.MaxValue, float.MaxValue);
+                }
                 float charWidth = 0;
                 foreach (ClusterMetrics cm in measuringLayout.ClusterMetrics) 
                 {
