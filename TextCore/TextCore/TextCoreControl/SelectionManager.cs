@@ -288,8 +288,7 @@ namespace TextCoreControl
             {
                 if (this.shouldUseHighlightColors == true && value == false)
                     this.forceRedraw = true;
-                //this.shouldUseHighlightColors = value; 
-                this.shouldUseHighlightColors = true; 
+                this.shouldUseHighlightColors = value;
             }
         }
 

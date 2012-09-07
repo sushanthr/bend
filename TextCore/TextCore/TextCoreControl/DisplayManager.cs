@@ -1921,8 +1921,8 @@ namespace TextCoreControl
                 IntPtr windowDC = hwndRenderTarget.GdiInteropRenderTarget.GetDC(DCInitializeMode.Copy);
                 IntPtr compatibleDC = CreateCompatibleDC(windowDC);
 
-                int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width);
-                int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height);
+                int nWidth = (int)Math.Ceiling(hwndRenderTarget.Size.Width * d2dFactory.DesktopDpi.X / 96.0);
+                int nHeight = (int)Math.Ceiling(hwndRenderTarget.Size.Height * d2dFactory.DesktopDpi.Y / 96.0);
                 hBitmap = CreateCompatibleBitmap(windowDC,
                     nWidth,
                     nHeight);

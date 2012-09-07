@@ -296,17 +296,10 @@
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"></RotateTransform>
             </Grid.RenderTransform>
-            <Grid Name="Editor" Margin="0,74,0,0" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
+            <Grid Name="Editor" Margin="0,73,0,0" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
                 <Grid.Background>
                     <ImageBrush ImageSource="Images/FrontBackground.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />                    
                 </Grid.Background>
-                <Border BorderThickness="1" ClipToBounds="True">
-                    <Border Background="#00000000" BorderBrush="#3F000000" BorderThickness="0,10,0,0" Margin="0,-11,0,0">
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="0" BlurRadius="10"/>
-                        </Border.Effect>
-                    </Border>
-                </Border>
             </Grid>            
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">
                 <WrapPanel MaxHeight="34" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="75,20,0,0" Name="TabBar">
