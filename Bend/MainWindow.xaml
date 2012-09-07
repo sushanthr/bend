@@ -339,7 +339,7 @@
                         <Label Name="Line" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,0,0" MinWidth="40"></Label>
                     </WrapPanel>                    
                 </WrapPanel>
-                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center"></Label>
+                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center"></Label>
             </Grid>
             <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="White" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="13" Padding="0,8" IsTabStop="True" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="Logo_MouseDown">
                 <Label.Background>

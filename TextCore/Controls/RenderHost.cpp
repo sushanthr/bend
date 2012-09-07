@@ -28,7 +28,7 @@ bool RenderHost::RegisterWindowClass()
 	wndClass.hInstance			= m_hInstance;
 	wndClass.hIcon				= LoadIcon(NULL, IDI_WINLOGO);
 	wndClass.hCursor			= LoadCursor(0, IDC_ARROW);
-	wndClass.hbrBackground		= (HBRUSH)CreateSolidBrush(RGB(245,245,245));
+	wndClass.hbrBackground		= 0;
 	wndClass.lpszMenuName		= NULL; // No menu
 	wndClass.lpszClassName		= m_sClassName;
 
