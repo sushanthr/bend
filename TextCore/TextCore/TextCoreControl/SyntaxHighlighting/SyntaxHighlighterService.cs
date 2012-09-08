@@ -130,8 +130,13 @@ namespace TextCoreControl.SyntaxHighlighting
                 }
                 string text = stringBuilder.ToString();
                 opaqueStateIn = this.syntaxHighlighterEngine.SynthesizeStateForward(text, opaqueStateIn);
-                this.syntaxHighlighterStates.Insert(beginOrdinal, opaqueStateIn);
-                this.dirtySyntaxStateBeginOrdinal = Math.Max(this.dirtySyntaxStateBeginOrdinal, beginOrdinal);
+
+                if (this.dirtySyntaxStateBeginOrdinal <= beginOrdinal)
+                {
+                    this.syntaxHighlighterStates.Delete(this.dirtySyntaxStateBeginOrdinal, beginOrdinal);
+                    this.dirtySyntaxStateBeginOrdinal = beginOrdinal;
+                }
+                this.syntaxHighlighterStates.Insert(beginOrdinal, opaqueStateIn);                
             }
 
             // Call to highlight text, the engine will now use callbacks 
@@ -141,6 +146,7 @@ namespace TextCoreControl.SyntaxHighlighting
 
             if (visualLine.NextOrdinal == Document.UNDEFINED_ORDINAL)
             {
+                this.syntaxHighlighterStates.Delete(this.dirtySyntaxStateBeginOrdinal, int.MaxValue);
                 this.syntaxHighlighterStates.Insert(document.LastOrdinal(), opaqueStateOut);
                 this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
             }
@@ -150,6 +156,7 @@ namespace TextCoreControl.SyntaxHighlighting
 
                 if (visualLine.NextOrdinal > this.dirtySyntaxStateBeginOrdinal)
                 {
+                    this.syntaxHighlighterStates.Delete(this.dirtySyntaxHighlightBeginOrdinal, document.PreviousOrdinal(visualLine.NextOrdinal));
                     if (insertedDifferentValue)
                     {
                         this.dirtySyntaxStateBeginOrdinal = Math.Max(this.dirtySyntaxStateBeginOrdinal, visualLine.NextOrdinal);
