@@ -951,7 +951,7 @@ namespace TextCoreControl
                 {
                     int originalLineCount = this.VisualLineCount;
                     this.AddLinesAbove(absNumberOfLines - firstVisibleLine);
-                    firstVisibleLine = this.VisualLineCount - originalLineCount;
+                    firstVisibleLine += (this.VisualLineCount - originalLineCount);
                 }
 
                 for (int i = firstVisibleLine - 1; i >= 0 && absNumberOfLines > 0; i--)

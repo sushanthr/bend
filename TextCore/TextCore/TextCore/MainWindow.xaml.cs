@@ -84,5 +84,19 @@ namespace TextCore
                 TextCoreControl.Settings.ShowDebugHUD = showHUD.IsChecked.Value;
             }
         }
+
+        private void TextCommand_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string command = TextCommand.Text;
+                if (command[0] == 'g' || command[0] == 'G')
+                {
+                    string lineNumber = command.Substring(1);
+                    int lineNumberInt = int.Parse(lineNumber);
+                    TextEditor.DisplayManager.ScrollToContentLineNumber(lineNumberInt, /*moveCaret*/false);
+                }
+            }
+        }                
     }
 }

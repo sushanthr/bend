@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:TextCoreControl;assembly=TextCoreControl" 
-        Title="MainWindow" Height="350" Width="525" Background="White">
+        Title="MainWindow" Height="355" Width="716" Background="White">
     <Grid Background="Gold" Name="tiltPanel" >
         <TextBox Height="25" VerticalAlignment="Top" Margin="3,4,0,0" HorizontalAlignment="Left" Width="336" Name="FilePath" TextAlignment="Right"></TextBox>
         <controls:TextEditor x:Name="TextEditor" Margin="0,35,0,0"/>
@@ -11,5 +11,6 @@
         <Button Height="23" Margin="408,6,0,0" Name="button3" VerticalAlignment="Top" Content="save" HorizontalAlignment="Left" Width="29" Click="button3_Click"></Button>
         <CheckBox Content="LN" Height="16" HorizontalAlignment="Left" Margin="446,10,0,0" Name="showLineNumnber" VerticalAlignment="Top" Click="showLineNumnber_Click" />
         <CheckBox Content="HUD" Height="16" HorizontalAlignment="Left" Margin="486,10,0,0" Name="showHUD" VerticalAlignment="Top" Click="showHUD_Click"/>
+        <TextBox Name="TextCommand" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="COMMAND" VerticalAlignment="Top" Width="88" Margin="546,7,0,0" KeyDown="TextCommand_KeyDown" />
     </Grid>
 </Window>
