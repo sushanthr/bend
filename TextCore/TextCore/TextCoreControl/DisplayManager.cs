@@ -1580,7 +1580,7 @@ namespace TextCoreControl
                 this.textLayoutBuilder.NotifyOfSettingsChange();
 
                 if (this.syntaxHighlightingService != null)
-                    this.syntaxHighlightingService.NotifyOfContentChange(Document.UNDEFINED_ORDINAL, Document.UNDEFINED_ORDINAL, "");
+                    this.syntaxHighlightingService.NotifyOfSettingsChange();
 
                 if (this.contentLineManager != null)
                 {

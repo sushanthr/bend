@@ -31,6 +31,11 @@ namespace TextCoreControl.SyntaxHighlighting
             this.syntaxHighlighterStates.NotifyOfOrdinalShift(document, beginOrdinal, shift);
         }
 
+        internal void NotifyOfSettingsChange()
+        {
+            // Nothing to invalidate, synxtaxhighlighter doesnt depend on settings currently.
+        }
+
         internal void NotifyOfContentChange(int beginOrdinal, int endOrdinal, string content)
         {
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
@@ -95,48 +100,77 @@ namespace TextCoreControl.SyntaxHighlighting
             this.dirtySyntaxHighlightBeginOrdinal = Math.Max(this.dirtySyntaxHighlightBeginOrdinal, visualLine.BeginOrdinal);
 
             int opaqueStateIn;
-            int ordinalFound;
-            int stateNeededOrdinal = visualLine.BeginOrdinal;
-            if (stateNeededOrdinal > this.dirtySyntaxStateBeginOrdinal)
+            int synthesizeStateForwardBeginOrdinal = visualLine.BeginOrdinal;
+            if (synthesizeStateForwardBeginOrdinal > this.dirtySyntaxStateBeginOrdinal)
             {
                 System.Diagnostics.Debug.Assert(this.dirtySyntaxStateBeginOrdinal != int.MaxValue);
-                stateNeededOrdinal = this.dirtySyntaxStateBeginOrdinal;
+                synthesizeStateForwardBeginOrdinal = this.dirtySyntaxStateBeginOrdinal;
             }
             bool found;
-            if (stateNeededOrdinal == document.LastOrdinal())
+            if (synthesizeStateForwardBeginOrdinal == document.LastOrdinal())
             {
+                int ordinalFound;
                 found = this.syntaxHighlighterStates.Find(Document.UNDEFINED_ORDINAL, out ordinalFound, out opaqueStateIn);
+                synthesizeStateForwardBeginOrdinal = ordinalFound;
             }
             else
             {
-                found = this.syntaxHighlighterStates.Find(stateNeededOrdinal, out ordinalFound, out opaqueStateIn);
+                int ordinalFound;
+                found = this.syntaxHighlighterStates.Find(synthesizeStateForwardBeginOrdinal, out ordinalFound, out opaqueStateIn);
+                synthesizeStateForwardBeginOrdinal = ordinalFound;
             }
             System.Diagnostics.Debug.Assert(found, "Atleast the first ordinal is available in the states collection.");
 
-            if (ordinalFound != visualLine.BeginOrdinal)
+            if (synthesizeStateForwardBeginOrdinal != visualLine.BeginOrdinal)
             {
                 // Need to synthesize forward
-                System.Diagnostics.Debug.Assert(ordinalFound < visualLine.BeginOrdinal);
-                StringBuilder stringBuilder = new StringBuilder();
-                int beginOrdinal = visualLine.BeginOrdinal;
-                int currentOrdinal = ordinalFound;
-                while (currentOrdinal <= beginOrdinal)
+                System.Diagnostics.Debug.Assert(synthesizeStateForwardBeginOrdinal < visualLine.BeginOrdinal);                
+                int targetOrdinal = visualLine.BeginOrdinal;
+                int currentOrdinal = synthesizeStateForwardBeginOrdinal;
+
+                int checkOrdinal;
+                int opaqueStateCheckOrdinal;
+                if (!this.syntaxHighlighterStates.FindNext(currentOrdinal, out checkOrdinal, out opaqueStateCheckOrdinal))
                 {
+                    checkOrdinal = int.MaxValue;
+                }
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while (currentOrdinal <= targetOrdinal)
+                {
+                    if (currentOrdinal >= checkOrdinal || currentOrdinal == targetOrdinal)
+                    {
+                        string text = stringBuilder.ToString();
+                        opaqueStateIn = this.syntaxHighlighterEngine.SynthesizeStateForward(text, opaqueStateIn);
+
+                        if (this.dirtySyntaxStateBeginOrdinal <= currentOrdinal)
+                        {
+                            this.syntaxHighlighterStates.Delete(this.dirtySyntaxStateBeginOrdinal, currentOrdinal);
+                            this.dirtySyntaxStateBeginOrdinal = currentOrdinal;
+                        }
+                        this.syntaxHighlighterStates.Insert(currentOrdinal, opaqueStateIn);
+                        
+                        if (currentOrdinal == checkOrdinal && 
+                            opaqueStateCheckOrdinal == opaqueStateIn &&
+                            this.dirtySyntaxStateBeginOrdinal != int.MaxValue)
+                        {
+                            this.dirtySyntaxStateBeginOrdinal = int.MaxValue;
+                            this.HighlightLine(ref visualLine);
+                            return;
+                        }
+                        stringBuilder = new StringBuilder();
+                        if (!this.syntaxHighlighterStates.FindNext(currentOrdinal, out checkOrdinal, out opaqueStateCheckOrdinal))
+                        {
+                            checkOrdinal = int.MaxValue;
+                        }
+                    }
+
                     stringBuilder.Append(document.CharacterAt(currentOrdinal));
                     currentOrdinal = document.NextOrdinal(currentOrdinal);
 #if DEBUG
                     DebugHUD.IterationsSynthesizingSyntaxState++;
 #endif
                 }
-                string text = stringBuilder.ToString();
-                opaqueStateIn = this.syntaxHighlighterEngine.SynthesizeStateForward(text, opaqueStateIn);
-
-                if (this.dirtySyntaxStateBeginOrdinal <= beginOrdinal)
-                {
-                    this.syntaxHighlighterStates.Delete(this.dirtySyntaxStateBeginOrdinal, beginOrdinal);
-                    this.dirtySyntaxStateBeginOrdinal = beginOrdinal;
-                }
-                this.syntaxHighlighterStates.Insert(beginOrdinal, opaqueStateIn);                
             }
 
             // Call to highlight text, the engine will now use callbacks 

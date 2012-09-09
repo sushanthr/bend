@@ -128,6 +128,31 @@ namespace TextCoreControl.SyntaxHighlighting
             return false;
         }
 
+
+        /// <summary>
+        ///     Finds the value for a ordinal greater to the ordinal passed in.
+        ///     Returns true for a sucessful find, returns false otherwise.
+        /// </summary>
+        /// <param name="ordinal">Ordinal to search for</param>
+        /// <param name="foundOrdinal">Ordinal found instead</param>
+        /// <param name="value">Value corresponding to the found ordinal</param>
+        internal bool FindNext(int ordinal, out int foundOrdinal, out T value)
+        {
+            OrdinalKeyedLinkedListNode foundNode;
+            if (this.Find(ordinal, out foundNode, out foundOrdinal) && foundNode.next != null)
+            {
+                this.memoizationNode = foundNode;
+                this.memoizationOrdinal = foundOrdinal;
+                foundNode = foundNode.next;
+                foundOrdinal += foundNode.ordinalDelta;
+                value = foundNode.value;
+                return true;
+            }
+            foundOrdinal = -1;
+            value = default(T);
+            return false;
+        }
+        
         /// <summary>
         ///     Inserts data into the linked list
         /// </summary>
