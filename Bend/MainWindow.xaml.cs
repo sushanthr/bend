@@ -353,6 +353,21 @@ namespace Bend
             SendMessage(this.mainWindow.Handle, WM_SYSCOMMAND, (IntPtr)DIRECTION_BOTTOMRIGHT, IntPtr.Zero);
         }
 
+        private class DefferedUnRasterize
+        {
+            internal DefferedUnRasterize(TextEditor textEditor)
+            {
+                this.textEditor = textEditor;
+            }
+
+            public void UnRasterize(object sender, EventArgs e)
+            {
+                textEditor.UnRasterize();
+            }
+
+            private readonly TextEditor textEditor;
+        }
+
         private void CommandSave(object sender, ExecutedRoutedEventArgs e)
         {
             if (this.currentTabIndex >= 0)
@@ -387,6 +402,13 @@ namespace Bend
                     }
                     if (fileSaved)
                     {
+                        System.Windows.Media.Animation.Storyboard fileSaveAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("fileSave");
+                        this.tab[this.currentTabIndex].TextEditor.Rasterize();
+                        DefferedUnRasterize unRasterizer = new DefferedUnRasterize(this.tab[this.currentTabIndex].TextEditor);
+                        fileSaveAnimation.Completed += unRasterizer.UnRasterize;
+                        fileSaveAnimation.SpeedRatio = 5;
+                        fileSaveAnimation.Begin();
+
                         this.SetStatusText("FILE SAVED");
                         System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                         dispatcherTimer.Tick += new EventHandler(SaveDispatcherTimer_Tick);
@@ -400,7 +422,7 @@ namespace Bend
                 }
             }
         }
-
+                
         private void SaveDispatcherTimer_Tick(object sender, EventArgs e)
         {
             ((DispatcherTimer)sender).Stop();

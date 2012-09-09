@@ -289,7 +289,17 @@
             <ObjectAnimationUsingKeyFrames BeginTime="00:00:1.1" Storyboard.TargetName="Settings" Storyboard.TargetProperty="(UIElement.Visibility)">
                 <DiscreteObjectKeyFrame KeyTime="0:00:00" Value="{x:Static Visibility.Hidden}"/>
             </ObjectAnimationUsingKeyFrames>
-        </Storyboard>        
+        </Storyboard>
+        <Storyboard x:Key="fileSave" AutoReverse="true">
+            <DoubleAnimation                            
+                            Storyboard.TargetName="Editor"
+                            Storyboard.TargetProperty="(UIElement.Opacity)"                            
+                            From="1"
+                            To="0.2"
+                            Duration="0:0:1"
+                            DecelerationRatio="0.6"
+             />
+        </Storyboard>
     </Window.Resources>    
     <Grid Name="ClientAreaGrid" Background="WhiteSmoke">
         <Grid Name="MainWindowGrid">
