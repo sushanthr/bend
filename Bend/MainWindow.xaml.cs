@@ -245,7 +245,7 @@ namespace Bend
             fInfo.cbSize = Convert.ToUInt32(Marshal.SizeOf(fInfo));
             fInfo.hwnd = this.mainWindow.Handle;
             fInfo.dwFlags = FLASHW_ALL;
-            fInfo.uCount = UInt32.MaxValue;
+            fInfo.uCount = 1;
             fInfo.dwTimeout = 0;
 
             FlashWindowEx(ref fInfo);
