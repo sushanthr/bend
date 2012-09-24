@@ -281,29 +281,32 @@ namespace TextCoreControl.SyntaxHighlighting
                     if (endOrdinalFound < beginOrdinal)
                         return;
 
-                    if (lastOrdinal >= beginOrdinal && lastOrdinal <= endOrdinal)
+                    // Preserve last pointer
+                    if (this.lastOrdinal >= beginOrdinal && this.lastOrdinal <= endOrdinal)
                     {
-                        last = beginNode.previous;
-                        lastOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
+                        this.last = beginNode.previous;
+                        this.lastOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
                     }
 
-                    if (memoizationOrdinal >= beginOrdinal && memoizationOrdinal <= endOrdinal)
+                    // Preserve memoization pointer
+                    if (this.memoizationOrdinal >= beginOrdinal && this.memoizationOrdinal <= endOrdinal)
                     {
                         if (beginNode.previous == null)
                         {
-                            memoizationNode = endNode.next;
-                            if (memoizationNode != null)
-                                memoizationOrdinal = endOrdinalFound + memoizationNode.ordinalDelta;
+                            this.memoizationNode = endNode.next;
+                            if (this.memoizationNode != null)
+                                this.memoizationOrdinal = endOrdinalFound + memoizationNode.ordinalDelta;
                             else
-                                memoizationOrdinal = 0;
+                                this.memoizationOrdinal = 0;
                         }
                         else
                         {
-                            memoizationNode = beginNode.previous;
-                            memoizationOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
+                            this.memoizationNode = beginNode.previous;
+                            this.memoizationOrdinal = beginOrdinalFound - beginNode.ordinalDelta;
                         }
                     }
-
+                    
+                    // Delete inclusive begin and end nodes.
                     if (beginNode.previous != null)
                         beginNode.previous.next = endNode.next;
                     if (endNode.next != null)
@@ -313,15 +316,13 @@ namespace TextCoreControl.SyntaxHighlighting
                         endNode.next.ordinalDelta += deleteOrdinalDelta;
                     }
 
-                    // Now we have both begin and end;
-                    // Delete inclusive begin and end nodes.
-                    if (firstOrdinal >= beginOrdinal && firstOrdinal <= endOrdinal)
+                    // Preserve first pointer
+                    if (this.firstOrdinal >= beginOrdinal && this.firstOrdinal <= endOrdinal)
                     {
-                        first = endNode.next;
-                        if (first != null)
+                        this.first = endNode.next;
+                        if (this.first != null)
                         {
                             firstOrdinal = endNode.next.ordinalDelta;
-                            endNode.next.ordinalDelta = 0;
                         }
                     }
                 }

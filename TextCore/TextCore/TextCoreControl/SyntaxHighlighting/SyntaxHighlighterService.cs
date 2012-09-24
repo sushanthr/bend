@@ -106,20 +106,17 @@ namespace TextCoreControl.SyntaxHighlighting
                 System.Diagnostics.Debug.Assert(this.dirtySyntaxStateBeginOrdinal != int.MaxValue);
                 synthesizeStateForwardBeginOrdinal = this.dirtySyntaxStateBeginOrdinal;
             }
-            bool found;
             if (synthesizeStateForwardBeginOrdinal == document.LastOrdinal())
             {
-                int ordinalFound;
-                found = this.syntaxHighlighterStates.Find(Document.UNDEFINED_ORDINAL, out ordinalFound, out opaqueStateIn);
-                synthesizeStateForwardBeginOrdinal = ordinalFound;
+                synthesizeStateForwardBeginOrdinal = Document.UNDEFINED_ORDINAL;
             }
-            else
-            {
-                int ordinalFound;
-                found = this.syntaxHighlighterStates.Find(synthesizeStateForwardBeginOrdinal, out ordinalFound, out opaqueStateIn);
-                synthesizeStateForwardBeginOrdinal = ordinalFound;
+
+            if (!this.syntaxHighlighterStates.Find(synthesizeStateForwardBeginOrdinal, out synthesizeStateForwardBeginOrdinal, out opaqueStateIn))
+            {                
+                synthesizeStateForwardBeginOrdinal = document.FirstOrdinal();
+                opaqueStateIn = this.syntaxHighlighterEngine.GetInitialState();
+                this.syntaxHighlighterStates.Insert(document.FirstOrdinal(), opaqueStateIn);
             }
-            System.Diagnostics.Debug.Assert(found, "Atleast the first ordinal is available in the states collection.");
 
             if (synthesizeStateForwardBeginOrdinal != visualLine.BeginOrdinal)
             {
