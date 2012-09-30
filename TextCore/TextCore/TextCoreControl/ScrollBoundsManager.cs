@@ -113,7 +113,11 @@ namespace TextCoreControl
 
             try
             {
-                int ordinal = document.FirstOrdinal();
+                int ordinal;
+                lock (document)
+                {
+                    ordinal = document.FirstOrdinal();
+                }
                 double verticalScrollBound = 0;
                 double horizontalScrollBound = 0;
 
@@ -125,7 +129,16 @@ namespace TextCoreControl
 
                 while (ordinal != Document.UNDEFINED_ORDINAL)
                 {
-                    VisualLine vl = this.textLayoutBuilder.GetNextLine(document, ordinal, layoutWidth, out ordinal);
+                    VisualLine vl;
+                    lock (document)
+                    {
+                        if (worker.CancellationPending)
+                        {
+                            e.Cancel = true;
+                            break;
+                        }
+                        vl = this.textLayoutBuilder.GetNextLine(document, ordinal, layoutWidth, out ordinal);
+                    }
 
                     if (vl.HasHardBreak)
                     {
@@ -153,11 +166,6 @@ namespace TextCoreControl
                     if (progressCount % UPDATE_INTERVAL == 0)
                     {
                         worker.ReportProgress((int)verticalScrollBound);
-                        if (worker.CancellationPending)
-                        {
-                            e.Cancel = true;
-                            break;
-                        }
                     }
                 }
 
@@ -178,7 +186,8 @@ namespace TextCoreControl
 
         void scrollLengthEstimator_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Cancelled)
+            // e.Result is null, if the thread ended in because of an Exception.
+            if (e.Cancelled || e.Result == null)
             {
                 // A restart was requested
                 scrollLengthEstimator.RunWorkerAsync(this);

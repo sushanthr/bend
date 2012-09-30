@@ -19,14 +19,17 @@ namespace TextCoreControl
         public void LoadFile(string fullFilePath)
         {
             System.IO.StreamReader streamReader = new System.IO.StreamReader(fullFilePath, System.Text.Encoding.Default, true);
-            fileContents = streamReader.ReadToEnd();
-            fileContents += "\0";
-            streamReader.Close();
-            streamReader.Dispose();
-            this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-            if (this.ContentChange != null)
+            lock (this)
             {
-                this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
+                fileContents = streamReader.ReadToEnd();
+                fileContents += "\0";
+                streamReader.Close();
+                streamReader.Dispose();
+                this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
+                if (this.ContentChange != null)
+                {
+                    this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
+                }
             }
         }
 
@@ -108,17 +111,20 @@ namespace TextCoreControl
         /// <param name="content">String to insert</param>
         internal void InsertAt(int ordinal, string content)
         {
-            fileContents = fileContents.Insert(ordinal, content);
-
-            if (this.OrdinalShift != null)
+            lock (this)
             {
-                this.OrdinalShift(this, ordinal, content.Length);
-            }
+                fileContents = fileContents.Insert(ordinal, content);
 
-            if (this.ContentChange != null)
-            {
-                int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
-                this.ContentChange(ordinal, endOrdinal, content);
+                if (this.OrdinalShift != null)
+                {
+                    this.OrdinalShift(this, ordinal, content.Length);
+                }
+
+                if (this.ContentChange != null)
+                {
+                    int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
+                    this.ContentChange(ordinal, endOrdinal, content);
+                }
             }
         }
 
@@ -129,25 +135,28 @@ namespace TextCoreControl
         /// <param name="length">Length of string to delete< /param>
         internal void DeleteAt(int ordinal, int length)
         {
-            System.Diagnostics.Debug.Assert(length > 0);
-
-            // Last ordinal is reserved for \n
-            if (ordinal + length < this.fileContents.Length)
+            lock (this)
             {
-                string content = fileContents.Substring(ordinal, length);
+                System.Diagnostics.Debug.Assert(length > 0);
 
-                int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
-
-                fileContents = fileContents.Remove(ordinal, length);
-
-                if (this.OrdinalShift != null)
+                // Last ordinal is reserved for \n
+                if (ordinal + length < this.fileContents.Length)
                 {
-                    this.OrdinalShift(this, endOrdinal, -length);
-                }
+                    string content = fileContents.Substring(ordinal, length);
 
-                if (this.ContentChange != null)
-                {
-                    this.ContentChange(ordinal, ordinal, content);
+                    int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
+
+                    fileContents = fileContents.Remove(ordinal, length);
+
+                    if (this.OrdinalShift != null)
+                    {
+                        this.OrdinalShift(this, endOrdinal, -length);
+                    }
+
+                    if (this.ContentChange != null)
+                    {
+                        this.ContentChange(ordinal, ordinal, content);
+                    }
                 }
             }
         }
@@ -166,56 +175,59 @@ namespace TextCoreControl
         public int ReplaceText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
             int count = 0;
-            int lastFindEndIndex = 0;
-            StringBuilder outputString = new StringBuilder();
-
-            if (useRegEx)
+            lock (this)
             {
-                try
-                {
-                    System.Text.RegularExpressions.Regex regEx;
-                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                    System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(this.fileContents);
+                int lastFindEndIndex = 0;
+                StringBuilder outputString = new StringBuilder();
 
-                    for (int i = 0; i < matches.Count; i++)
-                    {
-                        outputString.Append(this.fileContents.Substring(lastFindEndIndex, matches[i].Index - lastFindEndIndex));
-                        outputString.Append(replaceText);                        
-                        lastFindEndIndex = matches[i].Index + matches[i].Length;
-                    }
-                    count = matches.Count;
-                }
-                catch
+                if (useRegEx)
                 {
-                    count =  0;
-                }
-            }
-            else
-            {
-                int currentFindIndex = 0;
+                    try
+                    {
+                        System.Text.RegularExpressions.Regex regEx;
+                        regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(this.fileContents);
 
-                while (true)
-                {
-                    currentFindIndex = this.fileContents.IndexOf(findText, currentFindIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    if (currentFindIndex >= 0)
-                    {
-                        outputString.Append(this.fileContents.Substring(lastFindEndIndex, currentFindIndex - lastFindEndIndex));
-                        outputString.Append(replaceText);
-                        count++;
-                        currentFindIndex = currentFindIndex + findText.Length;
-                        lastFindEndIndex = currentFindIndex;
+                        for (int i = 0; i < matches.Count; i++)
+                        {
+                            outputString.Append(this.fileContents.Substring(lastFindEndIndex, matches[i].Index - lastFindEndIndex));
+                            outputString.Append(replaceText);
+                            lastFindEndIndex = matches[i].Index + matches[i].Length;
+                        }
+                        count = matches.Count;
                     }
-                    else
+                    catch
                     {
-                        break;
+                        count = 0;
                     }
                 }
-            }
+                else
+                {
+                    int currentFindIndex = 0;
 
-            if (count != 0)
-            {
-                outputString.Append(this.fileContents.Substring(lastFindEndIndex));
-                this.fileContents = outputString.ToString();
+                    while (true)
+                    {
+                        currentFindIndex = this.fileContents.IndexOf(findText, currentFindIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                        if (currentFindIndex >= 0)
+                        {
+                            outputString.Append(this.fileContents.Substring(lastFindEndIndex, currentFindIndex - lastFindEndIndex));
+                            outputString.Append(replaceText);
+                            count++;
+                            currentFindIndex = currentFindIndex + findText.Length;
+                            lastFindEndIndex = currentFindIndex;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (count != 0)
+                {
+                    outputString.Append(this.fileContents.Substring(lastFindEndIndex));
+                    this.fileContents = outputString.ToString();
+                }
             }
             return count;
         }
