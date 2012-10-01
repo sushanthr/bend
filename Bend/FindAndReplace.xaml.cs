@@ -151,13 +151,18 @@ namespace Bend
             {
                 FindText.Items.Insert(0, FindText.Text);
             }
+            string replaceText = ReplaceText.Text;
+            if (this.RegexFind.IsChecked ?? true)
+            {
+                replaceText = System.Text.RegularExpressions.Regex.Unescape(replaceText);
+            }
             if (replaceall.IsChecked ?? true)
-            {                
-                mainWindow.ReplaceText(FindText.Text, ReplaceText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+            {
+                mainWindow.ReplaceText(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
             }
             else
             {
-                this.mainWindow.ReplaceSelectedText(ReplaceText.Text);
+                this.mainWindow.ReplaceSelectedText(replaceText);
                 mainWindow.HighlightNextMatch();
             }            
         }

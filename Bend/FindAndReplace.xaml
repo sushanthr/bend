@@ -45,7 +45,7 @@
                 <WrapPanel HorizontalAlignment="Right" Margin="0,0,15,0">
                     <Button Width="70" Height="22" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI"  Margin="0,10,10,12" Click="Find_Click">FIND</Button>
                     <Button Width="70" Height="22" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI"  Margin="0,10,10,12" Click="Replace_Click">REPLACE</Button>
-                    <Button Width="70" Height="22" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI"  Margin="0,10,0,12" PreviewMouseDown="Close_MouseDown">CANCEL</Button>                
+                    <Button Width="70" Height="22" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI"  Margin="0,10,0,12" PreviewMouseDown="Close_MouseDown">CLOSE</Button>                
                 </WrapPanel>
             </Grid>
         </StackPanel>

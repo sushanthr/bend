@@ -396,58 +396,51 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
-                try
+                bool fileSaved = false;
+                if (this.tab[this.currentTabIndex].FullFileName != null)
                 {
-                    bool fileSaved = false;
-                    if (this.tab[this.currentTabIndex].FullFileName != null)
+                    this.tab[this.currentTabIndex].SaveFile(this.tab[this.currentTabIndex].FullFileName);
+                    fileSaved = true;
+                }
+                else
+                {
+                    SaveFileDialog dlg = new SaveFileDialog();
+                    FileExtensions flex = new FileExtensions();
+                    dlg.Filter = flex.GetFilterString();  
+                    if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
                     {
-                        this.tab[this.currentTabIndex].SaveFile(this.tab[this.currentTabIndex].FullFileName);
+                        string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
+                        if (initialDirectory != null && initialDirectory.Length != 0)
+                        {
+                            dlg.InitialDirectory = initialDirectory;
+                        }
+                    }
+
+                    if (dlg.ShowDialog(this) ?? false)
+                    {
+                        this.tab[this.currentTabIndex].SaveFile(dlg.FileName);
                         fileSaved = true;
                     }
-                    else
-                    {
-                        SaveFileDialog dlg = new SaveFileDialog();
-                        FileExtensions flex = new FileExtensions();
-                        dlg.Filter = flex.GetFilterString();  
-                        if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
-                        {
-                            string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
-                            if (initialDirectory != null && initialDirectory.Length != 0)
-                            {
-                                dlg.InitialDirectory = initialDirectory;
-                            }
-                        }
-
-                        if (dlg.ShowDialog(this) ?? false)
-                        {
-                            this.tab[this.currentTabIndex].SaveFile(dlg.FileName);
-                            fileSaved = true;
-                        }
-                    }
-                    if (fileSaved)
-                    {
-                        System.Windows.Media.Animation.Storyboard fileSaveAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("fileSave");
-                        this.tab[this.currentTabIndex].TextEditor.Rasterize();
-                        DefferedUnRasterize unRasterizer = new DefferedUnRasterize(this.tab[this.currentTabIndex].TextEditor);
-                        fileSaveAnimation.Completed += unRasterizer.UnRasterize;
-                        fileSaveAnimation.SpeedRatio = 5;
-                        fileSaveAnimation.Begin();
-
-                        this.SetStatusText("FILE SAVED");
-                        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                        dispatcherTimer.Tick += new EventHandler(SaveDispatcherTimer_Tick);
-                        dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-                        dispatcherTimer.Start();
-                    }
                 }
-                catch (Exception exception)
+                if (fileSaved)
                 {
-                    StyledMessageBox.Show("ERROR", "Error Saving File" + exception.ToString());
-                }
+                    System.Windows.Media.Animation.Storyboard fileSaveAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("fileSave");
+                    this.tab[this.currentTabIndex].TextEditor.Rasterize();
+                    DefferedUnRasterize unRasterizer = new DefferedUnRasterize(this.tab[this.currentTabIndex].TextEditor);
+                    fileSaveAnimation.Completed += unRasterizer.UnRasterize;
+                    fileSaveAnimation.SpeedRatio = 5;
+                    fileSaveAnimation.Begin();
+
+                    this.SetStatusText("FILE SAVED");
+                    System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+                    dispatcherTimer.Tick += new EventHandler(ClearStatusDispatcherTimer_Tick);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                    dispatcherTimer.Start();
+                }                
             }
         }
                 
-        private void SaveDispatcherTimer_Tick(object sender, EventArgs e)
+        private void ClearStatusDispatcherTimer_Tick(object sender, EventArgs e)
         {
             ((DispatcherTimer)sender).Stop();
             this.SetStatusText("");
@@ -611,29 +604,22 @@ namespace Bend
             {
                 if (this.currentTabIndex >= 0)
                 {
-                    try
+                    SaveFileDialog dlg = new SaveFileDialog();
+                    if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
                     {
-                        SaveFileDialog dlg = new SaveFileDialog();
-                        if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
+                        string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
+                        if (initialDirectory != null && initialDirectory.Length != 0)
                         {
-                            string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
-                            if (initialDirectory != null && initialDirectory.Length != 0)
-                            {
-                                dlg.InitialDirectory = initialDirectory;
-                            }
+                            dlg.InitialDirectory = initialDirectory;
                         }
+                    }
 
-                        FileExtensions flex = new FileExtensions();
-                        dlg.Filter = flex.GetFilterString();   
-                        if (dlg.ShowDialog(this) ?? false)
-                        {
-                            this.tab[this.currentTabIndex].SaveFile(dlg.FileName);                            
-                        }
-                    }
-                    catch (Exception exception)
+                    FileExtensions flex = new FileExtensions();
+                    dlg.Filter = flex.GetFilterString();   
+                    if (dlg.ShowDialog(this) ?? false)
                     {
-                        StyledMessageBox.Show("ERROR", "Error Saving File" + exception.ToString());
-                    }
+                        this.tab[this.currentTabIndex].SaveFile(dlg.FileName);                            
+                    }                    
                 }
             }
             e.Handled = true;
@@ -993,7 +979,7 @@ namespace Bend
                 {
                     if (tab[i].FullFileName != null && System.IO.File.Exists(tab[i].FullFileName))
                     {
-                        tab[i].TextEditor.LoadFile(tab[i].FullFileName);
+                        tab[i].OpenFile(tab[i].FullFileName);
                     }
                     break;
                 }

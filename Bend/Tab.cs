@@ -140,14 +140,28 @@ namespace Bend
 
         internal void OpenFile(String fullFileName)
         {
-            this.textEditor.LoadFile(fullFileName);            
-            this.SetFullFileName(fullFileName);
+            try
+            {
+                this.textEditor.LoadFile(fullFileName);
+                this.SetFullFileName(fullFileName);
+            }
+            catch (Exception exception)
+            {
+                StyledMessageBox.Show("ERROR", "Error Opening File: " + exception.ToString());
+            }
         }
 
         internal void SaveFile(String fullFileName)
         {
             System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
-            this.TextEditor.SaveFile(fullFileName);            
+            try
+            {
+                this.TextEditor.SaveFile(fullFileName);
+            }
+            catch (Exception exception)
+            {
+                StyledMessageBox.Show("ERROR", "Error Saving File: " + exception.ToString());
+            }
             this.SetFullFileName(fullFileName);
         }
 
@@ -172,8 +186,15 @@ namespace Bend
             this.Title.Opacity = 0.2;
             if (StyledMessageBox.Show("FILE MODIFIED", e.FullPath + "\n\nwas modified outside this application, do you want to reload ?"))
             {
-                this.OpenFile(this.fullFileName);
-                System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
+                try
+                {
+                    this.textEditor.LoadFile(fullFileName);
+                    System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
+                }
+                catch
+                {
+                    
+                }
             }
             this.Title.Opacity = originalOpacity;
             showFileModifiedDialog.Release();
