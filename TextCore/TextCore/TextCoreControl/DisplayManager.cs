@@ -1232,7 +1232,8 @@ namespace TextCoreControl
         /// <returns>true if sucessful, false otherwise</returns>
         private bool AddTabsToSelection()
         {
-            bool tabsAdded = false;
+            uint numberOfTabsAdded = 0;
+            uint numberOfTabsBeforeStart = 0;
             if (this.SelectionBegin != this.SelectionEnd)
             {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -1272,18 +1273,38 @@ namespace TextCoreControl
                             stringBuilder.Append(Settings.TabString);
                         else
                             stringBuilder.Append('\t');
-                        tabsAdded = true;
+                        numberOfTabsAdded++;
+                        if (ordinal < this.SelectionBegin)
+                        {
+                            numberOfTabsBeforeStart++;
+                        }
                     }
                     length++;
                 }
 
-                if (tabsAdded)
+                if (numberOfTabsAdded > 0)
                 {
+                    int originalSelectionBegin = this.SelectionBegin;
+                    int originalSelectionEnd = this.SelectionEnd;
                     document.DeleteAt(beginOrdinal, length);
                     document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                    try
+                    {
+                        this.caret.PrepareBeforeRender();
+                        this.hwndRenderTarget.BeginDraw();
+                        this.selectionManager.ShouldUseHighlightColors = false;
+                        this.selectionManager.ResetSelection(document.NextOrdinal(originalSelectionBegin, numberOfTabsBeforeStart), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(document.NextOrdinal(originalSelectionEnd, numberOfTabsAdded), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.hwndRenderTarget.EndDraw();
+                        this.caret.UnprepareAfterRender();
+                    }
+                    catch
+                    {
+                        this.RecoverFromRenderException();
+                    }
                 }
             }
-            return tabsAdded;
+            return (numberOfTabsAdded > 0);
         }
 
         /// <summary>
@@ -1292,7 +1313,8 @@ namespace TextCoreControl
         /// <returns>true if sucessful, false otherwise</returns>
         private bool RemoveTabsFromSelection()
         {
-            bool tabsRemoved = false;
+            uint numberOfTabsRemoved = 0;
+            uint numberOfTabsRemovedBeforeStart = 0;
             if (this.SelectionBegin != this.SelectionEnd)
             {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -1325,14 +1347,22 @@ namespace TextCoreControl
                         {
                             length += Settings.TabString.Length;
                             ordinal = nextOrdinal;
-                            tabsRemoved = true;
+                            numberOfTabsRemoved++;
+                            if (ordinal < this.SelectionBegin)
+                            {
+                                numberOfTabsRemovedBeforeStart++;
+                            }
                         }
                     }
                     else if (document.CharacterAt(ordinal) == '\t')
                     {
                         length++;
                         ordinal = document.NextOrdinal(ordinal);
-                        tabsRemoved = true;
+                        numberOfTabsRemoved++;
+                        if (ordinal < this.SelectionBegin)
+                        {
+                            numberOfTabsRemovedBeforeStart++;
+                        }
                     }
                 }
 
@@ -1356,7 +1386,11 @@ namespace TextCoreControl
                             if (tempStringBuilder.ToString() == Settings.TabString)
                             {
                                 skipCount += Settings.TabString.Length;
-                                tabsRemoved = true;
+                                numberOfTabsRemoved++;
+                                if (ordinal < this.SelectionBegin)
+                                {
+                                    numberOfTabsRemovedBeforeStart++;
+                                }
                             }
                         }
                         else
@@ -1365,7 +1399,11 @@ namespace TextCoreControl
                             if (nextOrdinal != Document.UNDEFINED_ORDINAL && document.CharacterAt(nextOrdinal) == '\t')
                             {
                                 skipCount = 2;
-                                tabsRemoved = true;
+                                numberOfTabsRemoved++;
+                                if (ordinal < this.SelectionBegin)
+                                {
+                                    numberOfTabsRemovedBeforeStart++;
+                                }
                             }
                         }
                     }
@@ -1378,13 +1416,31 @@ namespace TextCoreControl
                     }
                 }
 
-                if (tabsRemoved)
+                if (numberOfTabsRemoved > 0)
                 {
+                    int originalSelectionBegin = this.SelectionBegin;
+                    int originalSelectionEnd = this.SelectionEnd;
+
                     document.DeleteAt(beginOrdinal, length);
                     document.InsertAt(beginOrdinal, stringBuilder.ToString());
+
+                    try
+                    {
+                        this.caret.PrepareBeforeRender();
+                        this.hwndRenderTarget.BeginDraw();
+                        this.selectionManager.ShouldUseHighlightColors = false;
+                        this.selectionManager.ResetSelection(document.PreviousOrdinal(originalSelectionBegin, numberOfTabsRemovedBeforeStart), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(document.PreviousOrdinal(originalSelectionEnd, numberOfTabsRemoved), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.hwndRenderTarget.EndDraw();
+                        this.caret.UnprepareAfterRender();
+                    }
+                    catch
+                    {
+                        this.RecoverFromRenderException();
+                    }
                 }
             }
-            return tabsRemoved;
+            return numberOfTabsRemoved > 0;
         }
 
         #endregion
@@ -1762,7 +1818,7 @@ namespace TextCoreControl
         private void RenderToRenderTarget(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
         {
             RectF wipeBounds;
-            if (redrawBegin == 0 && redrawEnd == visualLines.Count - 1)
+            if ((redrawBegin == 0 && redrawEnd == visualLines.Count - 1) || redrawBegin < 0 || redrawEnd < 0 || redrawBegin >= this.VisualLineCount || redrawEnd >= this.VisualLineCount)
             {
                 renderTarget.Clear(defaultBackgroundBrush.Color);
                 redrawBegin = this.FirstVisibleLine();
@@ -1782,7 +1838,7 @@ namespace TextCoreControl
                 renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
             }
 
-            for (int i = redrawBegin; i <= redrawEnd; i++)
+            for (int i = redrawBegin; i <= redrawEnd && i >= 0 && i < this.visualLines.Count; i++)
             {
                 VisualLine visualLine = this.visualLines[i];
                 visualLine.Draw(defaultForegroundBrush, renderTarget);

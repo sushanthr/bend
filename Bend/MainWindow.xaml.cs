@@ -1114,7 +1114,6 @@ namespace Bend
             }
             else
             {
-                this.tab[this.currentTabIndex].TextEditor.RefreshDisplay();
                 this.SetStatusText(count + " MATCHES REPLACED");
                 this.tab[this.currentTabIndex].TextEditor.CancelSelect();
             }
