@@ -100,8 +100,14 @@ namespace TextCoreControl
         /// </summary>
         private void SyncClipBoardRing()
         {
-            string systemClipBoardString = System.Windows.Clipboard.GetText();
-            this.PrivateAddToClipBoardRing(systemClipBoardString);
+            try
+            {
+                string systemClipBoardString = System.Windows.Clipboard.GetText();
+                this.PrivateAddToClipBoardRing(systemClipBoardString);
+            }
+            catch
+            {
+            }
         }
 
         private void PrivateAddToClipBoardRing(string text)
