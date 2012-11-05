@@ -1233,7 +1233,6 @@ namespace TextCoreControl
         private bool AddTabsToSelection()
         {
             uint numberOfTabsAdded = 0;
-            uint numberOfTabsBeforeStart = 0;
             if (this.SelectionBegin != this.SelectionEnd)
             {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -1274,27 +1273,22 @@ namespace TextCoreControl
                         else
                             stringBuilder.Append('\t');
                         numberOfTabsAdded++;
-                        if (ordinal < this.SelectionBegin)
-                        {
-                            numberOfTabsBeforeStart++;
-                        }
                     }
                     length++;
                 }
 
                 if (numberOfTabsAdded > 0)
                 {
-                    int originalSelectionBegin = this.SelectionBegin;
-                    int originalSelectionEnd = this.SelectionEnd;
+                    string stringToInsert = stringBuilder.ToString();
                     document.DeleteAt(beginOrdinal, length);
-                    document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                    document.InsertAt(beginOrdinal, stringToInsert);
                     try
                     {
                         this.caret.PrepareBeforeRender();
                         this.hwndRenderTarget.BeginDraw();
                         this.selectionManager.ShouldUseHighlightColors = false;
-                        this.selectionManager.ResetSelection(document.NextOrdinal(originalSelectionBegin, numberOfTabsBeforeStart), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.selectionManager.ExpandSelection(document.NextOrdinal(originalSelectionEnd, numberOfTabsAdded), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ResetSelection(beginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(document.NextOrdinal(beginOrdinal, (uint)stringToInsert.Length), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.hwndRenderTarget.EndDraw();
                         this.caret.UnprepareAfterRender();
                     }
@@ -1905,6 +1899,7 @@ namespace TextCoreControl
             // Release the render target so that it can be recreated.
             this.hwndRenderTarget = null;
             this.CreateDeviceResources();
+            this.NotifyOfSettingsChange();
             this.renderHost.InvalidateVisual();
         }
 
