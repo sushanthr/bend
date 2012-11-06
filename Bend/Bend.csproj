@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>85</ApplicationRevision>
+    <ApplicationRevision>86</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -401,9 +401,6 @@
       <Project>{55D5297C-F1DF-4B76-A3C1-D82CC294EEBB}</Project>
       <Name>Microsoft.Windows.Shell</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
