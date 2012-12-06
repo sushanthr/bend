@@ -321,7 +321,25 @@ namespace Bend
 
         private void QuitButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Application.Current.Shutdown();
+            // Close tabs with no pending content
+            for (int i = 0; i < tab.Count; i++)
+            {
+                if (!this.tab[i].TextEditor.Document.HasUnsavedContent)
+                {
+                    this.TabClose(i);
+                }
+            }
+            
+            // Close tabs with pending content.
+            for (int i = 0; i < tab.Count; i++)
+            {
+                this.TabClose(i);
+            }
+
+            if (tab.Count == 0)
+            {
+                Application.Current.Shutdown();
+            }
         }
         
         private void FullscreenButtonUp(object sender, MouseButtonEventArgs e)
@@ -805,18 +823,7 @@ namespace Bend
             {
                 if (tab[i].Title == sender)
                 {
-                    if (currentTabIndex >= 0)
-                    {
-                        tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
-                        tab[currentTabIndex].Title.Opacity = 0.5;
-                    }
-                    // Clear find on page state
-                    this.currentSearchIndex = 0;
-
-                    this.currentTabIndex = i;                    
-                    tab[i].Title.Opacity = 1.0;
-                    tab[i].TextEditor.Visibility = Visibility.Visible;
-                    tab[i].TextEditor.SetFocus();
+                    this.SwitchTabFocusTo(i);
                     break;
                 }
             }
@@ -920,8 +927,45 @@ namespace Bend
             // Tab was not found - fail silently
         }
 
+        private void SwitchTabFocusTo(int tabIndex)
+        {
+            // Set Focus to tab.
+            if (currentTabIndex >= 0)
+            {
+                tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                tab[currentTabIndex].Title.Opacity = 0.5;
+            }
+
+            // Clear find on page results
+            this.currentSearchIndex = 0;
+
+            this.currentTabIndex = tabIndex;
+            tab[tabIndex].Title.Opacity = 1.0;
+            tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
+            tab[tabIndex].TextEditor.SetFocus();
+        }
+
         private void TabClose(int tabIndex)
         {
+            if (this.tab[tabIndex].TextEditor.Document.HasUnsavedContent)
+            {
+                this.SwitchTabFocusTo(tabIndex);
+
+                SaveChangesMessageBox.ButtonClicked buttonClicked = SaveChangesMessageBox.Show(tab[tabIndex].FullFileName);
+                if (buttonClicked == SaveChangesMessageBox.ButtonClicked.Cancel)
+                {
+                    return;
+                }
+                if (buttonClicked == SaveChangesMessageBox.ButtonClicked.Save)
+                {
+                    this.CommandSave(null, null);
+                    if (this.tab[tabIndex].TextEditor.Document.HasUnsavedContent)
+                    {
+                        return;
+                    }
+                }                
+            }
+
             if (tabIndex == this.currentTabIndex)
             {
                 // Switch to an existing tab

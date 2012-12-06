@@ -14,6 +14,7 @@ namespace TextCoreControl
         {
             this.fileContents = "\0";
             this.LanguageDetector = new SyntaxHighlighting.LanguageDetector(this);
+            this.hasUnsavedContent = false;
         }
 
         public void LoadFile(string fullFilePath)
@@ -30,6 +31,7 @@ namespace TextCoreControl
                 {
                     this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
                 }
+                this.hasUnsavedContent = true;
             }
         }
 
@@ -38,6 +40,7 @@ namespace TextCoreControl
             System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
             System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1), System.Text.Encoding.Default);
+            this.hasUnsavedContent = false;
         }
 
         internal char CharacterAt(int ordinal)
@@ -125,6 +128,7 @@ namespace TextCoreControl
                     int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
                     this.ContentChange(ordinal, endOrdinal, content);
                 }
+                this.hasUnsavedContent = true;
             }
         }
 
@@ -157,6 +161,7 @@ namespace TextCoreControl
                     {
                         this.ContentChange(ordinal, ordinal, content);
                     }
+                    this.hasUnsavedContent = true;
                 }
             }
         }
@@ -248,6 +253,11 @@ namespace TextCoreControl
         {
             return textIndex;
         }
+
+        public bool HasUnsavedContent
+        {
+            get { return this.hasUnsavedContent; }
+        }
         
         // A delegate type for hooking up change notifications.
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal, string content);
@@ -264,5 +274,7 @@ namespace TextCoreControl
 
         private string fileContents;
         internal readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
+
+        private bool hasUnsavedContent;
     }
 }
