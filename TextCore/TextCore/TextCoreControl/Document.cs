@@ -31,7 +31,7 @@ namespace TextCoreControl
                 {
                     this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
                 }
-                this.hasUnsavedContent = true;
+                this.hasUnsavedContent = false;
             }
         }
 
