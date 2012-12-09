@@ -249,6 +249,7 @@ namespace Bend
             fInfo.dwTimeout = 0;
 
             FlashWindowEx(ref fInfo);
+            this.Activate();
         }
         
         private void AddTabWithFile(string filePath)
