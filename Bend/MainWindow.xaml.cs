@@ -215,6 +215,25 @@ namespace Bend
             {
             }
 
+            // Close tabs with no pending content
+            for (int i = 0; i < tab.Count; i++)
+            {
+                if (!this.tab[i].TextEditor.Document.HasUnsavedContent)
+                {
+                    this.TabClose(i);
+                }
+            }
+
+            // Close tabs with pending content.
+            for (int i = 0; i < tab.Count; i++)
+            {
+                this.TabClose(i);
+            }
+
+            if (tab.Count != 0)
+            {
+                e.Cancel = true;
+            }
         }
 
         [DllImport("user32.dll")]
@@ -322,25 +341,7 @@ namespace Bend
 
         private void QuitButtonUp(object sender, MouseButtonEventArgs e)
         {
-            // Close tabs with no pending content
-            for (int i = 0; i < tab.Count; i++)
-            {
-                if (!this.tab[i].TextEditor.Document.HasUnsavedContent)
-                {
-                    this.TabClose(i);
-                }
-            }
-            
-            // Close tabs with pending content.
-            for (int i = 0; i < tab.Count; i++)
-            {
-                this.TabClose(i);
-            }
-
-            if (tab.Count == 0)
-            {
-                Application.Current.Shutdown();
-            }
+            this.Close();
         }
         
         private void FullscreenButtonUp(object sender, MouseButtonEventArgs e)
