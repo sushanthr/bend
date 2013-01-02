@@ -318,7 +318,7 @@
             <Grid Name="MenuBand" Margin="0,38,0,0" Height="36" VerticalAlignment="Top" Background="WhiteSmoke">
                 <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="200">
                     <Separator Width="10" Visibility="Hidden"></Separator>
-                    <TextBox Margin="0,5,20,0" FontFamily="Segoe UI" Width="200" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Silver" BorderThickness="1.1" TextChanged="FindText_TextChanged" LostFocus="FindText_LostFocus">
+                    <TextBox Margin="0,5,20,0" FontFamily="Segoe UI" Width="200" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Silver" BorderThickness="1.1" TextChanged="FindText_TextChanged">
                         <TextBox.Background>
                             <ImageBrush ImageSource="/Bend;component/Images/search-icon.png" Stretch="None" TileMode="None" AlignmentX="Right"/>
                         </TextBox.Background>

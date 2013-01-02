@@ -20,7 +20,7 @@ namespace Bend
     {
         internal bool OkButtonClicked;        
 
-        public string Title
+        public string TitleText
         {
             get { return this.MessageTitle.Text; }
             set { this.MessageTitle.Text = value; }
@@ -41,7 +41,7 @@ namespace Bend
         public static bool Show(string title, string message, bool onDarkBackground = false)
         {            
             StyledMessageBox messageBox = new StyledMessageBox();
-            messageBox.Title = title;
+            messageBox.TitleText = title;
             messageBox.Message = message;
             messageBox.Owner = Application.Current.MainWindow;
             if (onDarkBackground)

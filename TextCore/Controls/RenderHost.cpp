@@ -97,11 +97,17 @@ void RenderHost::OnRender(DrawingContext ^ ctx)
 
 IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lParam, bool% handled)
 {
+	handled = false;
 	switch (msg)
 	{
-	case WM_SIZE:
 	case WM_PAINT:
+    case WM_DISPLAYCHANGE:
 		InvalidateVisual();
+		handled = false;
+		break;
+	case WM_SIZE:
+  		InvalidateVisual();
+		handled = false;
 		break;
 	case WM_LBUTTONDOWN :
 	case WM_LBUTTONUP   :
@@ -115,6 +121,7 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 			int xPos = GET_X_LPARAM((int)lParam);
 			int yPos = GET_Y_LPARAM((int)lParam);
 			MouseHandler(xPos, yPos, msg, (int) wParam);
+			handled = true;
 		}
 		break;
 	case WM_CHAR:
@@ -129,10 +136,9 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 	    if (OtherHandler != nullptr)
 		{
 			OtherHandler(msg, (int) wParam, (int) lParam);
+			handled = true;
 		}
 		break;
 	}
-
-    handled = false;
     return IntPtr::Zero;
 }

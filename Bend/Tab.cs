@@ -34,6 +34,23 @@ namespace Bend
             private System.IO.FileSystemWatcher fileChangedWatcher;
             long lastFileChangeTime;
             private static System.Threading.Semaphore showFileModifiedDialog = new System.Threading.Semaphore(1, 1);
+
+            struct FindResult
+            {
+                internal FindResult(int beginIndex, uint length)
+                {
+                    this.beginIndex = beginIndex;
+                    this.length = length;
+                }
+
+                internal int beginIndex;
+                internal uint length;
+            };
+            List<FindResult> findResults;
+            int currentSearchIndex;
+            static System.Threading.Thread findOnPageThread;
+            static System.Threading.SemaphoreSlim accessFindOnPageData;
+            string findText;
         #endregion
 
         #region Properties
@@ -48,8 +65,13 @@ namespace Bend
             internal TextEditor TextEditor {
                 get { return textEditor; }
             }
+
             internal String FullFileName {
                 get { return fullFileName; }                
+            }
+
+            internal String FindText {
+                get { return findText; }
             }
         #endregion
 
@@ -60,6 +82,7 @@ namespace Bend
                 fontFamilySegoeUI = new FontFamily("Segoe UI");
                 fontFamilyConsolas = new FontFamily("Consolas");
                 CopyPasteManager = new CopyPasteManager();
+                accessFindOnPageData = new System.Threading.SemaphoreSlim(1, 1);
             }
 
             public Tab()
@@ -104,6 +127,12 @@ namespace Bend
                 this.fileChangedWatcher = null;
                 this.lastFileChangeTime = 1;
                 this.LoadOptions();
+                this.findResults = new List<FindResult>();
+                this.currentSearchIndex = 0;
+                this.findText = null;
+
+                this.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
+                this.TextEditor.Document.OrdinalShift += new Document.OrdinalShiftEventHandler(Document_OrdinalShift);
             }
         #endregion
 
@@ -233,6 +262,309 @@ namespace Bend
             this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks; 
             */
             this.textEditor.RefreshDisplay();
+        }
+        #endregion
+
+        #region Find On Page
+
+        void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
+        {
+            if (Tab.findOnPageThread != null)
+            {
+                Tab.findOnPageThread.Join();
+                Tab.findOnPageThread = null;
+            }
+
+            // Only care about content deletion
+            for (int i = this.findResults.Count - 1; i >= 0; i--)
+            {
+                int beginIndex = this.findResults[i].beginIndex;
+                Document.AdjustOrdinalForShift(beginOrdinal, shift, ref beginIndex);
+                this.findResults[i] = new FindResult(beginIndex, this.findResults[i].length);
+            }
+        }
+
+        void Document_ContentChange(int beginOrdinal, int endOrdinal, string content)
+        {
+            if (Tab.findOnPageThread != null)
+            {
+                Tab.findOnPageThread.Join();
+                Tab.findOnPageThread = null;
+            }
+
+            if (beginOrdinal == Document.UNDEFINED_ORDINAL)
+            {
+                // full reset - clear everything
+                this.ClearFindOnPage();
+            }
+            else
+            {
+                // Only care about content deletion
+                if (beginOrdinal == endOrdinal)
+                {
+                    int indexShift = 0;
+                    for (int i = this.findResults.Count - 1; i >= 0; i--)
+                    {
+                        if (this.findResults[i].beginIndex == beginOrdinal)
+                        {
+                            this.findResults.RemoveAt(i);
+                            if (this.currentSearchIndex >= i) indexShift++;
+                        }
+                    }
+                    this.currentSearchIndex -= indexShift;
+                }
+            }
+        }
+        
+        public delegate void SetStatusText_Delegate(string status);
+
+        /// <summary>
+        ///     Find searchstring and highlights the first instance. Also populates this.findResults.
+        /// </summary>
+        public void StartFindOnPage(MainWindow mainWindow, string findText, bool matchCase, bool useRegex)
+        {
+            if (findText != this.findText)
+            {
+                Tab.accessFindOnPageData.Wait();
+                if (Tab.findOnPageThread != null)
+                {
+                    Tab.findOnPageThread.Abort();
+                    Tab.findOnPageThread = null;
+                }
+                Tab.accessFindOnPageData.Release();
+
+                string text = this.TextEditor.Document.Text;
+                TextEditor textEditor = this.TextEditor;
+                this.findText = findText;
+                if (findText.Length > 0 && text.Length > 0)
+                {
+                    this.findResults.RemoveRange(0, this.findResults.Count);
+                    Tab.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
+                    Object[] parameters = new Object[6];
+                    parameters[0] = text;
+                    parameters[1] = findText;
+                    parameters[2] = matchCase;
+                    parameters[3] = useRegex;
+                    parameters[4] = textEditor;
+                    parameters[5] = mainWindow;
+                    Tab.findOnPageThread.Start(parameters);
+                }
+                else
+                {
+                    this.ClearFindOnPage();
+                    if (findText.Length == 0)
+                        mainWindow.SetStatusText("");
+                    else
+                        mainWindow.SetStatusText("NO MATCHES FOUND");
+                }
+            }
+        }
+        
+        private void FindOnPage_WorkerThread(object parameters)
+        {
+            string text = (string)((object[])parameters)[0];
+            string findText = (string)((object[])parameters)[1];
+            bool matchCase = (bool)((object[])parameters)[2];
+            bool useRegEx = (bool)((object[])parameters)[3];
+            TextEditor textEditor = (TextEditor)((object[])parameters)[4];
+            MainWindow mainWindow = (MainWindow) ((object[])parameters)[5];
+            long startTicks = System.DateTime.Now.Ticks;
+
+            int findIndex = 0;
+            int matchLength = -1;
+            List<FindResult> findResults = new List<FindResult>();
+            System.Text.RegularExpressions.Regex regEx = null;
+            if (useRegEx)
+            {
+                try
+                {
+                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                }
+                catch
+                {
+                    return;
+                }
+            }
+
+            while (true)
+            {
+                matchLength = -1;
+                if (useRegEx)
+                {
+                    try
+                    {
+                        System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
+                        if (regExMatch.Success)
+                        {
+                            findIndex = regExMatch.Index;
+                            matchLength = regExMatch.Length;
+                        }
+                    }
+                    catch { }
+                }
+                else
+                {
+                    findIndex = text.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    matchLength = findIndex >= 0 ? findText.Length : -1;
+                }
+
+                if (matchLength >= 0)
+                {
+                    findResults.Add(new FindResult(findIndex, (uint)matchLength));
+                    if (findResults.Count % 10 == 0)
+                    {
+                        mainWindow.Dispatcher.BeginInvoke(
+                          new Action(
+                              delegate {
+                                  mainWindow.SetStatusText(findResults.Count.ToString() + " MATCHES");
+                              }
+                          ));                        
+                    }
+                    findIndex += findText.Length;
+                    if (findIndex >= text.Length)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            // No lock needed as all consumers Join the thread before accessing findResults.
+            Tab.accessFindOnPageData.Wait();
+            this.currentSearchIndex = -1;
+            this.findResults = findResults;
+            Tab.findOnPageThread = null;
+            Tab.accessFindOnPageData.Release();
+
+            mainWindow.Dispatcher.BeginInvoke(
+                new Action(
+                    delegate {
+                        mainWindow.SetStatusText(this.HighlightNextMatch());
+                    }
+                )
+            );            
+        }
+
+        public void ClearFindOnPage()
+        {
+            if (Tab.findOnPageThread != null)
+            {
+                Tab.findOnPageThread.Join();
+            }
+            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
+                        
+            if (findResults.Count != 0)
+            {
+                this.findResults.RemoveRange(0, this.findResults.Count);
+                this.TextEditor.CancelSelect();
+            }
+            this.currentSearchIndex = 0;
+            this.findText = null;
+        }
+
+        public string HighlightNextMatch()
+        {
+            if (Tab.findOnPageThread != null)
+            {
+                Tab.findOnPageThread.Join();
+            }
+            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
+            
+            string status = "";
+            this.currentSearchIndex++;
+            if (this.findResults.Count == 0)
+            {
+                this.currentSearchIndex = 0;
+                status = ("NO MATCHES FOUND");
+                this.TextEditor.CancelSelect();
+            }
+            else if (this.currentSearchIndex == this.findResults.Count)
+            {
+                // No more results to show
+                status = ("NO MORE MATCHES");
+                this.TextEditor.CancelSelect();
+            }
+            else
+            {
+                if (this.currentSearchIndex > this.findResults.Count)
+                {
+                    // loop over results
+                    this.currentSearchIndex = 0;
+                }
+                FindResult findResult = this.findResults[this.currentSearchIndex];
+                this.TextEditor.Select(findResult.beginIndex, findResult.length);
+                status = ("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+            }
+
+            return status;
+        }
+
+        public string HighlightPreviousMatch()
+        {
+            if (Tab.findOnPageThread != null)
+            {
+                Tab.findOnPageThread.Join();
+            }
+            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
+
+            string status = "";
+            if (this.findResults.Count == 0)
+            {
+                this.currentSearchIndex = 0;
+                status = ("NO MATCHES FOUND");
+                this.TextEditor.CancelSelect();
+            }
+            else if (this.currentSearchIndex == 0)
+            {
+                // No more results to show
+                status = ("NO MORE MATCHES");
+                this.TextEditor.CancelSelect();
+                this.currentSearchIndex--;
+            }
+            else
+            {
+                this.currentSearchIndex--;
+                if (this.currentSearchIndex < 0)
+                {
+                    // loop over results
+                    this.currentSearchIndex = this.findResults.Count - 1;
+                }
+                FindResult findResult = this.findResults[this.currentSearchIndex];
+                this.TextEditor.Select(findResult.beginIndex, findResult.length);
+                status = ("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+            }
+
+            return status;
+        }
+
+        public string HighlightCurrentMatch()
+        {
+            string status = "";
+            if (this.findText != null)
+            {
+                if (Tab.findOnPageThread != null)
+                {
+                    Tab.findOnPageThread.Join();
+                }
+                System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
+
+                if (this.findResults.Count == 0)
+                {
+                    this.currentSearchIndex = 0;
+                    status = ("NO MATCHES FOUND");
+                    this.TextEditor.CancelSelect();
+                }
+                else if (this.currentSearchIndex >= 0 && this.currentSearchIndex < this.findResults.Count)
+                {
+                    FindResult findResult = this.findResults[this.currentSearchIndex];
+                    this.TextEditor.Select(findResult.beginIndex, findResult.length);
+                    status = ("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+                }
+            }
+            return status;
         }
         #endregion
     }

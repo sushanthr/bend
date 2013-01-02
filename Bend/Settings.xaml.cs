@@ -139,7 +139,7 @@ namespace Bend
             MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
             if (mainWindow != null)
             {
-                return mainWindow.GetActiveTab();
+                return mainWindow.CurrentTab;
             }
             else
             {
