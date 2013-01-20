@@ -172,12 +172,14 @@ namespace TextCoreControl
 
         public void PrepareBeforeRender()
         {
+            DebugLog.Write("Caret PrepareBeforeRender");
             HideCaret(windowHandle);
             DBG_CARET_IS_PREPARED_FOR_RENDER = true;
         }
 
         public void UnprepareAfterRender()
         {
+            DebugLog.Write("Caret UnprepareAfterRender");
             if (!this.isCaretHidden)
             {
                 ShowCaret(windowHandle);

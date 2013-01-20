@@ -1901,6 +1901,7 @@ namespace TextCoreControl
             this.CreateDeviceResources();
             this.NotifyOfSettingsChange();
             this.renderHost.InvalidateVisual();
+            DebugLog.Write("RecoverFromRenderException");
         }
 
         #endregion
