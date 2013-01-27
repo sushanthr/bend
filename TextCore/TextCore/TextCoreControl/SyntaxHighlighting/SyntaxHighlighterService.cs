@@ -73,20 +73,20 @@ namespace TextCoreControl.SyntaxHighlighting
             // The color table matches SyntaxHightlighterEngine.HighlightStyle Enum.
             SolidColorBrush[] colorTable = {
                 /*NONE*/                    null, 
-                /*KEYWORD1*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0, 102f/255, 153f/255)), 
-                /*KEYWORD2*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0,   0, 128f/255)),
-                /*KEYWORD3*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0,   0, 255f/255)), 
-                /*KEYWORD4*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0,   0, 255f/255)), 
-                /*KEYWORD5*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0,   0, 255f/255)), 
-                /*KEYWORD6*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF( 139f/255,   0,   0)), 
-                /*PREPROCESSORKEYWORD*/     hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0, 128f/255,   0)),
-                /*PREPROCESSOR*/            hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0, 155f/255,  91f/255)),
-                /*COMMENT*/                 hwndRenderTarget.CreateSolidColorBrush(new ColorF( 170f/255, 170f/255, 170f/255)), 
-                /*OPERATOR*/                hwndRenderTarget.CreateSolidColorBrush(new ColorF( 230f/255,  51f/255,  51f/255)),
-                /*BRACKET*/                 hwndRenderTarget.CreateSolidColorBrush(new ColorF( 250f/255,  51f/255,  51f/255)),
-                /*NUMBER*/                  hwndRenderTarget.CreateSolidColorBrush(new ColorF( 184f/255, 134f/255,  11f/255)),
-                /*STRING*/                  hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0f/255, 100f/255,  0f/255)),
-                /*CHAR*/                    hwndRenderTarget.CreateSolidColorBrush(new ColorF(   0f/255, 100f/255,  0f/255))
+                /*KEYWORD1*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword1), 
+                /*KEYWORD2*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword2),
+                /*KEYWORD3*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword3), 
+                /*KEYWORD4*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword4), 
+                /*KEYWORD5*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword5), 
+                /*KEYWORD6*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingKeyword6), 
+                /*PREPROCESSORKEYWORD*/     hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingPreProcessorKeyword),
+                /*PREPROCESSOR*/            hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingPreProcessor),
+                /*COMMENT*/                 hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingComment), 
+                /*OPERATOR*/                hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingOperator),
+                /*BRACKET*/                 hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingBracket),
+                /*NUMBER*/                  hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingNumber),
+                /*STRING*/                  hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingString),
+                /*CHAR*/                    hwndRenderTarget.CreateSolidColorBrush(Settings.SyntaxHighlightingChar)
             };
             this.colorTable = colorTable;
         } 

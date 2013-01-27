@@ -92,6 +92,42 @@ namespace Bend
         internal void LoadOptions()
         {
             StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+            Resources["BackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.BackgroundColor);
+            Resources["ForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.ForegroundColor);
+            Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.ScrollButtonColor);
+            Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoForegroundColor);
+            Resources["LogoBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoBackgroundColor);
+            
+            BitmapImage backgroundImage = new BitmapImage();
+            backgroundImage.BeginInit();
+            backgroundImage.UriSource = new Uri("pack://application:,,,/Bend;component/" + PersistantStorage.StorageObject.BaseBackgroundImage);
+            backgroundImage.EndInit();
+            BaseBackgroundImage.ImageSource = backgroundImage;
+
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultForegroundColor, ref TextCoreControl.Settings.DefaultForegroundColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultBackgroundColor, ref TextCoreControl.Settings.DefaultBackgroundColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultSelectionColor, ref TextCoreControl.Settings.DefaultSelectionColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultSelectionOutlineColor, ref TextCoreControl.Settings.DefaultSelectionOutlineColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultSelectionDimColor, ref TextCoreControl.Settings.DefaultSelectionDimColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.LineNumberColor, ref TextCoreControl.Settings.LineNumberColor);
+
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultShowFormattingColor, ref TextCoreControl.Settings.DefaultShowFormattingColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.DefaultShowFormattingColorAlt, ref TextCoreControl.Settings.DefaultShowFormattingColorAlt);
+
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword1, ref TextCoreControl.Settings.SyntaxHighlightingKeyword1);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword2, ref TextCoreControl.Settings.SyntaxHighlightingKeyword2);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword3, ref TextCoreControl.Settings.SyntaxHighlightingKeyword3);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword4, ref TextCoreControl.Settings.SyntaxHighlightingKeyword4);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword5, ref TextCoreControl.Settings.SyntaxHighlightingKeyword5);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingKeyword6, ref TextCoreControl.Settings.SyntaxHighlightingKeyword6);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingPreProcessorKeyword, ref TextCoreControl.Settings.SyntaxHighlightingPreProcessorKeyword);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingPreProcessor, ref TextCoreControl.Settings.SyntaxHighlightingPreProcessor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingComment, ref TextCoreControl.Settings.SyntaxHighlightingComment);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingOperator, ref TextCoreControl.Settings.SyntaxHighlightingOperator);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingBracket, ref TextCoreControl.Settings.SyntaxHighlightingBracket);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingNumber, ref TextCoreControl.Settings.SyntaxHighlightingNumber);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingString, ref TextCoreControl.Settings.SyntaxHighlightingString);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingChar, ref TextCoreControl.Settings.SyntaxHighlightingChar);
         }
         #endregion
 
@@ -569,7 +605,7 @@ namespace Bend
             if (this.currentTabIndex >= 0)
             {
                 TextCoreControl.TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
-                textEditor.RefreshDisplay();
+                textEditor.NotifyOfSettingsChange();
             }            
         }
         #endregion

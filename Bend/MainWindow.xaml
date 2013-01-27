@@ -15,7 +15,7 @@
         Height="600"
         SourceInitialized="Window_SourceInitialized" 
         Icon="/Bend;component/Images/Arrow-icon.png" 
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" Background="WhiteSmoke" AllowsTransparency="False">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" AllowsTransparency="False">
     <Window.CommandBindings>
         <CommandBinding Command="Save" Executed="CommandSave"/>
         <CommandBinding Command="Open" Executed="CommandOpen"/>
@@ -52,13 +52,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Border Background="WhiteSmoke">
+                        <Border Background="{DynamicResource BackgroundBrush}">
                             <ContentPresenter x:Name="ContentSite" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Setter Property="Foreground" Value="#D0D0D0" />
+            <Setter Property="Foreground" Value="{DynamicResource ScrollButtonBrush}" />
             <Setter Property="FontSize" Value="20px" />
             <Setter Property="FontFamily" Value="Webdings" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -74,7 +74,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Rectangle Fill="WhiteSmoke" />
+                        <Rectangle Fill="{DynamicResource BackgroundBrush}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -108,7 +108,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border BorderBrush="WhiteSmoke" BorderThickness="3" Background="#505050" />
+                        <Border BorderBrush="{DynamicResource BackgroundBrush}" BorderThickness="3" Background="#505050" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -120,7 +120,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border BorderBrush="WhiteSmoke" BorderThickness="3" Background="#505050" />
+                        <Border BorderBrush="{DynamicResource BackgroundBrush}" BorderThickness="3" Background="#505050" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -129,12 +129,12 @@
         </Style>
 
         <Style TargetType="{x:Type ScrollBar}">
-            <Setter Property="Background" Value="WhiteSmoke" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
             <Setter Property="MinWidth" Value="20" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid Background="WhiteSmoke">
+                        <Grid Background="{DynamicResource BackgroundBrush}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
@@ -143,7 +143,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="20" />
                             </Grid.RowDefinitions>
-                            <Border Grid.Column="1" Background="WhiteSmoke"/>
+                            <Border Grid.Column="1" Background="{DynamicResource BackgroundBrush}"/>
                             <RepeatButton Grid.Row="0" Style="{DynamicResource Scrollbar_LineButton}" Command="ScrollBar.LineUpCommand" Content="5" />
                             <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="true">
                                 <Track.DecreaseRepeatButton>
@@ -163,12 +163,12 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="Orientation" Value="Horizontal" >
-                    <Setter Property="Background" Value="WhiteSmoke" />
+                    <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
                     <Setter Property="MinHeight" Value="20" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
-                                <Grid Background="WhiteSmoke">
+                                <Grid Background="{DynamicResource BackgroundBrush}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="20"/>
                                     </Grid.RowDefinitions>
@@ -178,7 +178,7 @@
                                         <ColumnDefinition Width="2*"/>
                                         <ColumnDefinition Width="20" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="2" Background="WhiteSmoke"/>
+                                    <Border Grid.Column="2" Background="{DynamicResource BackgroundBrush}"/>
                                     <RepeatButton Grid.Column="1" Style="{DynamicResource Scrollbar_LineButton}" Command="ScrollBar.LineLeftCommand" Content="3" />
                                     <Track Grid.Column="2" Name="PART_Track">
                                         <Track.DecreaseRepeatButton>
@@ -300,36 +300,41 @@
                             DecelerationRatio="0.6"
              />
         </Storyboard>
-    </Window.Resources>    
-    <Grid Name="ClientAreaGrid" Background="WhiteSmoke">
+        
+        <!-- Color Palette -->
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#141414" />
+        <SolidColorBrush x:Key="ForegroundBrush" Color="Silver" />
+        <SolidColorBrush x:Key="ScrollButtonBrush" Color="#999999"/>
+        <SolidColorBrush x:Key="LogoForegroundBrush" Color="Black"/>
+        <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>        
+    </Window.Resources>
+    <Grid Name="ClientAreaGrid" Background="{DynamicResource BackgroundBrush}">
         <Grid Name="MainWindowGrid">
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"></RotateTransform>
             </Grid.RenderTransform>
             <Grid Name="Editor" Margin="0,73,0,0" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
                 <Grid.Background>
-                    <ImageBrush ImageSource="Images/FrontBackground.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />                    
+                    <ImageBrush x:Name="BaseBackgroundImage" ImageSource="Images/SettingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />                    
                 </Grid.Background>
             </Grid>            
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">
                 <WrapPanel MaxHeight="34" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="75,20,0,0" Name="TabBar">
                 </WrapPanel>
             </Grid>
-            <Grid Name="MenuBand" Margin="0,38,0,0" Height="36" VerticalAlignment="Top" Background="WhiteSmoke">
-                <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="200">
+            <Grid Name="MenuBand" Margin="0,38,0,0" Height="36" VerticalAlignment="Top" Background="{DynamicResource BackgroundBrush}">
+                <TextBlock HorizontalAlignment="Right" Margin="0,10,20,0" FontFamily="Segoe UI Symbol" Foreground="{DynamicResource ForegroundBrush}" Padding="0">&#xE1A3;</TextBlock>
+                <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="250">
                     <Separator Width="10" Visibility="Hidden"></Separator>
-                    <TextBox Margin="0,5,20,0" FontFamily="Segoe UI" Width="200" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Silver" BorderThickness="1.1" TextChanged="FindText_TextChanged">
-                        <TextBox.Background>
-                            <ImageBrush ImageSource="/Bend;component/Images/search-icon.png" Stretch="None" TileMode="None" AlignmentX="Right"/>
-                        </TextBox.Background>
-                    </TextBox>
+                    <TextBox Margin="0,5,15,0" FontFamily="Segoe UI" Width="250" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Gray" BorderThickness="1.1" TextChanged="FindText_TextChanged" Foreground="{DynamicResource ForegroundBrush}" Background="Transparent">                        
+                    </TextBox>                    
                 </WrapPanel>
-                <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Left" Background="WhiteSmoke">
-                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="NewButtonUp">New</Label>
-                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="OpenButtonUp" >Open</Label>
-                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="SaveButtonUp" Name="SaveButton">Save</Label>
-                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="SavePlusButtonUp">Save+</Label>
-                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="15,0" IsTabStop="True" PreviewMouseLeftButtonUp="ReplaceButtonUp">Replace</Label>
+                <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Left" Background="{DynamicResource BackgroundBrush}" >
+                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="NewButtonUp">New</Label>
+                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="OpenButtonUp" >Open</Label>
+                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="SaveButtonUp" Name="SaveButton">Save</Label>
+                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="SavePlusButtonUp">Save+</Label>
+                    <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="15,0" IsTabStop="True" PreviewMouseLeftButtonUp="ReplaceButtonUp">Replace</Label>
                 </WrapPanel>
             </Grid>
             <Grid Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
@@ -339,26 +344,19 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
-                <WrapPanel Name="StatusBar" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="WhiteSmoke" Margin="49,0,0,0">
+                <WrapPanel Name="StatusBar" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="49,0,0,0">
                     <WrapPanel>
-                        <Label Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="20,0,0,0">COL</Label>
-                        <Label Name="Column" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,10,0" MinWidth="40"></Label>
+                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="20,0,0,0">COL</Label>
+                        <Label Name="Column" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,10,0" MinWidth="40"></Label>
                     </WrapPanel>
                     <WrapPanel>
-                        <Label Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="20,0,0,0">LN</Label>
-                        <Label Name="Line" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,0,0" MinWidth="40"></Label>
+                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="20,0,0,0">LN</Label>
+                        <Label Name="Line" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,0,0" MinWidth="40"></Label>
                     </WrapPanel>                    
                 </WrapPanel>
-                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="WhiteSmoke" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center"></Label>
+                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center"></Label>
             </Grid>
-            <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="White" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="13" Padding="0,8" IsTabStop="True" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="Logo_MouseDown">
-                <Label.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#AD94A2BC" Offset="0.686" />
-                        <GradientStop Color="#FF2A4579" Offset="0.262" />
-                        <GradientStop Color="#58FFFFFF" Offset="1" />
-                    </LinearGradientBrush>
-                </Label.Background>
+            <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource LogoForegroundBrush}" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="16" Padding="0,8" IsTabStop="True" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="Logo_MouseDown" Background="{DynamicResource LogoBackgroundBrush}">
             </Label>                        
         </Grid>
         <Grid Name="Settings" Visibility="Hidden">

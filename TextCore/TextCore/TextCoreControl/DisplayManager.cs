@@ -1623,11 +1623,20 @@ namespace TextCoreControl
 
         internal void NotifyOfSettingsChange()
         {
-            if (hwndRenderTarget != null)
+            if (this.hwndRenderTarget != null)
             {
+                // Release the render target so that it can be recreated.
+                this.hwndRenderTarget = null;
+                this.CreateDeviceResources();
+
                 ShowFormatting.NotifyOfSettingsChanged();
 
                 this.textLayoutBuilder.NotifyOfSettingsChange();
+
+                if (this.syntaxHighlightingService != null)
+                {
+                    this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
+                }
 
                 if (this.syntaxHighlightingService != null)
                     this.syntaxHighlightingService.NotifyOfSettingsChange();
@@ -1896,9 +1905,6 @@ namespace TextCoreControl
 
         private void RecoverFromRenderException()
         {
-            // Release the render target so that it can be recreated.
-            this.hwndRenderTarget = null;
-            this.CreateDeviceResources();
             this.NotifyOfSettingsChange();
             this.renderHost.InvalidateVisual();
             DebugLog.Write("RecoverFromRenderException");

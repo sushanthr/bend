@@ -23,6 +23,16 @@ namespace TextCoreControl
             this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar);
             this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControlUserControl_PreviewKeyDown);
             this.copyPasteManager = null;
+            SetControlBackground();
+        }
+
+        private void SetControlBackground()
+        {
+            this.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(
+                (Byte)(Settings.DefaultBackgroundColor.Red * 255),
+                (Byte)(Settings.DefaultBackgroundColor.Green * 255), 
+                (Byte)(Settings.DefaultBackgroundColor.Blue * 255)));
+            this.BottomRightPatch.Background = this.Background;
         }
 
         void TextControlUserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -137,8 +147,9 @@ namespace TextCoreControl
             set { this.copyPasteManager = value; }
         }
 
-        public void RefreshDisplay()
+        public void NotifyOfSettingsChange()
         {
+            SetControlBackground();
             this.displayManager.NotifyOfSettingsChange();
         }
 
@@ -201,6 +212,6 @@ namespace TextCoreControl
         private Document document;
         private DisplayManager displayManager;
         private UndoRedoManager undoRedoManager;
-        private CopyPasteManager copyPasteManager;
+        private CopyPasteManager copyPasteManager;       
     }
 }

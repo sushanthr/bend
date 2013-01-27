@@ -97,6 +97,7 @@ namespace Bend
                 titleText.TextAlignment = TextAlignment.Center;
                 titleText.FontFamily = Tab.fontFamilySegoeUI;
                 Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(titleText, /*isHitTestable*/true);
+                titleText.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
                 title.Children.Add(titleText);
 
                 Separator seperator = new Separator();
@@ -261,7 +262,7 @@ namespace Bend
             this.textEditor.Options.EnableHyperlinks = PersistantStorage.StorageObject.TextFormatHyperLinks;
             this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks; 
             */
-            this.textEditor.RefreshDisplay();
+            this.textEditor.NotifyOfSettingsChange();
         }
         #endregion
 

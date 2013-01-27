@@ -155,6 +155,13 @@
                             <CheckBox Name="SmoothScrolling" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Smooth scrolling</CheckBox>
                             <CheckBox Name="SyntaxHighlighting" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Syntax Highlighting</CheckBox>
                         </StackPanel>
+                        <Label FontFamily="Segoe UI" Content="Theme" Margin="0,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,10,0,0" Width="200">
+                            <ComboBox x:Name="ThemePicker" SelectedIndex="0" Height="24">
+                                <Label Height="20" Padding="2,0,0,0" >Light</Label>
+                                <Label Height="20" Padding="2,0,0,0" >Dark</Label>
+                            </ComboBox>
+                        </StackPanel>
                     </StackPanel>   
                     <WrapPanel Grid.Column="2" Margin="0,0,0,-20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                         <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="OptionsSave_Click">SAVE</Button>
