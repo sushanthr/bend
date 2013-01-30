@@ -471,9 +471,6 @@ namespace Microsoft.Windows.Shell
 
                 ncCalcSize.rgrc3 = ncCalcSize.rgrc2;
 
-                // Showing 1px of glass seems to reduce flickering during resize.
-                ncCalcSize.rgrc1.Bottom = ncCalcSize.rgrc1.Bottom - 1;
-
                 ncCalcSize.rgrc2 = ncCalcSize.rgrc1;
 
                 Marshal.StructureToPtr(ncCalcSize, lParam, false);
@@ -1036,7 +1033,7 @@ namespace Microsoft.Windows.Shell
                 // The Window's Background needs to be changed independent of this.
 
                 // Apply the transparent background to the HWND
-                _hwndSource.CompositionTarget.BackgroundColor = Colors.WhiteSmoke;
+                _hwndSource.CompositionTarget.BackgroundColor = Color.FromRgb(WindowChrome.BackgroundRed, WindowChrome.BackgroundGreen, WindowChrome.BackgroundBlue);
 
                 // Thickness is going to be DIPs, need to convert to system coordinates.
                 Point deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.GlassFrameThickness.Left, _chromeInfo.GlassFrameThickness.Top));
@@ -1056,9 +1053,9 @@ namespace Microsoft.Windows.Shell
 
 
             RGBQUAD rgb = new RGBQUAD();
-            rgb.rgbRed = 245;
-            rgb.rgbGreen = 245;
-            rgb.rgbBlue = 245;
+            rgb.rgbRed = WindowChrome.BackgroundRed;
+            rgb.rgbGreen = WindowChrome.BackgroundGreen;
+            rgb.rgbBlue = WindowChrome.BackgroundBlue;
             NativeMethods.SetClassLongPtr(_hwnd, GCLP.HBRBACKGROUND, NativeMethods.CreateSolidBrush(rgb.ToInt32()));
         }
 

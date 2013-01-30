@@ -198,10 +198,10 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                         <TextBlock Text="F1" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
+                                        <TextBlock Text="F5" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
                                         <TextBlock Text="Ctrl + 0" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
                                         <TextBlock Text="Ctrl + C" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
                                         <TextBlock Text="Ctrl + F" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Ctrl + F5" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
                                         <TextBlock Text="Ctrl + G" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>    
                                         <TextBlock Text="Ctrl + H" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
                                         <TextBlock Text="Ctrl + Wheel" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap"/>
@@ -213,10 +213,10 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" >
                                         <TextBlock Text="Open/Close settings page" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
-                                        <TextBlock Text="Reset Zoom" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />    
+                                        <TextBlock Text="Reload file" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
+                                        <TextBlock Text="Reset zoom" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />    
                                         <TextBlock Text="Copy text" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
                                         <TextBlock Text="Activates find on page search box" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
-                                        <TextBlock Text="Reload file" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />    
                                         <TextBlock Text="Goto line number" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
                                         <TextBlock Text="Opens find and replace dialog" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />
                                         <TextBlock Text="Zoom" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap" />

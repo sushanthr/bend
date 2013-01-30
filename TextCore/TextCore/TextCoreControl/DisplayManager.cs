@@ -99,6 +99,16 @@ namespace TextCoreControl
                 // Register for document content change in the end, so that the other subsystems get to handle the change first.
                 document.ContentChange += this.Document_ContentChanged;
                 document.OrdinalShift += this.Document_OrdinalShift;
+
+                // Restore the transform back on the new hwndRenderTarget
+                if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
+                {
+                    hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));
+                }
+                else
+                {
+                    hwndRenderTarget.Transform = Matrix3x2F.Identity;
+                }
             }
         }
 
@@ -1266,7 +1276,7 @@ namespace TextCoreControl
                         break;
                     }
 
-                    if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)))
+                    if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)) && ordinal != this.SelectionEnd)
                     {
                         if (Settings.UseStringForTab)
                             stringBuilder.Append(Settings.TabString);
@@ -1279,7 +1289,7 @@ namespace TextCoreControl
 
                 if (numberOfTabsAdded > 0)
                 {
-                    string stringToInsert = stringBuilder.ToString();
+                    string stringToInsert = stringBuilder.ToString();                    
                     document.DeleteAt(beginOrdinal, length);
                     document.InsertAt(beginOrdinal, stringToInsert);
                     try
@@ -1418,13 +1428,19 @@ namespace TextCoreControl
                     document.DeleteAt(beginOrdinal, length);
                     document.InsertAt(beginOrdinal, stringBuilder.ToString());
 
+                    uint tabLength = 1;
+                    if (Settings.UseStringForTab)
+                    {
+                        tabLength = (uint)Settings.TabString.Length;
+                    }
+
                     try
                     {
                         this.caret.PrepareBeforeRender();
                         this.hwndRenderTarget.BeginDraw();
                         this.selectionManager.ShouldUseHighlightColors = false;
-                        this.selectionManager.ResetSelection(document.PreviousOrdinal(originalSelectionBegin, numberOfTabsRemovedBeforeStart), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.selectionManager.ExpandSelection(document.PreviousOrdinal(originalSelectionEnd, numberOfTabsRemoved), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ResetSelection(document.PreviousOrdinal(originalSelectionBegin, numberOfTabsRemovedBeforeStart * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(document.PreviousOrdinal(originalSelectionEnd, numberOfTabsRemoved * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
                         this.hwndRenderTarget.EndDraw();
                         this.caret.UnprepareAfterRender();
                     }
@@ -1906,8 +1922,7 @@ namespace TextCoreControl
         private void RecoverFromRenderException()
         {
             this.NotifyOfSettingsChange();
-            this.renderHost.InvalidateVisual();
-            DebugLog.Write("RecoverFromRenderException");
+            this.renderHost.InvalidateVisual();            
         }
 
         #endregion

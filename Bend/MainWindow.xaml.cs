@@ -97,7 +97,10 @@ namespace Bend
             Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.ScrollButtonColor);
             Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoForegroundColor);
             Resources["LogoBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoBackgroundColor);
-            
+            WindowChrome.BackgroundRed = PersistantStorage.StorageObject.BackgroundColor.R;
+            WindowChrome.BackgroundGreen = PersistantStorage.StorageObject.BackgroundColor.G;
+            WindowChrome.BackgroundBlue = PersistantStorage.StorageObject.BackgroundColor.B;
+
             BitmapImage backgroundImage = new BitmapImage();
             backgroundImage.BeginInit();
             backgroundImage.UriSource = new Uri("pack://application:,,,/Bend;component/" + PersistantStorage.StorageObject.BaseBackgroundImage);
@@ -538,9 +541,17 @@ namespace Bend
 
         private void CommandRefresh(object sender, ExecutedRoutedEventArgs e)
         {
-            if (this.currentTabIndex >= 0 && tab[this.currentTabIndex].FullFileName != null && System.IO.File.Exists(tab[this.currentTabIndex].FullFileName))
+            if (this.currentTabIndex >= 0 
+                && tab[this.currentTabIndex].FullFileName != null 
+                && System.IO.File.Exists(tab[this.currentTabIndex].FullFileName) 
+                && !tab[currentTabIndex].TextEditor.Document.HasUnsavedContent)
             {
                 tab[this.currentTabIndex].OpenFile(tab[this.currentTabIndex].FullFileName);
+                SetStatusText("FILE REFRESHED");
+                System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+                dispatcherTimer.Tick += new EventHandler(ClearStatusDispatcherTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+                dispatcherTimer.Start();
             }            
         }
 

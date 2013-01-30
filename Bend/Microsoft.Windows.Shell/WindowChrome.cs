@@ -220,7 +220,7 @@ namespace Microsoft.Windows.Shell
                     });
             }
         }
-
+        
         /// <summary>
         ///     Finds other instances of the same application
         /// </summary>
@@ -286,5 +286,8 @@ namespace Microsoft.Windows.Shell
         }
 
         internal event EventHandler PropertyChangedThatRequiresRepaint;
+        public static byte BackgroundRed = 245;
+        public static byte BackgroundGreen = 245;
+        public static byte BackgroundBlue = 245;
     }
 }

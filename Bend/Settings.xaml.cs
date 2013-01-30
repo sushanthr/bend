@@ -179,15 +179,18 @@ namespace Bend
             try
             {
                 TabItem tabItem = (TabItem)SettingsTabs.SelectedItem;
-                TabControl tabControl = (TabControl)tabItem.Parent;
-                for (int i = 0; i < tabControl.Items.Count; i++)
+                if (tabItem != null)
                 {
-                    ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
-                }
+                    TabControl tabControl = (TabControl)tabItem.Parent;
+                    for (int i = 0; i < tabControl.Items.Count; i++)
+                    {
+                        ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
+                    }
 
-                Label header = (Label)tabItem.Header;
-                header.Foreground = new SolidColorBrush(Color.FromArgb(255,25,162,222));
-                ProgressBar.Rect = new Rect(0, 0, 0, 5);
+                    Label header = (Label)tabItem.Header;
+                    header.Foreground = new SolidColorBrush(Color.FromArgb(255, 25, 162, 222));
+                    ProgressBar.Rect = new Rect(0, 0, 0, 5);
+                }
             }
             catch
             {
