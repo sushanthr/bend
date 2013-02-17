@@ -22,7 +22,8 @@ namespace TextCoreControl
         internal DisplayManager(RenderHost renderHost, 
             Document document, 
             ScrollBar vScrollBar, 
-            ScrollBar hScrollBar)
+            ScrollBar hScrollBar,
+            UndoRedoManager undoRedoManager)
         {
             this.renderHost = renderHost;
             renderHost.Loaded += new RoutedEventHandler(RenderHost_Loaded);
@@ -47,6 +48,8 @@ namespace TextCoreControl
             this.document.LanguageDetector.LanguageChange += new SyntaxHighlighting.LanguageDetector.LanguageChangeEventHandler(LanguageDetector_LanguageChange);
 
             DebugHUD.DisplayManager = this;
+
+            this.undoRedoManager = undoRedoManager;
         }
 
         void CreateDeviceResources()
@@ -340,7 +343,7 @@ namespace TextCoreControl
                             {
                                 Settings.DecreaseFontSize();
                             }
-                            this.NotifyOfSettingsChange();
+                            this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
                         }
                     }
                     break;
@@ -652,7 +655,7 @@ namespace TextCoreControl
                 case System.Windows.Input.Key.NumPad0:
                     if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control){
                         Settings.ResetFontSize();
-                        this.NotifyOfSettingsChange();
+                        this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
                         e.Handled = true;
                     }
                     break;
@@ -661,7 +664,7 @@ namespace TextCoreControl
                     if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
                     {
                         Settings.IncreaseFontSize();
-                        this.NotifyOfSettingsChange();
+                        this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
                         e.Handled = true;
                     }
                     break;
@@ -670,7 +673,7 @@ namespace TextCoreControl
                     if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
                     {
                         Settings.DecreaseFontSize();
-                        this.NotifyOfSettingsChange();
+                        this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
                         e.Handled = true;
                     }
                     break;
@@ -1289,9 +1292,13 @@ namespace TextCoreControl
 
                 if (numberOfTabsAdded > 0)
                 {
-                    string stringToInsert = stringBuilder.ToString();                    
+                    string stringToInsert = stringBuilder.ToString();
+
+                    undoRedoManager.BeginTransaction();
                     document.DeleteAt(beginOrdinal, length);
                     document.InsertAt(beginOrdinal, stringToInsert);
+                    undoRedoManager.EndTransaction();
+
                     try
                     {
                         this.caret.PrepareBeforeRender();
@@ -1318,70 +1325,35 @@ namespace TextCoreControl
         private bool RemoveTabsFromSelection()
         {
             uint numberOfTabsRemoved = 0;
-            uint numberOfTabsRemovedBeforeStart = 0;
             if (this.SelectionBegin != this.SelectionEnd)
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                int beginOrdinal = this.SelectionBegin;
-                // Roll back until after the previous line break.
-                // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
-                while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
-                {
-                    int temp = document.PreviousOrdinal(beginOrdinal);
-                    if (temp == Document.BEFOREBEGIN_ORDINAL)
-                        break;
-                    beginOrdinal = temp;
-                }
+                bool useStringForTab = Settings.UseStringForTab;                
+                int iteration = 0;
 
-                int ordinal = beginOrdinal;
-                int length = 0;
-                
-                if (ordinal == document.FirstOrdinal())
+                while (numberOfTabsRemoved == 0 && iteration < 2)
                 {
-                    if (Settings.UseStringForTab)
+                    uint numberOfTabsRemovedBeforeStart = 0;
+                    StringBuilder stringBuilder = new StringBuilder();
+                    int beginOrdinal = this.SelectionBegin;
+                    // Roll back until after the previous line break.
+                    // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
+                    while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
                     {
-                        StringBuilder tempStringBuilder = new StringBuilder();
-                        int nextOrdinal = ordinal;
-                        for (int i = Settings.TabString.Length; i > 0 && nextOrdinal != Document.UNDEFINED_ORDINAL; i--)
-                        {
-                            tempStringBuilder.Append(document.CharacterAt(nextOrdinal));
-                            nextOrdinal = document.NextOrdinal(nextOrdinal);
-                        }
-                        if (tempStringBuilder.ToString() == Settings.TabString)
-                        {
-                            length += Settings.TabString.Length;
-                            ordinal = nextOrdinal;
-                            numberOfTabsRemoved++;
-                            if (ordinal < this.SelectionBegin)
-                            {
-                                numberOfTabsRemovedBeforeStart++;
-                            }
-                        }
+                        int temp = document.PreviousOrdinal(beginOrdinal);
+                        if (temp == Document.BEFOREBEGIN_ORDINAL)
+                            break;
+                        beginOrdinal = temp;
                     }
-                    else if (document.CharacterAt(ordinal) == '\t')
-                    {
-                        length++;
-                        ordinal = document.NextOrdinal(ordinal);
-                        numberOfTabsRemoved++;
-                        if (ordinal < this.SelectionBegin)
-                        {
-                            numberOfTabsRemovedBeforeStart++;
-                        }
-                    }
-                }
 
-                while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
-                {
-                    char ch = document.CharacterAt(ordinal);
-                    stringBuilder.Append(ch);
+                    int ordinal = beginOrdinal;
+                    int length = 0;
 
-                    int skipCount = 1;
-                    if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)))
+                    if (ordinal == document.FirstOrdinal())
                     {
-                        if (Settings.UseStringForTab)
+                        if (useStringForTab)
                         {
                             StringBuilder tempStringBuilder = new StringBuilder();
-                            int nextOrdinal = document.NextOrdinal(ordinal);
+                            int nextOrdinal = ordinal;
                             for (int i = Settings.TabString.Length; i > 0 && nextOrdinal != Document.UNDEFINED_ORDINAL; i--)
                             {
                                 tempStringBuilder.Append(document.CharacterAt(nextOrdinal));
@@ -1389,7 +1361,8 @@ namespace TextCoreControl
                             }
                             if (tempStringBuilder.ToString() == Settings.TabString)
                             {
-                                skipCount += Settings.TabString.Length;
+                                length += Settings.TabString.Length;
+                                ordinal = nextOrdinal;
                                 numberOfTabsRemoved++;
                                 if (ordinal < this.SelectionBegin)
                                 {
@@ -1397,57 +1370,101 @@ namespace TextCoreControl
                                 }
                             }
                         }
-                        else
+                        else if (document.CharacterAt(ordinal) == '\t')
                         {
-                            int nextOrdinal = document.NextOrdinal(ordinal);
-                            if (nextOrdinal != Document.UNDEFINED_ORDINAL && document.CharacterAt(nextOrdinal) == '\t')
+                            length++;
+                            ordinal = document.NextOrdinal(ordinal);
+                            numberOfTabsRemoved++;
+                            if (ordinal < this.SelectionBegin)
                             {
-                                skipCount = 2;
-                                numberOfTabsRemoved++;
-                                if (ordinal < this.SelectionBegin)
-                                {
-                                    numberOfTabsRemovedBeforeStart++;
-                                }
+                                numberOfTabsRemovedBeforeStart++;
                             }
                         }
                     }
-                    
-                    while (skipCount > 0 && ordinal != Document.UNDEFINED_ORDINAL)
-                    {
-                        ordinal = document.NextOrdinal(ordinal);
-                        length++;
-                        skipCount--;
-                    }
-                }
 
-                if (numberOfTabsRemoved > 0)
-                {
-                    int originalSelectionBegin = this.SelectionBegin;
-                    int originalSelectionEnd = this.SelectionEnd;
-
-                    document.DeleteAt(beginOrdinal, length);
-                    document.InsertAt(beginOrdinal, stringBuilder.ToString());
-
-                    uint tabLength = 1;
-                    if (Settings.UseStringForTab)
+                    while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
                     {
-                        tabLength = (uint)Settings.TabString.Length;
+                        char ch = document.CharacterAt(ordinal);
+                        stringBuilder.Append(ch);
+
+                        int skipCount = 1;
+                        if (TextLayoutBuilder.IsHardBreakChar(ch, document.CharacterAt(ordinal)))
+                        {
+                            if (useStringForTab)
+                            {
+                                StringBuilder tempStringBuilder = new StringBuilder();
+                                int nextOrdinal = document.NextOrdinal(ordinal);
+                                for (int i = Settings.TabString.Length; i > 0 && nextOrdinal != Document.UNDEFINED_ORDINAL; i--)
+                                {
+                                    tempStringBuilder.Append(document.CharacterAt(nextOrdinal));
+                                    nextOrdinal = document.NextOrdinal(nextOrdinal);
+                                }
+                                if (tempStringBuilder.ToString() == Settings.TabString)
+                                {
+                                    skipCount += Settings.TabString.Length;
+                                    numberOfTabsRemoved++;
+                                    if (document.NextOrdinal(ordinal) < this.SelectionBegin)
+                                    {
+                                        numberOfTabsRemovedBeforeStart++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                int nextOrdinal = document.NextOrdinal(ordinal);
+                                if (nextOrdinal != Document.UNDEFINED_ORDINAL && document.CharacterAt(nextOrdinal) == '\t')
+                                {
+                                    skipCount = 2;
+                                    numberOfTabsRemoved++;
+                                    if (nextOrdinal < this.SelectionBegin)
+                                    {
+                                        numberOfTabsRemovedBeforeStart++;
+                                    }
+                                }
+                            }
+                        }
+
+                        while (skipCount > 0 && ordinal != Document.UNDEFINED_ORDINAL)
+                        {
+                            ordinal = document.NextOrdinal(ordinal);
+                            length++;
+                            skipCount--;
+                        }
                     }
 
-                    try
+                    if (numberOfTabsRemoved > 0)
                     {
-                        this.caret.PrepareBeforeRender();
-                        this.hwndRenderTarget.BeginDraw();
-                        this.selectionManager.ShouldUseHighlightColors = false;
-                        this.selectionManager.ResetSelection(document.PreviousOrdinal(originalSelectionBegin, numberOfTabsRemovedBeforeStart * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.selectionManager.ExpandSelection(document.PreviousOrdinal(originalSelectionEnd, numberOfTabsRemoved * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                        this.hwndRenderTarget.EndDraw();
-                        this.caret.UnprepareAfterRender();
+                        int originalSelectionBegin = this.SelectionBegin;
+                        int originalSelectionEnd = this.SelectionEnd;
+
+                        undoRedoManager.BeginTransaction();
+                        document.DeleteAt(beginOrdinal, length);
+                        document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                        undoRedoManager.EndTransaction();
+
+                        uint tabLength = 1;
+                        if (useStringForTab)
+                        {
+                            tabLength = (uint)Settings.TabString.Length;
+                        }
+
+                        try
+                        {
+                            this.caret.PrepareBeforeRender();
+                            this.hwndRenderTarget.BeginDraw();
+                            this.selectionManager.ShouldUseHighlightColors = false;
+                            this.selectionManager.ResetSelection(document.PreviousOrdinal(originalSelectionBegin, numberOfTabsRemovedBeforeStart * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                            this.selectionManager.ExpandSelection(document.PreviousOrdinal(originalSelectionEnd, numberOfTabsRemoved * tabLength), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                            this.hwndRenderTarget.EndDraw();
+                            this.caret.UnprepareAfterRender();
+                        }
+                        catch
+                        {
+                            this.RecoverFromRenderException();
+                        }
                     }
-                    catch
-                    {
-                        this.RecoverFromRenderException();
-                    }
+                    iteration++;
+                    useStringForTab = !useStringForTab;
                 }
             }
             return numberOfTabsRemoved > 0;
@@ -1637,12 +1654,15 @@ namespace TextCoreControl
                 this.syntaxHighlightingService.NotifyOfOrdinalShift(document, beginOrdinal, shift);
         }
 
-        internal void NotifyOfSettingsChange()
+        internal void NotifyOfSettingsChange(bool recreateRenderTarget)
         {
             if (this.hwndRenderTarget != null)
             {
                 // Release the render target so that it can be recreated.
-                this.hwndRenderTarget = null;
+                if (recreateRenderTarget)
+                {
+                    this.hwndRenderTarget = null;
+                }
                 this.CreateDeviceResources();
 
                 ShowFormatting.NotifyOfSettingsChanged();
@@ -1921,7 +1941,7 @@ namespace TextCoreControl
 
         private void RecoverFromRenderException()
         {
-            this.NotifyOfSettingsChange();
+            this.NotifyOfSettingsChange(/*recreateRenderTarget*/true);
             this.renderHost.InvalidateVisual();            
         }
 
@@ -2136,7 +2156,7 @@ namespace TextCoreControl
             if (this.hwndRenderTarget != null)
             {
                 this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
-                this.NotifyOfSettingsChange();
+                this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
             }
         }
 
@@ -2167,6 +2187,8 @@ namespace TextCoreControl
 
         long                         lastMouseWheelTime;
         int                          leftMargin;
+
+        UndoRedoManager              undoRedoManager;
         #endregion
     }
 }

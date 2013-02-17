@@ -177,7 +177,7 @@ namespace TextCoreControl
             }
         }
 
-        public int ReplaceText(string findText, string replaceText, bool matchCase, bool useRegEx)
+        internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
             int count = 0;
             string newFileContents = this.fileContents;

@@ -9,6 +9,11 @@ namespace TextCoreControl
     {
         internal class Action
         {
+            public Action(bool isInTransaction)
+            {
+                this.isInTransaction = isInTransaction;
+            }
+
             /// <summary>
             ///     Undoes the action represented by this object
             /// </summary>
@@ -31,16 +36,58 @@ namespace TextCoreControl
                 return false;
             }
 
-            internal virtual int Ordinal { get { return Document.BEFOREBEGIN_ORDINAL; } }
+            internal virtual int Ordinal 
+            { 
+                get { return Document.BEFOREBEGIN_ORDINAL; } 
+            }
+
+            protected bool isInTransaction;
+        }
+
+        // TransactionBarrier overrides nothing only provides a mark on the 
+        // action stack, and response to undo / redo with appropriate sucess.
+        internal class TransactionBarrier : Action
+        {
+            public TransactionBarrier(bool isTransactionBegin) : base(false) 
+            {
+                this.isTransactionBegin = isTransactionBegin;
+            }
+
+            /// <summary>
+            ///     Undoes the action represented by this object
+            /// </summary>
+            /// <returns>
+            ///     Returns true if this object represents something that can be undone
+            /// </returns>
+            internal override bool UndoAction(Document document, int shiftCorrectedOrdinal)
+            {
+                return isTransactionBegin;
+            }
+
+            /// <summary>
+            ///     Redoes the action represented by this object
+            /// </summary>
+            /// <returns>
+            ///     Returns true if this object represents something that can be redone
+            /// </returns>
+            internal override bool RedoAction(Document document, int shiftCorrectedOrdinal)
+            {
+                return !isTransactionBegin;
+            }
+
+            private bool isTransactionBegin;
         }
 
         // Savefile Action overrides nothing only provides a mark on the 
         // action stack, which indicates that file was saved at this point.
-        internal class SaveFileAction : Action {}
+        internal class SaveFileAction : Action 
+        {
+            public SaveFileAction(bool isInTransaction) : base (isInTransaction) {}
+        }
 
         internal class InsertTextAction : Action
         {
-            public InsertTextAction(int ordinal, string text)
+            public InsertTextAction(int ordinal, string text, bool isInTransaction) : base (isInTransaction)
             {
                 this.ordinal = ordinal;
                 this.text = text;
@@ -55,7 +102,7 @@ namespace TextCoreControl
             internal override bool UndoAction(Document document, int shiftCorrectedOrdinal)
             {
                 document.DeleteAt(shiftCorrectedOrdinal, text.Length);
-                return true;
+                return !this.isInTransaction;
             }
 
             /// <summary>
@@ -67,7 +114,7 @@ namespace TextCoreControl
             internal override bool RedoAction(Document document, int shiftCorrectedOrdinal)
             {
                 document.InsertAt(shiftCorrectedOrdinal, text);
-                return true;
+                return !this.isInTransaction;
             }
 
             internal override int Ordinal { get { return this.ordinal; } }
@@ -102,7 +149,7 @@ namespace TextCoreControl
         internal class DeleteTextAction : Action
         {
 
-            public DeleteTextAction(int ordinal, string text)
+            public DeleteTextAction(int ordinal, string text, bool isInTransaction) : base(isInTransaction)
             {
                 this.ordinal = ordinal;
                 this.text = text;
@@ -117,7 +164,7 @@ namespace TextCoreControl
             internal override bool UndoAction(Document document, int shiftCorrectedOrdinal)
             {
                 document.InsertAt(shiftCorrectedOrdinal, text);
-                return true;
+                return !this.isInTransaction;
             }
 
             /// <summary>
@@ -129,7 +176,7 @@ namespace TextCoreControl
             internal override bool RedoAction(Document document, int shiftCorrectedOrdinal)
             {
                 document.DeleteAt(shiftCorrectedOrdinal, text.Length);
-                return true;
+                return !this.isInTransaction;
             }
 
             internal override int Ordinal { get { return this.ordinal; } }
@@ -140,7 +187,7 @@ namespace TextCoreControl
 
         private class OrdinalShiftAction : Action
         {
-            internal OrdinalShiftAction(int beginOrdinal, int shift)
+            internal OrdinalShiftAction(int beginOrdinal, int shift, bool isInTransaction) : base (isInTransaction)
             {
                 this.beginOrdinal = beginOrdinal;
                 this.shift = shift;
@@ -180,12 +227,12 @@ namespace TextCoreControl
                 if (beginOrdinal < endOrdinal)
                 {
                     // Content insertion
-                    this.AddAction(new UndoRedoManager.InsertTextAction(beginOrdinal, content));
+                    this.AddAction(new UndoRedoManager.InsertTextAction(beginOrdinal, content, this.isInTransaction));
                 }
                 else
                 {
                     // Content deletion
-                    this.AddAction(new UndoRedoManager.DeleteTextAction(beginOrdinal, content));
+                    this.AddAction(new UndoRedoManager.DeleteTextAction(beginOrdinal, content, this.isInTransaction));
                 }
             }
         }
@@ -331,7 +378,7 @@ namespace TextCoreControl
 
             if (this.maxInterestingOrdinal > beginOrdinal && this.maxInterestingOrdinal != Document.UNDEFINED_ORDINAL)
             {
-                OrdinalShiftAction ordinalShiftAction = new OrdinalShiftAction(beginOrdinal, shift);
+                OrdinalShiftAction ordinalShiftAction = new OrdinalShiftAction(beginOrdinal, shift, this.isInTransaction);
                 this.actionList.AddFirst(ordinalShiftAction);
                 Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.maxInterestingOrdinal);
             }
@@ -369,6 +416,20 @@ namespace TextCoreControl
             if (this.currentActionNode == null) currentActionNodeIsAfterEnd = false;
         }
 
+        internal void BeginTransaction()
+        {
+            System.Diagnostics.Debug.Assert(!this.isInTransaction);
+            this.AddAction(new UndoRedoManager.TransactionBarrier(/*isTransactionBegin*/true));
+            this.isInTransaction = true;
+        }
+
+        internal void EndTransaction()
+        {
+            System.Diagnostics.Debug.Assert(this.isInTransaction);
+            this.isInTransaction = false;
+            this.AddAction(new UndoRedoManager.TransactionBarrier(/*isTransactionBegin*/false));
+        }
+
         private LinkedList<Action> actionList;
 
         private LinkedListNode<Action> currentActionNode;
@@ -377,5 +438,7 @@ namespace TextCoreControl
         private Document document;
         private bool isPerformingUndoRedo;
         private int maxInterestingOrdinal;
+
+        private bool isInTransaction;
     }
 }

@@ -20,7 +20,7 @@ namespace TextCoreControl
             InitializeComponent();
             this.document = new Document();
             this.undoRedoManager = new UndoRedoManager(this.document);
-            this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar);
+            this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar, undoRedoManager);
             this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControlUserControl_PreviewKeyDown);
             this.copyPasteManager = null;
             SetControlBackground();
@@ -150,13 +150,23 @@ namespace TextCoreControl
         public void NotifyOfSettingsChange()
         {
             SetControlBackground();
-            this.displayManager.NotifyOfSettingsChange();
+            this.displayManager.NotifyOfSettingsChange(/*recreateRenderTarget*/true);
         }
 
         public void ReplaceText(int index, int length, string newText)
         {
+            this.undoRedoManager.BeginTransaction();
             this.document.DeleteAt(index, length);
             this.document.InsertAt(index, newText);
+            this.undoRedoManager.EndTransaction();
+        }
+
+        public int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
+        {
+            this.undoRedoManager.BeginTransaction();
+            int count = this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx);
+            this.undoRedoManager.EndTransaction();
+            return count;
         }
 
         public void Select(int index, uint length)

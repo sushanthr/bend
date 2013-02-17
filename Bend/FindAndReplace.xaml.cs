@@ -170,7 +170,7 @@ namespace Bend
                 }
                 if (replaceall.IsChecked ?? true)
                 {
-                    int count = mainWindow.CurrentTab.TextEditor.Document.ReplaceText(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                    int count = mainWindow.CurrentTab.TextEditor.ReplaceAllText(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
                     if (count == 0)
                     {
                         mainWindow.SetStatusText("NO MATCHES FOUND");
