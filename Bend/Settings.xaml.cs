@@ -468,27 +468,20 @@ namespace Bend
 
         private void JSBeautifyFile(object sender, RoutedEventArgs e)
         {
-            // TODO: INTEGRATE:
-            /*
             try
             {   
-                CurrentTab().TextEditor.BeginChange();
-                Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.Text, GetAndPersistJsBeautifyOptions());
+                Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.Document.Text, GetAndPersistJsBeautifyOptions());
                 string newFile = jsBeautify.GetResult();
-                CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Text.Length, newFile);
-                CurrentTab().TextEditor.EndChange();
+                CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Document.Text.Length, newFile);
                 this.CancelSettingsUI();
             }
             catch
             {
             }
-             */
         }
 
         private void JSBeautifySelection(object sender, RoutedEventArgs e)
         {
-            // TODO: INTEGRATE:
-            /*
             try
             {
                 Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.SelectedText, GetAndPersistJsBeautifyOptions());
@@ -499,7 +492,6 @@ namespace Bend
             catch
             {
             }
-             */
         }
 
         private void AllowOnlyDigits_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -525,8 +517,6 @@ namespace Bend
 
         private void HTMLTidyProcessFile_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: INTEGRATE:
-            /*
             try
             {
                 String tidyHTML = "";
@@ -541,7 +531,7 @@ namespace Bend
                 objTidyNet.Option.TabSize(4);
                 objTidyNet.Option.IndentSpace(4);
 
-                objTidyNet.TidyMemToMem(CurrentTab().TextEditor.Text, ref tidyHTML);
+                objTidyNet.TidyMemToMem(CurrentTab().TextEditor.Document.Text, ref tidyHTML);
 
                 int totalWarnings = 0;
                 int totalErrors = 0;
@@ -553,14 +543,13 @@ namespace Bend
                     error,
                     true))
                 {
-                    CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Text.Length, tidyHTML);
+                    CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Document.Text.Length, tidyHTML);
                 }
                 this.CancelSettingsUI();
             }
             catch
             {
             }
-             * */
         }
         #endregion
 
