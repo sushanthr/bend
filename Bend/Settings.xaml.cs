@@ -560,8 +560,6 @@ namespace Bend
             TextUseSpaces.IsChecked = persistantStorage.TextUseSpaces;
             TextUseTabs.IsChecked = persistantStorage.TextUseTabs;
             TextIndent.Text = persistantStorage.TextIndent.ToString();
-            TextFormatHyperLinks.IsChecked = persistantStorage.TextFormatHyperLinks;
-            TextFormatEmailLinks.IsChecked = persistantStorage.TextFormatEmailLinks;
             TextFormatShowFormatting.IsChecked = persistantStorage.TextShowFormatting;
             TextWordWrap.IsChecked = persistantStorage.TextWordWrap;
             SmoothScrolling.IsChecked = persistantStorage.SmoothScrolling;
@@ -606,13 +604,14 @@ namespace Bend
             switch (persistantStorage.DefaultThemeIndex)
             {
                 case 0:
-                    // Light Theme                    
+                    // Light Theme
                     persistantStorage.BackgroundColor = System.Windows.Media.Colors.WhiteSmoke;
                     persistantStorage.ForegroundColor = System.Windows.Media.Colors.Black;
                     persistantStorage.BaseBackgroundImage = "Images/FrontBackground.png";
                     persistantStorage.ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
                     persistantStorage.LogoBackgroundColor = System.Windows.Media.Color.FromRgb(54, 80, 128);
                     persistantStorage.LogoForegroundColor = System.Windows.Media.Colors.White;
+                    persistantStorage.MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(221, 221, 221);
 
                     persistantStorage.DefaultForegroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
                     persistantStorage.DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(245, 245, 245);
@@ -649,11 +648,12 @@ namespace Bend
                     persistantStorage.ScrollButtonColor = System.Windows.Media.Color.FromRgb(153, 153, 153);
                     persistantStorage.LogoBackgroundColor = System.Windows.Media.Color.FromRgb(243,243,26);
                     persistantStorage.LogoForegroundColor = System.Windows.Media.Colors.Black;
+                    persistantStorage.MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(51, 51, 43);
 
                     persistantStorage.DefaultForegroundColor = System.Windows.Media.Color.FromRgb(250, 250, 250);
                     persistantStorage.DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(30, 30, 30);
-                    persistantStorage.DefaultSelectionColor = System.Windows.Media.Color.FromRgb(87, 0, 127);
-                    persistantStorage.DefaultSelectionOutlineColor = System.Windows.Media.Color.FromRgb(19, 63, 93);
+                    persistantStorage.DefaultSelectionColor = System.Windows.Media.Color.FromRgb(62, 47, 132);
+                    persistantStorage.DefaultSelectionOutlineColor = System.Windows.Media.Color.FromRgb(38, 29, 81);
                     persistantStorage.DefaultSelectionDimColor = System.Windows.Media.Color.FromArgb(128, 30, 30, 30);
                     persistantStorage.LineNumberColor = System.Windows.Media.Color.FromRgb(150, 150, 150);
 
@@ -694,8 +694,6 @@ namespace Bend
                     persistantStorage.TextIndent = indentSize;
                 }
 
-                persistantStorage.TextFormatHyperLinks = TextFormatHyperLinks.IsChecked ?? true;
-                persistantStorage.TextFormatEmailLinks = TextFormatEmailLinks.IsChecked ?? true;
                 persistantStorage.TextShowFormatting = TextFormatShowFormatting.IsChecked ?? true;
                 persistantStorage.SmoothScrolling = SmoothScrolling.IsChecked ?? true;
                 persistantStorage.SyntaxHighlighting = SyntaxHighlighting.IsChecked ?? true;

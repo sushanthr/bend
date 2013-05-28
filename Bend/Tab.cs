@@ -87,7 +87,7 @@ namespace Bend
 
             public Tab()
             {
-                title = new WrapPanel();                
+                title = new WrapPanel();
                 titleText = new TextBlock();
                 titleText.Text = "New File";
                 titleText.Width = 110;
@@ -110,8 +110,8 @@ namespace Bend
                 closeButton.Height = 8;
                 BitmapImage closeImage = new BitmapImage();
                 closeImage.BeginInit();
-                closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close-dot.png");
-                closeImage.EndInit();                
+                closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close_big.png");
+                closeImage.EndInit();
                 closeButton.Source = closeImage;
                 Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                
                 title.Children.Add(closeButton);

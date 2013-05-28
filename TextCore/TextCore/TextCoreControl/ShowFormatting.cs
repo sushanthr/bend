@@ -11,14 +11,15 @@ namespace TextCoreControl
     {
         private class ShowFormattingInlineObject : ICustomInlineObject
         {
-            public ShowFormattingInlineObject(TextLayout displayText)
+            public ShowFormattingInlineObject(TextLayout displayText, bool shouldDrawSimple)
             {
                 this.displayText = displayText;
+                this.shouldDrawSimple = shouldDrawSimple;
             }
 
             public void Draw(float originX, float originY, bool isSideways, bool isRightToLeft, Brush clientDrawingEffect)
             {
-                if (this.displayText.Text.Length == 1)
+                if (this.shouldDrawSimple)
                 {
                     renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding, originY), this.displayText, showFormattingBrush);
                 }
@@ -53,7 +54,9 @@ namespace TextCoreControl
                     return displayText.Metrics.Height + showFormattingPadding + showFormattingPadding;
                 }
             }
+
             TextLayout displayText;
+            bool shouldDrawSimple;
         }
         
         #region ApplyShowFormatting
@@ -77,7 +80,7 @@ namespace TextCoreControl
                                 formattingTextLayouts.Add(ch, formattingTextLayout);
                             }
                         }
-                        textLayout.SetInlineObject(new ShowFormattingInlineObject(formattingTextLayout), new TextRange((uint)i, 1));
+                        textLayout.SetInlineObject(new ShowFormattingInlineObject(formattingTextLayout, StandardControlCharacterDrawSimple[(int)ch]), new TextRange((uint)i, 1));
                     }
                 }
             }
@@ -121,11 +124,11 @@ namespace TextCoreControl
             "ACK", 
             "BEL", 
             "BS", 
-            "TAB", 
-            "NL", 
+            " >> ", 
+            "\\n", 
             "VTAB", 
             "NP", 
-            "CR", 
+            "\\r", 
             "SO", 
             "SI", 
             "DLE", 
@@ -144,8 +147,44 @@ namespace TextCoreControl
             "GS", 
             "RS", 
             "US", 
-            "."};
+            "."
+        };
 
+        private static bool[] StandardControlCharacterDrawSimple = { 
+            false, // "NUL", 
+            false, //"SOH", 
+            false, //"STX", 
+            false, //"ETX", 
+            false, //"EOT", 
+            false, //"ENQ", 
+            false, //"ACK", 
+            false, //"BEL", 
+            false, //"BS", 
+            true, //" >> ", 
+            true, //"\\n", 
+            false, //"VTAB", 
+            false, //"NP", 
+            true, //"\\r", 
+            false, //"SO", 
+            false, //"SI", 
+            false, //"DLE", 
+            false, //"DC1", 
+            false, //"DC2", 
+            false, //"DC3", 
+            false, //"DC4", 
+            false, //"NAK", 
+            false, //"SYN", 
+            false, //"ETB", 
+            false, //"CAN", 
+            false, //"EM", 
+            false, //"EOF", 
+            false, //"ESC", 
+            false, //"FS", 
+            false, //"GS", 
+            false, //"RS", 
+            false, //"US", 
+            true //"."
+        };
         #endregion
 
         #region Initialization

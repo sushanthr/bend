@@ -8,7 +8,7 @@
         xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Microsoft.Windows.Shell"
         x:Name="ThisWindow"
         mc:Ignorable="d"
-        Title="Bend"         
+        Title="Bend"
         MinWidth="600" 
         MinHeight="100"
         Width="800"
@@ -199,12 +199,94 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
-        <!-- Create a Shared ContextMenu -->
-        <ContextMenu x:Key="TabTitleContextMenu" x:Shared="true" MinWidth="150">            
-            <MenuItem Header="Refresh" Click="ContextRefresh" MinHeight="20">
+
+        <!--Custom Context Menu Template (Provides Rounded Border and Drop Shadow) -->
+        <Style TargetType="{x:Type ContextMenu}">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+            <Setter Property="HasDropShadow" Value="True" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" />
+            <Setter Property = "BitmapEffect" >
+                <Setter.Value>
+                    <DropShadowBitmapEffect Color="Silver" Direction="0" ShadowDepth="0" Softness="0.5" Opacity="0.5"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContextMenu}">
+                        <Border x:Name="Border" Background="{DynamicResource BackgroundBrush}" BorderThickness="1" BorderBrush="{DynamicResource ScrollButtonBrush}">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasDropShadow" Value="true">
+                                <Setter TargetName="Border" Property="Padding" Value="0,3,0,3" />
+                                <Setter TargetName="Border" Property="CornerRadius" Value="4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Custom Template for Menu Item Seperator-->
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="8,5,8,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border BorderBrush="{DynamicResource ScrollButtonBrush}" BorderThickness="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Custom Tempalte for Menu Items-->
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="MenuItem">
+            <Border Name="Border" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut"/>
+                        <ColumnDefinition Width="13"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter Name="Icon" Margin="8,0,8,0" VerticalAlignment="Center" ContentSource="Icon"/>
+                    <Border Name="Check" Width="13" Height="13" Visibility="Collapsed" Margin="6,0,6,0" Background="{DynamicResource BackgroundBrush}" BorderThickness="1" BorderBrush="{DynamicResource ScrollButtonBrush}">
+                        <Path Name="CheckMark" Width="7" Height="7" Visibility="Hidden" SnapsToDevicePixels="False" Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="2" Data="M 0 0 L 7 7 M 0 7 L 7 0" />
+                    </Border>
+                    <ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True"/>
+                    <TextBlock x:Name="InputGestureText" Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="5,2,0,2" DockPanel.Dock="Right" Opacity="0.5"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Icon" Value="{x:Null}">
+                    <Setter TargetName="Icon" Property="Visibility" Value="Hidden"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="true">
+                    <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="IsCheckable" Value="true">
+                    <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="Icon" Property="Visibility" Value="Hidden"/>
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Opacity" Value="0.3"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- ContextMenu for Tabs-->
+        <ContextMenu x:Key="TabTitleContextMenu" x:Shared="true" MinWidth="150">
+            <MenuItem Header="Refresh" Click="ContextRefresh" MinHeight="20" InputGestureText="F5">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/refresh%2048.png" Width="16" Height="16"/>
+                    <TextBlock FontFamily="Segoe UI Symbol" FontSize="13"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Close" Click="ContextClose" MinHeight="20">
@@ -215,38 +297,49 @@
             <MenuItem Header="Close All But This" Click="ContextCloseAllButThis" MinHeight="20"/>
             <Separator/>
             <MenuItem Header="Copy Full Path" Click="ContextCopyFullPath" MinHeight="20"/>
-            <MenuItem Header="Open Containing Folder" Click="ContextOpenContainingFolder" MinHeight="20"/>
+            <MenuItem Header="Open Containing Folder" Click="ContextOpenContainingFolder" MinHeight="20">
+                <MenuItem.Icon>
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
-        
+
+        <!-- ContextMenu for Editor -->
         <ContextMenu x:Key="EditorContextMenu" x:Shared="true" MinWidth="150">
-            <MenuItem Header="Cut" Click="ContextCut" MinHeight="20">
+            <MenuItem Header="Cut" Click="ContextCut" MinHeight="20" InputGestureText="Ctrl + X">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/Cut.png" Width="16" Height="16" />
+                    <TextBlock FontFamily="Segoe UI Symbol" ></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Copy" Click="ContextCopy" MinHeight="20">
+            <MenuItem Header="Copy" Click="ContextCopy" MinHeight="20" InputGestureText="Ctrl + C">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/copy-icon.png" Width="16" Height="16" />
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Paste" Click="ContextPaste" MinHeight="20" >
+            <MenuItem Header="Paste" Click="ContextPaste" MinHeight="20" InputGestureText="Ctrl + V">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/paste-icon.png" Width="16" Height="16" />
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
             <Separator></Separator>
-            <MenuItem Header="Undo" Click="ContextUndo" MinHeight="20" >
+            <MenuItem Header="Undo" Click="ContextUndo" MinHeight="20" InputGestureText="Ctrl + Z">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/Undo.png" Width="14" Height="14" />
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Redo" Click="ContextRedo" MinHeight="20" >
+            <MenuItem Header="Redo" Click="ContextRedo" MinHeight="20" InputGestureText="Ctrl + Y">
                 <MenuItem.Icon>
-                    <Image Source="/Bend;component/Images/Redo.png" Width="14" Height="14" />
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator></Separator>
+            <MenuItem x:Name="OpenLink" Header="Open Link" MinHeight="20">
+                <MenuItem.Icon>
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
-        
+
         <!-- Define animation for moving to settings window-->
         <Storyboard x:Key="slideSettingsIn" AutoReverse="False">
             <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Settings" Storyboard.TargetProperty="(UIElement.Visibility)">
@@ -306,7 +399,8 @@
         <SolidColorBrush x:Key="ForegroundBrush" Color="Silver" />
         <SolidColorBrush x:Key="ScrollButtonBrush" Color="#999999"/>
         <SolidColorBrush x:Key="LogoForegroundBrush" Color="Black"/>
-        <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>        
+        <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>
+        <SolidColorBrush x:Key="MenuSelectedBackgroundBrush" Color="#DDD" />
     </Window.Resources>
     <Grid Name="ClientAreaGrid" Background="{DynamicResource BackgroundBrush}">
         <Grid Name="MainWindowGrid">
@@ -326,8 +420,8 @@
                 <TextBlock HorizontalAlignment="Right" Margin="0,10,20,0" FontFamily="Segoe UI Symbol" Foreground="{DynamicResource ForegroundBrush}" Padding="0">&#xE1A3;</TextBlock>
                 <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Right" MinWidth="250">
                     <Separator Width="10" Visibility="Hidden"></Separator>
-                    <TextBox Margin="0,5,15,0" FontFamily="Segoe UI" Width="250" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Gray" BorderThickness="1.1" TextChanged="FindText_TextChanged" Foreground="{DynamicResource ForegroundBrush}" Background="Transparent">                        
-                    </TextBox>                    
+                    <TextBox Margin="0,5,15,0" FontFamily="Segoe UI" Width="250" FontSize="14" Name="FindText" KeyDown="FindText_KeyDown" VerticalContentAlignment="Center" Text="" MaxLines="1" Padding="2" BorderBrush="Gray" BorderThickness="1.1" TextChanged="FindText_TextChanged" Foreground="{DynamicResource ForegroundBrush}" Background="Transparent" ContextMenu="{x:Null}">
+                    </TextBox>
                 </WrapPanel>
                 <WrapPanel MaxHeight="36" VerticalAlignment="Top" HorizontalAlignment="Left" Background="{DynamicResource BackgroundBrush}" >
                     <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,0" IsTabStop="True" PreviewMouseLeftButtonUp="NewButtonUp">New</Label>

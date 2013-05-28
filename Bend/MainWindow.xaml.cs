@@ -97,6 +97,7 @@ namespace Bend
             Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.ScrollButtonColor);
             Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoForegroundColor);
             Resources["LogoBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoBackgroundColor);
+            Resources["MenuSelectedBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.MenuSelectedBackgroundColor);
             WindowChrome.BackgroundRed = PersistantStorage.StorageObject.BackgroundColor.R;
             WindowChrome.BackgroundGreen = PersistantStorage.StorageObject.BackgroundColor.G;
             WindowChrome.BackgroundBlue = PersistantStorage.StorageObject.BackgroundColor.B;
@@ -796,7 +797,7 @@ namespace Bend
             // TODO: INTEGRATE:
             //newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
 
-            TabBar.Children.Add(newTab.Title);            
+            TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
         }
@@ -807,9 +808,10 @@ namespace Bend
             {
                 Editor.ContextMenu.PlacementTarget = Editor;
                 Editor.ContextMenu.IsOpen = true;
-            }    
+                object element = Editor.ContextMenu.FindName("OpenLink");
+            }
         }
-           
+
         private void TabClick(object sender, MouseButtonEventArgs e)
         {
             // Find the tab title in tab collection

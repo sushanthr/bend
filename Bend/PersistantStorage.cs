@@ -33,8 +33,6 @@ namespace Bend
         public int TextIndent;
         public bool TextUseSpaces;
         public bool TextUseTabs;
-        public bool TextFormatHyperLinks;
-        public bool TextFormatEmailLinks;
         public bool TextShowFormatting;
         public bool TextWordWrap;
         public bool SmoothScrolling;
@@ -51,6 +49,7 @@ namespace Bend
         public System.Windows.Media.Color ScrollButtonColor;
         public System.Windows.Media.Color LogoForegroundColor;
         public System.Windows.Media.Color LogoBackgroundColor;
+        public System.Windows.Media.Color MenuSelectedBackgroundColor;
 
         public string BaseBackgroundImage;
 
@@ -103,8 +102,6 @@ namespace Bend
             TextIndent = 4;
             TextUseSpaces = true;
             TextUseTabs = false;
-            TextFormatHyperLinks = true;
-            TextFormatEmailLinks = true;
             TextShowFormatting = false;
             TextWordWrap = true;
             SmoothScrolling = true;
@@ -120,6 +117,7 @@ namespace Bend
             ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
             LogoBackgroundColor = System.Windows.Media.Color.FromRgb(54, 80, 128);
             LogoForegroundColor = System.Windows.Media.Colors.White;
+            MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(221, 13, 0);
 
             DefaultForegroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
             DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(245, 245, 245);
