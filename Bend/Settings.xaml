@@ -21,6 +21,45 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="{x:Type TextBox}" TargetType="{x:Type TextBoxBase}">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="ContextMenu" Value="{x:Null}"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="MinHeight" Value="20"/>
+            <Setter Property="AllowDrop" Value="true"/>
+            <Setter Property="CaretBrush" Value="Silver"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                        <Grid>
+                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                            <Grid x:Name="UnderlineNormal">
+                                <Line StrokeThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" X2="1" Stretch="Fill" Stroke="Silver"/>
+                                <Line StrokeThickness="5" X1="0" X2="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stroke="Silver"/>
+                                <Line StrokeThickness="5" X1="0" X2="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="Silver"/>
+                            </Grid>
+                            <Grid x:Name="UnderlineActive" Visibility="Collapsed">
+                                <Line StrokeThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" X2="1" Stretch="Fill" Stroke="#19A2DE"/>
+                                <Line StrokeThickness="5" X1="0" X2="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Stroke="#19A2DE"/>
+                                <Line StrokeThickness="5" X1="0" X2="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Stroke="#19A2DE"/>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="UnderlineNormal" Property="Visibility" Value="Collapsed" />
+                                <Setter TargetName="UnderlineActive" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <TabControl Name="SettingsTabs" Background="Transparent" FontFamily="Segoe UI" HorizontalAlignment="Stretch" Margin="0,38,0,0" VerticalAlignment="Stretch" BorderThickness="0" Padding="4" SelectionChanged="TabControl_SelectionChanged">
@@ -83,10 +122,7 @@
                             Reformat and reindent javascript code using this tool.
                         </TextBlock>
                         <TextBlock Foreground="Silver" Margin="20,15,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
-                            Indent Size <TextBox Name="JSBeautifyIndent" VerticalAlignment="Center" Margin="50,5,0,-2" FontSize="12" Width="50" PreviewKeyDown="AllowOnlyDigits_PreviewKeyDown" ContextMenu="{x:Null}" BorderThickness="0" Foreground="White" CaretBrush="White" TextAlignment="Center">
- 	<TextBox.Background>
- 		<ImageBrush ImageSource="Images/Underline.png" Stretch="None"/>
- 	</TextBox.Background></TextBox>
+                            Indent Size <TextBox Name="JSBeautifyIndent" VerticalAlignment="Center" Margin="50,5,0,-2" FontSize="12" Width="50" PreviewKeyDown="AllowOnlyDigits_PreviewKeyDown" TextAlignment="Center" />
                         </TextBlock>
                         <WrapPanel>
                             <TextBlock Foreground="Silver" Margin="20,5,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
@@ -115,7 +151,7 @@
                 <Grid Margin="0,0,0,50">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60" />
-                        <ColumnDefinition Width="*" />                        
+                        <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="60" />
                     </Grid.ColumnDefinitions>
@@ -129,14 +165,11 @@
                         </WrapPanel>
                         <TextBlock HorizontalAlignment="Center" Foreground="Silver" Margin="23,5,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">                                
                             Indent Size
-                            <TextBox Name="TextIndent" Margin="5,0,0,-2" FontSize="12" Width="50" PreviewKeyDown="AllowOnlyDigits_PreviewKeyDown" ContextMenu="{x:Null}" CaretBrush="White" BorderThickness="0" Foreground="White" TextAlignment="Center">
-                            	<TextBox.Background>
-                            		<ImageBrush ImageSource="Images/Underline.png" Stretch="None"/>
-                            	</TextBox.Background></TextBox>
+                            <TextBox Name="TextIndent" Margin="5,0,0,-2" FontSize="12" Width="50" PreviewKeyDown="AllowOnlyDigits_PreviewKeyDown" TextAlignment="Center" />
                         </TextBlock>
                         <Label FontFamily="Segoe UI" Content="Text Formatting" Margin="0,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>
                         <StackPanel HorizontalAlignment="Center" Margin="20,10,0,0">
-                            <CheckBox Name="TextFormatShowFormatting" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Show formatting</CheckBox>                            
+                            <CheckBox Name="TextFormatShowFormatting" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Show formatting</CheckBox>
                             <CheckBox Name="TextWordWrap" Padding="10,0" Margin="5" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Foreground="Silver">Word wrap</CheckBox>
                         </StackPanel>
                         
