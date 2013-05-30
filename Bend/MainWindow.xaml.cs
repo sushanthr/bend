@@ -147,7 +147,7 @@ namespace Bend
             SetWindowLong(this.mainWindow.Handle, GWL_STYLE, style & ~WS_SYSMENU);
 #if DEBUG
             System.Diagnostics.Debug.Assert(RenderCapability.Tier == 0x00020000);
-            RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);            
+            RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);
 #endif
 
             maximizeImage = new BitmapImage();
@@ -225,7 +225,7 @@ namespace Bend
                 PersistantStorage.StorageObject.mruFile = new String[this.tab.Count];
                 for (int mruCount = 0; mruCount < this.tab.Count; mruCount++)
                 {
-                    PersistantStorage.StorageObject.mruFile[mruCount] = this.tab[mruCount].FullFileName;                    
+                    PersistantStorage.StorageObject.mruFile[mruCount] = this.tab[mruCount].FullFileName;
                 }
 
                 if (this.WindowState == System.Windows.WindowState.Normal)
@@ -581,7 +581,7 @@ namespace Bend
             {
                 tab[this.currentTabIndex].TextEditor.SetFocus();
             }            
-            GotoLine.ShowGotoLineWindow(this);   
+            GotoLine.ShowGotoLineWindow(this);
         }
 
         public void CommandGoto(int lineNumber)
@@ -596,7 +596,7 @@ namespace Bend
                 catch
                 {
                 }
-            }            
+            }
         }
 
         private void CommandHelp(object sender, ExecutedRoutedEventArgs e)
@@ -885,6 +885,15 @@ namespace Bend
                     break;
                 }
             }
+        }
+
+        private void ContextGoToLine(object sender, RoutedEventArgs e)
+        {
+            if (this.currentTabIndex >= 0)
+            {
+                tab[this.currentTabIndex].TextEditor.SetFocus();
+            }
+            GotoLine.ShowGotoLineWindow(this);
         }
 
         private void ContextOpenContainingFolder(object sender, RoutedEventArgs e)

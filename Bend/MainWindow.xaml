@@ -28,7 +28,7 @@
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Key="S" Modifiers="Control" Command="Save"></KeyBinding>
-        <KeyBinding Key="O" Modifiers="Control" Command="Open"></KeyBinding>        
+        <KeyBinding Key="O" Modifiers="Control" Command="Open"></KeyBinding>
         <KeyBinding Key="N" Modifiers="Control" Command="New"></KeyBinding>
         <KeyBinding Key="F" Modifiers="Control" Command="Find"></KeyBinding>
         <KeyBinding Key="H" Modifiers="Control" Command="Replace"></KeyBinding>
@@ -333,10 +333,7 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator></Separator>
-            <MenuItem x:Name="OpenLink" Header="Open Link" MinHeight="20">
-                <MenuItem.Icon>
-                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
-                </MenuItem.Icon>
+            <MenuItem x:Name="GoToLine" Click="ContextGoToLine" Header="Goto" MinHeight="20" InputGestureText="Ctrl + G">
             </MenuItem>
         </ContextMenu>
 
