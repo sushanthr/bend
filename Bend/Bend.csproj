@@ -35,7 +35,7 @@
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
-    <InstallUrl>http://sushanth.ignorelist.com/bend/</InstallUrl>
+    <InstallUrl>http://sushanth.thinks.org/bend/</InstallUrl>
     <SupportUrl>http://bend.codeplex.com</SupportUrl>
     <ErrorReportUrl>http://bend.codeplex.com</ErrorReportUrl>
     <ProductName>Bend</ProductName>
@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>5</ApplicationRevision>
     <ApplicationVersion>0.15.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

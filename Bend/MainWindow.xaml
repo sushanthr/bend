@@ -383,7 +383,7 @@
         <Storyboard x:Key="fileSave" AutoReverse="true">
             <DoubleAnimation                            
                             Storyboard.TargetName="Editor"
-                            Storyboard.TargetProperty="(UIElement.Opacity)"                            
+                            Storyboard.TargetProperty="(UIElement.Opacity)"
                             From="1"
                             To="0.2"
                             Duration="0:0:1"
@@ -397,7 +397,7 @@
         <SolidColorBrush x:Key="ScrollButtonBrush" Color="#999999"/>
         <SolidColorBrush x:Key="LogoForegroundBrush" Color="Black"/>
         <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>
-        <SolidColorBrush x:Key="MenuSelectedBackgroundBrush" Color="#DDD" />
+        <SolidColorBrush x:Key="MenuSelectedBackgroundBrush" Color="#DDDDDD" />
     </Window.Resources>
     <Grid Name="ClientAreaGrid" Background="{DynamicResource BackgroundBrush}">
         <Grid Name="MainWindowGrid">

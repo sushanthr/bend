@@ -117,7 +117,7 @@ namespace Bend
             ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
             LogoBackgroundColor = System.Windows.Media.Color.FromRgb(54, 80, 128);
             LogoForegroundColor = System.Windows.Media.Colors.White;
-            MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(221, 13, 0);
+            MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(221, 221, 221);
 
             DefaultForegroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
             DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(245, 245, 245);
