@@ -371,14 +371,26 @@ namespace TextCoreControl
                     this.document.DeleteAt(selectionBeginOrdinal, cutString.Length);
                 }
             }
-                        
+
             int insertOrdinal = this.caret.Ordinal;
             string content;
-            if (key == '\r' && Settings.ReturnKeyInsertsNewLineCharacter)
-                content = "\r\n";
-            else 
+            if (key == '\r')
+            {
+                if (Settings.ReturnKeyInsertsNewLineCharacter)
+                {
+                    content = "\r\n";
+                }
+                else
+                {
+                    content = "\r";
+                }
+                document.InsertAt(insertOrdinal, content);
+            }
+            else if (!char.IsControl(key))
+            {
                 content = key.ToString();
-            document.InsertAt(insertOrdinal, content);
+                document.InsertAt(insertOrdinal, content);
+            }
         }
 
         void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
