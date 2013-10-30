@@ -18,7 +18,7 @@
     public partial class UIMap
     {
         public const bool ShouldGeneratedBaseline = false;
-        public const string TestDataDirectory = "D:\\Projects\\TextCore\\TextCore\\Test\\Data\\";
+        public const string TestDataDirectory = "D:\\Projects\\sushanth.assembla.com\\trunk\\TextCore\\TextCore\\Test\\Data\\";
         private uint caretBlinkTime;
 
         public void CaptureVerify(string testName)

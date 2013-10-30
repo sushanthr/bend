@@ -12,7 +12,7 @@ namespace TextCoreControl
 
         public Document()
         {
-            this.fileContents = "\0";
+            this.fileContents = new StringBuilder("\0");
             this.LanguageDetector = new SyntaxHighlighting.LanguageDetector(this);
             this.hasUnsavedContent = false;
         }
@@ -22,8 +22,7 @@ namespace TextCoreControl
             System.IO.StreamReader streamReader = new System.IO.StreamReader(fullFilePath, System.Text.Encoding.Default, true);
             lock (this)
             {
-                fileContents = streamReader.ReadToEnd();
-                fileContents += "\0";
+                fileContents = new StringBuilder(streamReader.ReadToEnd() + "\0");
                 streamReader.Close();
                 streamReader.Dispose();
                 this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
@@ -39,7 +38,7 @@ namespace TextCoreControl
         {
             System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1), System.Text.Encoding.Default);
+            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1).ToString(), System.Text.Encoding.Default);
             this.hasUnsavedContent = false;
         }
 
@@ -146,7 +145,7 @@ namespace TextCoreControl
                 // Last ordinal is reserved for \n
                 if (ordinal + length < this.fileContents.Length)
                 {
-                    string content = fileContents.Substring(ordinal, length);
+                    string content = fileContents.ToString(ordinal, length);
 
                     int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
 
@@ -180,7 +179,7 @@ namespace TextCoreControl
         internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
             int count = 0;
-            string newFileContents = this.fileContents;
+            string newFileContents = this.fileContents.ToString();
             lock (this)
             {
                 int lastFindEndIndex = 0;
@@ -246,7 +245,7 @@ namespace TextCoreControl
 
         public string Text
         {
-            get { return this.fileContents; }
+            get { return this.fileContents.ToString(); }
         }
 
         public int GetOrdinalForTextIndex(int textIndex)
@@ -272,7 +271,7 @@ namespace TextCoreControl
         public delegate void OrdinalShiftEventHandler(Document document, int beginOrdinal, int shift);
         public event OrdinalShiftEventHandler OrdinalShift;
 
-        private string fileContents;
+        private StringBuilder fileContents;
         internal readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
 
         private bool hasUnsavedContent;

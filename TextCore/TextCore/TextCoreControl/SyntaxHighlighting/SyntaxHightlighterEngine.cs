@@ -500,7 +500,8 @@ namespace TextCoreControl.SyntaxHighlighting
 
                 if (highLightStyle == HighlightStyle.NONE && (ch == '\r' || ch == '\n'))
                 {
-                    if ((highlightState & (int)HighlightState.IN_SINGLE_COMMENT) != 0) highLightStyle = HighlightStyle.COMMENT;
+                    if ((highlightState & (int)HighlightState.IN_COMMENT) != 0) highLightStyle = HighlightStyle.COMMENT;
+                    if ((highlightState & (int)HighlightState.IN_COMMENT_ALT) != 0) highLightStyle = HighlightStyle.COMMENT;
                     if ((highlightState & (int)HighlightState.IN_STRING) != 0 && !this.stringsSpanLines) highLightStyle = HighlightStyle.STRING;
                     if ((highlightState & (int)HighlightState.IN_CHAR) != 0) highLightStyle = HighlightStyle.STRING;
                 }
