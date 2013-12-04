@@ -36,9 +36,11 @@ namespace TextCoreControl
 
         public void SaveFile(string fullFilePath)
         {
-            System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == '\0');
+            System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == 0, "File content must terminate with a null character.");
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-            System.IO.File.WriteAllText(fullFilePath, fileContents.Remove(fileContents.Length - 1, 1).ToString(), System.Text.Encoding.Default);
+            fileContents.Remove(fileContents.Length - 1, 1);
+            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString(), System.Text.Encoding.Default);
+            fileContents.Append('\0');
             this.hasUnsavedContent = false;
         }
 
