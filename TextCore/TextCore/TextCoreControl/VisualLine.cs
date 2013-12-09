@@ -11,6 +11,7 @@ namespace TextCoreControl
     internal class VisualLine
     {
         public VisualLine(DWriteFactory dwriteFactory, 
+            ShowFormattingService showFormattingService, 
             string lineText, 
             TextFormat defaultFormat, 
             int beginOrdinal, 
@@ -22,7 +23,7 @@ namespace TextCoreControl
             if (Settings.ShowFormatting)
             {
                 // The EOF file /0 character needs to be ignored for show formatting purposes, ignoreLastCharacter achieves this.
-                displayText = ShowFormatting.PrepareShowFormatting(lineText, /*ignoreLastCharacter*/nextOrdinal == Document.UNDEFINED_ORDINAL);
+                displayText = showFormattingService.PrepareShowFormatting(lineText, /*ignoreLastCharacter*/nextOrdinal == Document.UNDEFINED_ORDINAL);
             }
             else
             {
@@ -43,12 +44,11 @@ namespace TextCoreControl
 
             this.beginOrdinal = beginOrdinal;
             this.nextOrdinal = nextOrdinal;
-            this.hasHardBreak = hasHardBreak;
-            this.whiteTextLayout = null;
+            this.hasHardBreak = hasHardBreak;            
 
             if (Settings.ShowFormatting)
             {
-                ShowFormatting.ApplyShowFormatting(lineText, dwriteFactory, textLayout);
+                showFormattingService.ApplyShowFormatting(lineText, dwriteFactory, textLayout);
             }
         }
 
@@ -65,24 +65,42 @@ namespace TextCoreControl
 
         public void Draw(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
-            renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);
+            renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);            
             System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
-
-        public void DrawWhite(DWriteFactory dwriteFactory, TextFormat defaultFormat, SolidColorBrush whiteBrush, RenderTarget renderTarget)
+                
+        public void DrawWithoutEffects(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
-            if (this.whiteTextLayout == null)
+            // Capture existing effects
+            LinkedList<TextRangeOf<Brush>> effectsCollection = new LinkedList<TextRangeOf<Brush>>();
+            for (uint i = 0; i < this.textLayout.Text.Length; )
             {
-                this.whiteTextLayout = dwriteFactory.CreateTextLayout(this.textLayout.Text,
-                                            defaultFormat,
-                                            float.MaxValue,
-                                            float.MaxValue);
-                if (Settings.ShowFormatting)
+                TextRangeOf<Brush> brushRange = this.textLayout.GetDrawingEffect(i);
+                if (brushRange.Value != null)
                 {
-                    ShowFormatting.ApplyShowFormatting(lineText, dwriteFactory, this.whiteTextLayout);
+                    effectsCollection.AddLast(brushRange);
+                    if (i == brushRange.TextRange.StartPosition)
+                    {
+                        i += brushRange.TextRange.Length;
+                        continue;
+                    }
                 }
+
+                i++;
             }
-            renderTarget.DrawTextLayout(this.position, this.whiteTextLayout, whiteBrush, DrawTextOptions.NoSnap);
+            
+            this.textLayout.SetDrawingEffect(null, new TextRange(0, (uint)this.textLayout.Text.Length));
+            renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);
+
+            // Play back the effects
+            LinkedListNode<TextRangeOf<Brush>> linkedListNode = effectsCollection.First;
+            while (linkedListNode != null)
+            {
+                this.textLayout.SetDrawingEffect(linkedListNode.Value.Value, linkedListNode.Value.TextRange);
+                linkedListNode = linkedListNode.Next;
+            }
+
+            System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
 
         public void HitTest(Point2F position, out uint offset)
@@ -228,7 +246,6 @@ namespace TextCoreControl
 
         private Point2F position;
         private TextLayout textLayout;
-        private TextLayout whiteTextLayout;
         string lineText;
         private float height;
         private int beginOrdinal;

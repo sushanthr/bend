@@ -83,7 +83,7 @@ namespace TextCoreControl
                 if (this.syntaxHighlightingService != null)
                     this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
 
-                ShowFormatting.InitDisplayResources(hwndRenderTarget);
+                this.textLayoutBuilder.InitDisplayResources(this.hwndRenderTarget);
 
                 // Force create an empty line
                 double maxVisualLineWidth;
@@ -632,6 +632,24 @@ namespace TextCoreControl
                             this.RecoverFromRenderException();
                         }            
                         e.Handled = true;
+                    }
+                    break;
+                case System.Windows.Input.Key.Space:
+                    {                        
+                        if (this.SelectionBegin != this.SelectionEnd)
+                        {
+                            if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                            {
+                                // Need to remove single space from every line of selection
+                                this.AdjustLeadingSpaceInSelection(/*fRemoveSpace*/true);
+                            }
+                            else
+                            {
+                                // Need to and single space to every line of selection.
+                                this.AdjustLeadingSpaceInSelection(/*fRemoveSpace*/false);
+                            }
+                            e.Handled = true;
+                        }
                     }
                     break;
                 case System.Windows.Input.Key.Tab:
@@ -1329,6 +1347,73 @@ namespace TextCoreControl
             }
             return (numberOfTabsAdded > 0);
         }
+        
+        /// <summary>
+        ///     Removes space after line breaks in the selected region.
+        /// </summary>        
+        private void AdjustLeadingSpaceInSelection(bool fRemoveSpace)
+        {            
+            if (this.SelectionBegin != this.SelectionEnd)
+            {         
+                StringBuilder stringBuilder = new StringBuilder();                
+                int beginOrdinal = this.SelectionBegin;
+                // Roll back until after the previous line break.
+                // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
+                while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
+                {
+                    int temp = document.PreviousOrdinal(beginOrdinal);
+                    if (temp == Document.BEFOREBEGIN_ORDINAL)
+                        break;
+                    beginOrdinal = temp;
+                }
+                int selectionBeginOrdinal = beginOrdinal;
+                if (beginOrdinal != this.SelectionBegin)
+                    selectionBeginOrdinal = document.NextOrdinal(selectionBeginOrdinal);
+
+                int ordinal = beginOrdinal;                
+                while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
+                {
+                    char ch = document.CharacterAt(ordinal);
+                    stringBuilder.Append(ch);
+                    ordinal = document.NextOrdinal(ordinal);
+                }
+                int length = stringBuilder.Length;
+                if (fRemoveSpace)
+                {
+                    stringBuilder.Replace("\n ", "\n");
+                    if(beginOrdinal == document.FirstOrdinal() && stringBuilder[0] == ' ')
+                    {
+                        stringBuilder.Remove(0, 1);
+                    }
+                }
+                else
+                {
+                    stringBuilder.Replace("\n", "\n ");
+                    if(beginOrdinal == document.FirstOrdinal())
+                    {
+                        stringBuilder.Insert(0, " ");
+                    }
+                }
+                undoRedoManager.BeginTransaction();
+                document.DeleteAt(beginOrdinal, length);
+                document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                undoRedoManager.EndTransaction();
+                try
+                {
+                    this.caret.PrepareBeforeRender();
+                    this.hwndRenderTarget.BeginDraw();
+                    this.selectionManager.ShouldUseHighlightColors = false;
+                    this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    this.selectionManager.ExpandSelection(document.NextOrdinal(beginOrdinal, (uint)stringBuilder.Length), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                    this.hwndRenderTarget.EndDraw();
+                    this.caret.UnprepareAfterRender();
+                }
+                catch
+                {
+                    this.RecoverFromRenderException();
+                }
+            }            
+        }
 
         /// <summary>
         ///     Removes tabs after line breaks in the selected region.
@@ -1676,8 +1761,6 @@ namespace TextCoreControl
                     this.hwndRenderTarget = null;
                 }
                 this.CreateDeviceResources();
-
-                ShowFormatting.NotifyOfSettingsChanged();
 
                 this.textLayoutBuilder.NotifyOfSettingsChange();
 

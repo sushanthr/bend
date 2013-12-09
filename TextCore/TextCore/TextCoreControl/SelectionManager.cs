@@ -198,12 +198,12 @@ namespace TextCoreControl
                     // Draw content layer - white lines.
                     for (int j = firstLine; j <= lastLine; j++)
                     {
-                        VisualLine whiteLine = ((VisualLine)visualLines[j]);
+                        VisualLine line = ((VisualLine)visualLines[j]);
                         // If line is completely unselected then simply skip the line.
-                        if (whiteLine.BeginOrdinal > this.selectionEndOrdinal || whiteLine.NextOrdinal < this.selectionBeginOrdinal)
+                        if (line.BeginOrdinal > this.selectionEndOrdinal || line.NextOrdinal < this.selectionBeginOrdinal)
                             continue;
 
-                        whiteLine.DrawWhite(this.dwriteFactory, Settings.DefaultTextFormat, whiteBrush, renderTarget);
+                        line.DrawWithoutEffects(whiteBrush, renderTarget);
                     }
 
                     renderTarget.PopLayer();
@@ -220,7 +220,7 @@ namespace TextCoreControl
             this.selectionBeginOrdinal = beginOrdinal;
             this.selectionEndOrdinal = beginOrdinal;
 
-            // Draw selection bails when there is no actual selection area change.
+            // Draw selection bails when there is no actual selection area change.            
             this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, 0, visualLines.Count - 1, document, scrollOffset, renderTarget);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
@@ -11,7 +12,8 @@ namespace TextCoreControl
     {
         internal TextLayoutBuilder()
         {
-            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat);
+            this.showFormattingService = new ShowFormattingService();
+            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat, this.showFormattingService);
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             this.averageLineHeight = -1;
             this.averageDigitWidth = -1;
@@ -19,9 +21,15 @@ namespace TextCoreControl
 
         internal void NotifyOfSettingsChange()
         {
-            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat);
+            this.showFormattingService.NotifyOfSettingsChanged();
+            this.glyphTable = new GlyphTable(Settings.DefaultTextFormat, this.showFormattingService);
             this.averageLineHeight = -1;
             this.averageDigitWidth = -1;
+        }
+
+        internal void InitDisplayResources(HwndRenderTarget hwndRenderTarget)
+        {
+            this.showFormattingService.InitDisplayResources(hwndRenderTarget);
         }
 
         internal VisualLine GetNextLine(Document document, int beginOrdinal, float layoutWidth, out int nextOrdinal)
@@ -136,7 +144,7 @@ namespace TextCoreControl
 
             System.Diagnostics.Debug.Assert(beginOrdinal != nextOrdinal, "Line building should have consumed atleast 1 ordinal.");
             if (nextOrdinal == Document.UNDEFINED_ORDINAL) hasHardBreak = true;
-            VisualLine textLine = new VisualLine(this.dwriteFactory, lineText.ToString(), glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
+            VisualLine textLine = new VisualLine(this.dwriteFactory, this.showFormattingService, lineText.ToString(), glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;
         }
 
@@ -203,7 +211,7 @@ namespace TextCoreControl
         {
             if (this.averageLineHeight == -1)
             {
-                VisualLine textLine = new VisualLine(this.dwriteFactory, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
+                VisualLine textLine = new VisualLine(this.dwriteFactory, this.showFormattingService, "qM", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
                 this.averageLineHeight = textLine.Height;
             }
             return this.averageLineHeight;
@@ -213,12 +221,13 @@ namespace TextCoreControl
         {
             if (this.averageDigitWidth == -1)
             {
-                VisualLine textLine = new VisualLine(this.dwriteFactory, "0123456789", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
+                VisualLine textLine = new VisualLine(this.dwriteFactory, this.showFormattingService, "0123456789", glyphTable.DefaultFormat, Document.BEFOREBEGIN_ORDINAL, Document.UNDEFINED_ORDINAL, /*hasHardBreak*/true);
                 this.averageDigitWidth = (textLine.Width / 10);
             }
             return this.averageDigitWidth;
         }
 
+        private ShowFormattingService showFormattingService;
         private GlyphTable glyphTable;
         private readonly DWriteFactory dwriteFactory;
         private float averageLineHeight;

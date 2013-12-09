@@ -9,11 +9,12 @@ namespace TextCoreControl
 {
     internal class GlyphTable
     {
-        internal GlyphTable(TextFormat textFormat)
+        internal GlyphTable(TextFormat textFormat, ShowFormattingService showFormattingService)
         {
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             this.defaultFormat = textFormat;
             charWidths = new Dictionary<char, float>();
+            this.showFormattingService = showFormattingService;
         }
 
         internal float GetCharacterWidth(char letter)
@@ -29,9 +30,9 @@ namespace TextCoreControl
                 TextLayout measuringLayout;
                 if (Settings.ShowFormatting)
                 {
-                    string StyledLetterAsString = ShowFormatting.PrepareShowFormatting(letterAsString, /*ignoreLastCharacter*/false);
+                    string StyledLetterAsString = showFormattingService.PrepareShowFormatting(letterAsString, /*ignoreLastCharacter*/false);
                     measuringLayout = this.dwriteFactory.CreateTextLayout(StyledLetterAsString, defaultFormat, float.MaxValue, float.MaxValue);
-                    ShowFormatting.ApplyShowFormatting(letterAsString, this.dwriteFactory, measuringLayout);
+                    showFormattingService.ApplyShowFormatting(letterAsString, this.dwriteFactory, measuringLayout);
                 }
                 else
                 {
@@ -64,5 +65,6 @@ namespace TextCoreControl
         private readonly DWriteFactory dwriteFactory;
         private TextFormat defaultFormat;
         private Dictionary<char, float> charWidths;
+        private readonly ShowFormattingService showFormattingService;
     }
 }
