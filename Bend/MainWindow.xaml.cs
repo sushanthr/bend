@@ -132,6 +132,11 @@ namespace Bend
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingNumber, ref TextCoreControl.Settings.SyntaxHighlightingNumber);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingString, ref TextCoreControl.Settings.SyntaxHighlightingString);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.SyntaxHighlightingChar, ref TextCoreControl.Settings.SyntaxHighlightingChar);
+
+            for (int i = 0; i < this.tab.Count; i++)
+            {
+                tab[i].LoadOptions();
+            }
         }
         #endregion
 

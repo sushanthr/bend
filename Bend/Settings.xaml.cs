@@ -163,16 +163,7 @@ namespace Bend
             {
                 mainWindow.LoadOptions();
             }
-        }
-
-        private void CurrentTab_LoadOptions()
-        {
-            Tab currentTab = this.CurrentTab();
-            if (currentTab != null)
-            {
-                currentTab.LoadOptions();
-            }
-        }
+        }              
         
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -705,8 +696,7 @@ namespace Bend
                 persistantStorage.DefaultThemeIndex = ThemePicker.SelectedIndex;
 
                 SetTheme();
-                MainWindow_LoadOptions();
-                CurrentTab_LoadOptions();
+                MainWindow_LoadOptions();                
                 this.CancelSettingsUI();
             }
             catch

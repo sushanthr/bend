@@ -256,12 +256,6 @@ namespace Bend
 
             TextCoreControl.Settings.ShowFormatting = PersistantStorage.StorageObject.TextShowFormatting;
 
-            // TODO: INTEGRATE:
-            /*            
-            this.textEditor.Options.ShowBoxForControlCharacters = PersistantStorage.StorageObject.TextFormatControlCharacters;
-            this.textEditor.Options.EnableHyperlinks = PersistantStorage.StorageObject.TextFormatHyperLinks;
-            this.textEditor.Options.EnableEmailHyperlinks = PersistantStorage.StorageObject.TextFormatEmailLinks; 
-            */
             this.textEditor.NotifyOfSettingsChange();
         }
         #endregion
@@ -324,40 +318,37 @@ namespace Bend
         /// </summary>
         public void StartFindOnPage(MainWindow mainWindow, string findText, bool matchCase, bool useRegex)
         {
-            if (findText != this.findText)
+            Tab.accessFindOnPageData.Wait();
+            if (Tab.findOnPageThread != null)
             {
-                Tab.accessFindOnPageData.Wait();
-                if (Tab.findOnPageThread != null)
-                {
-                    Tab.findOnPageThread.Abort();
-                    Tab.findOnPageThread = null;
-                }
-                Tab.accessFindOnPageData.Release();
+                Tab.findOnPageThread.Abort();
+                Tab.findOnPageThread = null;
+            }
+            Tab.accessFindOnPageData.Release();
 
-                string text = this.TextEditor.Document.Text;
-                TextEditor textEditor = this.TextEditor;
-                this.findText = findText;
-                if (findText.Length > 0 && text.Length > 0)
-                {
-                    this.findResults.RemoveRange(0, this.findResults.Count);
-                    Tab.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
-                    Object[] parameters = new Object[6];
-                    parameters[0] = text;
-                    parameters[1] = findText;
-                    parameters[2] = matchCase;
-                    parameters[3] = useRegex;
-                    parameters[4] = textEditor;
-                    parameters[5] = mainWindow;
-                    Tab.findOnPageThread.Start(parameters);
-                }
+            string text = this.TextEditor.Document.Text;
+            TextEditor textEditor = this.TextEditor;
+            this.findText = findText;
+            if (findText.Length > 0 && text.Length > 0)
+            {
+                this.findResults.RemoveRange(0, this.findResults.Count);
+                Tab.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
+                Object[] parameters = new Object[6];
+                parameters[0] = text;
+                parameters[1] = findText;
+                parameters[2] = matchCase;
+                parameters[3] = useRegex;
+                parameters[4] = textEditor;
+                parameters[5] = mainWindow;
+                Tab.findOnPageThread.Start(parameters);
+            }
+            else
+            {
+                this.ClearFindOnPage();
+                if (findText.Length == 0)
+                    mainWindow.SetStatusText("");
                 else
-                {
-                    this.ClearFindOnPage();
-                    if (findText.Length == 0)
-                        mainWindow.SetStatusText("");
-                    else
-                        mainWindow.SetStatusText("NO MATCHES FOUND");
-                }
+                    mainWindow.SetStatusText("NO MATCHES FOUND");
             }
         }
         
