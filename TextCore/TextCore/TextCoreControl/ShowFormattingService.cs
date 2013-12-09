@@ -7,12 +7,13 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace TextCoreControl
 {
-    public static class ShowFormatting
+    public class ShowFormattingService
     {
         private class ShowFormattingInlineObject : ICustomInlineObject
         {
-            public ShowFormattingInlineObject(TextLayout displayText, bool shouldDrawSimple)
+            public ShowFormattingInlineObject(ShowFormattingService showFormattingService, TextLayout displayText, bool shouldDrawSimple)
             {
+                this.showFormattingService = showFormattingService;
                 this.displayText = displayText;
                 this.shouldDrawSimple = shouldDrawSimple;
             }
@@ -21,12 +22,12 @@ namespace TextCoreControl
             {
                 if (this.shouldDrawSimple)
                 {
-                    renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding, originY), this.displayText, showFormattingBrush);
+                    showFormattingService.renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding, originY), this.displayText, showFormattingService.showFormattingBrush);
                 }
                 else
                 {
-                    renderTarget.FillRoundedRectangle(new RoundedRect(new RectF(originX + 1.0f, originY, originX + this.Width + 1.0f, originY + displayText.Metrics.Height), showFormattingPadding, showFormattingPadding), showFormattingBrush);
-                    renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding + 1.0f, originY), this.displayText, ShowFormatting.showFormattingBrushAlt);
+                    showFormattingService.renderTarget.FillRoundedRectangle(new RoundedRect(new RectF(originX + 1.0f, originY, originX + this.Width + 1.0f, originY + displayText.Metrics.Height), showFormattingPadding, showFormattingPadding), showFormattingService.showFormattingBrush);
+                    showFormattingService.renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding + 1.0f, originY), this.displayText, showFormattingService.showFormattingBrushAlt);
                 }
             }
 
@@ -56,12 +57,13 @@ namespace TextCoreControl
             }
 
             TextLayout displayText;
+            ShowFormattingService showFormattingService;
             bool shouldDrawSimple;
         }
         
         #region ApplyShowFormatting
 
-        internal static void ApplyShowFormatting(string lineText, DWriteFactory dwriteFactory, TextLayout textLayout)
+        internal void ApplyShowFormatting(string lineText, DWriteFactory dwriteFactory, TextLayout textLayout)
         {
             for (int i = 0; i < lineText.Length; i++)
             {
@@ -80,13 +82,13 @@ namespace TextCoreControl
                                 formattingTextLayouts.Add(ch, formattingTextLayout);
                             }
                         }
-                        textLayout.SetInlineObject(new ShowFormattingInlineObject(formattingTextLayout, StandardControlCharacterDrawSimple[(int)ch]), new TextRange((uint)i, 1));
+                        textLayout.SetInlineObject(new ShowFormattingInlineObject(this, formattingTextLayout, StandardControlCharacterDrawSimple[(int)ch]), new TextRange((uint)i, 1));
                     }
                 }
             }
         }
 
-        internal static string PrepareShowFormatting(string lineText, bool ignoreLastCharacter)
+        internal string PrepareShowFormatting(string lineText, bool ignoreLastCharacter)
         {
             StringBuilder stringBuilder = new StringBuilder();
             int maximumIndex = ignoreLastCharacter ? lineText.Length - 1: lineText.Length;
@@ -188,25 +190,31 @@ namespace TextCoreControl
         #endregion
 
         #region Initialization
-        static internal void InitDisplayResources(RenderTarget renderTarget)
+        internal ShowFormattingService()
         {
-            ShowFormatting.renderTarget = renderTarget;
-            ShowFormatting.showFormattingBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColor);
-            ShowFormatting.showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt); 
             formattingTextLayouts = new Dictionary<char, TextLayout>();
         }
-        static internal void NotifyOfSettingsChanged()
+        internal void InitDisplayResources(RenderTarget renderTarget)
         {
-            ShowFormatting.showFormattingBrush = ShowFormatting.renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColor);
-            ShowFormatting.showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt); 
+            this.renderTarget = renderTarget;
+            showFormattingBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColor);
+            showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt);             
+        }
+        internal void NotifyOfSettingsChanged()
+        {
+            if (renderTarget != null)
+            {
+                showFormattingBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColor);
+                showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt);
+            }
             formattingTextLayouts = new Dictionary<char, TextLayout>();
         }
         #endregion
 
-        private static RenderTarget renderTarget;
-        private static Brush showFormattingBrush;
-        private static Brush showFormattingBrushAlt;
-        private static Dictionary<char, TextLayout> formattingTextLayouts;
+        private RenderTarget renderTarget;
+        private Brush showFormattingBrush;
+        private Brush showFormattingBrushAlt;
+        private Dictionary<char, TextLayout> formattingTextLayouts;
         private const float showFormattingPadding = 2.0f;
     }
    
