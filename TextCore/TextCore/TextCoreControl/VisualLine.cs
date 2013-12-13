@@ -71,35 +71,7 @@ namespace TextCoreControl
                 
         public void DrawWithoutEffects(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
-            // Capture existing effects
-            LinkedList<TextRangeOf<Brush>> effectsCollection = new LinkedList<TextRangeOf<Brush>>();
-            for (uint i = 0; i < this.textLayout.Text.Length; )
-            {
-                TextRangeOf<Brush> brushRange = this.textLayout.GetDrawingEffect(i);
-                if (brushRange.Value != null)
-                {
-                    effectsCollection.AddLast(brushRange);
-                    if (i == brushRange.TextRange.StartPosition)
-                    {
-                        i += brushRange.TextRange.Length;
-                        continue;
-                    }
-                }
-
-                i++;
-            }
-            
-            this.textLayout.SetDrawingEffect(null, new TextRange(0, (uint)this.textLayout.Text.Length));
-            renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);
-
-            // Play back the effects
-            LinkedListNode<TextRangeOf<Brush>> linkedListNode = effectsCollection.First;
-            while (linkedListNode != null)
-            {
-                this.textLayout.SetDrawingEffect(linkedListNode.Value.Value, linkedListNode.Value.TextRange);
-                linkedListNode = linkedListNode.Next;
-            }
-
+            renderTarget.DrawTextLayoutWithoutEffects(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap); 
             System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
 

@@ -706,6 +706,10 @@ namespace TextCoreControl
                         e.Handled = true;
                     }
                     break;
+                case System.Windows.Input.Key.Pause:
+                    Settings.ShowDebugHUD = !Settings.ShowDebugHUD;
+                    this.renderHost.InvalidateVisual();
+                    break;
             }
 
             if (adjustSelection)
