@@ -35,6 +35,11 @@ namespace TextCoreControl
                 float.MaxValue, 
                 float.MaxValue);
 
+            noEffectsTextLayout = dwriteFactory.CreateTextLayout(displayText,
+                defaultFormat,
+                float.MaxValue,
+                float.MaxValue);
+
             height = 0;
             foreach (LineMetrics lm in textLayout.LineMetrics)
             {
@@ -49,6 +54,7 @@ namespace TextCoreControl
             if (Settings.ShowFormatting)
             {
                 showFormattingService.ApplyShowFormatting(lineText, dwriteFactory, textLayout);
+                showFormattingService.ApplyShowFormatting(lineText, dwriteFactory, noEffectsTextLayout);
             }
         }
 
@@ -71,7 +77,7 @@ namespace TextCoreControl
                 
         public void DrawWithoutEffects(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
-            renderTarget.DrawTextLayoutWithoutEffects(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap); 
+            renderTarget.DrawTextLayout(this.position, this.noEffectsTextLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);            
             System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
 
@@ -218,6 +224,7 @@ namespace TextCoreControl
 
         private Point2F position;
         private TextLayout textLayout;
+        private TextLayout noEffectsTextLayout;
         string lineText;
         private float height;
         private int beginOrdinal;
