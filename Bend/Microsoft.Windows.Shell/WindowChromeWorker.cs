@@ -469,13 +469,21 @@ namespace Microsoft.Windows.Shell
                 NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
                 ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
 
-                ncCalcSize.rgrc3 = ncCalcSize.rgrc2;
+                // Provide a redraw rectangle to minimize tearing.
+                if (ncCalcSize.rgrc1.Top >= 0 && ncCalcSize.rgrc1.Left >= 0)
+                { 
+                    ncCalcSize.rgrc3 = ncCalcSize.rgrc2;
 
-                ncCalcSize.rgrc2 = ncCalcSize.rgrc1;
+                    ncCalcSize.rgrc2 = ncCalcSize.rgrc1;
 
-                Marshal.StructureToPtr(ncCalcSize, lParam, false);
+                    Marshal.StructureToPtr(ncCalcSize, lParam, false);
 
-                returnValue = new IntPtr((int)WVR.VALIDRECTS);
+                    returnValue = new IntPtr((int)WVR.VALIDRECTS);
+                }
+                else
+                {
+                    returnValue = new IntPtr((int)WVR.REDRAW);
+                }
             }
 
             return returnValue;
