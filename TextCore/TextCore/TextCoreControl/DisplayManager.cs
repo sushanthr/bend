@@ -641,14 +641,13 @@ namespace TextCoreControl
                             if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
                             {
                                 // Need to remove single space from every line of selection
-                                this.AdjustLeadingInSelection(/*fRemoveSpace*/true, /*leadingString*/ " ");
+                                e.Handled = this.AdjustLeadingInSelection(/*fRemoveSpace*/true, /*leadingString*/ " ");
                             }
                             else
                             {
                                 // Need to and single space to every line of selection.
-                                this.AdjustLeadingInSelection(/*fRemoveSpace*/false, /*leadingString*/ " ");
+                                e.Handled= this.AdjustLeadingInSelection(/*fRemoveSpace*/false, /*leadingString*/ " ");
                             }
-                            e.Handled = true;
                         }
                     }
                     break;
@@ -662,15 +661,23 @@ namespace TextCoreControl
 
                         if (this.SelectionBegin != this.SelectionEnd)
                         {
+                            bool isLeadingAdjusted = false;
                             if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
                             {
                                 // Need to un-tabify selection                                
-                                this.AdjustLeadingInSelection(/*fRemove*/true, /*leadingString*/ tabString);
+                                isLeadingAdjusted = this.AdjustLeadingInSelection(/*fRemove*/true, /*leadingString*/ tabString);
                             }
                             else
                             {
                                 // Need to tabify selection.
-                                this.AdjustLeadingInSelection(/*fRemove*/false, /*leadingString*/ tabString);
+                                isLeadingAdjusted = this.AdjustLeadingInSelection(/*fRemove*/false, /*leadingString*/ tabString);
+                            }
+                            if (!isLeadingAdjusted)
+                            {
+                                int selectionBeginOrdial;
+                                string selectedText = this.GetSelectedText(out selectionBeginOrdial);
+                                document.DeleteAt(selectionBeginOrdial, selectedText.Length);
+                                document.InsertAt(selectionBeginOrdial, tabString);
                             }
                         }
                         else                        
@@ -1275,75 +1282,99 @@ namespace TextCoreControl
         /// <summary>
         ///     Removes/Adds space or tabs after line breaks in the selected region.
         /// </summary>        
-        private void AdjustLeadingInSelection(bool fRemove, string leading)
-        {            
+        /// <returns>
+        ///     Returns true if any changes were made. Actually returns true if we believe
+        ///     leading can be changed regardless of whether actual changes are made.
+        /// </returns>
+        private bool AdjustLeadingInSelection(bool fRemove, string leading)
+        {
+            bool selectionIsAcrossLines = false;
             if (this.SelectionBegin != this.SelectionEnd)
-            {         
-                StringBuilder stringBuilder = new StringBuilder();                
-                int beginOrdinal = this.SelectionBegin;
-                // Roll back until after the previous line break.
-                // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
-                while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
+            {                
+                for (int i = this.SelectionBegin; i < this.SelectionEnd; i++)
                 {
-                    int temp = document.PreviousOrdinal(beginOrdinal);
-                    if (temp == Document.BEFOREBEGIN_ORDINAL)
+                    if (TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(i)))
+                    {
+                        selectionIsAcrossLines = true;
                         break;
-                    beginOrdinal = temp;
+                    }
                 }
-                int selectionBeginOrdinal = beginOrdinal;
-                if (beginOrdinal != this.SelectionBegin)
-                    selectionBeginOrdinal = document.NextOrdinal(selectionBeginOrdinal);
+                if (!selectionIsAcrossLines)
+                {
+                    bool beginIsAfterHardBreak = this.SelectionBegin == document.FirstOrdinal() || TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(document.PreviousOrdinal(this.SelectionBegin)));
+                    bool endIsAfterHardBreak = this.SelectionEnd == document.LastOrdinal() || TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(document.NextOrdinal(this.SelectionEnd)));
+                    selectionIsAcrossLines = beginIsAfterHardBreak && endIsAfterHardBreak;
+                }
 
-                int ordinal = beginOrdinal;                
-                while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
+                if (selectionIsAcrossLines)
                 {
-                    char ch = document.CharacterAt(ordinal);
-                    stringBuilder.Append(ch);
-                    ordinal = document.NextOrdinal(ordinal);
-                }
-                int length = stringBuilder.Length;
-                if (fRemove)
-                {
-                    stringBuilder.Replace("\n" + leading, "\n");
-                    if (beginOrdinal == document.FirstOrdinal())
+                    int beginOrdinal = this.SelectionBegin;
+                    // Roll back until after the previous line break.
+                    // Since we are looking backwards, it is okay to call IsHardBreakChar with a single character.
+                    while (!TextLayoutBuilder.IsHardBreakChar(document.CharacterAt(beginOrdinal)))
                     {
-                        bool fStartsWithLeading = true;
-                        for (int i = 0; i < leading.Length; i++)
+                        int temp = document.PreviousOrdinal(beginOrdinal);
+                        if (temp == Document.BEFOREBEGIN_ORDINAL)
+                            break;
+                        beginOrdinal = temp;
+                    }
+                    int selectionBeginOrdinal = beginOrdinal;
+                    if (beginOrdinal != this.SelectionBegin)
+                        selectionBeginOrdinal = document.NextOrdinal(selectionBeginOrdinal);
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    int ordinal = beginOrdinal;
+                    while (ordinal < this.SelectionEnd && ordinal != Document.UNDEFINED_ORDINAL)
+                    {
+                        char ch = document.CharacterAt(ordinal);
+                        stringBuilder.Append(ch);
+                        ordinal = document.NextOrdinal(ordinal);
+                    }
+                    int length = stringBuilder.Length;
+                    if (fRemove)
+                    {
+                        stringBuilder.Replace("\n" + leading, "\n");
+                        if (beginOrdinal == document.FirstOrdinal())
                         {
-                            if (stringBuilder[i] != leading[i])
-                                fStartsWithLeading = false;
+                            bool fStartsWithLeading = true;
+                            for (int i = 0; i < leading.Length; i++)
+                            {
+                                if (stringBuilder[i] != leading[i])
+                                    fStartsWithLeading = false;
+                            }
+                            if (fStartsWithLeading)
+                                stringBuilder.Remove(0, 1);
                         }
-                        if (fStartsWithLeading)
-                            stringBuilder.Remove(0, 1);
                     }
-                }
-                else
-                {
-                    stringBuilder.Replace("\n", "\n" + leading);
-                    if(beginOrdinal == document.FirstOrdinal())
+                    else
                     {
-                        stringBuilder.Insert(0, leading);
+                        stringBuilder.Replace("\n", "\n" + leading);
+                        if (beginOrdinal == document.FirstOrdinal())
+                        {
+                            stringBuilder.Insert(0, leading);
+                        }
+                    }
+                    undoRedoManager.BeginTransaction();
+                    document.DeleteAt(beginOrdinal, length);
+                    document.InsertAt(beginOrdinal, stringBuilder.ToString());
+                    undoRedoManager.EndTransaction();
+                    try
+                    {
+                        this.caret.PrepareBeforeRender();
+                        this.hwndRenderTarget.BeginDraw();
+                        this.selectionManager.ShouldUseHighlightColors = false;
+                        this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.selectionManager.ExpandSelection(document.NextOrdinal(beginOrdinal, (uint)stringBuilder.Length), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
+                        this.hwndRenderTarget.EndDraw();
+                        this.caret.UnprepareAfterRender();
+                    }
+                    catch
+                    {
+                        this.RecoverFromRenderException();
                     }
                 }
-                undoRedoManager.BeginTransaction();
-                document.DeleteAt(beginOrdinal, length);
-                document.InsertAt(beginOrdinal, stringBuilder.ToString());
-                undoRedoManager.EndTransaction();
-                try
-                {
-                    this.caret.PrepareBeforeRender();
-                    this.hwndRenderTarget.BeginDraw();
-                    this.selectionManager.ShouldUseHighlightColors = false;
-                    this.selectionManager.ResetSelection(selectionBeginOrdinal, this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                    this.selectionManager.ExpandSelection(document.NextOrdinal(beginOrdinal, (uint)stringBuilder.Length), this.visualLines, this.document, this.scrollOffset, this.hwndRenderTarget);
-                    this.hwndRenderTarget.EndDraw();
-                    this.caret.UnprepareAfterRender();
-                }
-                catch
-                {
-                    this.RecoverFromRenderException();
-                }
-            }            
+            }
+            return selectionIsAcrossLines;
         }        
 
         #endregion
