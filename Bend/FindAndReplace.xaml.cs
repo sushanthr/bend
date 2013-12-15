@@ -118,7 +118,7 @@ namespace Bend
 
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            this.mainWindow.SetStatusText("");
+            this.mainWindow.SetStatusText("", MainWindow.StatusType.STATUS_CLEAR);
             if (this.Visibility == System.Windows.Visibility.Visible)
             {
                 // window is becoming visible.
@@ -141,11 +141,11 @@ namespace Bend
                 {
                     if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                     {
-                        mainWindow.SetStatusText(mainWindow.CurrentTab.HighlightPreviousMatch());
+                        mainWindow.SetStatusText(mainWindow.CurrentTab.HighlightPreviousMatch(), MainWindow.StatusType.STATUS_FINDONPAGE);
                     }
                     else
                     {
-                        mainWindow.SetStatusText(mainWindow.CurrentTab.HighlightNextMatch());
+                        mainWindow.SetStatusText(mainWindow.CurrentTab.HighlightNextMatch(), MainWindow.StatusType.STATUS_FINDONPAGE);
                     }
                 }
                 else
@@ -173,11 +173,11 @@ namespace Bend
                     int count = mainWindow.CurrentTab.TextEditor.ReplaceAllText(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
                     if (count == 0)
                     {
-                        mainWindow.SetStatusText("NO MATCHES FOUND");
+                        mainWindow.SetStatusText("NO MATCHES FOUND", MainWindow.StatusType.STATUS_FINDONPAGE);
                     }
                     else
                     {
-                        mainWindow.SetStatusText(count + " MATCHES REPLACED");
+                        mainWindow.SetStatusText(count + " MATCHES REPLACED", MainWindow.StatusType.STATUS_FINDONPAGE);
                         mainWindow.CurrentTab.TextEditor.CancelSelect();
                     }
                 }

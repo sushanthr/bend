@@ -95,6 +95,7 @@ namespace TextCoreControl
                 this.document.OrdinalShift += this.caret.Document_OrdinalShift;
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
+                this.selectionManager.SelectionChange += selectionManager_SelectionChange;
 
                 this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget, this.d2dFactory);
                 this.LeftMargin = this.contentLineManager.LayoutWidth(this.textLayoutBuilder.AverageDigitWidth());
@@ -113,7 +114,7 @@ namespace TextCoreControl
                     hwndRenderTarget.Transform = Matrix3x2F.Identity;
                 }
             }
-        }
+        }               
 
         #region WIN32 API references
 
@@ -2050,6 +2051,14 @@ namespace TextCoreControl
         internal int CaretOrdinal { get { return this.caret.Ordinal; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
+
+        void selectionManager_SelectionChange()
+        {
+            if (this.SelectionChange != null)
+                this.SelectionChange();
+        }
+
+        public event SelectionChangeEventHandler SelectionChange;
 
         #endregion
 

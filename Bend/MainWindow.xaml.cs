@@ -50,6 +50,7 @@ namespace Bend
         bool isFullScreen;
         bool isInSettingsAnimation;
 
+        StatusType currentStatusType;
         #endregion
 
         #region Public API
@@ -73,6 +74,7 @@ namespace Bend
             this.windowChrome.RecivedFileNameEvent += new WindowChrome.RecivedFileNameEventHandler(windowChrome_RecivedFileNameEvent);
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
+            this.currentStatusType = StatusType.STATUS_OTHER;
         }
 
         internal Tab CurrentTab {
@@ -320,7 +322,7 @@ namespace Bend
                 TabBar.Children.Add(newTab.Title);
                 Editor.Children.Add(newTab.TextEditor);
                 newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
-
+                newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
                 newTab.OpenFile(filePath);
 
                 // Switch focus to the new file
@@ -480,7 +482,7 @@ namespace Bend
                     fileSaveAnimation.SpeedRatio = 5;
                     fileSaveAnimation.Begin();
 
-                    this.SetStatusText("FILE SAVED");
+                    this.SetStatusText("FILE SAVED", MainWindow.StatusType.STATUS_OTHER);
                     System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                     dispatcherTimer.Tick += new EventHandler(ClearStatusDispatcherTimer_Tick);
                     dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -492,7 +494,7 @@ namespace Bend
         private void ClearStatusDispatcherTimer_Tick(object sender, EventArgs e)
         {
             ((DispatcherTimer)sender).Stop();
-            this.SetStatusText("");
+            this.SetStatusText("", StatusType.STATUS_CLEAR);
         }
 
         private void CommandOpen(object sender, ExecutedRoutedEventArgs e)
@@ -553,7 +555,7 @@ namespace Bend
                 && !tab[currentTabIndex].TextEditor.Document.HasUnsavedContent)
             {
                 tab[this.currentTabIndex].OpenFile(tab[this.currentTabIndex].FullFileName);
-                SetStatusText("FILE REFRESHED");
+                SetStatusText("FILE REFRESHED", StatusType.STATUS_CLEAR);
                 System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                 dispatcherTimer.Tick += new EventHandler(ClearStatusDispatcherTimer_Tick);
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -805,8 +807,9 @@ namespace Bend
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
+            newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
         }
-
+        
         void DisplayManager_ContextMenu()
         {
             if( Editor.ContextMenu != null )
@@ -951,7 +954,6 @@ namespace Bend
             tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
             tab[tabIndex].TextEditor.SetFocus();
             this.FindText.Text = tab[tabIndex].FindText;
-            this.SetStatusText(tab[tabIndex].HighlightCurrentMatch());
         }
 
         private void TabClose(int tabIndex)
@@ -1034,8 +1036,15 @@ namespace Bend
                 }
             }
         }
-                
-        internal void SetStatusText(string statusText)        
+
+        internal enum StatusType
+        {
+            STATUS_FINDONPAGE,
+            STATUS_CLEAR,
+            STATUS_OTHER
+        };
+        
+        internal void SetStatusText(string statusText, StatusType statusType)        
         {
             if (statusText.Length == 0)
             {
@@ -1046,7 +1055,8 @@ namespace Bend
             {
                 this.StatusText.Visibility = System.Windows.Visibility.Visible;
                 this.StatusText.Content = statusText;
-            }                
+            }
+            this.currentStatusType = statusType;
         }
         #endregion
 
@@ -1110,11 +1120,11 @@ namespace Bend
                     {
                         if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
                         {
-                            this.SetStatusText(this.CurrentTab.HighlightPreviousMatch());
+                            this.SetStatusText(this.CurrentTab.HighlightPreviousMatch(), StatusType.STATUS_FINDONPAGE);
                         }
                         else
                         {
-                            this.SetStatusText(this.CurrentTab.HighlightNextMatch());
+                            this.SetStatusText(this.CurrentTab.HighlightNextMatch(), StatusType.STATUS_FINDONPAGE);
                         }
                     }
                     else
@@ -1125,7 +1135,7 @@ namespace Bend
                 else if (e.Key == Key.Escape)
                 {
                     this.CurrentTab.ClearFindOnPage();
-                    this.SetStatusText("");
+                    this.SetStatusText("", StatusType.STATUS_CLEAR);
                 }
             }
         }
@@ -1136,7 +1146,13 @@ namespace Bend
             {
                 this.CurrentTab.StartFindOnPage(this, FindText.Text, /*matchCase*/false, /*useRegex*/false);
             }
-        }      
+        }
+        
+        void DisplayManager_SelectionChange()
+        {
+            if (this.currentStatusType == StatusType.STATUS_FINDONPAGE)
+                this.SetStatusText("", StatusType.STATUS_CLEAR);
+        }
         #endregion
 
         #region Status Bar

@@ -7,9 +7,11 @@ using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
+    public delegate void SelectionChangeEventHandler();
+
     internal class SelectionManager
     {
-        public SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
+        internal SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
             defaultSelectionBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
@@ -25,7 +27,7 @@ namespace TextCoreControl
             this.forceRedraw = false;
         }
 
-        public void DrawSelection(
+        internal void DrawSelection(
             int oldSelectionBegin,
             int oldSelectionEnd,
             List<VisualLine> visualLines,
@@ -212,7 +214,7 @@ namespace TextCoreControl
             }
         }
 
-        public void ResetSelection(int beginOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
+        internal void ResetSelection(int beginOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBegin = this.selectionBeginOrdinal;
             int oldSelectionEnd = this.selectionEndOrdinal;
@@ -222,22 +224,25 @@ namespace TextCoreControl
 
             // Draw selection bails when there is no actual selection area change.            
             this.DrawSelection(oldSelectionBegin, oldSelectionEnd, visualLines, 0, visualLines.Count - 1, document, scrollOffset, renderTarget);
+
+            if(this.SelectionChange != null)
+                this.SelectionChange();
         }
 
         /// <summary>
         ///     Returns the ordinal at which selection starts, this document ordinal is selected.
         /// </summary>
         /// <returns></returns>
-        public int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
+        internal int GetSelectionBeginOrdinal() { return this.selectionBeginOrdinal; }
 
         /// <summary>
         ///     Returns the ordinal just after selection end, this document ordinal is not selected 
         ///     but the previous one is selected.
         /// </summary>
         /// <returns></returns>
-        public int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
+        internal int GetSelectionEndOrdinal() { return this.selectionEndOrdinal; }
 
-        public void ExpandSelection(int includeOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
+        internal void ExpandSelection(int includeOrdinal, List<VisualLine> visualLines, Document document, SizeF scrollOffset, RenderTarget renderTarget)
         {
             int oldSelectionBeginOrdinal = this.selectionBeginOrdinal;
             int oldSelectionEndOrdinal = this.selectionEndOrdinal;
@@ -274,15 +279,18 @@ namespace TextCoreControl
             }
 
             this.DrawSelection(oldSelectionBeginOrdinal, oldSelectionEndOrdinal, visualLines, 0, visualLines.Count - 1, document, scrollOffset, renderTarget);
+            
+            if (this.SelectionChange != null)
+                this.SelectionChange();
         }
 
-        public void NotifyOfOrdinalShift(int beginOrdinal, int shift)
+        internal void NotifyOfOrdinalShift(int beginOrdinal, int shift)
         {
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionBeginOrdinal);
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionEndOrdinal);
         }
 
-        public bool ShouldUseHighlightColors {
+        internal bool ShouldUseHighlightColors {
             get { return this.shouldUseHighlightColors;  }
             set 
             {
@@ -291,6 +299,8 @@ namespace TextCoreControl
                 this.shouldUseHighlightColors = value;
             }
         }
+                
+        internal event SelectionChangeEventHandler SelectionChange;
 
         int selectionBeginOrdinal;
         int selectionEndOrdinal;
