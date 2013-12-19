@@ -468,7 +468,7 @@ namespace Microsoft.Windows.Shell
             {
                 NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
                 ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
-
+                
                 // Provide a redraw rectangle to minimize tearing.
                 if (ncCalcSize.rgrc1.Top >= 0 && ncCalcSize.rgrc1.Left >= 0)
                 { 
@@ -482,6 +482,17 @@ namespace Microsoft.Windows.Shell
                 }
                 else
                 {
+                    if (ncCalcSize.rgrc1.Top < 0 && ncCalcSize.rgrc1.Left < 0)
+                    {
+                        RECT tempClientRect = ncCalcSize.rgrc1;
+                        tempClientRect.Top = 0;
+                        tempClientRect.Bottom = ncCalcSize.rgrc1.Bottom + ncCalcSize.rgrc1.Top;
+                        tempClientRect.Left = 0;
+                        tempClientRect.Right = ncCalcSize.rgrc1.Right + ncCalcSize.rgrc1.Left;
+                        ncCalcSize.rgrc1 = tempClientRect;
+                        Marshal.StructureToPtr(ncCalcSize, lParam, false);
+                    }
+
                     returnValue = new IntPtr((int)WVR.REDRAW);
                 }
             }

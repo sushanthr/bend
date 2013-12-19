@@ -39,7 +39,9 @@ namespace TextCoreControl
             System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == 0, "File content must terminate with a null character.");
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
             fileContents.Remove(fileContents.Length - 1, 1);
-            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString(), System.Text.Encoding.Default);
+            // When endcoding is not specified windows creates a UTF-8 file for text with unicode characters
+            // outside ASCII range and creates ASCII files otherwise.
+            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString());
             fileContents.Append('\0');
             this.hasUnsavedContent = false;
         }
