@@ -718,6 +718,43 @@ namespace TextCoreControl
                     Settings.ShowDebugHUD = !Settings.ShowDebugHUD;
                     this.renderHost.InvalidateVisual();
                     break;
+                case System.Windows.Input.Key.Return:
+                    if (Settings.PreserveIndentLevel)
+                    {
+                        string insertString = "\r\n";
+
+                        // Find the current indent level
+                        int firstOrdinal = document.FirstOrdinal();
+                        int ordinal = document.PreviousOrdinal(this.caret.Ordinal);
+                        while (ordinal > firstOrdinal)
+                        {
+                            char ch = document.CharacterAt(ordinal);
+                            if (TextLayoutBuilder.IsHardBreakChar(ch))
+                            {
+                                int caretOrdinal = this.caret.Ordinal;
+                                int ordinalAddIndent = document.NextOrdinal(ordinal);
+                                while (ordinalAddIndent < caretOrdinal)
+                                {
+                                    char chForward = document.CharacterAt(ordinalAddIndent);
+                                    if (char.IsWhiteSpace(chForward))
+                                    {
+                                        insertString += chForward;
+                                    }
+                                    else
+                                    { 
+                                        break; 
+                                    }
+                                    ordinalAddIndent = document.NextOrdinal(ordinalAddIndent);
+                                }
+                                break;
+                            }
+                            ordinal = document.PreviousOrdinal(ordinal);
+                        }
+
+                        document.InsertAt(this.caret.Ordinal, insertString);
+                        e.Handled = true;
+                    }
+                    break;
             }
 
             if (adjustSelection)

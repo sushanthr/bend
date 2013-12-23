@@ -257,6 +257,7 @@ namespace Bend
             TextCoreControl.Settings.SetFontFamily(PersistantStorage.StorageObject.DefaultFontFamily);
 
             TextCoreControl.Settings.ShowFormatting = PersistantStorage.StorageObject.TextShowFormatting;
+            TextCoreControl.Settings.PreserveIndentLevel = PersistantStorage.StorageObject.PreserveIndent;
 
             this.textEditor.NotifyOfSettingsChange();
         }

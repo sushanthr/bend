@@ -37,6 +37,7 @@ namespace Bend
         public bool TextWordWrap;
         public bool SmoothScrolling;
         public bool SyntaxHighlighting;
+        public bool PreserveIndent;
 
         // Font Picker
         public int DefaultFontFamilyIndex;
@@ -106,6 +107,7 @@ namespace Bend
             TextWordWrap = true;
             SmoothScrolling = true;
             SyntaxHighlighting = true;
+            PreserveIndent = true;
             DefaultFontFamily = "Consolas";
             DefaultFontFamilyIndex = -1;
 

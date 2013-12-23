@@ -557,6 +557,7 @@ namespace Bend
             SyntaxHighlighting.IsChecked = persistantStorage.SyntaxHighlighting;
             SettingsPageAnimation.IsChecked = persistantStorage.SettingsPageAnimation;
             ShowStatusBar.IsChecked = persistantStorage.ShowStatusBar;
+            PreserveIndent.IsChecked = persistantStorage.PreserveIndent;
 
             // Set up the font picker
             if (persistantStorage.DefaultFontFamilyIndex >= 0 && persistantStorage.DefaultFontFamilyIndex < FontPicker.Items.Count)
@@ -694,6 +695,7 @@ namespace Bend
                 persistantStorage.DefaultFontFamilyIndex = FontPicker.SelectedIndex;
                 persistantStorage.DefaultFontFamily = ((System.Windows.Media.FontFamily)(FontPicker.Items[FontPicker.SelectedIndex])).Source;
                 persistantStorage.DefaultThemeIndex = ThemePicker.SelectedIndex;
+                persistantStorage.PreserveIndent = PreserveIndent.IsChecked ?? true;
 
                 SetTheme();
                 MainWindow_LoadOptions();                

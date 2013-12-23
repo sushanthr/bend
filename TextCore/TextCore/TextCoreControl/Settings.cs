@@ -46,6 +46,8 @@ namespace TextCoreControl
             Settings.ShowFormatting                        = true;
             Settings.DefaultShowFormattingColor            = new ColorF(0.74f, 0.74f, 0.74f);
             Settings.DefaultShowFormattingColorAlt         = new ColorF(0.90f, 0.90f, 0.90f);
+
+            Settings.PreserveIndentLevel                   = true;
             
             Settings.SyntaxHighlightingKeyword1            = new ColorF(   0, 102f/255, 153f/255);
             Settings.SyntaxHighlightingKeyword2            = new ColorF(   0,   0, 128f/255);
@@ -166,6 +168,8 @@ namespace TextCoreControl
         public static ColorF        DefaultShowFormattingColor;
         public static ColorF        DefaultShowFormattingColorAlt;
         public static TextFormat    DefaultShowFormattingTextFormat;
+
+        public static bool          PreserveIndentLevel;
 
         // Syntax highlighting colors
         public static ColorF         SyntaxHighlightingKeyword1;
