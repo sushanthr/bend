@@ -456,48 +456,9 @@ namespace Microsoft.Windows.Shell
             // we can unconditionally treat it as a RECT.
 
             // Since we always want the client size to equal the window size, we can unconditionally handle it
-            // without having to modify the parameters.
-            IntPtr returnValue;
-            handled = true;
-
-            if (wParam.ToInt32() == 0)
-            {
-                returnValue = new IntPtr((int)WVR.REDRAW);
-            }
-            else
-            {
-                NCCALCSIZE_PARAMS ncCalcSize = new NCCALCSIZE_PARAMS();
-                ncCalcSize = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(lParam, ncCalcSize.GetType());
-                
-                // Provide a redraw rectangle to minimize tearing.
-                if (ncCalcSize.rgrc1.Top >= 0 && ncCalcSize.rgrc1.Left >= 0)
-                { 
-                    ncCalcSize.rgrc3 = ncCalcSize.rgrc2;
-
-                    ncCalcSize.rgrc2 = ncCalcSize.rgrc1;
-
-                    Marshal.StructureToPtr(ncCalcSize, lParam, false);
-
-                    returnValue = new IntPtr((int)WVR.VALIDRECTS);
-                }
-                else
-                {
-                    if (ncCalcSize.rgrc1.Top < 0 && ncCalcSize.rgrc1.Left < 0)
-                    {
-                        RECT tempClientRect = ncCalcSize.rgrc1;
-                        tempClientRect.Top = 0;
-                        tempClientRect.Bottom = ncCalcSize.rgrc1.Bottom + ncCalcSize.rgrc1.Top;
-                        tempClientRect.Left = 0;
-                        tempClientRect.Right = ncCalcSize.rgrc1.Right + ncCalcSize.rgrc1.Left;
-                        ncCalcSize.rgrc1 = tempClientRect;
-                        Marshal.StructureToPtr(ncCalcSize, lParam, false);
-                    }
-
-                    returnValue = new IntPtr((int)WVR.REDRAW);
-                }
-            }
-
-            return returnValue;
+            // without having to modify the parameters.            
+            handled = true;            
+            return new IntPtr((int)WVR.REDRAW);
         }
 
         private IntPtr _HandleNCHitTest(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled)
