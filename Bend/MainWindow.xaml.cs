@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
-using Microsoft.Windows.Shell;
+using System.Windows.Shell;
 using Microsoft.Win32;
 using System.Collections;
 using TextCoreControl;
@@ -51,6 +51,8 @@ namespace Bend
         bool isInSettingsAnimation;
 
         StatusType currentStatusType;
+
+        InterBendCommunication interBendCommuncation;
         #endregion
 
         #region Public API
@@ -70,11 +72,16 @@ namespace Bend
             this.windowChrome.ResizeBorderThickness = new Thickness(4);
             this.windowChrome.CaptionHeight = 40;
             this.windowChrome.GlassFrameThickness = new Thickness(1);
-            this.windowChrome.CornerRadius = new CornerRadius(0);
-            this.windowChrome.RecivedFileNameEvent += new WindowChrome.RecivedFileNameEventHandler(windowChrome_RecivedFileNameEvent);
+            this.windowChrome.CornerRadius = new CornerRadius(0);            
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);            
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MinButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(QuitButton, /*hitTestVisible*/true);
         }
 
         internal Tab CurrentTab {
@@ -100,10 +107,7 @@ namespace Bend
             Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoForegroundColor);
             Resources["LogoBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.LogoBackgroundColor);
             Resources["MenuSelectedBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.MenuSelectedBackgroundColor);
-            WindowChrome.BackgroundRed = PersistantStorage.StorageObject.BackgroundColor.R;
-            WindowChrome.BackgroundGreen = PersistantStorage.StorageObject.BackgroundColor.G;
-            WindowChrome.BackgroundBlue = PersistantStorage.StorageObject.BackgroundColor.B;
-
+            
             BitmapImage backgroundImage = new BitmapImage();
             backgroundImage.BeginInit();
             backgroundImage.UriSource = new Uri("pack://application:,,,/Bend;component/" + PersistantStorage.StorageObject.BaseBackgroundImage);
@@ -216,7 +220,10 @@ namespace Bend
             settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
             settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsIn");
             settingsAnimation.Completed += new EventHandler(slideSettingsInAnimation_Completed);
-            isInSettingsAnimation = false;            
+            isInSettingsAnimation = false;
+
+            interBendCommuncation = new InterBendCommunication(mainWindow);
+            interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
         }
 
         void RenderCapability_TierChanged(object sender, EventArgs e)
@@ -283,7 +290,7 @@ namespace Bend
         }
 
         public const UInt32 FLASHW_ALL = 3;
-        void windowChrome_RecivedFileNameEvent(string fileName)
+        void RecivedFileNameEvent(string fileName)
         {
             // If the settings page is the one in view, come out of it.
             if (Settings.Visibility != System.Windows.Visibility.Hidden)

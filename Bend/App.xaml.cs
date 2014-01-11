@@ -81,10 +81,10 @@ namespace Bend
             }
 
             IntPtr hwnd;
-            if (argumentIsFile && Microsoft.Windows.Shell.WindowChrome.FindOtherApplicationInstance(out hwnd))
+            if (argumentIsFile && InterBendCommunication.FindOtherApplicationInstance(out hwnd))
             {
                 // There is another instance of bend running somewhere, send this file to it.
-                Microsoft.Windows.Shell.WindowChrome.SendFileNameToHwnd(hwnd, argument);
+                InterBendCommunication.SendFileNameToHwnd(hwnd, argument);
                 this.Shutdown();
             }
             else if (!ApplicationDeployment.IsNetworkDeployed && !debugApplication)

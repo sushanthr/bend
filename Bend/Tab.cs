@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Microsoft.Windows.Shell;
 using Microsoft.Win32;
 using TextCoreControl;
 
@@ -92,13 +91,13 @@ namespace Bend
                 title = new WrapPanel();
                 titleText = new TextBlock();
                 titleText.Text = "New File";
-                titleText.Width = 110;
+                titleText.MinWidth = 110;
                 titleText.Height = 34;
                 titleText.Padding = new Thickness(5, 2, 0, 0);
                 titleText.VerticalAlignment = VerticalAlignment.Top;
                 titleText.TextAlignment = TextAlignment.Center;
                 titleText.FontFamily = Tab.fontFamilySegoeUI;
-                Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(titleText, /*isHitTestable*/true);
+                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(titleText, /*isHitTestable*/true);
                 titleText.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
                 title.Children.Add(titleText);
 
@@ -115,10 +114,10 @@ namespace Bend
                 closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close_big.png");
                 closeImage.EndInit();
                 closeButton.Source = closeImage;
-                Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                
+                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                
                 title.Children.Add(closeButton);
 
-                Microsoft.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(title, /*isHitTestable*/true);
+                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(title, /*isHitTestable*/true);
 
                 textEditor = new TextEditor();
                 textEditor.CopyPasteManager = Tab.CopyPasteManager;

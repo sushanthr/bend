@@ -4,8 +4,7 @@
         xmlns:local="clr-namespace:Bend"        
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"         
-        xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
-        xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Microsoft.Windows.Shell"
+        xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"        
         x:Name="ThisWindow"
         mc:Ignorable="d"
         Title="Bend"
@@ -447,7 +446,7 @@
                 </WrapPanel>
                 <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center"></Label>
             </Grid>
-            <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource LogoForegroundBrush}" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="16" Padding="0,8" IsTabStop="True" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="Logo_MouseDown" Background="{DynamicResource LogoBackgroundBrush}">
+            <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource LogoForegroundBrush}" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="16" Padding="0,8" IsTabStop="True" MouseDown="Logo_MouseDown" Background="{DynamicResource LogoBackgroundBrush}">
             </Label>                        
         </Grid>
         <Grid Name="Settings" Visibility="Hidden">
@@ -455,13 +454,13 @@
                 <RotateTransform x:Name="SettingsGridRotateTransform" Angle="-180"></RotateTransform>
             </Grid.RenderTransform>
             <local:Settings x:Name="SettingsControl"/>
-            <Label Width="50" Margin="0,0,250,0" Padding="0,8" HorizontalAlignment="Right" VerticalAlignment="Top" shell:WindowChrome.IsHitTestVisibleInChrome="True" MouseDown="BackImage_MouseDown" FontWeight="Bold" FontSize="10" Foreground="#19A2DE">BACK</Label>            
+            <Label Name="BackButton" Width="50" Margin="0,0,250,0" Padding="0,8" HorizontalAlignment="Right" VerticalAlignment="Top" MouseDown="BackImage_MouseDown" FontWeight="Bold" FontSize="10" Foreground="#19A2DE">BACK</Label>            
         </Grid>
         <WrapPanel HorizontalAlignment="Right" Name="WindowControls" VerticalAlignment="Top" Margin="0,8,18,0">
-            <TextBlock Name="FullscreenButton"  Width="20" Height="20" PreviewMouseLeftButtonUp="FullscreenButtonUp" TextAlignment="Center" FontWeight="Bold" Foreground="Gray" FontSize="14" shell:WindowChrome.IsHitTestVisibleInChrome="True" >F</TextBlock>
-            <Image Width="20" Height="20" PreviewMouseLeftButtonUp="MinimizeButtonUp" Source="/Bend;component/Images/min.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-            <Image Name="MaxButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MaximizeButtonUp" Source="/Bend;component/Images/max.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
-            <Image Width="20" Height="20" PreviewMouseLeftButtonUp="QuitButtonUp" Source="/Bend;component/Images/quit.png" shell:WindowChrome.IsHitTestVisibleInChrome="True" />
+            <TextBlock Name="FullscreenButton"  Width="20" Height="20" PreviewMouseLeftButtonUp="FullscreenButtonUp" TextAlignment="Center" FontWeight="Bold" Foreground="Gray" FontSize="14" >F</TextBlock>
+            <Image Name="MinButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MinimizeButtonUp" Source="/Bend;component/Images/min.png" />
+            <Image Name="MaxButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MaximizeButtonUp" Source="/Bend;component/Images/max.png" />
+            <Image Name="QuitButton" Width="20" Height="20" PreviewMouseLeftButtonUp="QuitButtonUp" Source="/Bend;component/Images/quit.png" />
         </WrapPanel>
         <Canvas Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Name="ResizeCrimp" MouseLeftButtonDown="ResizeCrimp_MouseLeftButtonDown">
             <Canvas.Background>
