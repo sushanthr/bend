@@ -25,8 +25,8 @@ namespace TextCoreControl
             float[] dashArray = { 0.75f, 2.25f };
             leftMarginStrokeStyle = d2dFactory.CreateStrokeStyle(new StrokeStyleProperties(CapStyle.Flat, CapStyle.Flat, CapStyle.Square, LineJoin.Round, 10.0f, DashStyle.Custom, 0.50f), dashArray);
 
-            document.ContentChange += new Document.ContentChangeEventHandler(document_ContentChange);
-            document.OrdinalShift += new Document.OrdinalShiftEventHandler(document_OrdinalShift);
+            document.ContentChange += document_ContentChange;
+            document.OrdinalShift += document_OrdinalShift;
 
             this.cachedOrdinal = 0;
             this.cachedLineNumber = 0;
@@ -35,6 +35,11 @@ namespace TextCoreControl
             DebugHUD.ContentLineManager = this;
         }
 
+        internal void Dispose(Document document)
+        {
+            document.ContentChange -= document_ContentChange;
+            document.OrdinalShift -= document_OrdinalShift;
+        }
         #region Content change handling
 
         private void document_ContentChange(int beginOrdinal, int endOrdinal, string content)

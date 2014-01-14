@@ -57,6 +57,17 @@ namespace TextCoreControl
             // Only calls if resources have not been initialize before
             if (hwndRenderTarget == null)
             {
+                // Remove Previous Registrations
+                if (this.caret != null)
+                    this.document.OrdinalShift -= this.caret.Document_OrdinalShift;
+                if (this.selectionManager != null)
+                    this.selectionManager.SelectionChange -= selectionManager_SelectionChange;
+                document.ContentChange -= this.Document_ContentChanged;
+                document.OrdinalShift -= this.Document_OrdinalShift;
+                document.PreContentChange -= document_PreContentChange;
+                if (this.contentLineManager != null)
+                    this.contentLineManager.Dispose(document);
+
                 // Create the render target
                 float dpiX = (float)(this.d2dFactory.DesktopDpi.X / 96.0);
                 float dpiY = (float)(this.d2dFactory.DesktopDpi.Y / 96.0);
@@ -103,6 +114,7 @@ namespace TextCoreControl
                 // Register for document content change in the end, so that the other subsystems get to handle the change first.
                 document.ContentChange += this.Document_ContentChanged;
                 document.OrdinalShift += this.Document_OrdinalShift;
+                document.PreContentChange += document_PreContentChange;
 
                 // Restore the transform back on the new hwndRenderTarget
                 if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
@@ -114,7 +126,7 @@ namespace TextCoreControl
                     hwndRenderTarget.Transform = Matrix3x2F.Identity;
                 }
             }
-        }               
+        }
 
         #region WIN32 API references
 
@@ -1419,6 +1431,15 @@ namespace TextCoreControl
 
         #region Content change handling
 
+        void document_PreContentChange(int endOrdinal)
+        {
+            if (endOrdinal != Document.UNDEFINED_ORDINAL)
+            {
+                // Bring the end ordinal into view.
+                this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);       
+            }
+        }               
+
         void Document_ContentChanged(int beginOrdinal, int endOrdinal, string content)
         {
             if (this.syntaxHighlightingService != null)
@@ -1440,9 +1461,6 @@ namespace TextCoreControl
             }
             else
             {
-                // Bring the end ordinal into view.
-                this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);
-
                 // ScrollBounds Prep for estimate scroll bounds delta due to change.
                 int lastVisualLineNextOrdinal = Document.UNDEFINED_ORDINAL;
                 float trackedVisualLineTop = 0f;

@@ -119,6 +119,12 @@ namespace TextCoreControl
         {
             lock (this)
             {
+                int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
+                if (this.PreContentChange != null)
+                {
+                    this.PreContentChange(endOrdinal);
+                }
+
                 fileContents = fileContents.Insert(ordinal, content);
 
                 if (this.OrdinalShift != null)
@@ -128,7 +134,6 @@ namespace TextCoreControl
 
                 if (this.ContentChange != null)
                 {
-                    int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
                     this.ContentChange(ordinal, endOrdinal, content);
                 }
                 this.hasUnsavedContent = true;
@@ -152,6 +157,11 @@ namespace TextCoreControl
                     string content = fileContents.ToString(ordinal, length);
 
                     int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
+
+                    if (this.PreContentChange != null)
+                    {
+                        this.PreContentChange(endOrdinal);
+                    }
 
                     fileContents = fileContents.Remove(ordinal, length);
 
@@ -265,6 +275,11 @@ namespace TextCoreControl
         // A delegate type for hooking up change notifications.
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal, string content);
         public event ContentChangeEventHandler ContentChange;
+
+        // A delegate type for hooking up change notifications. 
+        // All ordinals greater than endOrdinal will be unaffected by the actual content change.
+        public delegate void PreContentChangeEventHandler(int endOrdinal);
+        public event PreContentChangeEventHandler PreContentChange;
 
         /// <summary>
         ///     Event handler raised when ordinals are shifted around
