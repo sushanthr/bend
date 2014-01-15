@@ -285,7 +285,7 @@
         <ContextMenu x:Key="TabTitleContextMenu" x:Shared="true" MinWidth="150">
             <MenuItem Header="Refresh" Click="ContextRefresh" MinHeight="20" InputGestureText="F5">
                 <MenuItem.Icon>
-                    <TextBlock FontFamily="Segoe UI Symbol" FontSize="13"></TextBlock>
+                    <TextBlock FontFamily="Segoe UI Symbol" FontSize="10"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Close" Click="ContextClose" MinHeight="20">

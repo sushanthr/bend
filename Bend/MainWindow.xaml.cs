@@ -255,7 +255,7 @@ namespace Bend
             }
 
             // Close tabs with no pending content
-            for (int i = 0; i < tab.Count; i++)
+            for (int i = tab.Count - 1; i >= 0; i--)
             {
                 if (!this.tab[i].TextEditor.Document.HasUnsavedContent)
                 {
@@ -264,7 +264,7 @@ namespace Bend
             }
 
             // Close tabs with pending content.
-            for (int i = 0; i < tab.Count; i++)
+            for (int i = tab.Count - 1; i >= 0; i--)
             {
                 this.TabClose(i);
             }
