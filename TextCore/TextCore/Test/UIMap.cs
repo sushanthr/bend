@@ -21,6 +21,30 @@
         public const string TestDataDirectory = "D:\\Projects\\sushanth.assembla.com\\trunk\\TextCore\\TextCore\\Test\\Data\\";
         private uint caretBlinkTime;
 
+        private bool AreEqualBitmaps(Bitmap left, Bitmap right)
+        {
+            bool areImagesEqual = true;
+            if (left.Width == right.Width && left.Height == right.Height)
+            {
+                for (int h = 0; h < left.Height; h++)
+                {
+                    for (int w = 0; w < left.Width; w++)
+                    {
+                        if (right.GetPixel(w, h) != left.GetPixel(w, h))
+                        {
+                            areImagesEqual = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                areImagesEqual = false;
+            }
+            return areImagesEqual;
+        }
+
         public void CaptureVerify(string testName)
         {
             WinClient uIRenderHostClient = this.UIMainWindowWindow1.UIRenderHostPane.UIRenderHostClient;
@@ -35,25 +59,7 @@
                 Bitmap currentImage = new Bitmap(currentJpegImage);
                 Bitmap originalImage = new Bitmap(Image.FromFile(UIMap.TestDataDirectory + "Baseline\\" + testName + ".jpg"));
 
-                bool areImagesEqual = true;
-                if (currentImage.Width == originalImage.Width && currentImage.Height == originalImage.Height)
-                {
-                    for (int h = 0; h < currentImage.Height; h++)
-                    {
-                        for (int w = 0; w < currentImage.Width; w++)
-                        {
-                            if (originalImage.GetPixel(w, h) != currentImage.GetPixel(w, h))
-                            {
-                                areImagesEqual = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    areImagesEqual = false;
-                }
+                bool areImagesEqual = AreEqualBitmaps(currentImage, originalImage);
 
                 System.Diagnostics.Debug.Assert(areImagesEqual, "Image comparision failure in test case " + testName);
             }

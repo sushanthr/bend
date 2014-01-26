@@ -43,7 +43,7 @@ namespace TextCoreControl
             Settings.AllowSmoothScrollBy                   = true;
             Settings.EnableSyntaxHighlighting              = true;
              
-            Settings.ShowFormatting                        = true;
+            Settings.ShowFormatting                        = false;
             Settings.DefaultShowFormattingColor            = new ColorF(0.74f, 0.74f, 0.74f);
             Settings.DefaultShowFormattingColorAlt         = new ColorF(0.90f, 0.90f, 0.90f);
 

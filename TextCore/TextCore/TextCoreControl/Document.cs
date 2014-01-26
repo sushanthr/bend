@@ -119,10 +119,9 @@ namespace TextCoreControl
         {
             lock (this)
             {
-                int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
                 if (this.PreContentChange != null)
                 {
-                    this.PreContentChange(endOrdinal);
+                    this.PreContentChange(this.NextOrdinal(ordinal));
                 }
 
                 fileContents = fileContents.Insert(ordinal, content);
@@ -134,6 +133,7 @@ namespace TextCoreControl
 
                 if (this.ContentChange != null)
                 {
+                    int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
                     this.ContentChange(ordinal, endOrdinal, content);
                 }
                 this.hasUnsavedContent = true;
@@ -156,11 +156,11 @@ namespace TextCoreControl
                 {
                     string content = fileContents.ToString(ordinal, length);
 
-                    int endOrdinal = this.NextOrdinal(ordinal, (uint)length - 1);
+                    int endOrdinal = this.NextOrdinal(ordinal, (uint)length);
 
                     if (this.PreContentChange != null)
                     {
-                        this.PreContentChange(endOrdinal);
+                        this.PreContentChange(this.NextOrdinal(endOrdinal));
                     }
 
                     fileContents = fileContents.Remove(ordinal, length);
@@ -183,7 +183,7 @@ namespace TextCoreControl
         {
             if (ordinal != Document.UNDEFINED_ORDINAL)
             {
-                if (ordinal > shiftBeginOrdinal)
+                if (ordinal >= shiftBeginOrdinal)
                     ordinal += shift;
                 else if (shift < 0 && ordinal > shiftBeginOrdinal + shift)
                     ordinal = shiftBeginOrdinal + 1 + shift;
@@ -277,7 +277,7 @@ namespace TextCoreControl
         public event ContentChangeEventHandler ContentChange;
 
         // A delegate type for hooking up change notifications. 
-        // All ordinals greater than endOrdinal will be unaffected by the actual content change.
+        // All ordinals greater than or equal to endOrdinal will be unaffected by the actual content change.
         public delegate void PreContentChangeEventHandler(int endOrdinal);
         public event PreContentChangeEventHandler PreContentChange;
 
@@ -285,7 +285,7 @@ namespace TextCoreControl
         ///     Event handler raised when ordinals are shifted around
         /// </summary>
         /// <param name="document">Document object</param>
-        /// <param name="beginOrdinal">All ordinals greater than beginOrdinal are shifted</param>
+        /// <param name="beginOrdinal">All ordinals greater than or equal to beginOrdinal are shifted</param>
         /// <param name="shift">Shift amount</param>
         public delegate void OrdinalShiftEventHandler(Document document, int beginOrdinal, int shift);
         public event OrdinalShiftEventHandler OrdinalShift;

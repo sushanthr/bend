@@ -30,9 +30,15 @@ namespace Test
             this.UIMap.OpenSampleText();
             this.UIMap.OpenSample2XML();
 
-
-            System.IO.File.Delete(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt");
-            System.Diagnostics.Debug.Assert(!System.IO.File.Exists(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt"));
+            if (!System.IO.Directory.Exists(UIMap.TestDataDirectory + "Current\\"))
+            {
+                System.IO.Directory.CreateDirectory(UIMap.TestDataDirectory + "Current\\");
+            }
+            if (System.IO.File.Exists(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt"))
+            { 
+                System.IO.File.Delete(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt");
+                System.Diagnostics.Debug.Assert(!System.IO.File.Exists(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt"));
+            }
             this.UIMap.EditSampleTextAndSave();
             System.Diagnostics.Debug.Assert(System.IO.File.Exists(UIMap.TestDataDirectory + "Current\\SampleTextSave.txt"));
 
