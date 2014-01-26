@@ -111,7 +111,7 @@ namespace Bend
                 closeButton.Height = 8;
                 BitmapImage closeImage = new BitmapImage();
                 closeImage.BeginInit();
-                closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close_big.png");
+                closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close.png");
                 closeImage.EndInit();
                 closeButton.Source = closeImage;
                 System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                

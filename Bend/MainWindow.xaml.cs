@@ -414,13 +414,13 @@ namespace Bend
         {
             if (this.WindowState == System.Windows.WindowState.Maximized)
             {
-                this.MainWindowGrid.Margin = new Thickness(0, 0, 6, 6);
+                ClientAreaGrid.Margin = new Thickness(4);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Hidden;
                 MaxButton.Source = this.restoreImage;
             }
             if (this.WindowState == System.Windows.WindowState.Normal)
             {
-                this.MainWindowGrid.Margin = new Thickness(0);
+                ClientAreaGrid.Margin = new Thickness(0);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Visible;
                 MaxButton.Source = this.maximizeImage;
             }
