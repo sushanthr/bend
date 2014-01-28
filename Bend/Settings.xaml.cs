@@ -78,6 +78,29 @@ namespace Bend
             {
             }
 
+            // Load up list of themes
+            try
+            {
+                string themesDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Themes\\";
+                if (System.IO.Directory.Exists(themesDirectory))
+                {
+                    string[] themeFiles = System.IO.Directory.GetFiles(themesDirectory, "*.xml");
+                    for (int i =0; i < themeFiles.Length; i++)
+                    {
+                        string themeName = System.IO.Path.GetFileNameWithoutExtension(themeFiles[i]);
+                        Label themeLabel = new Label();
+                        themeLabel.Content = themeName;
+                        themeLabel.Height = 20;
+                        themeLabel.Padding = new Thickness(2, 0, 0, 0);
+                        ThemePicker.Items.Add(themeLabel);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
             this.UpdateOptions();
         }
 
@@ -581,7 +604,15 @@ namespace Bend
                 }
             }
 
-            ThemePicker.SelectedIndex = PersistantStorage.StorageObject.DefaultThemeIndex;
+            for (int i =0; i < ThemePicker.Items.Count; i++)
+            {
+                string themeName = (string)(((Label)ThemePicker.Items[i]).Content);
+                if (themeName == PersistantStorage.StorageObject.CurrentThemeFilename)
+                {
+                    ThemePicker.SelectedIndex = i;
+                    break;
+                }            
+            }
         }
 
         private void OptionsCancel_Click(object sender, RoutedEventArgs e)
@@ -593,82 +624,7 @@ namespace Bend
         private void SetTheme()
         {
             PersistantStorage persistantStorage = PersistantStorage.StorageObject;
-            switch (persistantStorage.DefaultThemeIndex)
-            {
-                case 0:
-                    // Light Theme
-                    persistantStorage.BackgroundColor = System.Windows.Media.Colors.WhiteSmoke;
-                    persistantStorage.ForegroundColor = System.Windows.Media.Colors.Black;
-                    persistantStorage.BaseBackgroundImage = "Images/FrontBackground.png";
-                    persistantStorage.ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
-                    persistantStorage.LogoBackgroundColor = System.Windows.Media.Color.FromRgb(54, 80, 128);
-                    persistantStorage.LogoForegroundColor = System.Windows.Media.Colors.White;
-                    persistantStorage.MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(221, 221, 221);
-
-                    persistantStorage.DefaultForegroundColor = System.Windows.Media.Color.FromRgb(0, 0, 0);
-                    persistantStorage.DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(245, 245, 245);
-                    persistantStorage.DefaultSelectionColor = System.Windows.Media.Color.FromRgb(106, 124, 159);
-                    persistantStorage.DefaultSelectionOutlineColor = System.Windows.Media.Color.FromRgb(94, 114, 153);
-                    persistantStorage.DefaultSelectionDimColor = System.Windows.Media.Color.FromArgb(128, 245, 245, 245);
-                    persistantStorage.LineNumberColor = System.Windows.Media.Color.FromRgb(140, 140, 140);
-
-                    persistantStorage.DefaultShowFormattingColor = System.Windows.Media.Color.FromRgb(189, 189, 189);
-                    persistantStorage.DefaultShowFormattingColorAlt = System.Windows.Media.Color.FromRgb(230, 230, 230);
-
-                    persistantStorage.SyntaxHighlightingKeyword1 = System.Windows.Media.Color.FromRgb(0, 102, 153);
-                    persistantStorage.SyntaxHighlightingKeyword2 = System.Windows.Media.Color.FromRgb(0, 0, 128);
-                    persistantStorage.SyntaxHighlightingKeyword3 = System.Windows.Media.Color.FromRgb(0, 0, 255);
-                    persistantStorage.SyntaxHighlightingKeyword4 = System.Windows.Media.Color.FromRgb(0, 0, 255);
-                    persistantStorage.SyntaxHighlightingKeyword5 = System.Windows.Media.Color.FromRgb(0, 0, 255);
-                    persistantStorage.SyntaxHighlightingKeyword6 = System.Windows.Media.Color.FromRgb(139, 0, 0);
-                    persistantStorage.SyntaxHighlightingPreProcessorKeyword = System.Windows.Media.Color.FromRgb(0, 128, 0);
-                    persistantStorage.SyntaxHighlightingPreProcessor = System.Windows.Media.Color.FromRgb(0, 155, 91);
-                    persistantStorage.SyntaxHighlightingComment = System.Windows.Media.Color.FromRgb(170, 170, 170);
-                    persistantStorage.SyntaxHighlightingOperator = System.Windows.Media.Color.FromRgb(230, 51, 51);
-                    persistantStorage.SyntaxHighlightingBracket = System.Windows.Media.Color.FromRgb(250, 51, 51);
-                    persistantStorage.SyntaxHighlightingNumber = System.Windows.Media.Color.FromRgb(184, 134, 11);
-                    persistantStorage.SyntaxHighlightingString = System.Windows.Media.Color.FromRgb(0, 100, 0);
-                    persistantStorage.SyntaxHighlightingChar = System.Windows.Media.Color.FromRgb(0, 100, 0);
-
-                    break;
-                case 1:
-
-                    // Dark Theme
-                    persistantStorage.BackgroundColor = System.Windows.Media.Color.FromRgb(30,30,30);
-                    persistantStorage.ForegroundColor = System.Windows.Media.Colors.Silver;
-                    persistantStorage.BaseBackgroundImage = "Images/SettingsPattern.png";
-                    persistantStorage.ScrollButtonColor = System.Windows.Media.Color.FromRgb(153, 153, 153);
-                    persistantStorage.LogoBackgroundColor = System.Windows.Media.Color.FromRgb(243,243,26);
-                    persistantStorage.LogoForegroundColor = System.Windows.Media.Colors.Black;
-                    persistantStorage.MenuSelectedBackgroundColor = System.Windows.Media.Color.FromRgb(51, 51, 43);
-
-                    persistantStorage.DefaultForegroundColor = System.Windows.Media.Color.FromRgb(250, 250, 250);
-                    persistantStorage.DefaultBackgroundColor = System.Windows.Media.Color.FromRgb(30, 30, 30);
-                    persistantStorage.DefaultSelectionColor = System.Windows.Media.Color.FromRgb(62, 47, 132);
-                    persistantStorage.DefaultSelectionOutlineColor = System.Windows.Media.Color.FromRgb(38, 29, 81);
-                    persistantStorage.DefaultSelectionDimColor = System.Windows.Media.Color.FromArgb(128, 30, 30, 30);
-                    persistantStorage.LineNumberColor = System.Windows.Media.Color.FromRgb(150, 150, 150);
-
-                    persistantStorage.DefaultShowFormattingColor = System.Windows.Media.Color.FromRgb(51, 51, 51);
-                    persistantStorage.DefaultShowFormattingColorAlt = System.Windows.Media.Color.FromRgb(90, 90, 90);
-
-                    persistantStorage.SyntaxHighlightingKeyword1 = System.Windows.Media.Color.FromRgb(146, 202, 244);
-                    persistantStorage.SyntaxHighlightingKeyword2 = System.Windows.Media.Color.FromRgb(86, 156, 214);
-                    persistantStorage.SyntaxHighlightingKeyword3 = System.Windows.Media.Color.FromRgb(102, 189, 255);
-                    persistantStorage.SyntaxHighlightingKeyword4 = System.Windows.Media.Color.FromRgb(0, 171, 171);
-                    persistantStorage.SyntaxHighlightingKeyword5 = System.Windows.Media.Color.FromRgb(0, 171, 171);
-                    persistantStorage.SyntaxHighlightingKeyword6 = System.Windows.Media.Color.FromRgb(255, 206, 6);
-                    persistantStorage.SyntaxHighlightingPreProcessorKeyword = System.Windows.Media.Color.FromRgb(0, 158, 0);
-                    persistantStorage.SyntaxHighlightingPreProcessor = System.Windows.Media.Color.FromRgb(0, 205, 91);
-                    persistantStorage.SyntaxHighlightingComment = System.Windows.Media.Color.FromRgb(170, 170, 170);
-                    persistantStorage.SyntaxHighlightingOperator = System.Windows.Media.Color.FromRgb(220, 251, 121);
-                    persistantStorage.SyntaxHighlightingBracket = System.Windows.Media.Color.FromRgb(220, 251, 121);
-                    persistantStorage.SyntaxHighlightingNumber = System.Windows.Media.Color.FromRgb(6, 233, 255);
-                    persistantStorage.SyntaxHighlightingString = System.Windows.Media.Color.FromRgb(116, 194, 113);
-                    persistantStorage.SyntaxHighlightingChar = System.Windows.Media.Color.FromRgb(6, 255, 164);
-
-                    break;
-            }
+            persistantStorage.CurrentTheme = ThemeSettings.LoadThemeSettings(persistantStorage.CurrentThemeFilename);                        
         }
 
         private void OptionsSave_Click(object sender, RoutedEventArgs e)
@@ -694,7 +650,7 @@ namespace Bend
                 persistantStorage.ShowStatusBar = ShowStatusBar.IsChecked ?? true;
                 persistantStorage.DefaultFontFamilyIndex = FontPicker.SelectedIndex;
                 persistantStorage.DefaultFontFamily = ((System.Windows.Media.FontFamily)(FontPicker.Items[FontPicker.SelectedIndex])).Source;
-                persistantStorage.DefaultThemeIndex = ThemePicker.SelectedIndex;
+                persistantStorage.CurrentThemeFilename = (string)((Label)ThemePicker.Items[ThemePicker.SelectedIndex]).Content;
                 persistantStorage.PreserveIndent = PreserveIndent.IsChecked ?? true;
 
                 SetTheme();

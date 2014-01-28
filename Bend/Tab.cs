@@ -334,6 +334,8 @@ namespace Bend
                 string text = this.TextEditor.Document.Text;
                 TextEditor textEditor = this.TextEditor;
                 this.findText = findText;
+                this.findMatchCase = matchCase;
+                this.findUseRegex = useRegex;
                 if (findText.Length > 0 && text.Length > 0)
                 {
                     this.findResults.RemoveRange(0, this.findResults.Count);

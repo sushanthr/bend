@@ -137,6 +137,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ThemeSettings.cs" />
     <Page Include="SaveChangesMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -246,6 +247,12 @@
   <ItemGroup>
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
+    <Content Include="Themes\Dark.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Themes\Light.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Images\SettingsPattern.png" />
     <Resource Include="Images\FrontBackground.png" />
     <Resource Include="Images\Close.png" />
