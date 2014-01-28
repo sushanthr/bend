@@ -20,25 +20,25 @@
                                 ShadowDepth="5" 
                                 Softness="1" 
                                 Opacity="0.5"/>
-        </Border.BitmapEffect>        
-        <StackPanel Margin="20" Background="WhiteSmoke">
+        </Border.BitmapEffect>
+        <StackPanel Margin="20" Background="{DynamicResource BackgroundBrush}">
             <Grid>
-                <Grid Margin="0,0,55,0" MouseDown="TitleBar_PreviewMouseDown" Background="WhiteSmoke" Height="20"></Grid>                
+                <Grid Margin="0,0,55,0" MouseDown="TitleBar_PreviewMouseDown" Background="{DynamicResource BackgroundBrush}" Height="20"></Grid>                
             </Grid>            
             <Grid>
-                <Canvas VerticalAlignment="Stretch" Width="10" Background="#EF2A4579" HorizontalAlignment="Left" MouseDown="TitleBar_PreviewMouseDown"></Canvas>
+                <Canvas VerticalAlignment="Stretch" Width="10" Background="{DynamicResource LogoBackgroundBrush}" HorizontalAlignment="Left" MouseDown="TitleBar_PreviewMouseDown"></Canvas>
                 <StackPanel Margin="30,0,15,0" MinHeight="46" Width="320" HorizontalAlignment="Left">
-                    <TextBlock  Name="MessageTitle" Text="FIND AND REPLACE" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap">
+                    <TextBlock  Name="MessageTitle" Text="FIND AND REPLACE" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}">
                     </TextBlock>
-                    <TextBlock Margin="0,10,0,0" Text="find match" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap"/>
+                    <TextBlock Margin="0,10,0,0" Text="find match" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}"/>
                     <ComboBox IsTabStop="True" TabIndex="0" Name="FindText" Margin="0,5,0,0" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" IsEditable="True" SelectionChanged="Find_Changed" KeyUp="Find_KeyUp" IsTextSearchCaseSensitive="True"></ComboBox>
-                    <TextBlock Margin="0,5,0,0" Text="replace with string" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap"/>
+                    <TextBlock Margin="0,5,0,0" Text="replace with string" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}"/>
                     <ComboBox Name="ReplaceText" Margin="0,5,0,0" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" IsEditable="True" KeyUp="Replace_KeyUp" IsTextSearchCaseSensitive="True"></ComboBox>                    
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Right" Margin="0,50,15,0">
-                    <CheckBox Name="MatchCase" Margin="5,5,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown" Checked="FindOptionsChanged" Unchecked="FindOptionsChanged">MATCH CASE</CheckBox>
-                    <CheckBox Name="RegexFind" Margin="5,10,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown" Checked="FindOptionsChanged" Unchecked="FindOptionsChanged">REGEX FIND</CheckBox>
-                    <CheckBox Name="replaceall" Margin="5,10,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown">REPLACE ALL</CheckBox>
+                    <CheckBox Name="MatchCase" Margin="5,5,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown" Checked="FindOptionsChanged" Unchecked="FindOptionsChanged" Foreground="{DynamicResource ForegroundBrush}">MATCH CASE</CheckBox>
+                    <CheckBox Name="RegexFind" Margin="5,10,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown" Checked="FindOptionsChanged" Unchecked="FindOptionsChanged" Foreground="{DynamicResource ForegroundBrush}">REGEX FIND</CheckBox>
+                    <CheckBox Name="replaceall" Margin="5,10,0,0" VerticalContentAlignment="Center" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI" IsTabStop="True" KeyUp="MoveToNext_KeyDown" Foreground="{DynamicResource ForegroundBrush}">REPLACE ALL</CheckBox>
                 </StackPanel>
             </Grid>
             <Grid Margin="0,5,0,0">                

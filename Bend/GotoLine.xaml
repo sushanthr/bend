@@ -21,14 +21,14 @@
                                 Softness="1" 
                                 Opacity="0.5"/>
         </Border.BitmapEffect>
-        <StackPanel Margin="20" Background="WhiteSmoke">
+        <StackPanel Margin="20" Background="{DynamicResource BackgroundBrush}">
             <Grid Margin="0,20,0,0">
-                <Canvas VerticalAlignment="Stretch" Width="10" Background="#EF2A4579" HorizontalAlignment="Left" MouseDown="TitleBar_PreviewMouseDown"></Canvas>
+                <Canvas VerticalAlignment="Stretch" Width="10" Background="{DynamicResource LogoBackgroundBrush}" HorizontalAlignment="Left" MouseDown="TitleBar_PreviewMouseDown"></Canvas>
                 <StackPanel Margin="30,0,15,0" MinHeight="46">
-                    <TextBlock  Name="MessageTitle" Text="GOTO LINE" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap">
+                    <TextBlock  Name="MessageTitle" Text="GOTO LINE" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}">
                     </TextBlock>
                     <Grid Margin="0,15,0,0">
-                        <TextBlock HorizontalAlignment="left" Text="line number" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" />
+                        <TextBlock HorizontalAlignment="left" Text="line number" FontSize="14" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" Foreground="{DynamicResource ForegroundBrush}" />
                         <TextBox IsTabStop="True" Name="lineNumber" HorizontalAlignment="Right" Width="100" KeyUp="lineNumber_KeyUp" PreviewKeyDown="lineNumber_PreviewKeyDown"></TextBox>
                     </Grid>
                 </StackPanel>
