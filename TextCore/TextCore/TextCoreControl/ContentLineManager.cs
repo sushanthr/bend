@@ -10,7 +10,7 @@ namespace TextCoreControl
     /// <summary>
     ///     Takes care of tracking and displaying document line numbers when enabled.
     /// </summary>
-    public class ContentLineManager
+    internal class ContentLineManager
     {
         const int LEFT_PADDING_PX = 5;
         const int RIGHT_ONE_PADDING_PX = 10;

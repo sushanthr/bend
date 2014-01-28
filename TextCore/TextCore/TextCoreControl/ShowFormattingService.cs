@@ -7,7 +7,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace TextCoreControl
 {
-    public class ShowFormattingService
+    internal class ShowFormattingService
     {
         private class ShowFormattingInlineObject : ICustomInlineObject
         {

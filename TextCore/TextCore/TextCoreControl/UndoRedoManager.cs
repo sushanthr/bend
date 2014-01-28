@@ -9,7 +9,7 @@ namespace TextCoreControl
     {
         internal class Action
         {
-            public Action(bool isInTransaction)
+            internal Action(bool isInTransaction)
             {
                 this.isInTransaction = isInTransaction;
             }
@@ -48,7 +48,7 @@ namespace TextCoreControl
         // action stack, and response to undo / redo with appropriate sucess.
         internal class TransactionBarrier : Action
         {
-            public TransactionBarrier(bool isTransactionBegin) : base(false) 
+            internal TransactionBarrier(bool isTransactionBegin) : base(false) 
             {
                 this.isTransactionBegin = isTransactionBegin;
             }
@@ -82,12 +82,12 @@ namespace TextCoreControl
         // action stack, which indicates that file was saved at this point.
         internal class SaveFileAction : Action 
         {
-            public SaveFileAction(bool isInTransaction) : base (isInTransaction) {}
+            internal SaveFileAction(bool isInTransaction) : base (isInTransaction) {}
         }
 
         internal class InsertTextAction : Action
         {
-            public InsertTextAction(int ordinal, string text, bool isInTransaction) : base (isInTransaction)
+            internal InsertTextAction(int ordinal, string text, bool isInTransaction) : base (isInTransaction)
             {
                 this.ordinal = ordinal;
                 this.text = text;
@@ -149,7 +149,7 @@ namespace TextCoreControl
         internal class DeleteTextAction : Action
         {
 
-            public DeleteTextAction(int ordinal, string text, bool isInTransaction) : base(isInTransaction)
+            internal DeleteTextAction(int ordinal, string text, bool isInTransaction) : base(isInTransaction)
             {
                 this.ordinal = ordinal;
                 this.text = text;

@@ -267,6 +267,11 @@ namespace TextCoreControl
             return textIndex;
         }
 
+        public int GetOrdinalCharacterDelta(int beginOrdinal, int endOrdinal)
+        {
+            return endOrdinal - beginOrdinal;
+        }
+
         public bool HasUnsavedContent
         {
             get { return this.hasUnsavedContent; }

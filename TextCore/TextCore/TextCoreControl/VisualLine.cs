@@ -10,7 +10,7 @@ namespace TextCoreControl
 {
     internal class VisualLine
     {
-        public VisualLine(DWriteFactory dwriteFactory, 
+        internal VisualLine(DWriteFactory dwriteFactory, 
             ShowFormattingService showFormattingService, 
             string lineText, 
             TextFormat defaultFormat, 
@@ -64,24 +64,24 @@ namespace TextCoreControl
         /// <param name="effect">The color</param>
         /// <param name="beginOffset">Offset from the begin of the line 0 to text.length</param>
         /// <param name="length">Length of the range</param>
-        public void SetDrawingEffect(Brush effect, uint beginOffset, uint length)
+        internal void SetDrawingEffect(Brush effect, uint beginOffset, uint length)
         {
             this.textLayout.SetDrawingEffect(effect, new TextRange(beginOffset, length));
         }
 
-        public void Draw(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
+        internal void Draw(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
             renderTarget.DrawTextLayout(this.position, this.textLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);            
             System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
                 
-        public void DrawWithoutEffects(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
+        internal void DrawWithoutEffects(SolidColorBrush defaultForegroundBrush, RenderTarget renderTarget)
         {
             renderTarget.DrawTextLayout(this.position, this.noEffectsTextLayout, defaultForegroundBrush, DrawTextOptions.NoSnap);            
             System.Diagnostics.Debug.Assert(Caret.DBG_CARET_IS_PREPARED_FOR_RENDER, "Caret should be hidden.");
         }
 
-        public void HitTest(Point2F position, out uint offset)
+        internal void HitTest(Point2F position, out uint offset)
         {
             HitTestInfo hitTestInfo = this.textLayout.HitTestPoint(position);
             if ((hitTestInfo.Metrics.Left + (hitTestInfo.Metrics.Width / 2)) > position.X)
@@ -105,7 +105,7 @@ namespace TextCoreControl
             }
         }
 
-        public float CharPosition(Document document, int ordinal)
+        internal float CharPosition(Document document, int ordinal)
         {
             if (ordinal < this.beginOrdinal) 
                 return 0;
@@ -126,7 +126,7 @@ namespace TextCoreControl
             }
         }
 
-        public List<RectF> GetRangeRectangles(Document document, int beginOrdinal, int endOrdinal)
+        internal List<RectF> GetRangeRectangles(Document document, int beginOrdinal, int endOrdinal)
         {
             List<RectF> rangeRectangles = new List<RectF>();
 
@@ -184,43 +184,43 @@ namespace TextCoreControl
             return rangeRectangles;
         }
 
-        public float Height
+        internal float Height
         {
             get { return this.height; }
         }
 
-        public float Width
+        internal float Width
         {
             get { return this.textLayout.Metrics.Width;  }
         }
 
-        public Point2F Position
+        internal Point2F Position
         {
             get { return this.position; }
             set { this.position = value;}
         }
 
-        public int BeginOrdinal
+        internal int BeginOrdinal
         {
             get { return this.beginOrdinal; }
         }
 
-        public int NextOrdinal
+        internal int NextOrdinal
         {
             get { return this.nextOrdinal; }
         }
 
-        public void OrdinalShift(int shiftBeginOrdinal, int shift)
+        internal void OrdinalShift(int shiftBeginOrdinal, int shift)
         {
             Document.AdjustOrdinalForShift(shiftBeginOrdinal, shift, ref beginOrdinal);
             Document.AdjustOrdinalForShift(shiftBeginOrdinal, shift, ref nextOrdinal);
         }
 
-        public bool HasHardBreak { get { return this.hasHardBreak;} }
+        internal bool HasHardBreak { get { return this.hasHardBreak;} }
 
-        public string Text { get { return this.lineText; } }
+        internal string Text { get { return this.lineText; } }
 
-        public bool ContainsOrdinal(int ordinal) { return this.beginOrdinal <= ordinal && this.nextOrdinal > ordinal; }
+        internal bool ContainsOrdinal(int ordinal) { return this.beginOrdinal <= ordinal && this.nextOrdinal > ordinal; }
 
         private Point2F position;
         private TextLayout textLayout;

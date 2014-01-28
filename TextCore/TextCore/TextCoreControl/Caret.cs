@@ -10,7 +10,7 @@ namespace TextCoreControl
     {
         internal static volatile bool DBG_CARET_IS_PREPARED_FOR_RENDER;
 
-        public Caret(HwndRenderTarget renderTarget, int defaultHeight, float dpiX, float dpiY)
+        internal Caret(HwndRenderTarget renderTarget, int defaultHeight, float dpiX, float dpiY)
         {
             this.caretHeight = (int)((float)defaultHeight * dpiY);
             windowHandle = renderTarget.WindowHandle;
@@ -47,7 +47,7 @@ namespace TextCoreControl
 
         #region Caret position manipulation
 
-        public void MoveCaretToLine(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
+        internal void MoveCaretToLine(VisualLine visualLine, Document document, SizeF scrollOffset, int ordinal)
         {
             System.Diagnostics.Debug.WriteLine("Moving caret to ordinal " + ordinal);
             float x = visualLine.CharPosition(document, ordinal);
@@ -73,13 +73,13 @@ namespace TextCoreControl
             System.Diagnostics.Debug.Assert(this.ordinal >= 0 && this.ordinal < Document.UNDEFINED_ORDINAL);
         }
 
-        public enum CaretStep
+        internal enum CaretStep
         {
             LineUp,
             LineDown
         }
 
-        public void MoveCaretVertical(List<VisualLine> visualLines, Document document, SizeF scrollOffset, CaretStep caretStep) 
+        internal void MoveCaretVertical(List<VisualLine> visualLines, Document document, SizeF scrollOffset, CaretStep caretStep) 
         {
             if (visualLines.Count > 1)
             {
@@ -129,7 +129,7 @@ namespace TextCoreControl
 
         #region Content change
 
-        public void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
+        internal void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
             if (this.Ordinal > beginOrdinal)
             {
@@ -147,7 +147,7 @@ namespace TextCoreControl
         #endregion
 
         #region Caret focus events
-        public void OnGetFocus()
+        internal void OnGetFocus()
         {
             // Create a solid black caret. 
             CreateCaret(windowHandle, 0, 0, this.caretHeight);
@@ -160,7 +160,7 @@ namespace TextCoreControl
             isCaretHidden = false;
         }
 
-        public void OnLostFocus()
+        internal void OnLostFocus()
         {
             HideCaret(windowHandle);
             isCaretHidden = true;
@@ -170,13 +170,13 @@ namespace TextCoreControl
 
         #region Show / Hide caret
 
-        public void PrepareBeforeRender()
+        internal void PrepareBeforeRender()
         {
             HideCaret(windowHandle);
             DBG_CARET_IS_PREPARED_FOR_RENDER = true;
         }
 
-        public void UnprepareAfterRender()
+        internal void UnprepareAfterRender()
         {
             if (!this.isCaretHidden)
             {
@@ -189,12 +189,12 @@ namespace TextCoreControl
 
         #region Accessors
 
-        public int Ordinal
+        internal int Ordinal
         {
             get { return this.ordinal; }
         }
 
-        public Point2F PositionInScreenCoOrdinates()
+        internal Point2F PositionInScreenCoOrdinates()
         {
             return new Point2F(xPos, yPos + caretHeight / 2);
         }

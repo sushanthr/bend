@@ -49,7 +49,7 @@ namespace TextCoreControl
             }
         }
 
-        public TextFormat DefaultFormat
+        internal TextFormat DefaultFormat
         {
             get
             {
