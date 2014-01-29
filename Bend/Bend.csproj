@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>31</ApplicationRevision>
+    <ApplicationRevision>35</ApplicationRevision>
     <ApplicationVersion>0.18.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -162,7 +162,6 @@
     <Compile Include="SaveChangesMessageBox.xaml.cs">
       <DependentUpon>SaveChangesMessageBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileExtensions.cs" />
     <Compile Include="FindAndReplace.xaml.cs">
       <DependentUpon>FindAndReplace.xaml</DependentUpon>
     </Compile>
@@ -216,9 +215,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Visual.C++.11.0.x86">
+    <BootstrapperPackage Include="Microsoft.Visual.C++.12.0.x86">
       <Visible>False</Visible>
-      <ProductName>Visual C++ 2012 Runtime Libraries %28x86%29</ProductName>
+      <ProductName>Visual C++ 2013 Runtime Libraries %28x86%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
@@ -252,6 +251,7 @@
     </Content>
     <Content Include="Themes\Light.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Resource Include="Images\SettingsPattern.png" />
     <Resource Include="Images\FrontBackground.png" />
@@ -392,6 +392,26 @@
       <TargetPath>
       </TargetPath>
       <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
+    <PublishFile Include="Themes\Dark.xml">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
+    <PublishFile Include="Themes\Light.xml">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>

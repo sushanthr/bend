@@ -465,8 +465,7 @@ namespace Bend
                 else
                 {
                     SaveFileDialog dlg = new SaveFileDialog();
-                    FileExtensions flex = new FileExtensions();
-                    dlg.Filter = flex.GetFilterString();  
+                    dlg.Filter = FilterString;  
                     if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
                     {
                         string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
@@ -506,12 +505,23 @@ namespace Bend
             this.SetStatusText("", StatusType.STATUS_CLEAR);
         }
 
+        internal static string FilterString = "All files (*.*)|*.*|" +
+            "C# (*.cs)|*.cs|" +
+            "C/C++ |*.h;*.hxx;*.hpp;*.c;*.cxx;*.cpp|" +
+            "HTML|*.htm;*.html|" +
+            "JavaScript|*.js|" +
+            "PHP|*.php|" +
+            "Python (*.py)|*.py|" +
+            "Ruby (*.rb)|*.rb|" +
+            "Stylesheet|*.css|" +
+            "Text files (*.txt)|*.txt|" +
+            "XML|*.xml";
+
         private void CommandOpen(object sender, ExecutedRoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.CheckFileExists = true;
-            FileExtensions flex = new FileExtensions();
-            dlg.Filter = flex.GetFilterString();            
+            dlg.Filter = FilterString;            
             if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
             {
                 string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
@@ -682,8 +692,7 @@ namespace Bend
                         }
                     }
 
-                    FileExtensions flex = new FileExtensions();
-                    dlg.Filter = flex.GetFilterString();   
+                    dlg.Filter = FilterString;   
                     if (dlg.ShowDialog(this) ?? false)
                     {
                         this.tab[this.currentTabIndex].SaveFile(dlg.FileName);                            
