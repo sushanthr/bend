@@ -59,7 +59,10 @@ namespace TextCoreControl
             {
                 // Remove Previous Registrations
                 if (this.caret != null)
+                { 
                     this.document.OrdinalShift -= this.caret.Document_OrdinalShift;
+                    this.caret.CaretPositionChanged -= this.caret_CaretPositionChanged;
+                }
                 if (this.selectionManager != null)
                     this.selectionManager.SelectionChange -= selectionManager_SelectionChange;
                 document.ContentChange -= this.Document_ContentChanged;
@@ -104,6 +107,7 @@ namespace TextCoreControl
 
                 this.caret = new Caret(this.hwndRenderTarget, (int)this.visualLines[0].Height, dpiX, dpiY);                
                 this.document.OrdinalShift += this.caret.Document_OrdinalShift;
+                this.caret.CaretPositionChanged += this.caret_CaretPositionChanged;
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
                 this.selectionManager.SelectionChange += selectionManager_SelectionChange;
@@ -2107,6 +2111,10 @@ namespace TextCoreControl
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
 
+        #endregion
+
+        #region Exposed Events
+
         void selectionManager_SelectionChange()
         {
             if (this.SelectionChange != null)
@@ -2115,6 +2123,20 @@ namespace TextCoreControl
 
         public event SelectionChangeEventHandler SelectionChange;
 
+        public delegate void Caret_PositionChanged(int lineNumber, int columnNumber);
+
+        public event Caret_PositionChanged CaretPositionChanged;
+ 
+        void caret_CaretPositionChanged()
+        {
+            if (this.CaretPositionChanged != null && this.contentLineManager != null)
+            {
+                int lineNumber = this.contentLineManager.GetLineNumber(this.document, this.CaretOrdinal);
+                int lineBeginOrdinal = this.contentLineManager.GetBeginOrdinal(this.document, lineNumber);
+                int columnNumber = this.document.GetOrdinalCharacterDelta(lineBeginOrdinal, this.CaretOrdinal);
+                this.CaretPositionChanged(lineNumber + 1, columnNumber);
+            }
+        }
         #endregion
 
         #region Syntax Highlighting

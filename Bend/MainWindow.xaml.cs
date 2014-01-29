@@ -321,8 +321,7 @@ namespace Bend
                 newTab.Title.MouseLeftButtonUp += this.TabClick;
                 newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
                 newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
-                // TODO: INTEGRATE:
-                // newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+                newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
 
                 newTab.Title.Opacity = 0.5;
                 newTab.TextEditor.Visibility = Visibility.Hidden;
@@ -811,8 +810,7 @@ namespace Bend
             newTab.Title.MouseLeftButtonUp += this.TabClick;
             newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
             newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
-            // TODO: INTEGRATE:
-            //newTab.TextEditor.TextArea.Caret.PositionChanged += new EventHandler(Caret_PositionChanged);
+            newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
 
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
@@ -1166,16 +1164,13 @@ namespace Bend
         #endregion
 
         #region Status Bar
-        void Caret_PositionChanged(object sender, EventArgs e)
+
+        void TextEditor_CaretPositionChanged(int lineNumber, int columnNumber)
         {
-            // TODO: INTEGRATE:
-            //Tab activeTab = this.GetActiveTab();
-            //if (activeTab != null)
-            //{
-            //    Line.Content = activeTab.TextEditor.TextArea.Caret.Line.ToString();
-            //    Column.Content = activeTab.TextEditor.TextArea.Caret.VisualColumn.ToString();
-            //}
+            Line.Content = lineNumber.ToString();
+            Column.Content = columnNumber.ToString();
         }
+
         #endregion        
     }
 }

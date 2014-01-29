@@ -8,6 +8,8 @@ namespace TextCoreControl
 {
     internal class Caret
     {
+        internal delegate void Caret_PositionChanged();
+
         internal static volatile bool DBG_CARET_IS_PREPARED_FOR_RENDER;
 
         internal Caret(HwndRenderTarget renderTarget, int defaultHeight, float dpiX, float dpiY)
@@ -71,6 +73,9 @@ namespace TextCoreControl
  
             this.ordinal = ordinal;
             System.Diagnostics.Debug.Assert(this.ordinal >= 0 && this.ordinal < Document.UNDEFINED_ORDINAL);
+
+            if (CaretPositionChanged != null)
+                CaretPositionChanged();
         }
 
         internal enum CaretStep
@@ -211,6 +216,7 @@ namespace TextCoreControl
         bool isCaretHidden;
         float dpiX;
         float dpiY;
+        internal Caret_PositionChanged CaretPositionChanged;
 
         #endregion
     }

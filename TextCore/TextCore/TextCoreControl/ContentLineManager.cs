@@ -270,24 +270,30 @@ namespace TextCoreControl
         /// <returns>The first ordinal for a line number</returns>
         internal int GetBeginOrdinal(Document document, int lineNumber)
         {
-            if (lineNumber == this.cachedLineNumber)
-                return this.cachedOrdinal;
-
-            bool isBackWardSearch = this.cachedLineNumber > lineNumber;
             int currentOrdinal = this.cachedOrdinal;
-            int currentLineNumber = this.cachedLineNumber;
-            while (currentOrdinal != Document.UNDEFINED_ORDINAL && 
-                currentOrdinal != Document.BEFOREBEGIN_ORDINAL && 
-                currentLineNumber != lineNumber)
-            {                
-                bool isLookingForward = currentLineNumber < lineNumber;
-                if (IsHardBreakOrdinal(document, currentOrdinal))
-                    currentLineNumber = isLookingForward ? currentLineNumber + 1 : currentLineNumber - 1;
+            if (currentOrdinal == Document.BEFOREBEGIN_ORDINAL)
+                currentOrdinal = document.FirstOrdinal();
 
-                if (isLookingForward)
-                    currentOrdinal = document.NextOrdinal(currentOrdinal);
-                else
-                    currentOrdinal = document.PreviousOrdinal(currentOrdinal);
+            // Even if cachedLineNumber == lineNumber we need to find the begin ordinal for that content line.
+            // cachedOrdinal is simply some ordinal on that content line for which line number is cachedLineNumber.
+
+            bool isBackWardSearch = this.cachedLineNumber >= lineNumber;
+            if (lineNumber != this.cachedLineNumber)
+            {                 
+                int currentLineNumber = this.cachedLineNumber;
+                while (currentOrdinal != Document.UNDEFINED_ORDINAL && 
+                    currentOrdinal != Document.BEFOREBEGIN_ORDINAL && 
+                    currentLineNumber != lineNumber)
+                {                
+                    
+                    if (IsHardBreakOrdinal(document, currentOrdinal))
+                        currentLineNumber = isBackWardSearch ? currentLineNumber - 1 : currentLineNumber + 1;
+
+                    if (isBackWardSearch)
+                        currentOrdinal = document.PreviousOrdinal(currentOrdinal);
+                    else
+                        currentOrdinal = document.NextOrdinal(currentOrdinal);                        
+                }
             }
 
             if (isBackWardSearch)
