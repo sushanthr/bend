@@ -166,17 +166,7 @@
             </Grid>
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">
                 <WrapPanel MaxHeight="34" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="75,20,0,0" Name="TabBar">
-                </WrapPanel>
-                <Label FontFamily="Segoe UI Symbol" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5" Name="TabDropMarker" Visibility="Collapsed">
-                    <Label.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform Angle="180"/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </Label.RenderTransform> ⌂
-                </Label>
+                </WrapPanel>                
             </Grid>
             <Grid Name="MenuBand" Margin="0,38,0,0" Height="36" VerticalAlignment="Top" Background="{DynamicResource BackgroundBrush}">
                 <TextBlock HorizontalAlignment="Right" Margin="0,10,20,0" FontFamily="Segoe UI Symbol" Foreground="{DynamicResource ForegroundBrush}" Padding="0">&#xE1A3;</TextBlock>

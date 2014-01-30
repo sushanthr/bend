@@ -27,7 +27,6 @@ namespace Bend
             private Image closeButton;   
 
             private static FontFamily fontFamilySegoeUI;
-            private static FontFamily fontFamilyConsolas;
             public static readonly TextCoreControl.CopyPasteManager CopyPasteManager;
 
             private System.IO.FileSystemWatcher fileChangedWatcher;
@@ -59,6 +58,11 @@ namespace Bend
                 get { return title; }
             }
 
+            internal string TitleText
+            {
+                get { return titleText.Text; }
+            }
+
             internal UIElement CloseButton {
                 get { return closeButton; }
             }
@@ -81,7 +85,6 @@ namespace Bend
             {
                 // Static constructor
                 fontFamilySegoeUI = new FontFamily("Segoe UI");
-                fontFamilyConsolas = new FontFamily("Consolas");
                 CopyPasteManager = new CopyPasteManager();
                 accessFindOnPageData = new System.Threading.SemaphoreSlim(1, 1);
             }

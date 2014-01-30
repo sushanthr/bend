@@ -57,6 +57,7 @@ namespace Bend
         object dragDropSource;
         System.Windows.Threading.DispatcherTimer tabDropMarkerTimer;
         TabDragVisual tabDragVisual;
+        Cursor grabCursor;
         #endregion
 
         #region Public API
@@ -231,6 +232,8 @@ namespace Bend
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
 
             this.GiveFeedback += TabDrag_GiveFeedback;
+            String grabCursorFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Images\\Grab.cur";
+            this.grabCursor = new Cursor(grabCursorFilePath);
         }
 
         void RenderCapability_TierChanged(object sender, EventArgs e)
@@ -367,9 +370,7 @@ namespace Bend
                         // Found the tab.                                
                         int currentTabIndex = i;
 
-                        int insertAfterTabIndex;
-                        double markerX;
-                        FindTabDropPosition(e.GetPosition(WindowDrag).X, out insertAfterTabIndex, out markerX);
+                        int insertAfterTabIndex = FindTabDropPosition(e.GetPosition(WindowDrag).X);
 
                         if (insertAfterTabIndex != currentTabIndex)
                         {
@@ -406,13 +407,19 @@ namespace Bend
                         this.AddTabWithFile(filePath);
                     }
                 }
-                else if (dataFormats.Length == 1 && dataFormats[0] == DataFormats.Serializable)
+                else if ((dataFormats.Length == 2 && dataFormats[1] == "BEND_FILE_SERIALIZED" && dataFormats[0] == "BEND_FILE_NAME"))
                 {
                     // Another bend is trying to send us a tab.   
                 }                
             }
-            tabDropMarkerTimer.Stop();
-            TabDropMarker.Visibility = System.Windows.Visibility.Collapsed;
+            
+            if (tabDropMarkerTimer != null)
+                tabDropMarkerTimer.Stop();
+            
+            for (int i = 0; i < tab.Count; i++)
+            {
+                tab[i].Title.Margin = new Thickness(0);
+            }
         }
         
         private void Window_DragLeave(object sender, DragEventArgs e)
@@ -429,28 +436,30 @@ namespace Bend
         void tabDropMarkerTimer_Tick(object sender, EventArgs e)
         {
             tabDropMarkerTimer.Stop();
-            TabDropMarker.Visibility = System.Windows.Visibility.Collapsed;
+            for (int i = 0; i < tab.Count; i++)
+            {
+                tab[i].Title.Margin = new Thickness(0);
+            }
         }
 
-        private void FindTabDropPosition(double mouseX, out int insertAfterTabIndex, out double markerX)
+        private int FindTabDropPosition(double mouseX)
         {
             double totalWidth = TabBar.Margin.Left;
-            markerX = totalWidth;
-            insertAfterTabIndex = -1;
+            int insertAfterTabIndex = -1;
             for (int i = 0; i < this.tab.Count; i++)
             {                
                 double titleWidth = this.tab[i].Title.ActualWidth;
                 totalWidth += titleWidth;
                 if (totalWidth <= mouseX)
                 {
-                    markerX = totalWidth;
                     insertAfterTabIndex = i;
                 }
                 else
                 {
                     break;
                 }
-            }            
+            }
+            return insertAfterTabIndex;
         }
 
         private void Window_DragOver(object sender, DragEventArgs e)
@@ -459,17 +468,32 @@ namespace Bend
             {
                 DataObject dataObject = (System.Windows.DataObject)e.Data;
                 string[] dataFormats = dataObject.GetFormats();
-                if (dataObject.ContainsFileDropList() || (dataFormats.Length == 1 && dataFormats[0] == DataFormats.Serializable))
+                if (dataObject.ContainsFileDropList() || (dataFormats.Length == 2 && dataFormats[1] == "BEND_FILE_SERIALIZED" && dataFormats[0] == "BEND_FILE_NAME"))
                 {
-                    TabDropMarker.Visibility = System.Windows.Visibility.Visible;
-                    tabDropMarkerTimer.Stop();
+                    if (tabDropMarkerTimer != null)
+                        tabDropMarkerTimer.Stop();
 
                     double mouseX = e.GetPosition(WindowDrag).X;
-                    double markerX;
-                    int insertAfterTabIndex;
-                    FindTabDropPosition(mouseX, out insertAfterTabIndex, out markerX);
+                    int insertAfterTabIndex = FindTabDropPosition(mouseX);
 
-                    TabDropMarker.Margin = new Thickness(markerX - (TabDropMarker.ActualWidth / 4), MenuBand.Margin.Top / 4, 0, 0);
+                    for (int i = 0; i < tab.Count; i++)
+                    {
+                        tab[i].Title.Margin = new Thickness(0);
+                    }
+                    if (insertAfterTabIndex >= 0)
+                    {
+                        if (tab[insertAfterTabIndex].Title != dragDropSource)
+                        { 
+                            tab[insertAfterTabIndex].Title.Margin = new Thickness(0, 0, 100, 0);
+                        }
+                    }
+                    else
+                    {
+                        if (tab[0].Title != dragDropSource)
+                        {
+                            tab[0].Title.Margin = new Thickness(100, 0, 0, 0);
+                        }
+                    }
                 }
             }
         }
@@ -490,19 +514,35 @@ namespace Bend
                     }
                 }
 
-                if (fullFileName != null)
+                if (fullFileName == null)
                 {
-                    // Package the data.
-                    DataObject data = new DataObject();
+                    fullFileName = System.IO.Path.GetTempFileName();
+                    tab[tabIndex].TextEditor.SaveFile(fullFileName);
+                }
+                                
+                // Package the data.
+                DataObject data = new DataObject();
+                    
+                if(Keyboard.IsKeyDown(Key.LeftAlt))
+                { 
+                    // Copy the file to any other application.
                     System.Collections.Specialized.StringCollection fileList = new System.Collections.Specialized.StringCollection();
                     fileList.Add(fullFileName);
                     data.SetFileDropList(fileList);
-                    data.SetData(DataFormats.Serializable, fullFileName);
-                                        
-                    this.tabDragVisual = new TabDragVisual(tab[tabIndex].TextEditor, tab[tabIndex].FullFileName);                    
+                
+                    // Initiate the drag-and-drop operation.    
+                    DragDrop.DoDragDrop(this, data, DragDropEffects.Copy);                        
+                }
+                else
+                { 
+                    // Move the tab to another bend.
+                    data.SetData("BEND_FILE_SERIALIZED", fullFileName);
+                    data.SetData("BEND_FILE_NAME", tab[tabIndex].FullFileName);                    
+                    
+                    this.tabDragVisual = new TabDragVisual(tab[tabIndex].TextEditor, tab[tabIndex].TitleText);
                     this.dragDropSource = sender;
                     // Initiate the drag-and-drop operation.    
-                    DragDrop.DoDragDrop(this, data, DragDropEffects.All);                    
+                    DragDrop.DoDragDrop(this, data, DragDropEffects.All);
                     this.dragDropSource = null;
                     this.tabDragVisual.Close();
                     this.tabDragVisual = null;
@@ -510,34 +550,13 @@ namespace Bend
             }
         }
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool GetCursorPos(ref Win32Point pt);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct Win32Point
-        {
-            public Int32 X;
-            public Int32 Y;
-        };
-        public static Point GetMousePosition()
-        {
-            Win32Point w32Mouse = new Win32Point();
-            GetCursorPos(ref w32Mouse);
-            return new Point(w32Mouse.X, w32Mouse.Y);
-        }
-
         void TabDrag_GiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
             if (tabDragVisual != null)
             {
-               Point mousePosition = GetMousePosition();
-
-               this.tabDragVisual.Top = mousePosition.Y + 5;
-               this.tabDragVisual.Left = mousePosition.X - (this.tabDragVisual.ActualWidth / 2);
-               this.tabDragVisual.Show();
-
-               Mouse.SetCursor(Cursors.None);
+               this.tabDragVisual.UpdatePosition();
+               this.tabDragVisual.Show();              
+               Mouse.SetCursor(grabCursor);
                e.Handled = true;
             }
         }
