@@ -37,6 +37,10 @@ namespace Bend
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, WM Msg, IntPtr wParam, IntPtr lParam);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         #endregion
 
         private IntPtr HandleMessages(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -115,6 +119,7 @@ namespace Bend
             IntPtr lpStruct = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(copyDataStruct));
             System.Runtime.InteropServices.Marshal.StructureToPtr(copyDataStruct, lpStruct, false);
             SendMessage(hWnd, WM.COPYDATA, IntPtr.Zero, lpStruct);
+            SetForegroundWindow(hWnd);
         }
 
         internal void NotifyOfFileNameRecieved(string fileName)

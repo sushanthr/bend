@@ -53,6 +53,10 @@ namespace Bend
         StatusType currentStatusType;
 
         InterBendCommunication interBendCommuncation;
+        
+        object dragDropSource;
+        System.Windows.Threading.DispatcherTimer tabDropMarkerTimer;
+        TabDragVisual tabDragVisual;
         #endregion
 
         #region Public API
@@ -225,6 +229,8 @@ namespace Bend
 
             interBendCommuncation = new InterBendCommunication(mainWindow);
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
+
+            this.GiveFeedback += TabDrag_GiveFeedback;
         }
 
         void RenderCapability_TierChanged(object sender, EventArgs e)
@@ -322,6 +328,7 @@ namespace Bend
                 newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
                 newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
                 newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+                newTab.Title.MouseMove += TabTitle_MouseMove;
 
                 newTab.Title.Opacity = 0.5;
                 newTab.TextEditor.Visibility = Visibility.Hidden;
@@ -347,18 +354,194 @@ namespace Bend
             }
         }
 
+        #region Drag Drop
         private void Window_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data is System.Windows.DataObject &&
-                ((System.Windows.DataObject)e.Data).ContainsFileDropList())
+            if (dragDropSource != null)
             {
-                System.Collections.Specialized.StringCollection filePaths = ((System.Windows.DataObject)e.Data).GetFileDropList();
-                foreach (string filePath in filePaths)
+                // This is a tab rearrange operation.
+                for (int i = 0; i < tab.Count; i++)
                 {
-                    this.AddTabWithFile(filePath);
+                    if (tab[i].Title == dragDropSource)
+                    {
+                        // Found the tab.                                
+                        int currentTabIndex = i;
+
+                        int insertAfterTabIndex;
+                        double markerX;
+                        FindTabDropPosition(e.GetPosition(WindowDrag).X, out insertAfterTabIndex, out markerX);
+
+                        if (insertAfterTabIndex != currentTabIndex)
+                        {
+                            // Need to move a tab from currentTabIndex to after insertAfterTabIndex;                            
+                            if (insertAfterTabIndex < currentTabIndex)
+                            {
+                                insertAfterTabIndex++;
+                            }
+
+                            // Switch focus to non existant tab.
+                            this.SwitchTabFocusTo(-1);
+                            Tab tabBeingMoved = tab[currentTabIndex];
+                            tab.RemoveAt(currentTabIndex);
+                            TabBar.Children.RemoveAt(currentTabIndex);
+                            Editor.Children.RemoveAt(currentTabIndex);
+                            tab.Insert(insertAfterTabIndex, tabBeingMoved);
+                            TabBar.Children.Insert(insertAfterTabIndex, tabBeingMoved.Title);
+                            Editor.Children.Insert(insertAfterTabIndex, tabBeingMoved.TextEditor);
+                            this.SwitchTabFocusTo(insertAfterTabIndex);
+                        }
+                    }
+                }
+            }
+            else if (e.Data is System.Windows.DataObject)
+            {
+                DataObject dataObject = (System.Windows.DataObject)e.Data;
+                string[] dataFormats = dataObject.GetFormats();
+                System.Collections.Specialized.StringCollection filePaths = null;
+                if (dataObject.ContainsFileDropList())
+                {
+                    filePaths = ((System.Windows.DataObject)e.Data).GetFileDropList();
+                    foreach (string filePath in filePaths)
+                    {
+                        this.AddTabWithFile(filePath);
+                    }
+                }
+                else if (dataFormats.Length == 1 && dataFormats[0] == DataFormats.Serializable)
+                {
+                    // Another bend is trying to send us a tab.   
+                }                
+            }
+            tabDropMarkerTimer.Stop();
+            TabDropMarker.Visibility = System.Windows.Visibility.Collapsed;
+        }
+        
+        private void Window_DragLeave(object sender, DragEventArgs e)
+        {
+            if (this.tabDropMarkerTimer == null)
+            {
+                tabDropMarkerTimer = new System.Windows.Threading.DispatcherTimer();
+                tabDropMarkerTimer.Tick += tabDropMarkerTimer_Tick;
+                tabDropMarkerTimer.Interval = new TimeSpan(0, 0, 1);             
+            }            
+            tabDropMarkerTimer.Start();
+        }
+
+        void tabDropMarkerTimer_Tick(object sender, EventArgs e)
+        {
+            tabDropMarkerTimer.Stop();
+            TabDropMarker.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        private void FindTabDropPosition(double mouseX, out int insertAfterTabIndex, out double markerX)
+        {
+            double totalWidth = TabBar.Margin.Left;
+            markerX = totalWidth;
+            insertAfterTabIndex = -1;
+            for (int i = 0; i < this.tab.Count; i++)
+            {                
+                double titleWidth = this.tab[i].Title.ActualWidth;
+                totalWidth += titleWidth;
+                if (totalWidth <= mouseX)
+                {
+                    markerX = totalWidth;
+                    insertAfterTabIndex = i;
+                }
+                else
+                {
+                    break;
+                }
+            }            
+        }
+
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data is System.Windows.DataObject)
+            {
+                DataObject dataObject = (System.Windows.DataObject)e.Data;
+                string[] dataFormats = dataObject.GetFormats();
+                if (dataObject.ContainsFileDropList() || (dataFormats.Length == 1 && dataFormats[0] == DataFormats.Serializable))
+                {
+                    TabDropMarker.Visibility = System.Windows.Visibility.Visible;
+                    tabDropMarkerTimer.Stop();
+
+                    double mouseX = e.GetPosition(WindowDrag).X;
+                    double markerX;
+                    int insertAfterTabIndex;
+                    FindTabDropPosition(mouseX, out insertAfterTabIndex, out markerX);
+
+                    TabDropMarker.Margin = new Thickness(markerX - (TabDropMarker.ActualWidth / 4), MenuBand.Margin.Top / 4, 0, 0);
                 }
             }
         }
+        
+        void TabTitle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                string fullFileName = null;
+                // Find the Tab
+                int tabIndex = 0;
+                for (int i = 0; i < tab.Count; i++)
+                {
+                    if (tab[i].Title == sender)
+                    {
+                        fullFileName = tab[i].FullFileName;
+                        tabIndex = i;
+                    }
+                }
+
+                if (fullFileName != null)
+                {
+                    // Package the data.
+                    DataObject data = new DataObject();
+                    System.Collections.Specialized.StringCollection fileList = new System.Collections.Specialized.StringCollection();
+                    fileList.Add(fullFileName);
+                    data.SetFileDropList(fileList);
+                    data.SetData(DataFormats.Serializable, fullFileName);
+                                        
+                    this.tabDragVisual = new TabDragVisual(tab[tabIndex].TextEditor, tab[tabIndex].FullFileName);                    
+                    this.dragDropSource = sender;
+                    // Initiate the drag-and-drop operation.    
+                    DragDrop.DoDragDrop(this, data, DragDropEffects.All);                    
+                    this.dragDropSource = null;
+                    this.tabDragVisual.Close();
+                    this.tabDragVisual = null;
+                }
+            }
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetCursorPos(ref Win32Point pt);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            public Int32 X;
+            public Int32 Y;
+        };
+        public static Point GetMousePosition()
+        {
+            Win32Point w32Mouse = new Win32Point();
+            GetCursorPos(ref w32Mouse);
+            return new Point(w32Mouse.X, w32Mouse.Y);
+        }
+
+        void TabDrag_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (tabDragVisual != null)
+            {
+               Point mousePosition = GetMousePosition();
+
+               this.tabDragVisual.Top = mousePosition.Y + 5;
+               this.tabDragVisual.Left = mousePosition.X - (this.tabDragVisual.ActualWidth / 2);
+               this.tabDragVisual.Show();
+
+               Mouse.SetCursor(Cursors.None);
+               e.Handled = true;
+            }
+        }
+        #endregion
 
         private void MinimizeButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -810,7 +993,7 @@ namespace Bend
         }
         #endregion
 
-        #region Tab band management
+        #region Tab bar management
         private void AddNewTab()
         {
             Tab newTab = new Tab();
@@ -820,13 +1003,14 @@ namespace Bend
             newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
             newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
             newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+            newTab.Title.MouseMove += TabTitle_MouseMove;            
 
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
             newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
         }
-        
+                
         void DisplayManager_ContextMenu()
         {
             if( Editor.ContextMenu != null )
@@ -966,11 +1150,14 @@ namespace Bend
                 tab[currentTabIndex].Title.Opacity = 0.5;
             }
             
-            this.currentTabIndex = tabIndex;
-            tab[tabIndex].Title.Opacity = 1.0;
-            tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
-            tab[tabIndex].TextEditor.SetFocus();
-            this.FindText.Text = tab[tabIndex].FindText;
+            if (tabIndex >= 0)
+            { 
+                this.currentTabIndex = tabIndex;
+                tab[tabIndex].Title.Opacity = 1.0;
+                tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
+                tab[tabIndex].TextEditor.SetFocus();
+                this.FindText.Text = tab[tabIndex].FindText;
+            }
         }
 
         private void TabClose(int tabIndex)

@@ -115,12 +115,13 @@ namespace TextCoreControl
             document.SaveFile(fullFilePath);
         }
 
-        public void Rasterize()
+        public System.Windows.Media.Imaging.BitmapSource Rasterize()
         {
             System.Windows.Media.Imaging.BitmapSource bitmap = displayManager.Rasterize();
             RasterHost.Source = bitmap;
             RasterHost.Visibility = System.Windows.Visibility.Visible;
             RenderHost.Visibility = System.Windows.Visibility.Hidden;
+            return bitmap;
         }
 
         public void UnRasterize()
