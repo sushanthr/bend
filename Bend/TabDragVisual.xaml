@@ -6,7 +6,7 @@
         <WrapPanel  VerticalAlignment="Top" HorizontalAlignment="Left" Height="20" Background="{DynamicResource BackgroundBrush}">
             <TextBlock Name="Title" Foreground="{DynamicResource ForegroundBrush}" FontFamily="Segoe UI" FontSize="12" Padding="5,0,5,0" VerticalAlignment="Top" MinWidth="110" TextAlignment="Center">Mock</TextBlock>
         </WrapPanel>
-        <Grid Height="5" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,20,0,0"  Background="{DynamicResource BackgroundBrush}"></Grid>
-        <Image Name="EditorSnapShot" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,25,0,0"></Image>
+        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,20,0,0"  Background="{DynamicResource BackgroundBrush}"></Grid>
+        <Image Name="EditorSnapShot" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,25,0,10"></Image>
     </Grid>
 </Window>

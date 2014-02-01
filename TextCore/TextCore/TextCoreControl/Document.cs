@@ -121,7 +121,7 @@ namespace TextCoreControl
             {
                 if (this.PreContentChange != null)
                 {
-                    this.PreContentChange(this.NextOrdinal(ordinal));
+                    this.PreContentChange(this.PreviousOrdinal(ordinal), this.NextOrdinal(ordinal));
                 }
 
                 fileContents = fileContents.Insert(ordinal, content);
@@ -160,7 +160,7 @@ namespace TextCoreControl
 
                     if (this.PreContentChange != null)
                     {
-                        this.PreContentChange(this.NextOrdinal(endOrdinal));
+                        this.PreContentChange(this.PreviousOrdinal(ordinal), this.NextOrdinal(endOrdinal));
                     }
 
                     fileContents = fileContents.Remove(ordinal, length);
@@ -283,7 +283,8 @@ namespace TextCoreControl
 
         // A delegate type for hooking up change notifications. 
         // All ordinals greater than or equal to endOrdinal will be unaffected by the actual content change.
-        public delegate void PreContentChangeEventHandler(int endOrdinal);
+        // All ordinals less than or equal to beginOrdinal will be unaffected by the actual content change.
+        public delegate void PreContentChangeEventHandler(int beginOrdinal, int endOrdinal);
         public event PreContentChangeEventHandler PreContentChange;
 
         /// <summary>

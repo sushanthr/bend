@@ -354,6 +354,8 @@ namespace Bend
                 tab[newTabFocus].Title.Opacity = 1.0;
                 tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
                 tab[newTabFocus].TextEditor.SetFocus();
+
+                StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
             }
         }
 
@@ -1028,6 +1030,8 @@ namespace Bend
             Editor.Children.Add(newTab.TextEditor);
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
             newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
+
+            StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
         }
                 
         void DisplayManager_ContextMenu()
@@ -1239,6 +1243,9 @@ namespace Bend
             Editor.Children.Remove(tab[tabIndex].TextEditor);
             tab[tabIndex].Close();
             tab.RemoveAt(tabIndex);
+
+            if (tab.Count == 0)
+                StatusBar.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void ContextRefresh(object sender, RoutedEventArgs e)

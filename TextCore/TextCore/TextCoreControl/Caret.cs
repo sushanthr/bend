@@ -163,6 +163,9 @@ namespace TextCoreControl
             // Display the caret. 
             ShowCaret(windowHandle);
             isCaretHidden = false;
+
+            if (CaretPositionChanged != null)
+                CaretPositionChanged();
         }
 
         internal void OnLostFocus()

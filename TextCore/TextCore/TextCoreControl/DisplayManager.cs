@@ -1435,12 +1435,12 @@ namespace TextCoreControl
 
         #region Content change handling
 
-        void document_PreContentChange(int endOrdinal)
+        void document_PreContentChange(int beginOrdinal, int endOrdinal)
         {
-            if (endOrdinal != Document.UNDEFINED_ORDINAL)
+            if (beginOrdinal != Document.UNDEFINED_ORDINAL)
             {
-                // Bring the end ordinal into view.
-                this.ScrollOrdinalIntoView(endOrdinal, /*ignoreScrollBounds*/true);       
+                // Bring the begin ordinal into view.
+                this.ScrollOrdinalIntoView(beginOrdinal, /*ignoreScrollBounds*/true);       
             }
         }               
 
