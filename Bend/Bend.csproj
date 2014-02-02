@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>35</ApplicationRevision>
+    <ApplicationRevision>40</ApplicationRevision>
     <ApplicationVersion>0.18.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -140,6 +140,7 @@
     <Compile Include="TabDragVisual.xaml.cs">
       <DependentUpon>TabDragVisual.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TabTitle.cs" />
     <Compile Include="ThemeSettings.cs" />
     <Page Include="SaveChangesMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>

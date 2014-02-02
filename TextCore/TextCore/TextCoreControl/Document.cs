@@ -275,6 +275,7 @@ namespace TextCoreControl
         public bool HasUnsavedContent
         {
             get { return this.hasUnsavedContent; }
+            set { this.hasUnsavedContent = true; }
         }
         
         // A delegate type for hooking up change notifications.

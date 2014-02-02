@@ -89,8 +89,7 @@ namespace Bend
             }
             else if (!ApplicationDeployment.IsNetworkDeployed && !debugApplication)
             {
-                string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
-                System.Diagnostics.Process.Start(clickOnceApplication, argument);
+                LaunchBendClickOnceApplication(argument);
                 this.Shutdown();
             }
 
@@ -102,6 +101,12 @@ namespace Bend
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             StyledMessageBox.Show( "Unhandled Exception" , sender.ToString() + e.ToString() + "\n" + e.Exception.StackTrace);
+        }
+
+        internal static void LaunchBendClickOnceApplication(string argument)
+        {
+            string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
+            System.Diagnostics.Process.Start(clickOnceApplication, argument);
         }
     }
 }

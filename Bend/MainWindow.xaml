@@ -14,7 +14,7 @@
         Height="600"
         SourceInitialized="Window_SourceInitialized" 
         Icon="/Bend;component/Images/Arrow-icon.png" 
-        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" AllowsTransparency="False" DragOver="Window_DragOver" DragLeave="Window_DragLeave">
+        WindowStyle="SingleBorderWindow" ResizeMode="CanResizeWithGrip" Drop="Window_Drop" Closing="Window_Closing" StateChanged="Window_StateChanged" SizeToContent="Manual" AllowDrop="True" AllowsTransparency="False">
     <Window.CommandBindings>
         <CommandBinding Command="Save" Executed="CommandSave"/>
         <CommandBinding Command="Open" Executed="CommandOpen"/>

@@ -20,13 +20,10 @@ namespace Bend
     class Tab
     {
         #region Member data
-            private WrapPanel title;
-            private TextBlock titleText;            
+            private TabTitle title;   
             private TextCoreControl.TextEditor textEditor;
             private String fullFileName;
-            private Image closeButton;   
 
-            private static FontFamily fontFamilySegoeUI;
             public static readonly TextCoreControl.CopyPasteManager CopyPasteManager;
 
             private System.IO.FileSystemWatcher fileChangedWatcher;
@@ -54,17 +51,8 @@ namespace Bend
         #endregion
 
         #region Properties
-            internal WrapPanel Title {
+            internal TabTitle Title {
                 get { return title; }
-            }
-
-            internal string TitleText
-            {
-                get { return titleText.Text; }
-            }
-
-            internal UIElement CloseButton {
-                get { return closeButton; }
             }
 
             internal TextEditor TextEditor {
@@ -84,43 +72,13 @@ namespace Bend
             static Tab()
             {
                 // Static constructor
-                fontFamilySegoeUI = new FontFamily("Segoe UI");
                 CopyPasteManager = new CopyPasteManager();
                 accessFindOnPageData = new System.Threading.SemaphoreSlim(1, 1);
             }
 
             public Tab()
             {
-                title = new WrapPanel();
-                titleText = new TextBlock();
-                titleText.Text = "New File";
-                titleText.MinWidth = 110;
-                titleText.Height = 34;
-                titleText.Padding = new Thickness(5, 2, 0, 0);
-                titleText.VerticalAlignment = VerticalAlignment.Top;
-                titleText.TextAlignment = TextAlignment.Center;
-                titleText.FontFamily = Tab.fontFamilySegoeUI;
-                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(titleText, /*isHitTestable*/true);
-                titleText.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
-                title.Children.Add(titleText);
-
-                Separator seperator = new Separator();
-                seperator.Width = 5;
-                seperator.Visibility = Visibility.Hidden;
-                title.Children.Add(seperator);
-
-                closeButton = new Image();
-                closeButton.Width = 8;
-                closeButton.Height = 8;
-                BitmapImage closeImage = new BitmapImage();
-                closeImage.BeginInit();
-                closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close.png");
-                closeImage.EndInit();
-                closeButton.Source = closeImage;
-                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);                
-                title.Children.Add(closeButton);
-
-                System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(title, /*isHitTestable*/true);
+                this.title = new TabTitle();                
 
                 textEditor = new TextEditor();
                 textEditor.CopyPasteManager = Tab.CopyPasteManager;
@@ -142,7 +100,7 @@ namespace Bend
         #endregion
 
         #region Public API
-        private void SetFullFileName(String fullFileName)
+        internal void SetFullFileName(String fullFileName)
         {
             if (this.fullFileName != fullFileName)
             {
@@ -168,7 +126,7 @@ namespace Bend
             }
 
             this.fullFileName = fullFileName;
-            this.titleText.Text = System.IO.Path.GetFileName(fullFileName);
+            this.title.TitleText = System.IO.Path.GetFileName(fullFileName);
             this.title.ToolTip = fullFileName;            
         }
 
@@ -208,7 +166,7 @@ namespace Bend
                 if (showFileModifiedDialog.WaitOne(0))
                 {
                     System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
-                    titleText.Dispatcher.BeginInvoke(new fileChangedWatcher_ChangedInUIThread_Delegate(fileChangedWatcher_ChangedInUIThread), copyOfEventArgs);
+                    title.Dispatcher.BeginInvoke(new fileChangedWatcher_ChangedInUIThread_Delegate(fileChangedWatcher_ChangedInUIThread), copyOfEventArgs);
                 }
             }
         }

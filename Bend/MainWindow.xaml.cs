@@ -54,10 +54,10 @@ namespace Bend
 
         InterBendCommunication interBendCommuncation;
         
-        object dragDropSource;
-        System.Windows.Threading.DispatcherTimer tabDropMarkerTimer;
+        TabTitle dragDropSource;
         TabDragVisual tabDragVisual;
         Cursor grabCursor;
+        bool dropWasConsumedAsTabMove;
         #endregion
 
         #region Public API
@@ -81,6 +81,7 @@ namespace Bend
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
+            this.dropWasConsumedAsTabMove = false;
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);            
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
@@ -182,30 +183,43 @@ namespace Bend
             {
                 string[] fileNames;
                 if (AppDomain.CurrentDomain.SetupInformation.ActivationArguments != null)
+                {
                     fileNames = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData;
-                else
-                    fileNames = null;
-
-                if (fileNames == null || fileNames.Length <= 0)
-                {
-                    fileNames = PersistantStorage.StorageObject.mruFile;
                 }
-                if (fileNames != null)
+                else
                 {
-                    for (int mruCount = 0; mruCount < fileNames.Length; mruCount++)
+                    fileNames = null;
+                }
+
+                if (fileNames != null && fileNames.Length == 1 && fileNames[0].StartsWith(BEND_SERIALIZED_TABDATA_PREFIX))
+                {
+                    this.LoadSerializedTabData(fileNames[0]);
+                    tabOpened = true;
+                }
+                else
+                {
+                    if (fileNames == null || fileNames.Length <= 0)
                     {
-                        string fileName = fileNames[mruCount];
-                        if (System.IO.File.Exists(fileName))
+                        fileNames = PersistantStorage.StorageObject.mruFile;
+                    }
+
+                    if (fileNames != null)
+                    {
+                        for (int mruCount = 0; mruCount < fileNames.Length; mruCount++)
                         {
-                            this.AddNewTab();
-                            int lastTab = this.tab.Count - 1;
-                            this.tab[lastTab].OpenFile(fileName);
-                            this.tab[lastTab].Title.Opacity = 0.5;
-                            this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
-                            tabOpened = true;
+                            string fileName = fileNames[mruCount];
+                            if (System.IO.File.Exists(fileName))
+                            {
+                                this.AddNewTab();
+                                int lastTab = this.tab.Count - 1;
+                                this.tab[lastTab].OpenFile(fileName);
+                                this.tab[lastTab].Title.Opacity = 0.5;
+                                this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
+                                tabOpened = true;
+                            }
                         }
                     }
-                }
+                }                
             }
             catch
             {
@@ -329,7 +343,7 @@ namespace Bend
                 // Hook up tab band event handlers
                 newTab.Title.MouseLeftButtonUp += this.TabClick;
                 newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
-                newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
+                newTab.Title.CloseButtonClicked += this.TabClose;
                 newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
                 newTab.Title.MouseMove += TabTitle_MouseMove;
 
@@ -358,211 +372,6 @@ namespace Bend
                 StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
             }
         }
-
-        #region Drag Drop
-        private void Window_Drop(object sender, DragEventArgs e)
-        {
-            if (dragDropSource != null)
-            {
-                // This is a tab rearrange operation.
-                for (int i = 0; i < tab.Count; i++)
-                {
-                    if (tab[i].Title == dragDropSource)
-                    {
-                        // Found the tab.                                
-                        int currentTabIndex = i;
-
-                        int insertAfterTabIndex = FindTabDropPosition(e.GetPosition(WindowDrag).X);
-
-                        if (insertAfterTabIndex != currentTabIndex)
-                        {
-                            // Need to move a tab from currentTabIndex to after insertAfterTabIndex;                            
-                            if (insertAfterTabIndex < currentTabIndex)
-                            {
-                                insertAfterTabIndex++;
-                            }
-
-                            // Switch focus to non existant tab.
-                            this.SwitchTabFocusTo(-1);
-                            Tab tabBeingMoved = tab[currentTabIndex];
-                            tab.RemoveAt(currentTabIndex);
-                            TabBar.Children.RemoveAt(currentTabIndex);
-                            Editor.Children.RemoveAt(currentTabIndex);
-                            tab.Insert(insertAfterTabIndex, tabBeingMoved);
-                            TabBar.Children.Insert(insertAfterTabIndex, tabBeingMoved.Title);
-                            Editor.Children.Insert(insertAfterTabIndex, tabBeingMoved.TextEditor);
-                            this.SwitchTabFocusTo(insertAfterTabIndex);
-                        }
-                    }
-                }
-            }
-            else if (e.Data is System.Windows.DataObject)
-            {
-                DataObject dataObject = (System.Windows.DataObject)e.Data;
-                string[] dataFormats = dataObject.GetFormats();
-                System.Collections.Specialized.StringCollection filePaths = null;
-                if (dataObject.ContainsFileDropList())
-                {
-                    filePaths = ((System.Windows.DataObject)e.Data).GetFileDropList();
-                    foreach (string filePath in filePaths)
-                    {
-                        this.AddTabWithFile(filePath);
-                    }
-                }
-                else if ((dataFormats.Length == 2 && dataFormats[1] == "BEND_FILE_SERIALIZED" && dataFormats[0] == "BEND_FILE_NAME"))
-                {
-                    // Another bend is trying to send us a tab.   
-                }                
-            }
-            
-            if (tabDropMarkerTimer != null)
-                tabDropMarkerTimer.Stop();
-            
-            for (int i = 0; i < tab.Count; i++)
-            {
-                tab[i].Title.Margin = new Thickness(0);
-            }
-        }
-        
-        private void Window_DragLeave(object sender, DragEventArgs e)
-        {
-            if (this.tabDropMarkerTimer == null)
-            {
-                tabDropMarkerTimer = new System.Windows.Threading.DispatcherTimer();
-                tabDropMarkerTimer.Tick += tabDropMarkerTimer_Tick;
-                tabDropMarkerTimer.Interval = new TimeSpan(0, 0, 1);             
-            }            
-            tabDropMarkerTimer.Start();
-        }
-
-        void tabDropMarkerTimer_Tick(object sender, EventArgs e)
-        {
-            tabDropMarkerTimer.Stop();
-            for (int i = 0; i < tab.Count; i++)
-            {
-                tab[i].Title.Margin = new Thickness(0);
-            }
-        }
-
-        private int FindTabDropPosition(double mouseX)
-        {
-            double totalWidth = TabBar.Margin.Left;
-            int insertAfterTabIndex = -1;
-            for (int i = 0; i < this.tab.Count; i++)
-            {                
-                double titleWidth = this.tab[i].Title.ActualWidth;
-                totalWidth += titleWidth;
-                if (totalWidth <= mouseX)
-                {
-                    insertAfterTabIndex = i;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return insertAfterTabIndex;
-        }
-
-        private void Window_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data is System.Windows.DataObject)
-            {
-                DataObject dataObject = (System.Windows.DataObject)e.Data;
-                string[] dataFormats = dataObject.GetFormats();
-                if (dataObject.ContainsFileDropList() || (dataFormats.Length == 2 && dataFormats[1] == "BEND_FILE_SERIALIZED" && dataFormats[0] == "BEND_FILE_NAME"))
-                {
-                    if (tabDropMarkerTimer != null)
-                        tabDropMarkerTimer.Stop();
-
-                    double mouseX = e.GetPosition(WindowDrag).X;
-                    int insertAfterTabIndex = FindTabDropPosition(mouseX);
-
-                    for (int i = 0; i < tab.Count; i++)
-                    {
-                        tab[i].Title.Margin = new Thickness(0);
-                    }
-                    if (insertAfterTabIndex >= 0)
-                    {
-                        if (tab[insertAfterTabIndex].Title != dragDropSource)
-                        { 
-                            tab[insertAfterTabIndex].Title.Margin = new Thickness(0, 0, 100, 0);
-                        }
-                    }
-                    else
-                    {
-                        if (tab[0].Title != dragDropSource)
-                        {
-                            tab[0].Title.Margin = new Thickness(100, 0, 0, 0);
-                        }
-                    }
-                }
-            }
-        }
-        
-        void TabTitle_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                string fullFileName = null;
-                // Find the Tab
-                int tabIndex = 0;
-                for (int i = 0; i < tab.Count; i++)
-                {
-                    if (tab[i].Title == sender)
-                    {
-                        fullFileName = tab[i].FullFileName;
-                        tabIndex = i;
-                    }
-                }
-
-                if (fullFileName == null)
-                {
-                    fullFileName = System.IO.Path.GetTempFileName();
-                    tab[tabIndex].TextEditor.SaveFile(fullFileName);
-                }
-                                
-                // Package the data.
-                DataObject data = new DataObject();
-                    
-                if(Keyboard.IsKeyDown(Key.LeftAlt))
-                { 
-                    // Copy the file to any other application.
-                    System.Collections.Specialized.StringCollection fileList = new System.Collections.Specialized.StringCollection();
-                    fileList.Add(fullFileName);
-                    data.SetFileDropList(fileList);
-                
-                    // Initiate the drag-and-drop operation.    
-                    DragDrop.DoDragDrop(this, data, DragDropEffects.Copy);                        
-                }
-                else
-                { 
-                    // Move the tab to another bend.
-                    data.SetData("BEND_FILE_SERIALIZED", fullFileName);
-                    data.SetData("BEND_FILE_NAME", tab[tabIndex].FullFileName);                    
-                    
-                    this.tabDragVisual = new TabDragVisual(tab[tabIndex].TextEditor, tab[tabIndex].TitleText);
-                    this.dragDropSource = sender;
-                    // Initiate the drag-and-drop operation.    
-                    DragDrop.DoDragDrop(this, data, DragDropEffects.All);
-                    this.dragDropSource = null;
-                    this.tabDragVisual.Close();
-                    this.tabDragVisual = null;
-                }
-            }
-        }
-
-        void TabDrag_GiveFeedback(object sender, GiveFeedbackEventArgs e)
-        {
-            if (tabDragVisual != null)
-            {
-               this.tabDragVisual.UpdatePosition();
-               this.tabDragVisual.Show();              
-               Mouse.SetCursor(grabCursor);
-               e.Handled = true;
-            }
-        }
-        #endregion
 
         private void MinimizeButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -852,6 +661,249 @@ namespace Bend
         }
         #endregion
 
+        #region Drag Drop
+
+        private void MoveTab(int sourceTabIndex, int insertAfterTabIndex)
+        {
+            if (insertAfterTabIndex != sourceTabIndex - 1)
+            {
+                // Need to move a tab from currentTabIndex to after insertAfterTabIndex;                            
+                if (insertAfterTabIndex < sourceTabIndex)
+                {
+                    insertAfterTabIndex++;
+                }
+
+                // Switch focus to non existant tab.
+                this.SwitchTabFocusTo(-1);
+                Tab tabBeingMoved = tab[sourceTabIndex];
+                tab.RemoveAt(sourceTabIndex);
+                TabBar.Children.RemoveAt(sourceTabIndex);
+                Editor.Children.RemoveAt(sourceTabIndex);
+                tab.Insert(insertAfterTabIndex, tabBeingMoved);
+                TabBar.Children.Insert(insertAfterTabIndex, tabBeingMoved.Title);
+                Editor.Children.Insert(insertAfterTabIndex, tabBeingMoved.TextEditor);
+                this.SwitchTabFocusTo(insertAfterTabIndex);
+            }
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (dragDropSource != null)
+            {
+                // This is a tab rearrange operation.
+                for (int i = 0; i < tab.Count; i++)
+                {
+                    if (tab[i].Title == dragDropSource)
+                    {
+                        // Found the tab.                                
+                        int currentTabIndex = i;
+                        int insertAfterTabIndex = FindTabDropPosition(e.GetPosition(WindowDrag).X);
+
+                        MoveTab(currentTabIndex, insertAfterTabIndex);
+                    }
+                }
+                this.dropWasConsumedAsTabMove = true;
+            }
+            else if (e.Data is System.Windows.DataObject)
+            {
+                DataObject dataObject = (System.Windows.DataObject)e.Data;
+                string[] dataFormats = dataObject.GetFormats();
+                System.Collections.Specialized.StringCollection filePaths = null;
+                if (dataObject.ContainsFileDropList())
+                {
+                    filePaths = ((System.Windows.DataObject)e.Data).GetFileDropList();
+                    foreach (string filePath in filePaths)
+                    {
+                        this.AddTabWithFile(filePath);
+                    }
+                }
+                else if ((dataFormats.Length == 4 &&                    
+                    dataFormats[0] == BEND_FILE_DISPLAY_NAME &&
+                    dataFormats[1] == BEND_FILE_PATH &&
+                    dataFormats[2] == BEND_FILE_CONTENT &&
+                    dataFormats[3] == BEND_FILE_DELETE))
+                {
+                    // Another bend is trying to send us a tab.
+                    int insertAfterTabIndex = FindTabDropPosition(e.GetPosition(WindowDrag).X);
+                    this.AddTabWithFile((String)dataObject.GetData(BEND_FILE_CONTENT));
+                    int tabIndex = this.tab.Count - 1;
+                    if (dataFormats[2] != String.Empty)
+                    { 
+                        this.tab[tabIndex].SetFullFileName((String)dataObject.GetData(BEND_FILE_PATH));
+                    }
+                    this.tab[tabIndex].Title.TitleText = (String)dataObject.GetData(BEND_FILE_DISPLAY_NAME);
+                    System.IO.File.Delete((String)dataObject.GetData(BEND_FILE_DELETE));
+
+                    if ((String)dataObject.GetData(BEND_FILE_CONTENT) != (String)dataObject.GetData(BEND_FILE_PATH))
+                    {
+                        // Document has some kind of change.
+                        this.tab[tabIndex].TextEditor.Document.HasUnsavedContent = true;
+                    }
+
+                    MoveTab(tabIndex, insertAfterTabIndex);
+                }
+                this.dropWasConsumedAsTabMove = false;
+            }
+        }
+
+        private int FindTabDropPosition(double mouseX)
+        {
+            double totalWidth = TabBar.Margin.Left;
+            int insertAfterTabIndex = -1;
+            for (int i = 0; i < this.tab.Count; i++)
+            {
+                double titleWidth = this.tab[i].Title.ActualWidth;
+                totalWidth += titleWidth;
+                if (totalWidth <= mouseX)
+                {
+                    insertAfterTabIndex = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return insertAfterTabIndex;
+        }     
+
+        private const string BEND_FILE_CONTENT = "BEND_FILE_CONTENT";
+        private const string BEND_FILE_DISPLAY_NAME = "BEND_FILE_DISPLAY_NAME";
+        private const string BEND_FILE_PATH = "BEND_FILE_PATH";
+        private const string BEND_FILE_DELETE = "BEND_FILE_DELETE";
+        private const string BEND_SERIALIZED_TABDATA_PREFIX = "/TABDATA";
+
+        void TabTitle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (this.dragDropSource == null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                string fullFileName = null;
+                // Find the Tab
+                int tabIndex = -1;
+                for (int i = 0; i < tab.Count; i++)
+                {
+                    if (tab[i].Title == sender)
+                    {
+                        fullFileName = tab[i].FullFileName;
+                        tabIndex = i;
+                    }
+                }
+
+                // TabTitle was found in collection.
+                if (tabIndex >= 0)
+                {
+                    if (tabIndex > 0)
+                        this.SwitchTabFocusTo(tabIndex - 1);
+                    else if (tabIndex + 1 < tab.Count)
+                        this.SwitchTabFocusTo(tabIndex + 1);
+
+                    string deleteFile = System.IO.Path.GetTempFileName();
+                    if (fullFileName == null || tab[tabIndex].TextEditor.Document.HasUnsavedContent)
+                    {
+                        fullFileName = deleteFile;
+                        tab[tabIndex].TextEditor.SaveFile(fullFileName);
+                    }
+                    else
+                    {
+                        // Create an empty file.
+                        System.IO.File.WriteAllLines(deleteFile, new string[0]);
+                    }
+
+                    Tab sourceTab = tab[tabIndex];
+                    sourceTab.TextEditor.Visibility = Visibility.Collapsed;
+                    sourceTab.Title.Visibility = Visibility.Collapsed;
+
+                    // Package the data.
+                    DataObject data = new DataObject();
+
+                    if (Keyboard.IsKeyDown(Key.LeftAlt))
+                    {
+                        // Copy the file to any other application.
+                        System.Collections.Specialized.StringCollection fileList = new System.Collections.Specialized.StringCollection();
+                        fileList.Add(fullFileName);
+                        data.SetFileDropList(fileList);
+
+                        // Initiate the drag-and-drop operation.    
+                        DragDrop.DoDragDrop(this, data, DragDropEffects.Copy);
+                    }
+                    else
+                    {
+                        // Move the tab to another bend.
+                        data.SetData(BEND_FILE_CONTENT, fullFileName);
+                        data.SetData(BEND_FILE_DISPLAY_NAME, sourceTab.Title.TitleText);
+                        data.SetData(BEND_FILE_PATH, sourceTab.FullFileName == null ? String.Empty : sourceTab.FullFileName);
+                        data.SetData(BEND_FILE_DELETE, deleteFile);
+
+                        this.tabDragVisual = new TabDragVisual(sourceTab.TextEditor, sourceTab.Title.TitleText);
+                        this.dragDropSource = sender as TabTitle;
+                        this.dropWasConsumedAsTabMove = false;
+
+                        // Initiate the drag-and-drop operation.    
+                        DragDrop.DoDragDrop(this, data, DragDropEffects.All);
+
+                        if (!this.dropWasConsumedAsTabMove)
+                        {
+                            // The tab that was dragged needs to be closed.
+                            if (System.IO.File.Exists(deleteFile))
+                            {
+                                // The tab was not taken by another bend. Start a new instance of bend and pass the tab to it.
+                                string[] serializedData = new string [4];
+                                serializedData[0] = fullFileName;
+                                serializedData[1] = (string)data.GetData("BEND_FILE_DISPLAY_NAME");
+                                serializedData[2] = (string)data.GetData("BEND_FILE_PATH");
+                                serializedData[3] = (string)data.GetData("BEND_FILE_DELETE");
+                                string serializedDataString = string.Join("\n", serializedData);
+                                string arguments = BEND_SERIALIZED_TABDATA_PREFIX + System.Uri.EscapeDataString(serializedDataString);
+
+                                App.LaunchBendClickOnceApplication(arguments);
+                            }
+                            this.TabClose(tabIndex);
+                        }
+
+                        this.dragDropSource = null;
+                        this.tabDragVisual.Close();
+                        this.tabDragVisual = null;
+                    }
+
+                    sourceTab.TextEditor.Visibility = Visibility.Visible;
+                    sourceTab.Title.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        void LoadSerializedTabData(string serializedTabData)
+        {
+            serializedTabData = serializedTabData.Substring(BEND_SERIALIZED_TABDATA_PREFIX.Length);
+            serializedTabData = System.Uri.UnescapeDataString(serializedTabData);
+            string[] serializedData = serializedTabData.Split('\n');
+
+            // Another bend is trying to send us a tab.
+            this.AddTabWithFile(serializedData[0]);
+            if (serializedData[2] != String.Empty)
+            {
+                this.tab[0].SetFullFileName(serializedData[2]);
+            }
+            this.tab[0].Title.TitleText = serializedData[1];
+            System.IO.File.Delete(serializedData[3]);
+
+            if (serializedData[0] != serializedData[2])
+            {
+                // Document has some kind of change.
+                this.tab[0].TextEditor.Document.HasUnsavedContent = true;
+            }
+        }
+
+        void TabDrag_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (tabDragVisual != null)
+            {
+                this.tabDragVisual.UpdatePosition();
+                this.tabDragVisual.Show();
+                Mouse.SetCursor(grabCursor);
+                e.Handled = true;
+            }
+        }
+        #endregion
+
         #region Menu band management
         private void NewButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -1022,7 +1074,7 @@ namespace Bend
             // Hook up tab band event handlers
             newTab.Title.MouseLeftButtonUp += this.TabClick;
             newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
-            newTab.CloseButton.MouseLeftButtonUp += this.TabClose;
+            newTab.Title.CloseButtonClicked += this.TabClose;
             newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
             newTab.Title.MouseMove += TabTitle_MouseMove;            
 

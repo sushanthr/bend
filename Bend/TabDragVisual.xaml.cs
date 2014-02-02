@@ -40,7 +40,7 @@ namespace Bend
             EditorSnapShot.Height = textEditor.ActualHeight * 0.75 ;
             EditorSnapShot.Width = textEditor.ActualWidth * 0.75;
 
-            Title.Text = tabTitleText;
+            FileName.Text = tabTitleText;
         }
 
         #region Windows API
@@ -67,7 +67,7 @@ namespace Bend
             Point mousePosition = GetMousePosition();
 
             this.Top = mousePosition.Y + 5;
-            this.Left = mousePosition.X - Title.ActualWidth / 2;
+            this.Left = mousePosition.X - FileName.ActualWidth / 2;
         }
 
         TextEditor textEditor;
