@@ -846,11 +846,15 @@ namespace Bend
                             if (System.IO.File.Exists(deleteFile))
                             {
                                 // The tab was not taken by another bend. Start a new instance of bend and pass the tab to it.
-                                string[] serializedData = new string [4];
+                                string[] serializedData = new string [8];
                                 serializedData[0] = fullFileName;
                                 serializedData[1] = (string)data.GetData("BEND_FILE_DISPLAY_NAME");
                                 serializedData[2] = (string)data.GetData("BEND_FILE_PATH");
                                 serializedData[3] = (string)data.GetData("BEND_FILE_DELETE");
+                                serializedData[4] = (string)this.tabDragVisual.Left.ToString();
+                                serializedData[5] = (string)this.tabDragVisual.Top.ToString();
+                                serializedData[6] = (string)this.Width.ToString();
+                                serializedData[7] = (string)this.Height.ToString();
                                 string serializedDataString = string.Join("\n", serializedData);
                                 string arguments = BEND_SERIALIZED_TABDATA_PREFIX + System.Uri.EscapeDataString(serializedDataString);
 
@@ -875,6 +879,16 @@ namespace Bend
             serializedTabData = serializedTabData.Substring(BEND_SERIALIZED_TABDATA_PREFIX.Length);
             serializedTabData = System.Uri.UnescapeDataString(serializedTabData);
             string[] serializedData = serializedTabData.Split('\n');
+            
+            double left = double.Parse(serializedData[4]);
+            double top = double.Parse(serializedData[5]);
+            double width = double.Parse(serializedData[6]);
+            double height = double.Parse(serializedData[7]);
+
+            this.Top = top;
+            this.Left = left;
+            this.Width = width;
+            this.Height = height;
 
             // Another bend is trying to send us a tab.
             this.AddTabWithFile(serializedData[0]);

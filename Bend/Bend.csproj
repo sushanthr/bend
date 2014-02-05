@@ -102,9 +102,6 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EfTidyNet">
-      <HintPath>Plugins\EfTidyNet.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
       <HintPath>.\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
@@ -173,7 +170,6 @@
       <DependentUpon>GotoLine.xaml</DependentUpon>
     </Compile>
     <Compile Include="PersistantStorage.cs" />
-    <Compile Include="Plugins\JSBeautify.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>

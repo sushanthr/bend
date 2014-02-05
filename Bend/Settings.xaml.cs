@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Deployment.Application;
-using EfTidyNet;
 
 namespace Bend
 {
@@ -37,6 +36,27 @@ namespace Bend
             ((TabItem)this.SettingsTabs.SelectedItem).Focus();
         }
 
+        private void AllowOnlyDigits_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!(e.Key == Key.D0 ||
+                e.Key == Key.D1 ||
+                e.Key == Key.D2 ||
+                e.Key == Key.D3 ||
+                e.Key == Key.D4 ||
+                e.Key == Key.D5 ||
+                e.Key == Key.D6 ||
+                e.Key == Key.D7 ||
+                e.Key == Key.D8 ||
+                e.Key == Key.D9 ||
+                e.Key == Key.Enter ||
+                e.Key == Key.Back ||
+                e.Key == Key.Escape ||
+                e.Key == Key.Delete))
+            {
+                e.Handled = true;
+            }
+        }
+
         private void ControlInitialized(object sender, EventArgs e)
         {
             this.isApplicationNetworkDeployed = ApplicationDeployment.IsNetworkDeployed;
@@ -57,12 +77,7 @@ namespace Bend
             this.UpdateButtons();
             CheckForUpdatesButton.IsEnabled = isApplicationNetworkDeployed;
 
-            // Load defaults from persistant storage            
-            JSBeautifyPreserveLine.IsChecked = PersistantStorage.StorageObject.JSBeautifyPreserveLine;
-            JSBeautifyIndent.Text = PersistantStorage.StorageObject.JSBeautifyIndent.ToString();
-            JSBeautifyUseSpaces.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseSpaces;
-            JSBeautifyUseTabs.IsChecked = PersistantStorage.StorageObject.JSBeautifyUseTabs;
-
+            // Load defaults from persistant storage           
             try
             {
                 if (isApplicationNetworkDeployed)
@@ -440,130 +455,6 @@ namespace Bend
                 WriteRegKeysForShellRightClickContextMenu();
             }
             UpdateEnvironmentPathWithExecutableDirectory(/*forceWrite*/false);
-        }
-        #endregion
-
-        #region Plugins Tab
-        private Plugins.JSBeautifyOptions GetAndPersistJsBeautifyOptions()
-        {
-            Plugins.JSBeautifyOptions jsBeautifyOptions = new Plugins.JSBeautifyOptions();
-            if (this.JSBeautifyUseSpaces.IsChecked ?? true)
-            {
-                jsBeautifyOptions.indent_char = ' ';
-                PersistantStorage.StorageObject.JSBeautifyUseSpaces = true;
-                PersistantStorage.StorageObject.JSBeautifyUseTabs = false;
-            }
-            if (this.JSBeautifyUseTabs.IsChecked ?? true)
-            {
-                jsBeautifyOptions.indent_char = '\t';
-                PersistantStorage.StorageObject.JSBeautifyUseTabs = true;
-                PersistantStorage.StorageObject.JSBeautifyUseSpaces = false;
-            }
-            
-            int indentSize; 
-            if (int.TryParse(JSBeautifyIndent.Text, out indentSize))
-            {
-                jsBeautifyOptions.indent_size = indentSize;
-                PersistantStorage.StorageObject.JSBeautifyIndent = indentSize;
-            }
-
-            if (JSBeautifyPreserveLine.IsChecked ?? true) 
-            {
-                jsBeautifyOptions.preserve_newlines = true;
-                PersistantStorage.StorageObject.JSBeautifyPreserveLine = true;
-            }
-            else
-            {
-                jsBeautifyOptions.preserve_newlines = false;
-                PersistantStorage.StorageObject.JSBeautifyPreserveLine = false;
-            }
-            return jsBeautifyOptions;
-        }
-
-        private void JSBeautifyFile(object sender, RoutedEventArgs e)
-        {
-            try
-            {   
-                Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.Document.Text, GetAndPersistJsBeautifyOptions());
-                string newFile = jsBeautify.GetResult();
-                CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Document.Text.Length, newFile);
-                this.CancelSettingsUI();
-            }
-            catch
-            {
-            }
-        }
-
-        private void JSBeautifySelection(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Plugins.JSBeautify jsBeautify = new Plugins.JSBeautify(CurrentTab().TextEditor.SelectedText, GetAndPersistJsBeautifyOptions());
-                string formattedScript = jsBeautify.GetResult();
-                CurrentTab().TextEditor.SelectedText = formattedScript;
-                this.CancelSettingsUI();
-            }
-            catch
-            {
-            }
-        }
-
-        private void AllowOnlyDigits_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (!(e.Key == Key.D0 ||
-                e.Key == Key.D1 ||
-                e.Key == Key.D2 ||
-                e.Key == Key.D3 ||
-                e.Key == Key.D4 ||
-                e.Key == Key.D5 ||
-                e.Key == Key.D6 ||
-                e.Key == Key.D7 ||
-                e.Key == Key.D8 ||
-                e.Key == Key.D9 ||
-                e.Key == Key.Enter ||
-                e.Key == Key.Back ||
-                e.Key == Key.Escape ||
-                e.Key == Key.Delete))
-            {
-                e.Handled = true;
-            }            
-        }
-
-        private void HTMLTidyProcessFile_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                String tidyHTML = "";
-                TidyNet objTidyNet = new TidyNet();
-
-                // Set up options
-                objTidyNet.Option.Clean(true);
-                objTidyNet.Option.NewInlineTags("tidy");
-                objTidyNet.Option.OutputType(EfTidyNet.EfTidyOpt.EOutputType.XhtmlOut);
-                objTidyNet.Option.DoctypeMode(EfTidyNet.EfTidyOpt.EDoctypeModes.DoctypeAuto);
-                objTidyNet.Option.Indent(EfTidyNet.EfTidyOpt.EIndentScheme.AUTOINDENT);
-                objTidyNet.Option.TabSize(4);
-                objTidyNet.Option.IndentSpace(4);
-
-                objTidyNet.TidyMemToMem(CurrentTab().TextEditor.Document.Text, ref tidyHTML);
-
-                int totalWarnings = 0;
-                int totalErrors = 0;
-                objTidyNet.TotalWarnings(ref totalWarnings);
-                objTidyNet.TotalErrors(ref totalErrors);
-                string error = objTidyNet.ErrorWarning();
-
-                if (StyledMessageBox.Show("HTML TIDY FINISHED WITH " + totalErrors.ToString() + " ERRORS AND " + totalWarnings.ToString() + " WARNINGS",
-                    error,
-                    true))
-                {
-                    CurrentTab().TextEditor.ReplaceText(0, CurrentTab().TextEditor.Document.Text.Length, tidyHTML);
-                }
-                this.CancelSettingsUI();
-            }
-            catch
-            {
-            }
         }
         #endregion
 

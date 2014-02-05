@@ -108,44 +108,6 @@
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5">Plugins</Label>
-                </TabItem.Header>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="60" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="1" MaxWidth="800" Margin="0,30,0,0">                        
-                        <Label FontFamily="Segoe UI" Content="JScript Beautifier" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" Padding="0,5" FontWeight="SemiBold"/>
-                        <TextBlock Foreground="Silver" Margin="10,10,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
-                            Reformat and reindent javascript code using this tool.
-                        </TextBlock>
-                        <TextBlock Foreground="Silver" Margin="20,15,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
-                            Indent Size <TextBox Name="JSBeautifyIndent" VerticalAlignment="Center" Margin="50,5,0,-2" FontSize="12" Width="50" PreviewKeyDown="AllowOnlyDigits_PreviewKeyDown" TextAlignment="Center" />
-                        </TextBlock>
-                        <WrapPanel>
-                            <TextBlock Foreground="Silver" Margin="20,5,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
-                                Indent with
-                            </TextBlock>
-                            <RadioButton GroupName="JSTextIndent" Name="JSBeautifyUseSpaces" VerticalAlignment="Center" Margin="50,0,0,0" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14">Spaces</RadioButton>
-                            <RadioButton GroupName="JSTextIndent" Name="JSBeautifyUseTabs" VerticalAlignment="Center" Margin="50,0,0,0" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14">Tabs</RadioButton>
-                        </WrapPanel>
-                        <CheckBox Name="JSBeautifyPreserveLine" Margin="20,15,0,0" Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" Padding="10,0">Preserve new lines while formatting script</CheckBox>
-                        <WrapPanel Grid.Column="1" Margin="0,10,0,10" HorizontalAlignment="Right">
-                            <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="JSBeautifySelection">BEAUTIFY SELECTION</Button>
-                            <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,5,5,5" Click="JSBeautifyFile" IsDefault="True" Focusable="True" TabIndex="0" IsTabStop="True">BEAUTIFY FILE</Button>                            
-                        </WrapPanel>
-                        <Label FontFamily="Segoe UI" Content="HTML Tidy" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold" Padding="0,5"/>
-                        <TextBlock Foreground="Silver" Margin="10,10,0,0" FontWeight="Regular" FontFamily="Segoe UI" FontSize="14" TextWrapping="Wrap">
-                            HTML Tidy is a tool for checking and cleaning up HTML source files. It is especially useful for finding and correcting errors in deeply nested HTML, or for making grotesque code legible once more.
-                        </TextBlock>
-                        <Button Padding="15,2" FontFamily="Segoe UI" FontWeight="Bold" FontSize="10" Margin="5,15,5,5" HorizontalAlignment="Right" Click="HTMLTidyProcessFile_Click">PROCESS FILE</Button>
-                    </StackPanel>
-                </Grid>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
                     <Label Foreground="Gray" FontStretch="Normal" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="10,5"> Options</Label>
                 </TabItem.Header>
                 <Grid Margin="0,0,0,50">
