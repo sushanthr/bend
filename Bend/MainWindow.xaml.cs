@@ -851,10 +851,10 @@ namespace Bend
                                 serializedData[1] = (string)data.GetData("BEND_FILE_DISPLAY_NAME");
                                 serializedData[2] = (string)data.GetData("BEND_FILE_PATH");
                                 serializedData[3] = (string)data.GetData("BEND_FILE_DELETE");
-                                serializedData[4] = (string)this.tabDragVisual.Left.ToString();
-                                serializedData[5] = (string)this.tabDragVisual.Top.ToString();
-                                serializedData[6] = (string)this.Width.ToString();
-                                serializedData[7] = (string)this.Height.ToString();
+                                serializedData[4] = (this.tabDragVisual.Left - TabBar.Margin.Left).ToString();
+                                serializedData[5] = (this.tabDragVisual.Top - TabBar.Margin.Top).ToString();
+                                serializedData[6] = this.Width.ToString();
+                                serializedData[7] = this.Height.ToString();
                                 string serializedDataString = string.Join("\n", serializedData);
                                 string arguments = BEND_SERIALIZED_TABDATA_PREFIX + System.Uri.EscapeDataString(serializedDataString);
 
