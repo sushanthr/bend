@@ -22,7 +22,7 @@ namespace TextCoreControl
             {
                 if (this.shouldDrawSimple)
                 {
-                    showFormattingService.renderTarget.DrawTextLayout(new Point2F(originX + showFormattingPadding, originY), this.displayText, showFormattingService.showFormattingBrush);
+                    showFormattingService.renderTarget.DrawTextLayout(new Point2F(originX, originY), this.displayText, showFormattingService.showFormattingBrush);
                 }
                 else
                 {
@@ -38,7 +38,17 @@ namespace TextCoreControl
             {
                 get
                 {
-                    return new InlineObjectMetrics(this.Width + 2.0f , this.Height, displayText.LineMetrics.First().Baseline, false);
+                    float width;
+                    if (shouldDrawSimple)
+                    {
+                        SizeF minSize = this.showFormattingService.MinimumShowFormattingSymbolSizePerCharacter;
+                        width = minSize.Width * (displayText.Text.Length);
+                    }
+                    else
+                    {
+                        width = this.Width + 2.0f;
+                    }
+                    return new InlineObjectMetrics(width, this.Height, displayText.LineMetrics.First().Baseline, false);
                 }
             }
             internal float Width
@@ -65,6 +75,7 @@ namespace TextCoreControl
 
         internal void ApplyShowFormatting(string lineText, DWriteFactory dwriteFactory, TextLayout textLayout)
         {
+            EnsureEmTextSizeLayout(dwriteFactory);
             for (int i = 0; i < lineText.Length; i++)
             {
                 if (textLayout.Text[i] == '*')
@@ -85,7 +96,7 @@ namespace TextCoreControl
                         textLayout.SetInlineObject(new ShowFormattingInlineObject(this, formattingTextLayout, StandardControlCharacterDrawSimple[(int)ch]), new TextRange((uint)i, 1));
                     }
                 }
-            }
+            }            
         }
 
         internal string PrepareShowFormatting(string lineText, bool ignoreLastCharacter)
@@ -109,6 +120,22 @@ namespace TextCoreControl
                 stringBuilder.Append(lineText[lineText.Length - 1]);
             }
             return stringBuilder.ToString();
+        }
+
+        private void EnsureEmTextSizeLayout(DWriteFactory dwriteFactory)
+        {
+            if (this.emSizeTextLayout == null)
+            {
+                this.emSizeTextLayout = dwriteFactory.CreateTextLayout("m", Settings.DefaultTextFormat, float.MaxValue, float.MaxValue);
+            }
+        }
+
+        internal SizeF MinimumShowFormattingSymbolSizePerCharacter
+        {
+            get 
+            {
+                return new SizeF(this.emSizeTextLayout.Metrics.Width, this.emSizeTextLayout.Metrics.Height);
+            }
         }
 
         private static bool IsStandardControlCharacter(char ch)
@@ -198,7 +225,7 @@ namespace TextCoreControl
         {
             this.renderTarget = renderTarget;
             showFormattingBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColor);
-            showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt);             
+            showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt);
         }
         internal void NotifyOfSettingsChanged()
         {
@@ -208,6 +235,7 @@ namespace TextCoreControl
                 showFormattingBrushAlt = renderTarget.CreateSolidColorBrush(Settings.DefaultShowFormattingColorAlt);
             }
             formattingTextLayouts = new Dictionary<char, TextLayout>();
+            emSizeTextLayout = null;
         }
         #endregion
 
@@ -216,6 +244,7 @@ namespace TextCoreControl
         private Brush showFormattingBrushAlt;
         private Dictionary<char, TextLayout> formattingTextLayouts;
         private const float showFormattingPadding = 2.0f;
+        private TextLayout emSizeTextLayout;
     }
    
 }

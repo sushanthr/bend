@@ -196,9 +196,6 @@ namespace TextCoreControl
             string newFileContents = this.fileContents.ToString();
             lock (this)
             {
-                int lastFindEndIndex = 0;
-                StringBuilder outputString = new StringBuilder();
-
                 if (useRegEx)
                 {
                     try
@@ -206,14 +203,11 @@ namespace TextCoreControl
                         System.Text.RegularExpressions.Regex regEx;
                         regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                         System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(newFileContents);
-
-                        for (int i = 0; i < matches.Count; i++)
-                        {
-                            outputString.Append(newFileContents.Substring(lastFindEndIndex, matches[i].Index - lastFindEndIndex));
-                            outputString.Append(replaceText);
-                            lastFindEndIndex = matches[i].Index + matches[i].Length;
-                        }
                         count = matches.Count;
+                        if (replaceText !=  String.Empty && count != 0)
+                        {
+                            newFileContents = regEx.Replace(newFileContents, replaceText);
+                        }
                     }
                     catch
                     {
@@ -222,31 +216,8 @@ namespace TextCoreControl
                 }
                 else
                 {
-                    int currentFindIndex = 0;
-
-                    while (true)
-                    {
-                        currentFindIndex = newFileContents.IndexOf(findText, currentFindIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                        if (currentFindIndex >= 0)
-                        {
-                            outputString.Append(newFileContents.Substring(lastFindEndIndex, currentFindIndex - lastFindEndIndex));
-                            outputString.Append(replaceText);
-                            count++;
-                            currentFindIndex = currentFindIndex + findText.Length;
-                            lastFindEndIndex = currentFindIndex;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                if (count != 0)
-                {
-                    outputString.Append(newFileContents.Substring(lastFindEndIndex));
-                    newFileContents = outputString.ToString();
-                }
+                    newFileContents = newFileContents.Replace(findText, replaceText);                    
+                }               
             }
 
             if (count != 0)

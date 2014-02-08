@@ -96,6 +96,11 @@ namespace TextCore
                     int lineNumberInt = int.Parse(lineNumber);
                     TextEditor.DisplayManager.ScrollToContentLineNumber(lineNumberInt, /*moveCaret*/false);
                 }
+                else if (command.IndexOf("show", StringComparison.OrdinalIgnoreCase) >= 0 && command.IndexOf("formatting", StringComparison.OrdinalIgnoreCase) >= 0)  
+                {
+                    TextCoreControl.Settings.ShowFormatting = !TextCoreControl.Settings.ShowFormatting;                    
+                    TextEditor.NotifyOfSettingsChange();
+                }
             }
         }                
     }
