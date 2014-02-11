@@ -176,7 +176,7 @@ namespace TextCoreControl
             "GS", 
             "RS", 
             "US", 
-            "."
+            "⋅"
         };
 
         private static bool[] StandardControlCharacterDrawSimple = { 
