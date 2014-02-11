@@ -419,9 +419,9 @@ namespace Bend
                         
             if (findResults.Count != 0)
             {
-                this.findResults.RemoveRange(0, this.findResults.Count);
-                this.TextEditor.CancelSelect();
+                this.findResults.RemoveRange(0, this.findResults.Count);                
             }
+            this.TextEditor.CancelSelect();
             this.currentSearchIndex = 0;
             this.findText = null;
         }                

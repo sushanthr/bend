@@ -151,7 +151,7 @@ namespace TextCoreControl
             {
                 System.Diagnostics.Debug.Assert(length > 0);
 
-                // Last ordinal is reserved for \n
+                // Last ordinal is reserved for \0
                 if (ordinal + length < this.fileContents.Length)
                 {
                     string content = fileContents.ToString(ordinal, length);
@@ -193,7 +193,8 @@ namespace TextCoreControl
         internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
             int count = 0;
-            string newFileContents = this.fileContents.ToString();
+            string newFileContents = this.fileContents.ToString(0, this.fileContents.Length - 1);
+            
             lock (this)
             {
                 if (useRegEx)
@@ -216,16 +217,52 @@ namespace TextCoreControl
                 }
                 else
                 {
+                    int startIndex = -1;
+                    do
+                    {
+                        startIndex = newFileContents.IndexOf(findText, startIndex + 1);
+                        count++;
+                    } 
+                    while (startIndex >= 0);
                     newFileContents = newFileContents.Replace(findText, replaceText);                    
                 }               
             }
 
             if (count != 0)
             {
-                this.DeleteAt(0, this.fileContents.Length - 1);
+                this.DeleteAt(0, this.fileContents.Length -1);
                 this.InsertAt(0, newFileContents);
             }
             return count;
+        }
+
+        internal void ReplaceWithRegexAtOrdinal(string findText, string replaceText, bool matchCase, int beginOrdinal)
+        {
+            int count = 0;
+            string newFileContents = this.fileContents.ToString();
+            lock (this)
+            {  
+                try
+                {
+                    System.Text.RegularExpressions.Regex regEx;
+                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(newFileContents, beginOrdinal);
+                    count = matches.Count;
+                    if (replaceText != String.Empty && count != 0)
+                    {
+                        int oldLength = newFileContents.Length;
+                        int matchLength = matches[0].Length;
+                        newFileContents = regEx.Replace(newFileContents, replaceText, 1, beginOrdinal);
+                        int newLength = newFileContents.Length;
+                        this.DeleteAt(beginOrdinal, matchLength);
+                        this.InsertAt(beginOrdinal, newFileContents.Substring(beginOrdinal, matchLength + (newLength - oldLength)));
+                    }
+                }
+                catch
+                {
+
+                }               
+            }
         }
 
         public string Text

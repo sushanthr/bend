@@ -23,6 +23,7 @@ namespace TextCoreControl
             Settings.DefaultSelectionColor                 = new ColorF(0.414f, 0.484f, 0.625f, 1.0f);
             Settings.DefaultSelectionOutlineColor          = new ColorF(0.3686f, 0.447f, 0.6f, 1.0f);
             Settings.DefaultSelectionDimColor              = new ColorF(245 / 255f, 245 / 255f, 245 / 255f, 0.50f);
+            Settings.DefaultBackgroundHighlightColor       = new ColorF(0.86f, 0.86f, 0.86f);
             Settings.LineNumberColor                       = new ColorF(0.55f, 0.55f, 0.55f);
 
             Settings.MouseWheel_Normal_Step_LineCount      = 4;
@@ -144,6 +145,7 @@ namespace TextCoreControl
         public static ColorF        DefaultSelectionColor;
         public static ColorF        DefaultSelectionOutlineColor;
         public static ColorF        DefaultSelectionDimColor;
+        public static ColorF        DefaultBackgroundHighlightColor;
         public static ColorF        LineNumberColor;
 
         public static int           MouseWheel_Normal_Step_LineCount;

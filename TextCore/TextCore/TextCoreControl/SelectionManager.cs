@@ -25,6 +25,7 @@ namespace TextCoreControl
             this.d2dFactory = d2dFactory;
             this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             this.forceRedraw = false;
+            this.backgroundHighlight = new BackgroundHighlight(renderTarget, d2dFactory);
         }
 
         internal void DrawSelection(
@@ -139,21 +140,21 @@ namespace TextCoreControl
                 bounds.Left -= 3.0f;
 
                 // Begin Render
+                renderTarget.PushAxisAlignedClip(bounds, AntiAliasMode.PerPrimitive);
                 GeometryGroup selectionGeometry = null;
                 if (geometryList.Count != 0)
                 {
                     selectionGeometry = this.d2dFactory.CreateGeometryGroup(FillMode.Winding, geometryList);
-
                     // Wipe out background outside selection background for the selected lines.
-                    renderTarget.PushAxisAlignedClip(bounds, AntiAliasMode.PerPrimitive);
                     renderTarget.FillRectangle(bounds, defaultBackgroundBrush);
-                    renderTarget.PopAxisAlignedClip();
                 }
                 else
                 {
                     // Wipe out background for affected lines
                     renderTarget.FillRectangle(bounds, defaultBackgroundBrush);
                 }
+                this.backgroundHighlight.Draw(visualLines, firstLine, lastLine, document, scrollOffset, renderTarget);
+                renderTarget.PopAxisAlignedClip();
 
                 // Draw content layer black lines.
                 for (int j = firstLine; j <= lastLine; j++)
@@ -288,6 +289,7 @@ namespace TextCoreControl
         {
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionBeginOrdinal);
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionEndOrdinal);
+            this.backgroundHighlight.NotifyOfOrdinalShift(beginOrdinal, shift);
         }
 
         internal bool ShouldUseHighlightColors {
@@ -299,7 +301,12 @@ namespace TextCoreControl
                 this.shouldUseHighlightColors = value;
             }
         }
-                
+
+        internal BackgroundHighlight BackgroundHighlight
+        {
+            get { return this.backgroundHighlight; }
+        }
+        
         internal event SelectionChangeEventHandler SelectionChange;
 
         int selectionBeginOrdinal;
@@ -318,5 +325,6 @@ namespace TextCoreControl
         SolidColorBrush highlightSelectionOutlineBrush;
         D2DFactory d2dFactory;
         DWriteFactory dwriteFactory;
+        BackgroundHighlight backgroundHighlight;
     }
 }

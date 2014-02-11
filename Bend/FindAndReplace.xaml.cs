@@ -178,14 +178,22 @@ namespace Bend
                     else
                     {
                         mainWindow.SetStatusText(count + " MATCHES REPLACED", MainWindow.StatusType.STATUS_FINDONPAGE);
-                        mainWindow.CurrentTab.TextEditor.CancelSelect();
+                        mainWindow.CurrentTab.ClearFindOnPage();
                     }
                 }
                 else
                 {
                     if (this.mainWindow.CurrentTab.FindText == FindText.Text)
                     {
-                        this.mainWindow.CurrentTab.TextEditor.SelectedText = replaceText;
+                        if (this.RegexFind.IsChecked ?? true)
+                        {
+                            TextCoreControl.TextEditor textEditor = mainWindow.CurrentTab.TextEditor;
+                            mainWindow.CurrentTab.TextEditor.ReplaceWithRegexAtOrdinal(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, textEditor.DisplayManager.SelectionBegin);
+                        }
+                        else
+                        {
+                            this.mainWindow.CurrentTab.TextEditor.SelectedText = replaceText;
+                        }
                         mainWindow.CurrentTab.HighlightNextMatch();
                     }
                     else

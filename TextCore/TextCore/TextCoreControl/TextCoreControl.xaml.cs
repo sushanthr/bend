@@ -170,9 +170,16 @@ namespace TextCoreControl
             return count;
         }
 
+        public void ReplaceWithRegexAtOrdinal(string findText, string replaceText, bool matchCase, int beginOrdinal)
+        {
+            this.undoRedoManager.BeginTransaction();
+            this.document.ReplaceWithRegexAtOrdinal(findText, replaceText, matchCase, beginOrdinal);
+            this.undoRedoManager.EndTransaction();
+        }
+
         public void Select(int index, uint length)
         {
-            int beginOrdinal = this.document.GetOrdinalForTextIndex(index);
+            int beginOrdinal = this.document.GetOrdinalForTextIndex(index);            
             this.displayManager.ScrollOrdinalIntoView(beginOrdinal);
             this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ true);
             this.displayManager.SelectRange(beginOrdinal, this.document.NextOrdinal(beginOrdinal, length));
@@ -182,8 +189,11 @@ namespace TextCoreControl
         {
             this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ false);
             int caretOrdinal = this.displayManager.CaretOrdinal;
-            this.displayManager.ScrollOrdinalIntoView(caretOrdinal, /*allowSmoothScroll*/true);
-            this.displayManager.SelectRange(caretOrdinal, caretOrdinal);
+            if (caretOrdinal != Document.UNDEFINED_ORDINAL)
+            { 
+                this.displayManager.ScrollOrdinalIntoView(caretOrdinal, /*allowSmoothScroll*/true);
+                this.displayManager.SelectRange(caretOrdinal, caretOrdinal);
+            }
         }
 
         public string SelectedText
@@ -199,6 +209,18 @@ namespace TextCoreControl
                 string text = this.displayManager.GetSelectedText(out selectionBeginOrdinal);
                 this.ReplaceText(selectionBeginOrdinal, text.Length, value);                
             }
+        }
+
+        public void SetBackgroundHighlight(int beginOrdinal, int endOrdinal)
+        {
+            this.displayManager.SetBackgroundHighlight(beginOrdinal, endOrdinal);
+            RenderHost.InvalidateVisual();
+        }
+
+        public void ResetBackgroundHighlight()
+        {
+            this.displayManager.ResetBackgroundHighlight();
+            RenderHost.InvalidateVisual();
         }
 
         #region WIN32 API references

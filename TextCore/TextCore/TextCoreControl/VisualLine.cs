@@ -136,7 +136,7 @@ namespace TextCoreControl
                 uint localBegin = 0;
                 int tempOrdinal = this.beginOrdinal;
                 if (this.beginOrdinal < beginOrdinal)
-                {   while (tempOrdinal != beginOrdinal)
+                {   while (tempOrdinal != beginOrdinal && tempOrdinal != Document.UNDEFINED_ORDINAL)
                     {
                         tempOrdinal = document.NextOrdinal(tempOrdinal);
                         localBegin++;

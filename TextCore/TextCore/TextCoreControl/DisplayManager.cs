@@ -1284,7 +1284,10 @@ namespace TextCoreControl
 
         public void SetHighlightMode(bool shouldUseHighlightColors)
         {
-            this.selectionManager.ShouldUseHighlightColors = shouldUseHighlightColors;
+            if (this.selectionManager != null)
+            { 
+                this.selectionManager.ShouldUseHighlightColors = shouldUseHighlightColors;
+            }
         }
 
         public void SelectRange(int beginAtOrdinal, int endBeforeOrdinal)
@@ -1429,7 +1432,17 @@ namespace TextCoreControl
                 }
             }
             return selectionIsAcrossLines;
-        }        
+        }
+
+        internal void SetBackgroundHighlight(int beginOrdinal, int endOrdinal)
+        {
+            this.selectionManager.BackgroundHighlight.SetBackgroundHighlight(beginOrdinal, endOrdinal);
+        }
+
+        internal void ResetBackgroundHighlight()
+        {
+            this.selectionManager.BackgroundHighlight.ResetBackgroundHighlight();
+        }
 
         #endregion
 
@@ -1842,6 +1855,13 @@ namespace TextCoreControl
                 renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
             }
 
+            this.selectionManager.BackgroundHighlight.Draw(this.visualLines,
+                redrawBegin,
+                redrawEnd,
+                this.document,
+                this.scrollOffset,
+                renderTarget);
+
             for (int i = redrawBegin; i <= redrawEnd && i >= 0 && i < this.visualLines.Count; i++)
             {
                 VisualLine visualLine = this.visualLines[i];
@@ -2107,7 +2127,7 @@ namespace TextCoreControl
             get { return (float)renderHost.ActualHeight; }
         }
 
-        internal int CaretOrdinal { get { return this.caret.Ordinal; } }
+        internal int CaretOrdinal { get { return this.caret != null ? this.caret.Ordinal : Document.UNDEFINED_ORDINAL; } }
         public int SelectionBegin   { get { return this.selectionManager.GetSelectionBeginOrdinal(); } }
         public int SelectionEnd     { get { return this.selectionManager.GetSelectionEndOrdinal(); } }
 
