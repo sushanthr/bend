@@ -58,6 +58,7 @@ namespace Bend
         TabDragVisual tabDragVisual;
         Cursor grabCursor;
         bool dropWasConsumedAsTabMove;
+        bool extendDragDrop;
         #endregion
 
         #region Public API
@@ -245,7 +246,7 @@ namespace Bend
             interBendCommuncation = new InterBendCommunication(mainWindow);
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
 
-            this.GiveFeedback += TabDrag_GiveFeedback;
+            this.QueryContinueDrag += TabDrag_QueryContinueDrag;
             String grabCursorFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Images\\Grab.cur";
             this.grabCursor = new Cursor(grabCursorFilePath);
         }
@@ -625,7 +626,7 @@ namespace Bend
 
         public void CommandGoto(int lineNumber)
         {
-            if (this.currentTabIndex >= 0 && tab[this.currentTabIndex].FullFileName != null && System.IO.File.Exists(tab[this.currentTabIndex].FullFileName))
+            if (this.currentTabIndex >= 0)
             {
                 try
                 {
@@ -764,7 +765,26 @@ namespace Bend
                 }
             }
             return insertAfterTabIndex;
-        }     
+        }
+
+        #region Windows API
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetCursorPos(ref Win32Point pt);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct Win32Point
+        {
+            public Int32 X;
+            public Int32 Y;
+        };
+        public static Point GetMousePosition()
+        {
+            Win32Point w32Mouse = new Win32Point();
+            GetCursorPos(ref w32Mouse);
+            return new Point(w32Mouse.X, w32Mouse.Y);
+        }
+        #endregion
 
         private const string BEND_FILE_CONTENT = "BEND_FILE_CONTENT";
         private const string BEND_FILE_DISPLAY_NAME = "BEND_FILE_DISPLAY_NAME";
@@ -774,7 +794,7 @@ namespace Bend
 
         void TabTitle_MouseMove(object sender, MouseEventArgs e)
         {
-            if (this.dragDropSource == null && e.LeftButton == MouseButtonState.Pressed)
+            if (this.dragDropSource == null && Mouse.LeftButton == MouseButtonState.Pressed)
             {
                 string fullFileName = null;
                 // Find the Tab
@@ -833,12 +853,36 @@ namespace Bend
                         data.SetData(BEND_FILE_PATH, sourceTab.FullFileName == null ? String.Empty : sourceTab.FullFileName);
                         data.SetData(BEND_FILE_DELETE, deleteFile);
 
-                        this.tabDragVisual = new TabDragVisual(sourceTab.TextEditor, sourceTab.Title.TitleText);
+                        this.tabDragVisual = new TabDragVisual(sourceTab.TextEditor, sourceTab.Title);
                         this.dragDropSource = sender as TabTitle;
                         this.dropWasConsumedAsTabMove = false;
+                        this.tabDragVisual.UpdatePosition(this);
+                        this.tabDragVisual.Show();
+                        this.tabDragVisual.DragMove();
+                        double tabDragVisualTop = this.tabDragVisual.Top;
+                        double tabDragVisualLeft = this.tabDragVisual.Left;
+                        double tabDragVisualWidth = this.tabDragVisual.ActualWidth;
+                        double tabDragVisualHeight = this.tabDragVisual.ActualHeight;
+                        this.tabDragVisual.Close();
+                        this.tabDragVisual = null;
 
-                        // Initiate the drag-and-drop operation.    
+                        // Check if this is a aero snap
+                        Point point = GetMousePosition();
+                        double mouseX = point.X;
+                        if (Math.Abs(mouseX - System.Windows.SystemParameters.WorkArea.Right) < 4||
+                            Math.Abs(mouseX - System.Windows.SystemParameters.VirtualScreenWidth) < 4 ||
+                            Math.Abs(mouseX - System.Windows.SystemParameters.WorkArea.Left) < 4 ||
+                            mouseX < 4)
+                        {
+                            // Snap to right
+                            tabDragVisualWidth = System.Windows.SystemParameters.WorkArea.Width / 2;
+                            tabDragVisualHeight = System.Windows.SystemParameters.WorkArea.Height;
+                        }                        
+
+                        // Initiate the drag-and-drop operation.  
+                        extendDragDrop = true;
                         DragDrop.DoDragDrop(this, data, DragDropEffects.All);
+                        extendDragDrop = false;
 
                         if (!this.dropWasConsumedAsTabMove)
                         {
@@ -848,13 +892,13 @@ namespace Bend
                                 // The tab was not taken by another bend. Start a new instance of bend and pass the tab to it.
                                 string[] serializedData = new string [8];
                                 serializedData[0] = fullFileName;
-                                serializedData[1] = (string)data.GetData("BEND_FILE_DISPLAY_NAME");
-                                serializedData[2] = (string)data.GetData("BEND_FILE_PATH");
-                                serializedData[3] = (string)data.GetData("BEND_FILE_DELETE");
-                                serializedData[4] = (this.tabDragVisual.Left - TabBar.Margin.Left).ToString();
-                                serializedData[5] = (this.tabDragVisual.Top - TabBar.Margin.Top).ToString();
-                                serializedData[6] = this.Width.ToString();
-                                serializedData[7] = this.Height.ToString();
+                                serializedData[1] = (string)data.GetData(BEND_FILE_DISPLAY_NAME);
+                                serializedData[2] = (string)data.GetData(BEND_FILE_PATH);
+                                serializedData[3] = (string)data.GetData(BEND_FILE_DELETE);
+                                serializedData[4] = tabDragVisualLeft.ToString();
+                                serializedData[5] = tabDragVisualTop.ToString();
+                                serializedData[6] = tabDragVisualWidth.ToString();
+                                serializedData[7] = tabDragVisualHeight.ToString();
                                 string serializedDataString = string.Join("\n", serializedData);
                                 string arguments = BEND_SERIALIZED_TABDATA_PREFIX + System.Uri.EscapeDataString(serializedDataString);
 
@@ -864,8 +908,7 @@ namespace Bend
                         }
 
                         this.dragDropSource = null;
-                        this.tabDragVisual.Close();
-                        this.tabDragVisual = null;
+
                     }
 
                     sourceTab.TextEditor.Visibility = Visibility.Visible;
@@ -906,14 +949,13 @@ namespace Bend
             }
         }
 
-        void TabDrag_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        void TabDrag_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
         {
-            if (tabDragVisual != null)
+            if (extendDragDrop)
             {
-                this.tabDragVisual.UpdatePosition();
-                this.tabDragVisual.Show();
-                Mouse.SetCursor(grabCursor);
+                e.Action = DragAction.Continue;
                 e.Handled = true;
+                extendDragDrop = false;
             }
         }
         #endregion

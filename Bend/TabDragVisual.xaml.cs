@@ -22,7 +22,7 @@ namespace Bend
     /// </summary>
     public partial class TabDragVisual : Window
     {
-        public TabDragVisual(TextEditor textEditor, string tabTitleText)
+        internal TabDragVisual(TextEditor textEditor, TabTitle tabTitle)
         {
             InitializeComponent();
             Visibility initialVisibility = textEditor.Visibility;
@@ -31,43 +31,31 @@ namespace Bend
             Dispatcher.BeginInvoke(
             new Action(
                 delegate {
-                    EditorSnapShot.Source = textEditor.Rasterize();
-                    textEditor.UnRasterize();
-                    textEditor.Visibility = initialVisibility;
-                    this.Focus();
+                    try
+                    {
+                        EditorSnapShot.Source = textEditor.Rasterize();
+                        textEditor.UnRasterize();
+                        textEditor.Visibility = initialVisibility;
+                        this.Focus();
+                    }
+                    catch
+                    {
+                        textEditor.UnRasterize();
+                    }
                 }
             ));            
-            EditorSnapShot.Height = textEditor.ActualHeight * 0.75 ;
-            EditorSnapShot.Width = textEditor.ActualWidth * 0.75;
+            EditorSnapShot.Height = textEditor.ActualHeight ;
+            EditorSnapShot.Width = textEditor.ActualWidth;
 
-            FileName.Text = tabTitleText;
+            FileName.Text = tabTitle.TitleText;
+            Point tabPosition = tabTitle.TranslatePoint(new Point(), (UIElement)tabTitle.Parent);
+            Tab.Margin = new Thickness(tabPosition.X + 70,0,0,0);
         }
 
-        #region Windows API
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool GetCursorPos(ref Win32Point pt);
-
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct Win32Point
+        internal void UpdatePosition(Window mainwindow)
         {
-            public Int32 X;
-            public Int32 Y;
-        };
-        public static Point GetMousePosition()
-        {
-            Win32Point w32Mouse = new Win32Point();
-            GetCursorPos(ref w32Mouse);
-            return new Point(w32Mouse.X, w32Mouse.Y);
-        }
-        #endregion  
-
-        internal void UpdatePosition()
-        {
-            Point mousePosition = GetMousePosition();
-
-            this.Top = mousePosition.Y + 5;
-            this.Left = mousePosition.X - FileName.ActualWidth / 2;
+            this.Top = mainwindow.Top;
+            this.Left = mainwindow.Left;
         }
 
         TextEditor textEditor;

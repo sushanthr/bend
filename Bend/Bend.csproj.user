@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PublishUrlHistory>D:\Home\bend\|\\Router\System\www\bend\|\\ROUTER\Storage\www\bend\|C:\Publish\|C:\Projects\Publish\</PublishUrlHistory>
-    <InstallUrlHistory>http://5u5h4n7h.appspot.com/bend/|http://sushanth.dns1.us/bend/|http://sushanth.thinks.org/bend/|http://sushanth.ignorelist.com/bend/|http://sushanth.org.org/bend/</InstallUrlHistory>
+    <PublishUrlHistory>ftp://ftp.bendtext.com/public_html/bend/|ftp://ftp.bendtext.com/public_html/Bend/|D:\Home\bend\|\\Router\System\www\bend\|\\ROUTER\Storage\www\bend\</PublishUrlHistory>
+    <InstallUrlHistory>http://bendtext.com/bend/|http://www.bendtext.com/bend/|http://5u5h4n7h.appspot.com/bend/|http://sushanth.dns1.us/bend/|http://sushanth.thinks.org/bend/</InstallUrlHistory>
     <SupportUrlHistory>http://bend.codeplex.com</SupportUrlHistory>
     <UpdateUrlHistory />
     <BootstrapperUrlHistory>http://www.microsoft.com/downloads/details.aspx%3fFamilyID=9cfb2d51-5ff4-4491-b0e5-b386f32c0992&amp;displaylang=en</BootstrapperUrlHistory>

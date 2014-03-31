@@ -16,6 +16,10 @@ namespace Bend
     internal class TabTitle : WrapPanel
     {
         private static FontFamily fontFamilySegoeUI;
+        private Point dragStartPoint;
+        private bool dragStarted;
+        private bool dragAccepted;
+        private const double DragThreshold = 5;
 
         static TabTitle()
         {
@@ -42,8 +46,8 @@ namespace Bend
             this.Children.Add(seperator);
 
             closeButton = new Image();
-            closeButton.Width = 8;
-            closeButton.Height = 8;
+            closeButton.Width = 10;
+            closeButton.Height = 10;
             BitmapImage closeImage = new BitmapImage();
             closeImage.BeginInit();
             closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close.png");
@@ -54,6 +58,42 @@ namespace Bend
 
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(this, /*isHitTestable*/true);
             closeButton.MouseLeftButtonUp += closeButton_MouseLeftButtonUp;
+
+            this.PreviewMouseMove += TabTitle_PreviewMouseMove;
+            this.PreviewMouseLeftButtonDown += TabTitle_PreviewMouseLeftButtonDown;
+            this.PreviewMouseLeftButtonUp += TabTitle_PreviewMouseLeftButtonUp;
+            dragAccepted = true;
+            dragStarted = false;
+        }
+
+        void TabTitle_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            dragStarted = false;
+            dragAccepted = true;
+        }
+
+        void TabTitle_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            dragStarted = true;
+            dragStartPoint = e.GetPosition(this);
+            dragAccepted = false;
+        }
+
+        void TabTitle_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragStarted && !dragAccepted)
+            {
+                Vector delta = dragStartPoint - e.GetPosition(this);
+                if (delta.Length > DragThreshold)
+                {
+                    dragAccepted = true;
+                }
+                else
+                { 
+                    // Suppress the drag
+                    e.Handled = true;
+                }
+            }
         }
 
         void closeButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
