@@ -22,6 +22,7 @@ namespace TextCoreControl
         internal void NotifyOfSettingsChange()
         {
             this.showFormattingService.NotifyOfSettingsChanged();
+            this.hasSeenNonAsciiCharacters = this.hasSeenNonAsciiCharacters || this.glyphTable.HasNonAsciiCharacters;
             this.glyphTable = new GlyphTable(Settings.DefaultTextFormat, this.showFormattingService);
             this.averageLineHeight = -1;
             this.averageDigitWidth = -1;
@@ -227,10 +228,16 @@ namespace TextCoreControl
             return this.averageDigitWidth;
         }
 
+        internal bool HasSeenNonAsciiCharacters
+        {
+            get { return this.hasSeenNonAsciiCharacters || this.glyphTable.HasNonAsciiCharacters; }
+        }
+
         private ShowFormattingService showFormattingService;
         private GlyphTable glyphTable;
         private readonly DWriteFactory dwriteFactory;
         private float averageLineHeight;
         private float averageDigitWidth;
+        private bool hasSeenNonAsciiCharacters;
     }
 }

@@ -48,6 +48,7 @@ namespace Bend
             string findText;
             bool findUseRegex;
             bool findMatchCase;
+            bool encodingChecked;
         #endregion
 
         #region Properties
@@ -140,6 +141,16 @@ namespace Bend
             catch (Exception exception)
             {
                 StyledMessageBox.Show("ERROR", "Error Opening File: " + exception.ToString());
+            }
+        }
+
+        internal void CheckEncoding()
+        {
+            if (!this.encodingChecked && this.TextEditor.DisplayManager.HasSeenNonAsciiCharacters && this.TextEditor.Document.CurrentEncoding == Encoding.ASCII)
+            {
+                // Potential data loss. Show the File Encoding dialog.
+                FileEncodingMessageBox.Show(this.TextEditor, /*warningMode*/true);
+                this.encodingChecked = true;
             }
         }
 

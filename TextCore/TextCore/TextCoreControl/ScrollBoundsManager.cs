@@ -38,6 +38,8 @@ namespace TextCoreControl
             this.scrollLengthEstimator.RunWorkerCompleted += new RunWorkerCompletedEventHandler(scrollLengthEstimator_RunWorkerCompleted);
 
             vScrollBar.Loaded += new System.Windows.RoutedEventHandler(vScrollBar_Loaded);
+
+            this.hasSeenNonAsciiCharacters = false;
         }
 
         #region Event handler (Renderhost size change / loaded)
@@ -65,6 +67,7 @@ namespace TextCoreControl
 
         internal void NotifyOfSettingsChange()
         {
+            this.hasSeenNonAsciiCharacters = this.hasSeenNonAsciiCharacters || this.textLayoutBuilder.HasSeenNonAsciiCharacters;
             this.textLayoutBuilder = new TextLayoutBuilder();
             this.currentWidth = 0;
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
@@ -72,6 +75,10 @@ namespace TextCoreControl
             this.horizontalScrollBound = 0;
         }
 
+        internal bool HasSeenNonAsciiCharacters
+        {
+            get { return this.hasSeenNonAsciiCharacters || this.textLayoutBuilder.HasSeenNonAsciiCharacters; }
+        }
         #endregion
 
         #region Vertical scroll bounds estimation
@@ -349,6 +356,8 @@ namespace TextCoreControl
 
         double verticalScrollBound;
         double horizontalScrollBound;
+
+        bool hasSeenNonAsciiCharacters;
         #endregion
     }
 }

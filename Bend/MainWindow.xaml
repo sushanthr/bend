@@ -57,10 +57,15 @@
                     <Image Source="/Bend;component/Images/Close.png" Width="12" Height="12" Margin="-3,0,0,0"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Close All But This" Click="ContextCloseAllButThis" MinHeight="20"/>
+            <MenuItem Header="Close other tabs" Click="ContextCloseOtherTabs" MinHeight="20"/>
             <Separator/>
-            <MenuItem Header="Copy Full Path" Click="ContextCopyFullPath" MinHeight="20"/>
-            <MenuItem Header="Open Containing Folder" Click="ContextOpenContainingFolder" MinHeight="20">
+            <MenuItem Header="File encoding" Click="ContextFileEncoding"  MinHeight="20">
+                <MenuItem.Icon>
+                    <Image Source="/Bend;component/Images/HDD.png" Width="12" Height="12" Margin="-3,0,0,0"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Copy full path" Click="ContextCopyFullPath" MinHeight="20"/>
+            <MenuItem Header="Open containing folder" Click="ContextOpenContainingFolder" MinHeight="20">
                 <MenuItem.Icon>
                     <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>

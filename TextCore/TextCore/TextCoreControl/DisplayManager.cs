@@ -2157,6 +2157,14 @@ namespace TextCoreControl
                 this.CaretPositionChanged(lineNumber + 1, columnNumber);
             }
         }
+
+        public bool HasSeenNonAsciiCharacters
+        {
+            get
+            {
+                return this.scrollBoundsManager.HasSeenNonAsciiCharacters || this.textLayoutBuilder.HasSeenNonAsciiCharacters;
+            }
+        }
         #endregion
 
         #region Syntax Highlighting

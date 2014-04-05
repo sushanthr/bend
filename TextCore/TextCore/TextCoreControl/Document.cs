@@ -15,6 +15,7 @@ namespace TextCoreControl
             this.fileContents = new StringBuilder("\0");
             this.LanguageDetector = new SyntaxHighlighting.LanguageDetector(this);
             this.hasUnsavedContent = false;
+            this.currentEncoding = Encoding.ASCII;
         }
 
         public void LoadFile(string fullFilePath)
@@ -23,6 +24,7 @@ namespace TextCoreControl
             lock (this)
             {
                 fileContents = new StringBuilder(streamReader.ReadToEnd() + "\0");
+                this.currentEncoding = streamReader.CurrentEncoding;
                 streamReader.Close();
                 streamReader.Dispose();
                 this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
@@ -41,7 +43,7 @@ namespace TextCoreControl
             fileContents.Remove(fileContents.Length - 1, 1);
             // When endcoding is not specified windows creates a UTF-8 file for text with unicode characters
             // outside ASCII range and creates ASCII files otherwise.
-            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString());
+            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString(), this.currentEncoding);
             fileContents.Append('\0');
             this.hasUnsavedContent = false;
         }
@@ -186,7 +188,7 @@ namespace TextCoreControl
                 if (ordinal >= shiftBeginOrdinal)
                     ordinal += shift;
                 else if (shift < 0 && ordinal > shiftBeginOrdinal + shift)
-                    ordinal = shiftBeginOrdinal + 1 + shift;
+                    ordinal = shiftBeginOrdinal + shift;
             }
         }
 
@@ -285,6 +287,12 @@ namespace TextCoreControl
             get { return this.hasUnsavedContent; }
             set { this.hasUnsavedContent = true; }
         }
+
+        public Encoding CurrentEncoding
+        {
+            get { return this.currentEncoding; }
+            set { this.currentEncoding = value; }
+        }
         
         // A delegate type for hooking up change notifications.
         public delegate void ContentChangeEventHandler(int beginOrdinal, int endOrdinal, string content);
@@ -309,5 +317,6 @@ namespace TextCoreControl
         internal readonly SyntaxHighlighting.LanguageDetector LanguageDetector;
 
         private bool hasUnsavedContent;
+        private Encoding currentEncoding;
     }
 }

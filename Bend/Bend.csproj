@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>4</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -134,11 +134,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FileEncoding.xaml.cs">
+      <DependentUpon>FileEncoding.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TabDragVisual.xaml.cs">
       <DependentUpon>TabDragVisual.xaml</DependentUpon>
     </Compile>
     <Compile Include="TabTitle.cs" />
     <Compile Include="ThemeSettings.cs" />
+    <Page Include="FileEncoding.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SaveChangesMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -253,6 +260,7 @@
     <Content Include="Images\Grab.cur">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Images\HDD.png" />
     <Content Include="Themes\Dark.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

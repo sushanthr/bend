@@ -1,0 +1,60 @@
+﻿<Window x:Class="Bend.FileEncodingMessageBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FileEncodingMessageBox" Width="500" 
+        WindowStyle="None" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" AllowsTransparency="True" Background="Transparent" SizeToContent="Height">
+    <Border Width="Auto" MinHeight = "164">
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <LinearGradientBrush.GradientStops>
+                    <GradientStopCollection>
+                        <GradientStop Color="#E7E3DE" Offset="0"/>
+                        <GradientStop Color="#F7EFEF" Offset="1"/>
+                    </GradientStopCollection>
+                </LinearGradientBrush.GradientStops>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Border.BitmapEffect>
+            <DropShadowBitmapEffect x:Name="ShadowBorder" Color="Black" Direction="320"  
+                                ShadowDepth="5" 
+                                Softness="1" 
+                                Opacity="0.5"/>
+        </Border.BitmapEffect>
+        <StackPanel Margin="20" Background="{DynamicResource BackgroundBrush}" Focusable="True">
+            <Grid Margin="0,20,0,0">
+                <Canvas Name="SideBand" VerticalAlignment="Stretch" Width="10" Background="{DynamicResource LogoBackgroundBrush}" HorizontalAlignment="Left"></Canvas>
+                <StackPanel Margin="30,0,10,0" MinHeight="46">
+                    <TextBlock  Name="MessageTitle" Text="FILE ENCODING" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}">
+                    </TextBlock>
+                    <ScrollViewer MaxHeight="600" VerticalScrollBarVisibility="Auto" >
+                        <StackPanel Margin="0,15,5,0">
+                            <Grid>
+                                <TextBlock FontSize="13" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" Foreground="{DynamicResource ForegroundBrush}">Encoding format</TextBlock>
+                                <ComboBox x:Name="EncodingPicker" SelectedIndex="0" Width="150" HorizontalAlignment="Right">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Label Content="{Binding Source}" Height="20" Padding="2,0,0,0" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                        <ComboBoxItem Content="ASCII"/>
+                                        <ComboBoxItem Content="UTF-8"/>
+                                        <ComboBoxItem Content="Unicode"/>
+                                        <ComboBoxItem Content="UTF-7"/>
+                                        <ComboBoxItem Content="UTF-32"/>
+                                        <ComboBoxItem Content="BigEndianUnicode"/>
+                                        <ComboBoxItem/>
+                                    </ComboBox>
+                            </Grid>
+                            <TextBlock FontSize="13" FontWeight="Regular" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}" Margin="0,10,0,0">
+                               <Run Name="ContainsAscii" Text="The current file could contain non ASCII characters"></Run><Run Name="Warning" Text=""></Run>.
+                            </TextBlock>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>                
+            </Grid>
+            <WrapPanel HorizontalAlignment="Right" Margin="0,5,15,0">                
+                <Button Name="cancelButton" Width="70" Height="22" FontSize="10" FontWeight="Bold" FontFamily="Segoe UI"  Margin="0,10,0,12" TabIndex="1" Click="cancelButton_Click" >SET</Button>
+            </WrapPanel>
+        </StackPanel>
+    </Border>    
+</Window>

@@ -180,13 +180,13 @@
                     <StackPanel Grid.Column="1" MaxWidth="800" Margin="0,45,0,0">
                         <WrapPanel>
                             <Image Source="/Bend;component/Arrow.ico" Height="117" Width="148"></Image>
-                            <WrapPanel Width="180">
+                            <StackPanel Width="180">
                                 <TextBlock Foreground="Silver" FontWeight="Regular" FontFamily="Segoe UI" FontSize="56" TextWrapping="Wrap">
                                     Bend
                                 </TextBlock>
                                 <TextBlock FontFamily="Segoe UI" Text="A modern text editor" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="ExtraLight"/>
                                 <TextBlock Name="Version" FontFamily="Segoe UI" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="ExtraLight"/>
-                            </WrapPanel>
+                            </StackPanel>
                         </WrapPanel>
                         <Label FontFamily="Segoe UI" Content="Shortcut Keys" Margin="150,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="Silver" FontSize="16" FontWeight="SemiBold"/>                        
                             <Grid Margin="150,0,0,0">

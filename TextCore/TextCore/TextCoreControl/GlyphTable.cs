@@ -15,6 +15,7 @@ namespace TextCoreControl
             this.defaultFormat = textFormat;
             charWidths = new Dictionary<char, float>();
             this.showFormattingService = showFormattingService;
+            this.hasNonAsciiCharacters = false;
         }
 
         internal float GetCharacterWidth(char letter)
@@ -45,6 +46,10 @@ namespace TextCoreControl
                     break;
                 }
                 charWidths.Add(letter, charWidth);
+                if (!this.hasNonAsciiCharacters)
+                { 
+                    this.hasNonAsciiCharacters = (Encoding.UTF8.GetByteCount(letterAsString) > 1);
+                }
                 return charWidth;
             }
         }
@@ -61,10 +66,15 @@ namespace TextCoreControl
                 charWidths = new Dictionary<char, float>();
             }
         }
+        
+        internal bool HasNonAsciiCharacters {
+            get { return this.hasNonAsciiCharacters; }
+        }
 
         private readonly DWriteFactory dwriteFactory;
         private TextFormat defaultFormat;
         private Dictionary<char, float> charWidths;
         private readonly ShowFormattingService showFormattingService;
+        private bool hasNonAsciiCharacters;
     }
 }

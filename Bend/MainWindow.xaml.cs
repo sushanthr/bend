@@ -470,6 +470,8 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
+                this.tab[this.currentTabIndex].CheckEncoding();
+
                 bool fileSaved = false;
                 if (this.tab[this.currentTabIndex].FullFileName != null)
                 {
@@ -820,6 +822,7 @@ namespace Bend
                     if (fullFileName == null || tab[tabIndex].TextEditor.Document.HasUnsavedContent)
                     {
                         fullFileName = deleteFile;
+                        tab[tabIndex].CheckEncoding();
                         tab[tabIndex].TextEditor.SaveFile(fullFileName);
                     }
                     else
@@ -994,8 +997,10 @@ namespace Bend
             {
                 if (this.currentTabIndex >= 0)
                 {
+                    this.tab[this.currentTabIndex].CheckEncoding();
+
                     SaveFileDialog dlg = new SaveFileDialog();
-                    if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].FullFileName != null)
+                    if (this.tab[this.currentTabIndex].FullFileName != null)
                     {
                         string initialDirectory = System.IO.Path.GetDirectoryName(this.tab[this.currentTabIndex].FullFileName);
                         if (initialDirectory != null && initialDirectory.Length != 0)
@@ -1180,7 +1185,7 @@ namespace Bend
             // Tab was not found - fail silently
         }       
 
-        private void ContextCloseAllButThis(object sender, RoutedEventArgs e)
+        private void ContextCloseOtherTabs(object sender, RoutedEventArgs e)
         {
             UIElement tabTitle = (Control)((MenuItem)e.OriginalSource).Parent;
             tabTitle = ((System.Windows.Controls.Primitives.Popup)((Control)tabTitle).Parent).PlacementTarget;
@@ -1223,6 +1228,21 @@ namespace Bend
                         Clipboard.SetText(fullFileName);
                     }
                     break;
+                }
+            }
+        }
+
+        private void ContextFileEncoding(object sender, RoutedEventArgs e)
+        {
+            UIElement tabTitle = (Control)((MenuItem)e.OriginalSource).Parent;
+            tabTitle = ((System.Windows.Controls.Primitives.Popup)((Control)tabTitle).Parent).PlacementTarget;
+
+            // Find the tab title in tab collection
+            for (int i = 0; i < tab.Count; i++)
+            {
+                if (tab[i].Title == tabTitle)
+                {
+                    FileEncodingMessageBox.Show(tab[i].TextEditor, /*warningMode*/false);
                 }
             }
         }
