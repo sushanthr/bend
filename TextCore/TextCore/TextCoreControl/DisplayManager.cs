@@ -28,8 +28,8 @@ namespace TextCoreControl
             this.renderHost = renderHost;
             renderHost.Loaded += new RoutedEventHandler(RenderHost_Loaded);
             renderHost.SizeChanged += new SizeChangedEventHandler(RenderHost_SizeChanged);
-            renderHost.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(renderHost_PreviewKeyDown);
-            renderHost.IsVisibleChanged += new DependencyPropertyChangedEventHandler(renderHost_IsVisibleChanged);
+            renderHost.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(RenderHost_PreviewKeyDown);
+            renderHost.IsVisibleChanged += new DependencyPropertyChangedEventHandler(RenderHost_IsVisibleChanged);
 
             this.document = document;
 
@@ -147,7 +147,7 @@ namespace TextCoreControl
             this.renderHost.Render       = Render;
             this.renderHost.MouseHandler = MouseHandler;
             this.renderHost.KeyHandler = KeyHandler;
-            this.renderHost.OtherHandler = this.OtherHandler;
+            this.renderHost.OtherHandler = OtherHandler;
             this.pageBeginOrdinal   = 0;
             this.visualLines        = new List<VisualLine>(50);
         }
@@ -190,7 +190,7 @@ namespace TextCoreControl
             }
         }
 
-        void renderHost_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void RenderHost_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (this.caret != null)
             {
@@ -410,7 +410,7 @@ namespace TextCoreControl
             }
         }
 
-        void renderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        void RenderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             bool adjustSelection = false;
             bool isShiftKeyDown = (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift);

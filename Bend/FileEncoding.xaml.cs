@@ -30,7 +30,32 @@ namespace Bend
                 ContainsAscii.Text = "The current file contains only ASCII characters";
             }
 
-            string currentEncoding = textEditor.Document.CurrentEncoding.ToString();            
+            string currentEncoding = textEditor.Document.CurrentEncoding.ToString();
+
+            switch (currentEncoding)
+            {
+                case "ASCII":
+                    EncodingPicker.SelectedIndex = 0;
+                    break;
+                case "UTF-8":
+                    EncodingPicker.SelectedIndex = 1;
+                    break;
+                case "Unicode":
+                    EncodingPicker.SelectedIndex = 2;
+                    break;
+                case "UTF-7":
+                    EncodingPicker.SelectedIndex = 3;
+                    break;
+                case "UTF-32":
+                    EncodingPicker.SelectedIndex = 4;
+                    break;
+                case "BigEndianUnicode":
+                    EncodingPicker.SelectedIndex = 5;
+                    break;
+                default:
+                    EncodingPicker.SelectedIndex = 1;
+                    break;
+            }
         }
 
         public static void Show(TextCoreControl.TextEditor textEditor, bool warningMode)

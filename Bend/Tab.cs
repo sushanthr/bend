@@ -137,6 +137,7 @@ namespace Bend
             {
                 this.textEditor.LoadFile(fullFileName);
                 this.SetFullFileName(fullFileName);
+                this.encodingChecked = false;
             }
             catch (Exception exception)
             {

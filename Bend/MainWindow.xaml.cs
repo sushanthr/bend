@@ -56,7 +56,6 @@ namespace Bend
         
         TabTitle dragDropSource;
         TabDragVisual tabDragVisual;
-        Cursor grabCursor;
         bool dropWasConsumedAsTabMove;
         bool extendDragDrop;
         #endregion
@@ -247,8 +246,6 @@ namespace Bend
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
 
             this.QueryContinueDrag += TabDrag_QueryContinueDrag;
-            String grabCursorFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Images\\Grab.cur";
-            this.grabCursor = new Cursor(grabCursorFilePath);
         }
 
         void RenderCapability_TierChanged(object sender, EventArgs e)

@@ -214,6 +214,7 @@
     <Content Include="SyntaxHighlighting\Definitions\yacc.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="SyntaxHighlighting\Definitions\html.grammar" />
     <None Include="SyntaxHighlighting\Definitions\objc.syn" />
   </ItemGroup>
   <ItemGroup>

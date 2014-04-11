@@ -62,7 +62,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -77,11 +77,9 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>DE5713239C0BABDE2AA3111CF30D394B1EFC7404</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>43FC721759F3972F098862A1C9A5740C4F325A0C</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>Bend_TemporaryKey.pfx</ManifestKeyFile>
@@ -100,6 +98,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
@@ -257,9 +259,6 @@
   <ItemGroup>
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
-    <Content Include="Images\Grab.cur">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Images\HDD.png" />
     <Content Include="Themes\Dark.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
