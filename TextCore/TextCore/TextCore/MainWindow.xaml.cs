@@ -27,6 +27,49 @@ namespace TextCore
             this.tilted = false;
             TextEditor.CopyPasteManager = new TextCoreControl.CopyPasteManager();
             TextEditor.CancelSelect();
+            ProcessCommandLine();
+        }
+
+        private void ProcessCommandLine()
+        {
+            string[] commandLineArguments = Environment.GetCommandLineArgs();
+            bool settingsChanged = false;
+            foreach ( string argument in commandLineArguments)
+            {
+                if (argument.StartsWith("/playback="))
+                {
+                    string playBackRecord = argument.Substring("/playback=".Length);
+                    TextEditor.PlaybackFlightRecord(playBackRecord);
+                }
+                else if (argument == "/hud")
+                {
+                    settingsChanged = true;
+                    TextCoreControl.Settings.ShowDebugHUD = true;
+                }
+                else if (argument == "/linenumber")
+                {
+                    settingsChanged = true;
+                    TextCoreControl.Settings.ShowLineNumber = true;
+                }
+                else if (argument == "/showformatting")
+                {
+                    settingsChanged = true;
+                    TextCoreControl.Settings.ShowFormatting = true;
+                }
+                else if (argument == "/exit")
+                {
+                    TextEditor.ExitAfterPlayback();
+                }
+                else if (argument == "/hide")
+                {
+                    this.Top = -5000;
+                    this.ShowInTaskbar = false;
+                }
+            }
+            if (settingsChanged)
+            {
+                TextEditor.NotifyOfSettingsChange();
+            }
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)

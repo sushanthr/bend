@@ -20,8 +20,9 @@ namespace TextCoreControl
             InitializeComponent();
             this.document = new Document();
             this.undoRedoManager = new UndoRedoManager(this.document);
-            this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar, undoRedoManager);
-            this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControlUserControl_PreviewKeyDown);
+            this.flightRecorder = new FlightRecorder(this);
+            this.displayManager = new DisplayManager(this.RenderHost, document, vScrollBar, hScrollBar, undoRedoManager, flightRecorder);
+            this.PreviewKeyDown += new System.Windows.Input.KeyEventHandler(TextControl_PreviewKeyDown);
             this.copyPasteManager = null;
             SetControlBackground();
         }
@@ -35,83 +36,108 @@ namespace TextCoreControl
             this.BottomRightPatch.Background = this.Background;
         }
 
-        void TextControlUserControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void TextControl_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            switch (e.Key)
+            bool handled;
+            this.TextControl_PreviewKeyDown(e.Key, e.KeyboardDevice.Modifiers, out handled);
+            e.Handled = handled;
+        }
+
+        internal void TextControl_PreviewKeyDown(System.Windows.Input.Key key, System.Windows.Input.ModifierKeys modifier, out bool handled)
+        {
+            handled = false;
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.TextEdtiorPreviewKeyDownFlightEvent(key, modifier));
+            }
+
+            switch (key)
             {
                 case System.Windows.Input.Key.Z:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         this.Undo();
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.Y:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         this.Redo();
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.X:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         if (this.copyPasteManager != null)
                         {
                             this.copyPasteManager.Cut(this);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.C:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         if (this.copyPasteManager != null)
                         {
                             this.copyPasteManager.Copy(this);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.V:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         if (this.copyPasteManager != null)
                         {
                             this.copyPasteManager.Paste(this);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
-                    else if (e.KeyboardDevice.Modifiers == (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Shift))
+                    else if (modifier == (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Shift))
                     {
                         if (this.copyPasteManager != null)
                         {
                             this.copyPasteManager.PasteNextRingItem(this);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.Insert:
-                    if (e.KeyboardDevice.Modifiers == (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Shift))
+                    if (modifier == (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Shift))
                     {
                         if (this.copyPasteManager != null)
                         {
                             this.copyPasteManager.PasteNextRingItem(this);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
+                    break;
+                case System.Windows.Input.Key.F9:
+                    this.flightRecorder.TakeSnapshot();                    
+                    handled = true;
                     break;
             }
         }
 
         public void LoadFile(string fullFilePath)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.LoadFileFlightEvent(fullFilePath));
+            }
             document.LoadFile(fullFilePath);
             RenderHost.InvalidateVisual();
         }
 
         public void SaveFile(string fullFilePath)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.SaveFileFlightEvent(fullFilePath));
+            }
             document.SaveFile(fullFilePath);
         }
 
@@ -156,6 +182,11 @@ namespace TextCoreControl
 
         public void ReplaceText(int index, int length, string newText)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceTextFlightEvent(index, length, newText));
+            }
+
             this.undoRedoManager.BeginTransaction();
             this.document.DeleteAt(index, length);
             this.document.InsertAt(index, newText);
@@ -164,6 +195,10 @@ namespace TextCoreControl
 
         public int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceAllTextFlightEvent(findText, replaceText, matchCase, useRegEx));
+            }
             this.undoRedoManager.BeginTransaction();
             int count = this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx);
             this.undoRedoManager.EndTransaction();
@@ -172,6 +207,11 @@ namespace TextCoreControl
 
         public void ReplaceWithRegexAtOrdinal(string findText, string replaceText, bool matchCase, int beginOrdinal)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceWithRegexAtOrdinalFlightEvent(findText, replaceText, matchCase, beginOrdinal));
+            }
+
             this.undoRedoManager.BeginTransaction();
             this.document.ReplaceWithRegexAtOrdinal(findText, replaceText, matchCase, beginOrdinal);
             this.undoRedoManager.EndTransaction();
@@ -179,6 +219,7 @@ namespace TextCoreControl
 
         public void Select(int index, uint length)
         {
+            if (this.flightRecorder.IsRecording) this.flightRecorder.AddFlightEvent(new FlightRecorder.SelectFlightEvent(index, length));
             int beginOrdinal = this.document.GetOrdinalForTextIndex(index);            
             this.displayManager.ScrollOrdinalIntoView(beginOrdinal);
             this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ true);
@@ -187,6 +228,7 @@ namespace TextCoreControl
 
         public void CancelSelect()
         {
+            if (this.flightRecorder.IsRecording) this.flightRecorder.AddFlightEvent(new FlightRecorder.CancelSelectFlightEvent());
             this.displayManager.SetHighlightMode(/*shouldUseHighlightColors*/ false);
             int caretOrdinal = this.displayManager.CaretOrdinal;
             if (caretOrdinal != Document.UNDEFINED_ORDINAL)
@@ -213,12 +255,20 @@ namespace TextCoreControl
 
         public void SetBackgroundHighlight(int beginOrdinal, int endOrdinal)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.SetBackgroundHighlightFlightEvent(beginOrdinal, endOrdinal));
+            }
             this.displayManager.SetBackgroundHighlight(beginOrdinal, endOrdinal);
             RenderHost.InvalidateVisual();
         }
 
         public void ResetBackgroundHighlight()
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.ResetBackgroundHighlightFlightEvent());
+            }
             this.displayManager.ResetBackgroundHighlight();
             RenderHost.InvalidateVisual();
         }
@@ -234,9 +284,29 @@ namespace TextCoreControl
         {
             if (RenderHost.Visibility == System.Windows.Visibility.Visible)
             {
-                SetFocus(RenderHost.Handle);
+                IntPtr rValue = SetFocus(RenderHost.Handle);
+                int error = Marshal.GetLastWin32Error();
             }
             return false;
+        }
+
+        public void PlaybackFlightRecord(string fullFilePath)
+        {
+            this.playbackFlightRecordFullPath = fullFilePath;
+            this.flightRecorder.Playback(fullFilePath);
+        }
+
+        internal string PlaybackFlightRecordFullPath
+        {
+            get
+            {
+                return this.playbackFlightRecordFullPath;
+            }
+        }
+
+        public void ExitAfterPlayback()
+        {
+            this.flightRecorder.ExitAfterPlayback = true;
         }
 
         public Document Document { get { return this.document; } }
@@ -245,6 +315,8 @@ namespace TextCoreControl
         private Document document;
         private DisplayManager displayManager;
         private UndoRedoManager undoRedoManager;
-        private CopyPasteManager copyPasteManager;       
+        private CopyPasteManager copyPasteManager;
+        private FlightRecorder flightRecorder;
+        private string playbackFlightRecordFullPath;
     }
 }

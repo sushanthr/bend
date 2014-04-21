@@ -23,7 +23,8 @@ namespace TextCoreControl
             Document document, 
             ScrollBar vScrollBar, 
             ScrollBar hScrollBar,
-            UndoRedoManager undoRedoManager)
+            UndoRedoManager undoRedoManager,
+            FlightRecorder flightRecorder)
         {
             this.renderHost = renderHost;
             renderHost.Loaded += new RoutedEventHandler(RenderHost_Loaded);
@@ -50,6 +51,7 @@ namespace TextCoreControl
             DebugHUD.DisplayManager = this;
 
             this.undoRedoManager = undoRedoManager;
+            this.flightRecorder = flightRecorder;
         }
 
         void CreateDeviceResources()
@@ -150,12 +152,21 @@ namespace TextCoreControl
             this.renderHost.OtherHandler = OtherHandler;
             this.pageBeginOrdinal   = 0;
             this.visualLines        = new List<VisualLine>(50);
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.SizeChangeFlightEvent(renderHost.ActualWidth, renderHost.ActualHeight));
+            }
         }
 
         void RenderHost_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (hwndRenderTarget != null)
             {
+                if (this.flightRecorder.IsRecording)
+                {
+                    this.flightRecorder.AddFlightEvent(new FlightRecorder.SizeChangeFlightEvent(renderHost.ActualWidth, renderHost.ActualHeight));
+                }
+
                 // Resize the render target to the actual host size
                 float dpiX = (float)(this.d2dFactory.DesktopDpi.X / 96.0);
                 float dpiY = (float)(this.d2dFactory.DesktopDpi.Y / 96.0);
@@ -208,16 +219,18 @@ namespace TextCoreControl
         public delegate void ShowContextMenuEventHandler();
         public event ShowContextMenuEventHandler ContextMenu;
 
-        private void MouseHandler(int x, int y, int type, int flags)
+        internal void MouseHandler(int unscaledX, int unscaledY, int type, int flags)
         {
-            x = (int)(x * (96.0 / this.d2dFactory.DesktopDpi.X));
-            y = (int)(y * (96.0 / this.d2dFactory.DesktopDpi.Y));
+            int x = (int)(unscaledX * (96.0 / this.d2dFactory.DesktopDpi.X));
+            int y = (int)(unscaledY * (96.0 / this.d2dFactory.DesktopDpi.Y));
+            bool significantEvent = false;
 
             switch (type)
             {
                 case 0x0201:
                     // WM_LBUTTONDOWN
                     {
+                        significantEvent = true;
                         SetFocus(renderHost.Handle);
 
                         int selectionBeginOrdinal;
@@ -253,6 +266,7 @@ namespace TextCoreControl
                 case 0x0203:
                     // WM_LBUTTONDBLCLK                0x0203
                     {
+                        significantEvent = true;
                         int selectionBeginOrdinal;
                         int iLine;
                         if (this.HitTest(new Point2F(x, y), out selectionBeginOrdinal, out iLine))
@@ -286,6 +300,7 @@ namespace TextCoreControl
                 case 0x0205:
                     // WM_RBUTTONUP
                     {
+                        significantEvent = true;
                         if (this.ContextMenu != null)
                         {
                             this.ContextMenu();
@@ -299,6 +314,7 @@ namespace TextCoreControl
                     // WM_MOUSEMOVE
                     if (flags == 1)
                     {
+                        significantEvent = true;
                         // Left mouse is down.
                         int selectionEndOrdinal;
                         int iLine;
@@ -326,6 +342,7 @@ namespace TextCoreControl
                     break;
                 case 0x020A:
                     {
+                        significantEvent = true;
                         // WM_MOUSEWHEEL
                         // wparam is passed in as flags
                         int highWord = flags >> 16;
@@ -365,6 +382,14 @@ namespace TextCoreControl
                     }
                     break;
             }
+
+            if (significantEvent)
+            {
+                if (this.flightRecorder.IsRecording)
+                {
+                    this.flightRecorder.AddFlightEvent(new FlightRecorder.MouseHandlerFlightEvent(unscaledX, unscaledY, type, flags));
+                }
+            }
         }
 
         /// <summary>
@@ -375,8 +400,13 @@ namespace TextCoreControl
         /// </summary>
         /// <param name="wparam"></param>
         /// <param name="lparam"></param>
-        private void KeyHandler(int wparam, int lparam)
+        internal void KeyHandler(int wparam, int lparam)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.KeyHandlerFlightEvent(wparam, lparam));
+            }
+
             char key = (char)wparam;
             if (this.SelectionBegin != this.SelectionEnd)
             {
@@ -410,12 +440,25 @@ namespace TextCoreControl
             }
         }
 
-        void RenderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void RenderHost_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            bool adjustSelection = false;
-            bool isShiftKeyDown = (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift);
+            bool handled;
+            this.RenderHost_PreviewKeyDown(e.Key, e.KeyboardDevice.Modifiers, out handled);
+            e.Handled = handled;
+        }
 
-            switch (e.Key)
+        internal void RenderHost_PreviewKeyDown(System.Windows.Input.Key key, System.Windows.Input.ModifierKeys modifier, out bool handled)
+        {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.DisplayManagerPreviewKeyDownFlightEvent(key, modifier));
+            }
+
+            bool adjustSelection = false;
+            bool isShiftKeyDown = (modifier == System.Windows.Input.ModifierKeys.Shift);
+            handled = false;
+
+            switch (key)
             {
                 case System.Windows.Input.Key.Left:
                     if (this.caret.Ordinal > this.document.FirstOrdinal())
@@ -427,7 +470,7 @@ namespace TextCoreControl
                             if (previousOrdinal != Document.BEFOREBEGIN_ORDINAL && document.CharacterAt(previousOrdinal) == '\r')
                             {
                                 newCaretPosition = previousOrdinal;
-                            }                         
+                            }
                         }
 
                         if (this.VisualLineCount > 0 && this.visualLines[0].BeginOrdinal > newCaretPosition && this.pageBeginOrdinal != document.FirstOrdinal())
@@ -438,11 +481,11 @@ namespace TextCoreControl
                         this.UpdateCaret(newCaretPosition);
                         adjustSelection = true;
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.Right:
                     if (this.document.NextOrdinal(this.caret.Ordinal) != Document.UNDEFINED_ORDINAL)
-                    {                        
+                    {
                         int newCaretPosition = this.document.NextOrdinal(this.caret.Ordinal);
                         char charAt = this.document.CharacterAt(this.caret.Ordinal);
                         if (charAt == '\r' && newCaretPosition != Document.UNDEFINED_ORDINAL && document.CharacterAt(newCaretPosition) == '\n')
@@ -458,15 +501,15 @@ namespace TextCoreControl
                         this.UpdateCaret(newCaretPosition);
                         adjustSelection = true;
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.Up:
                     {
                         if (this.VisualLineCount > 0)
                         {
                             int firstVisibleLine = this.FirstVisibleLine();
-                            if (firstVisibleLine >= 0 && 
-                                this.visualLines[firstVisibleLine].BeginOrdinal <= this.caret.Ordinal && 
+                            if (firstVisibleLine >= 0 &&
+                                this.visualLines[firstVisibleLine].BeginOrdinal <= this.caret.Ordinal &&
                                 this.visualLines[firstVisibleLine].NextOrdinal > this.caret.Ordinal)
                             {
                                 // Moving up from the first line, we need to scroll up - if possible.
@@ -476,15 +519,15 @@ namespace TextCoreControl
                         this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineUp);
                         adjustSelection = true;
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.Down:
                     {
                         if (this.VisualLineCount > 0)
                         {
                             int lastVisibleLine = this.LastVisibleLine();
-                            if (lastVisibleLine >= 0 && 
-                                this.visualLines[lastVisibleLine].BeginOrdinal <= this.caret.Ordinal && 
+                            if (lastVisibleLine >= 0 &&
+                                this.visualLines[lastVisibleLine].BeginOrdinal <= this.caret.Ordinal &&
                                 this.visualLines[lastVisibleLine].NextOrdinal > this.caret.Ordinal)
                             {
                                 // Moving down from the last visible line, we need to scroll down - if possible.
@@ -494,7 +537,7 @@ namespace TextCoreControl
                         this.caret.MoveCaretVertical(this.visualLines, document, scrollOffset, Caret.CaretStep.LineDown);
                         adjustSelection = true;
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.End:
                     {
@@ -529,7 +572,7 @@ namespace TextCoreControl
                             }
                         }
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.Home:
                     {
@@ -544,7 +587,7 @@ namespace TextCoreControl
                             adjustSelection = true;
                         }
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.PageUp:
                     if (this.VisualLineCount > 1)
@@ -569,11 +612,11 @@ namespace TextCoreControl
                             adjustSelection = true;
                         }
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.PageDown:
                     if (this.VisualLineCount > 1)
-                    {                        
+                    {
                         Point2F caretPosition = this.caret.PositionInScreenCoOrdinates();
                         int lastVisibleLine = this.LastVisibleLine();
                         if (lastVisibleLine == -1 || this.visualLines[lastVisibleLine].NextOrdinal != Document.UNDEFINED_ORDINAL)
@@ -596,7 +639,7 @@ namespace TextCoreControl
                             adjustSelection = true;
                         }
                     }
-                    e.Handled = true;
+                    handled = true;
                     break;
                 case System.Windows.Input.Key.Back:
                     {
@@ -611,7 +654,7 @@ namespace TextCoreControl
                         {
                             this.DeleteSingleCharRespectingLineBreak(document.PreviousOrdinal(this.caret.Ordinal));
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.Delete:
@@ -627,11 +670,11 @@ namespace TextCoreControl
                         {
                             this.DeleteSingleCharRespectingLineBreak(this.caret.Ordinal);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.A:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         //  Control A was pressed - select all
                         try
@@ -645,25 +688,25 @@ namespace TextCoreControl
                             this.caret.UnprepareAfterRender();
                         }
                         catch
-                        {                
+                        {
                             this.RecoverFromRenderException();
-                        }            
-                        e.Handled = true;
+                        }
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.Space:
-                    {                        
+                    {
                         if (this.SelectionBegin != this.SelectionEnd)
                         {
-                            if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                            if (modifier == System.Windows.Input.ModifierKeys.Shift)
                             {
                                 // Need to remove single space from every line of selection
-                                e.Handled = this.AdjustLeadingInSelection(/*fRemoveSpace*/true, /*leadingString*/ " ");
+                                handled = this.AdjustLeadingInSelection(/*fRemoveSpace*/true, /*leadingString*/ " ");
                             }
                             else
                             {
                                 // Need to and single space to every line of selection.
-                                e.Handled= this.AdjustLeadingInSelection(/*fRemoveSpace*/false, /*leadingString*/ " ");
+                                handled = this.AdjustLeadingInSelection(/*fRemoveSpace*/false, /*leadingString*/ " ");
                             }
                         }
                     }
@@ -679,7 +722,7 @@ namespace TextCoreControl
                         if (this.SelectionBegin != this.SelectionEnd)
                         {
                             bool isLeadingAdjusted = false;
-                            if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Shift)
+                            if (modifier == System.Windows.Input.ModifierKeys.Shift)
                             {
                                 // Need to un-tabify selection                                
                                 isLeadingAdjusted = this.AdjustLeadingInSelection(/*fRemove*/true, /*leadingString*/ tabString);
@@ -697,37 +740,38 @@ namespace TextCoreControl
                                 document.InsertAt(selectionBeginOrdial, tabString);
                             }
                         }
-                        else                        
-                        {            
+                        else
+                        {
                             document.InsertAt(this.caret.Ordinal, tabString);
                         }
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.D0:
                 case System.Windows.Input.Key.NumPad0:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control){
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
+                    {
                         Settings.ResetFontSize();
                         this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.OemPlus:
                 case System.Windows.Input.Key.Add:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         Settings.IncreaseFontSize();
                         this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.OemMinus:
                 case System.Windows.Input.Key.Subtract:
-                    if (e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+                    if (modifier == System.Windows.Input.ModifierKeys.Control)
                     {
                         Settings.DecreaseFontSize();
                         this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
                 case System.Windows.Input.Key.Pause:
@@ -757,8 +801,8 @@ namespace TextCoreControl
                                         insertString += chForward;
                                     }
                                     else
-                                    { 
-                                        break; 
+                                    {
+                                        break;
                                     }
                                     ordinalAddIndent = document.NextOrdinal(ordinalAddIndent);
                                 }
@@ -768,7 +812,7 @@ namespace TextCoreControl
                         }
 
                         document.InsertAt(this.caret.Ordinal, insertString);
-                        e.Handled = true;
+                        handled = true;
                     }
                     break;
             }
@@ -792,9 +836,9 @@ namespace TextCoreControl
                     this.caret.UnprepareAfterRender();
                 }
                 catch
-                {                
+                {
                     this.RecoverFromRenderException();
-                }            
+                }
             }
         }
 
@@ -846,6 +890,11 @@ namespace TextCoreControl
 
         internal void vScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.VScrollBarFlightEvent(e.NewValue));
+            }
+
             int initialLineCount = this.VisualLineCount;
             this.scrollOffset.Height = (float)e.NewValue;
 
@@ -926,10 +975,14 @@ namespace TextCoreControl
             this.Render();
             this.caret.UnprepareAfterRender();
         }
-
-
-        private void hScrollBar_Scroll(object sender, ScrollEventArgs e)
+        
+        internal void hScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
+            if (this.flightRecorder.IsRecording)
+            {
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.HScrollBarFlightEvent(e.NewValue));
+            }
+
             this.scrollOffset.Width = (float)e.NewValue * Settings.DefaultTextFormat.FontSize;
             if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
             {
@@ -1022,7 +1075,7 @@ namespace TextCoreControl
             }
         }
 
-        public void GenerateLinesForScroll(int numberOfLines, out double heightToScrollBy)
+        internal void GenerateLinesForScroll(int numberOfLines, out double heightToScrollBy)
         {
             heightToScrollBy = 0;
 
@@ -1283,7 +1336,7 @@ namespace TextCoreControl
         #region Selection
 
         public void SetHighlightMode(bool shouldUseHighlightColors)
-        {
+        {   
             if (this.selectionManager != null)
             { 
                 this.selectionManager.ShouldUseHighlightColors = shouldUseHighlightColors;
@@ -1812,7 +1865,7 @@ namespace TextCoreControl
         #endregion
 
         #region Render and hit testing
-        private void Render()
+        internal void Render()
         {
             CreateDeviceResources();
             if (hwndRenderTarget.IsOccluded)
@@ -2208,6 +2261,7 @@ namespace TextCoreControl
         int                          leftMargin;
 
         UndoRedoManager              undoRedoManager;
+        FlightRecorder               flightRecorder;
         #endregion
     }
 }
