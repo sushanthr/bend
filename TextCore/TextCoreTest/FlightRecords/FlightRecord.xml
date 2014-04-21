@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFlightEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <FlightEvent xsi:type="CancelSelectFlightEvent" />
+  <FlightEvent xsi:type="SizeChangeFlightEvent">
+    <actualHeight>261</actualHeight>
+    <actualWidth>493</actualWidth>
+  </FlightEvent>
+  <FlightEvent xsi:type="LoadFileFlightEvent">
+    <fullFilePath>D:\Projects\sushanth.assembla.com\trunk\TextCore\TextCore\Test\Data\SampleText.txt</fullFilePath>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>3</x>
+    <y>7</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>7</x>
+    <y>8</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>74</x>
+    <y>7</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>75</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>76</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>77</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>82</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>88</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>94</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>99</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>105</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>110</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>116</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>121</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>127</x>
+    <y>7</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>132</x>
+    <y>8</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>58</x>
+    <y>75</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>74</x>
+    <y>70</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>75</x>
+    <y>71</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>76</x>
+    <y>72</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>77</x>
+    <y>72</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>81</x>
+    <y>76</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>85</x>
+    <y>80</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>89</x>
+    <y>84</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>93</x>
+    <y>87</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>98</x>
+    <y>91</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>101</x>
+    <y>94</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>106</x>
+    <y>98</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>110</x>
+    <y>102</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>114</x>
+    <y>106</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>119</x>
+    <y>110</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>122</x>
+    <y>113</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>127</x>
+    <y>117</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>131</x>
+    <y>120</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>135</x>
+    <y>124</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>139</x>
+    <y>128</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>143</x>
+    <y>132</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>148</x>
+    <y>136</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>152</x>
+    <y>139</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>156</x>
+    <y>143</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>160</x>
+    <y>146</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>164</x>
+    <y>150</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>168</x>
+    <y>154</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>173</x>
+    <y>158</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>176</x>
+    <y>161</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>181</x>
+    <y>165</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>185</x>
+    <y>168</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>189</x>
+    <y>172</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>194</x>
+    <y>176</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>197</x>
+    <y>180</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>202</x>
+    <y>184</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>206</x>
+    <y>187</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>210</x>
+    <y>191</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>214</x>
+    <y>194</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>218</x>
+    <y>198</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>222</x>
+    <y>202</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>227</x>
+    <y>206</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>231</x>
+    <y>210</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>235</x>
+    <y>213</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>239</x>
+    <y>217</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>243</x>
+    <y>220</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>245</x>
+    <y>222</y>
+    <type>512</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+</ArrayOfFlightEvent>

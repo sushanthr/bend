@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFlightEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <FlightEvent xsi:type="CancelSelectFlightEvent" />
+  <FlightEvent xsi:type="SizeChangeFlightEvent">
+    <actualHeight>261</actualHeight>
+    <actualWidth>493</actualWidth>
+  </FlightEvent>
+  <FlightEvent xsi:type="LoadFileFlightEvent">
+    <fullFilePath>D:\Projects\sushanth.assembla.com\trunk\TextCore\TextCore\Test\Data\SampleText.txt</fullFilePath>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>3</x>
+    <y>7</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="LoadFileFlightEvent">
+    <fullFilePath>D:\Projects\sushanth.assembla.com\trunk\TextCore\TextCore\Test\Data\Sample2.xml</fullFilePath>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>3</x>
+    <y>7</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="MouseHandlerFlightEvent">
+    <x>118</x>
+    <y>24</y>
+    <type>513</type>
+    <flags>1</flags>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>32</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>I</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>I</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>105</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>S</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>S</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>115</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>32</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>T</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>T</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>116</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>H</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>H</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>104</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>E</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>E</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>101</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>32</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>B</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>B</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>98</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>E</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>E</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>101</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>S</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>S</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>115</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>T</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>T</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>116</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>32</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>LeftShift</key>
+    <modifier>Shift</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>LeftShift</key>
+    <modifier>Shift</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>D1</key>
+    <modifier>Shift</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>D1</key>
+    <modifier>Shift</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>33</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Space</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>32</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>A</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>A</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>97</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>N</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>N</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>110</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>D</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>D</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="KeyHandlerFlightEvent">
+    <wparam>100</wparam>
+    <lparam>1</lparam>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>F9</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="SaveFileFlightEvent">
+    <fullFilePath>D:\Projects\sushanth.assembla.com\trunk\TextCore\TextCore\Test\Data\Current\SampleTextSave.txt</fullFilePath>
+  </FlightEvent>
+</ArrayOfFlightEvent>
