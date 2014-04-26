@@ -234,7 +234,7 @@ namespace Bend
             this.currentTabIndex = this.tab.Count - 1;
             this.tab[this.currentTabIndex].Title.Opacity = 1;
             this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-            tab[this.currentTabIndex].TextEditor.SetFocus();
+            this.SetFocusAfterTextEditorInitialization();
 
             System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
             settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
@@ -365,9 +365,29 @@ namespace Bend
                 this.currentTabIndex = newTabFocus;
                 tab[newTabFocus].Title.Opacity = 1.0;
                 tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
-                tab[newTabFocus].TextEditor.SetFocus();
+                SetFocusAfterTextEditorInitialization();
 
                 StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+            }
+        }
+
+        /// <summary>
+        ///     The text editor can't set focus on itself until its render target has been created and
+        ///     it is fully initialized. This method adds a delay to accomodate for the editor initialization.
+        /// </summary>
+        private void SetFocusAfterTextEditorInitialization()
+        {
+            System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Tick += SetFocusAfterTextEditorInitialization_TimerEvent;
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+        }
+
+        void SetFocusAfterTextEditorInitialization_TimerEvent(object sender, EventArgs e)
+        {
+            if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
+            {
+                tab[this.currentTabIndex].TextEditor.SetFocus();
             }
         }
 
@@ -558,7 +578,7 @@ namespace Bend
                     this.AddNewTab();
 
                     this.currentTabIndex = tab.Count - 1;
-                    tab[this.currentTabIndex].TextEditor.SetFocus();
+                    SetFocusAfterTextEditorInitialization();
                 }
 
                 this.tab[this.currentTabIndex].OpenFile(dlg.FileName);
@@ -576,7 +596,7 @@ namespace Bend
             this.AddNewTab();
             
             this.currentTabIndex = tab.Count - 1;
-            tab[this.currentTabIndex].TextEditor.SetFocus();
+            SetFocusAfterTextEditorInitialization();
         }
 
         private void CommandRefresh(object sender, ExecutedRoutedEventArgs e)
