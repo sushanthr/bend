@@ -29,6 +29,7 @@ namespace TextCoreControl
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
             this.verticalScrollBound = 0;
             this.horizontalScrollBound = 0;
+            this.pendingCancellation = false;
 
             this.scrollLengthEstimator = new BackgroundWorker();
             this.scrollLengthEstimator.WorkerReportsProgress = true;
@@ -93,11 +94,13 @@ namespace TextCoreControl
 
             if (scrollLengthEstimator.IsBusy)
             {
+                this.pendingCancellation = true;
                 // Request a restart
                 scrollLengthEstimator.CancelAsync();
             }
             else
             {
+                this.pendingCancellation = false;
                 scrollLengthEstimator.RunWorkerAsync(this);
             }
         }
@@ -193,11 +196,12 @@ namespace TextCoreControl
 
         void scrollLengthEstimator_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            // e.Result is null, if the thread ended in because of an Exception.
-            if (e.Cancelled || e.Result == null)
+            // e.Result is null, if the thread ended in because of an Exception,
+            if (e.Cancelled || e.Result == null || this.pendingCancellation)
             {
                 // A restart was requested
                 scrollLengthEstimator.RunWorkerAsync(this);
+                this.pendingCancellation = false;
             }
             else if (e.Error == null)
             {
@@ -358,6 +362,7 @@ namespace TextCoreControl
         double horizontalScrollBound;
 
         bool hasSeenNonAsciiCharacters;
+        bool pendingCancellation;
         #endregion
     }
 }

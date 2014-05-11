@@ -411,10 +411,11 @@ namespace Bend
                         currentPath = "";
                         for (int i = 0; i < paths.Length; i++)
                         {
-                            if (paths[i].IndexOf("bend..tion") < 0)
+                            if (paths[i].IndexOf("bend..tion") < 0 && paths[i] != string.Empty)
                             {
-                                // This path is not the path the bend, retain it.
+                                // This path is not the path of old bend, retain it in the new PATH string.
                                 currentPath += paths[i];
+                                currentPath += ";";
                             }
                         }
                     }
@@ -426,7 +427,11 @@ namespace Bend
 
                 if (forceWrite)
                 {
-                    currentPath = bendDirectory + ";" + currentPath;
+                    if (!currentPath.EndsWith(";"))
+                    {
+                        currentPath = currentPath + ";";
+                    }
+                    currentPath = currentPath + bendDirectory;
                     HKCU_ENVIRONMENT.SetValue("Path", currentPath);
                 }
             }

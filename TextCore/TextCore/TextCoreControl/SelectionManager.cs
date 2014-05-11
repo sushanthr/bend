@@ -47,7 +47,7 @@ namespace TextCoreControl
                 return;
             }
 
-            if (oldSelectionBegin == oldSelectionEnd && selectionBeginOrdinal == selectionEndOrdinal)
+            if (!forceRedraw && oldSelectionBegin == oldSelectionEnd && selectionBeginOrdinal == selectionEndOrdinal)
             {
                 // There was no selection before and there is no selection now - bail out.
                 // There is no work to do here.
@@ -287,8 +287,21 @@ namespace TextCoreControl
 
         internal void NotifyOfOrdinalShift(int beginOrdinal, int shift)
         {
+            bool wasInSelection = false;
+            if (this.shouldUseHighlightColors && shift < 0)
+            {
+                wasInSelection = this.selectionBeginOrdinal != this.selectionEndOrdinal;
+            }
+
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionBeginOrdinal);
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.selectionEndOrdinal);
+
+            if (wasInSelection && this.selectionBeginOrdinal == this.selectionEndOrdinal)
+            {
+                // No longer in selection. Because we are drawing dimness we need to force the next paint.
+                forceRedraw = true;
+            }
+
             this.backgroundHighlight.NotifyOfOrdinalShift(beginOrdinal, shift);
         }
 

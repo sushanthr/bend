@@ -126,6 +126,7 @@ namespace Bend
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionColor, ref TextCoreControl.Settings.DefaultSelectionColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionOutlineColor, ref TextCoreControl.Settings.DefaultSelectionOutlineColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionDimColor, ref TextCoreControl.Settings.DefaultSelectionDimColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultBackgroundHighlightColor, ref TextCoreControl.Settings.DefaultBackgroundHighlightColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.LineNumberColor, ref TextCoreControl.Settings.LineNumberColor);
 
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultShowFormattingColor, ref TextCoreControl.Settings.DefaultShowFormattingColor);
@@ -388,6 +389,11 @@ namespace Bend
             if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
             {
                 tab[this.currentTabIndex].TextEditor.SetFocus();
+            }
+            DispatcherTimer timer = sender as DispatcherTimer;
+            if (timer != null)
+            {
+                timer.Stop();
             }
         }
 
@@ -815,14 +821,12 @@ namespace Bend
         {
             if (this.dragDropSource == null && Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                string fullFileName = null;
                 // Find the Tab
                 int tabIndex = -1;
                 for (int i = 0; i < tab.Count; i++)
                 {
                     if (tab[i].Title == sender)
-                    {
-                        fullFileName = tab[i].FullFileName;
+                    {                        
                         tabIndex = i;
                     }
                 }
@@ -835,12 +839,14 @@ namespace Bend
                     else if (tabIndex + 1 < tab.Count)
                         this.SwitchTabFocusTo(tabIndex + 1);
 
+                    string originalFullFileName = tab[tabIndex].FullFileName;
+                    string contentFullFileName = originalFullFileName;
                     string deleteFile = System.IO.Path.GetTempFileName();
-                    if (fullFileName == null || tab[tabIndex].TextEditor.Document.HasUnsavedContent)
+                    if (contentFullFileName == null || tab[tabIndex].TextEditor.Document.HasUnsavedContent)
                     {
-                        fullFileName = deleteFile;
+                        contentFullFileName = deleteFile;
                         tab[tabIndex].CheckEncoding();
-                        tab[tabIndex].TextEditor.SaveFile(fullFileName);
+                        tab[tabIndex].TextEditor.SaveFile(contentFullFileName);
                     }
                     else
                     {
@@ -859,7 +865,7 @@ namespace Bend
                     {
                         // Copy the file to any other application.
                         System.Collections.Specialized.StringCollection fileList = new System.Collections.Specialized.StringCollection();
-                        fileList.Add(fullFileName);
+                        fileList.Add(contentFullFileName);
                         data.SetFileDropList(fileList);
 
                         // Initiate the drag-and-drop operation.    
@@ -868,9 +874,9 @@ namespace Bend
                     else
                     {
                         // Move the tab to another bend.
-                        data.SetData(BEND_FILE_CONTENT, fullFileName);
+                        data.SetData(BEND_FILE_CONTENT, contentFullFileName);
                         data.SetData(BEND_FILE_DISPLAY_NAME, sourceTab.Title.TitleText);
-                        data.SetData(BEND_FILE_PATH, sourceTab.FullFileName == null ? String.Empty : sourceTab.FullFileName);
+                        data.SetData(BEND_FILE_PATH, originalFullFileName == null ? String.Empty : originalFullFileName);
                         data.SetData(BEND_FILE_DELETE, deleteFile);
 
                         this.tabDragVisual = new TabDragVisual(sourceTab.TextEditor, sourceTab.Title);
@@ -911,7 +917,7 @@ namespace Bend
                             {
                                 // The tab was not taken by another bend. Start a new instance of bend and pass the tab to it.
                                 string[] serializedData = new string [8];
-                                serializedData[0] = fullFileName;
+                                serializedData[0] = contentFullFileName;
                                 serializedData[1] = (string)data.GetData(BEND_FILE_DISPLAY_NAME);
                                 serializedData[2] = (string)data.GetData(BEND_FILE_PATH);
                                 serializedData[3] = (string)data.GetData(BEND_FILE_DELETE);
@@ -955,10 +961,7 @@ namespace Bend
 
             // Another bend is trying to send us a tab.
             this.AddTabWithFile(serializedData[0]);
-            if (serializedData[2] != String.Empty)
-            {
-                this.tab[0].SetFullFileName(serializedData[2]);
-            }
+            this.tab[0].SetFullFileName(serializedData[2]);            
             this.tab[0].Title.TitleText = serializedData[1];
             System.IO.File.Delete(serializedData[3]);
 
@@ -1324,7 +1327,7 @@ namespace Bend
                 tab[tabIndex].Title.Opacity = 1.0;
                 tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
                 tab[tabIndex].TextEditor.SetFocus();
-                this.FindText.Text = tab[tabIndex].FindText;
+                this.FindText.Text = tab[tabIndex].FindOptions.FindText;
             }
         }
 
@@ -1491,7 +1494,7 @@ namespace Bend
             {
                 if (e.Key == Key.Enter)
                 {
-                    if (this.CurrentTab.FindText == this.FindText.Text)
+                    if (this.CurrentTab.FindOptions.FindText == this.FindText.Text)
                     {
                         if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
                         {
@@ -1504,7 +1507,8 @@ namespace Bend
                     }
                     else
                     {
-                        this.CurrentTab.StartFindOnPage(this, FindText.Text, /*matchCase*/false, /*useRegex*/false);
+                        FindOptions findOptions = new FindOptions(FindText.Text);
+                        this.CurrentTab.StartFindOnPage(this, findOptions);
                     }
                 }
                 else if (e.Key == Key.Escape)
@@ -1519,7 +1523,8 @@ namespace Bend
         {
             if (this.CurrentTab != null)
             {
-                this.CurrentTab.StartFindOnPage(this, FindText.Text, /*matchCase*/false, /*useRegex*/false);
+                FindOptions findOptions = new FindOptions(this.FindText.Text);
+                this.CurrentTab.StartFindOnPage(this, findOptions);
             }
         }
         

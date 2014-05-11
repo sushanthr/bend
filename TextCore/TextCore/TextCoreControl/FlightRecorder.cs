@@ -270,23 +270,25 @@ namespace TextCoreControl
         {
             public ReplaceAllTextFlightEvent() { }
 
-            public ReplaceAllTextFlightEvent(string findText, string replaceText, bool matchCase, bool useRegEx)
+            public ReplaceAllTextFlightEvent(string findText, string replaceText, bool matchCase, bool useRegEx, bool inBackgroundHighlightRange)
             {
                 this.findText = findText;
                 this.replaceText = replaceText;
                 this.matchCase = matchCase;
                 this.useRegEx = useRegEx;
+                this.inBackgroundHighlightRange = inBackgroundHighlightRange;
             }
 
             public override void Playback(TextEditor textEditor)
             {
-                textEditor.ReplaceAllText(findText, replaceText, matchCase, useRegEx);
+                textEditor.ReplaceAllText(findText, replaceText, matchCase, useRegEx, inBackgroundHighlightRange);
             }
 
             public string findText;
             public string replaceText;
             public bool matchCase;
             public bool useRegEx;
+            public bool inBackgroundHighlightRange;
         }
 
         public class ReplaceWithRegexAtOrdinalFlightEvent : FlightEvent

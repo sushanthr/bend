@@ -192,10 +192,23 @@ namespace TextCoreControl
             }
         }
 
-        internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
+        internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx, int beginOrdinal, int endOrdinal)
         {
             int count = 0;
-            string newFileContents = this.fileContents.ToString(0, this.fileContents.Length - 1);
+            string newFileContents;
+            int replaceLength = 0;
+            if (beginOrdinal == UNDEFINED_ORDINAL)
+            {
+                replaceLength = this.fileContents.Length - 1;
+                newFileContents = this.fileContents.ToString(0, replaceLength);
+            }
+            else
+            {
+                newFileContents = this.fileContents.ToString(beginOrdinal, endOrdinal - beginOrdinal);
+                // replacedLength needs to be computed upfront since the lenght of newFileContent will
+                // change after doing the replacement operation.
+                replaceLength = newFileContents.Length;
+            }
             
             lock (this)
             {
@@ -219,21 +232,48 @@ namespace TextCoreControl
                 }
                 else
                 {
-                    int startIndex = -1;
-                    do
+                    if (matchCase)
                     {
-                        startIndex = newFileContents.IndexOf(findText, startIndex + 1);
-                        count++;
-                    } 
-                    while (startIndex >= 0);
-                    newFileContents = newFileContents.Replace(findText, replaceText);                    
+                        int startIndex = -1;
+                        do
+                        {
+                            startIndex = newFileContents.IndexOf(findText, startIndex + 1);
+                            count++;
+                        }
+                        while (startIndex >= 0);
+                        newFileContents = newFileContents.Replace(findText, replaceText);
+                    }
+                    else
+                    {
+                        // Ignore case and replace string.
+                        int startIndex = newFileContents.Length;
+                        StringBuilder tempString = new StringBuilder(newFileContents);
+                        do
+                        {
+                            startIndex = newFileContents.LastIndexOf(findText, startIndex, StringComparison.OrdinalIgnoreCase);
+                            if (startIndex >= 0)
+                            {
+                                tempString.Remove(startIndex, findText.Length);
+                                tempString.Insert(startIndex, replaceText);
+                                count++;
+                                startIndex--;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        while (true);
+                        newFileContents = tempString.ToString();
+                    }
                 }               
             }
 
             if (count != 0)
             {
-                this.DeleteAt(0, this.fileContents.Length -1);
-                this.InsertAt(0, newFileContents);
+                int insertIndex = (beginOrdinal == UNDEFINED_ORDINAL ? 0 : beginOrdinal);
+                this.DeleteAt(insertIndex, replaceLength);
+                this.InsertAt(insertIndex, newFileContents);
             }
             return count;
         }

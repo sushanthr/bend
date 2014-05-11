@@ -1497,6 +1497,16 @@ namespace TextCoreControl
             this.selectionManager.BackgroundHighlight.ResetBackgroundHighlight();
         }
 
+        internal bool IsInBackgroundHightlight(int ordinal)
+        {
+            return this.selectionManager.BackgroundHighlight.IsInBackgroundHighlight(ordinal);
+        }
+
+        internal void GetBackgroundHighlightRange(out int beginOrdinal, out int endOrdinal)
+        {
+            this.selectionManager.BackgroundHighlight.GetBackgroundHightlightRange(out beginOrdinal, out endOrdinal);
+        }
+
         #endregion
 
         #region Content change handling

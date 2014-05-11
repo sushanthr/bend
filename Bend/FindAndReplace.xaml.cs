@@ -13,19 +13,106 @@ using System.Windows.Shapes;
 
 namespace Bend
 {
+    internal struct FindOptions
+    {
+        private string findText;
+        private bool findUseRegex;
+        private bool findMatchCase;
+        private int selectionBegin;
+        private int selectionEnd;
+
+        internal FindOptions(string findText)
+        {
+            this.findText = findText;
+            this.findUseRegex = false;
+            this.findMatchCase = false;
+            this.selectionEnd = TextCoreControl.Document.UNDEFINED_ORDINAL;
+            this.selectionBegin = TextCoreControl.Document.UNDEFINED_ORDINAL;
+        }
+
+        public static bool operator ==(FindOptions a, FindOptions b)
+        {
+            // If both are null, or both are same instance, return true.
+            if (System.Object.ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            // If one is null, but not both, return false.
+            if (((object)a == null) || ((object)b == null))
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return a.findText == b.findText && a.findMatchCase == b.findMatchCase && a.findUseRegex == b.findUseRegex && a.selectionBegin == b.selectionBegin && a.selectionEnd == b.selectionEnd;
+        }
+
+        public static bool operator !=(FindOptions a, FindOptions b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(Object obj)
+        {
+            return obj is FindOptions && this == (FindOptions)obj;
+        }
+        public override int GetHashCode()
+        {
+            return findText.GetHashCode() ^ findUseRegex.GetHashCode() ^ findMatchCase.GetHashCode() ^ selectionBegin.GetHashCode() ^ selectionEnd.GetHashCode();
+        }
+
+        internal void SetSelection(int selectionBegin, int selectionEnd)
+        {
+            this.selectionBegin = selectionBegin;
+            this.selectionEnd = selectionEnd;
+        }
+
+        internal void GetSelection(out int selectionBegin, out int selectionEnd)
+        {
+            selectionBegin = this.selectionBegin;
+            selectionEnd = this.selectionEnd;
+        }
+
+        internal string FindText
+        {
+            get { return this.findText; }
+            set { this.findText = value; }
+        }
+
+        internal bool FindUseRegex
+        {
+            get { return this.findUseRegex; }
+            set { this.findUseRegex = value; }
+        }
+
+        internal bool FindMatchCase
+        {
+            get { return this.findMatchCase;  }
+            set { this.findMatchCase = value; }
+        }
+
+        internal bool IsFindAndReplaceInSelection
+        {
+            get { return this.selectionEnd != TextCoreControl.Document.UNDEFINED_ORDINAL && this.selectionBegin != TextCoreControl.Document.UNDEFINED_ORDINAL; }
+        }
+    }
+
     /// <summary>
     /// Interaction logic for FindAndReplace.xaml
     /// </summary>
     public partial class FindAndReplace : Window
     {
         #region Member Data
-        MainWindow mainWindow;        
+        MainWindow mainWindow;
+        FindOptions findOptions;
         #endregion  
 
         public FindAndReplace(MainWindow mainWindow)
         {
             InitializeComponent();
             this.mainWindow = mainWindow;
+            findOptions = new FindOptions(String.Empty);
         }
 
         private void Close_MouseDown(object sender, MouseButtonEventArgs e)
@@ -59,8 +146,16 @@ namespace Bend
         {
             if (e.AddedItems.Count != 0)
             {
-                mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                this.UpdateFindOptions();
+                mainWindow.CurrentTab.StartFindOnPage(mainWindow, this.findOptions);
             }
+        }
+
+        private void UpdateFindOptions()
+        {
+            this.findOptions.FindText = FindText.Text;
+            this.findOptions.FindMatchCase = this.MatchCase.IsChecked ?? true;
+            this.findOptions.FindUseRegex = this.RegexFind.IsChecked ?? true;
         }
 
         private void Replace_KeyUp(object sender, KeyEventArgs e)
@@ -99,7 +194,8 @@ namespace Bend
             }
             else
             {
-                mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                this.UpdateFindOptions();
+                mainWindow.CurrentTab.StartFindOnPage(mainWindow, this.findOptions);
             }
         }
 
@@ -121,11 +217,37 @@ namespace Bend
             this.mainWindow.SetStatusText("", MainWindow.StatusType.STATUS_CLEAR);
             if (this.Visibility == System.Windows.Visibility.Visible)
             {
+                this.SetUserSelectionAsFindRange();
                 // window is becoming visible.
                 if (FindText.Text != null && FindText.Text.Length != 0 && mainWindow.CurrentTab != null)
                 {
-                    mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                    this.UpdateFindOptions();
+                    mainWindow.CurrentTab.StartFindOnPage(mainWindow, this.findOptions);
                 }
+            }
+            else
+            {
+                if (findOptions.IsFindAndReplaceInSelection)
+                {
+                    mainWindow.CurrentTab.TextEditor.ResetBackgroundHighlight();
+                }
+            }
+        }
+
+        private void SetUserSelectionAsFindRange()
+        {
+            int selectionBegin = mainWindow.CurrentTab.TextEditor.DisplayManager.SelectionBegin;
+            int selectionEnd = mainWindow.CurrentTab.TextEditor.DisplayManager.SelectionEnd;
+            if (selectionBegin != selectionEnd && selectionBegin != TextCoreControl.Document.UNDEFINED_ORDINAL)
+            {
+                this.Selection.IsChecked = true;
+                this.findOptions.SetSelection(selectionBegin, selectionEnd);
+                mainWindow.CurrentTab.TextEditor.SetBackgroundHighlight(selectionBegin, selectionEnd);
+            }
+            else
+            {
+                this.Selection.IsChecked = false;
+                this.findOptions.SetSelection(TextCoreControl.Document.UNDEFINED_ORDINAL, TextCoreControl.Document.UNDEFINED_ORDINAL);
             }
         }
 
@@ -137,7 +259,7 @@ namespace Bend
                 {
                     FindText.Items.Insert(0, FindText.Text);
                 }
-                if (mainWindow.CurrentTab.FindText == FindText.Text)
+                if (mainWindow.CurrentTab.FindOptions == this.findOptions)
                 {
                     if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
                     {
@@ -150,7 +272,8 @@ namespace Bend
                 }
                 else
                 {
-                    mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+                    this.UpdateFindOptions();
+                    mainWindow.CurrentTab.StartFindOnPage(mainWindow, this.findOptions);
                 }
             }
         }
@@ -168,45 +291,72 @@ namespace Bend
                 {
                     replaceText = System.Text.RegularExpressions.Regex.Unescape(replaceText);
                 }
-                if (replaceall.IsChecked ?? true)
+                if (this.mainWindow.CurrentTab.FindOptions == this.findOptions)
                 {
-                    int count = mainWindow.CurrentTab.TextEditor.ReplaceAllText(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
-                    if (count == 0)
+                    if (this.RegexFind.IsChecked ?? true)
                     {
-                        mainWindow.SetStatusText("NO MATCHES FOUND", MainWindow.StatusType.STATUS_FINDONPAGE);
+                        TextCoreControl.TextEditor textEditor = mainWindow.CurrentTab.TextEditor;
+                        mainWindow.CurrentTab.TextEditor.ReplaceWithRegexAtOrdinal(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, textEditor.DisplayManager.SelectionBegin);
                     }
                     else
                     {
-                        mainWindow.SetStatusText(count + " MATCHES REPLACED", MainWindow.StatusType.STATUS_FINDONPAGE);
-                        mainWindow.CurrentTab.ClearFindOnPage();
+                        this.mainWindow.CurrentTab.TextEditor.SelectedText = replaceText;
                     }
+                    mainWindow.CurrentTab.HighlightNextMatch();
                 }
                 else
                 {
-                    if (this.mainWindow.CurrentTab.FindText == FindText.Text)
-                    {
-                        if (this.RegexFind.IsChecked ?? true)
-                        {
-                            TextCoreControl.TextEditor textEditor = mainWindow.CurrentTab.TextEditor;
-                            mainWindow.CurrentTab.TextEditor.ReplaceWithRegexAtOrdinal(FindText.Text, replaceText, this.MatchCase.IsChecked ?? true, textEditor.DisplayManager.SelectionBegin);
-                        }
-                        else
-                        {
-                            this.mainWindow.CurrentTab.TextEditor.SelectedText = replaceText;
-                        }
-                        mainWindow.CurrentTab.HighlightNextMatch();
-                    }
-                    else
-                    {
-                        mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
-                    }
+                    this.UpdateFindOptions();
+                    mainWindow.CurrentTab.StartFindOnPage(mainWindow, this.findOptions);
                 }
             }
         }
 
         private void FindOptionsChanged(object sender, RoutedEventArgs e)
         {
-            mainWindow.CurrentTab.StartFindOnPage(mainWindow, FindText.Text, this.MatchCase.IsChecked ?? true, this.RegexFind.IsChecked ?? true);
+            this.UpdateFindOptions();
+            mainWindow.CurrentTab.StartFindOnPage(mainWindow,this.findOptions);
+        }
+
+        private void ReplaceAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (mainWindow.CurrentTab != null)
+            {
+                if (FindText.Text.Length > 0 && FindText.Items != null && (FindText.Items.Count == 0 || (string)FindText.Items[0] != FindText.Text))
+                {
+                    FindText.Items.Insert(0, FindText.Text);
+                }
+                string replaceText = ReplaceText.Text;
+                if (this.RegexFind.IsChecked ?? true)
+                {
+                    replaceText = System.Text.RegularExpressions.Regex.Unescape(replaceText);
+                }
+
+                this.UpdateFindOptions();
+                int count = mainWindow.CurrentTab.TextEditor.ReplaceAllText(FindText.Text, replaceText, this.findOptions.FindMatchCase, this.findOptions.FindUseRegex, this.findOptions.IsFindAndReplaceInSelection);
+                if (count == 0)
+                {
+                    mainWindow.SetStatusText("NO MATCHES FOUND", MainWindow.StatusType.STATUS_FINDONPAGE);
+                }
+                else
+                {
+                    mainWindow.SetStatusText(count + " MATCHES REPLACED", MainWindow.StatusType.STATUS_FINDONPAGE);
+                    mainWindow.CurrentTab.ClearFindOnPage();
+                }
+            }
+        }
+
+        private void InSelectionChanged(object sender, RoutedEventArgs e)
+        {
+            if (Selection.IsChecked ?? true)
+            { 
+                SetUserSelectionAsFindRange();
+            }
+            else
+            {
+                this.findOptions.SetSelection(TextCoreControl.Document.UNDEFINED_ORDINAL, TextCoreControl.Document.UNDEFINED_ORDINAL);
+                mainWindow.CurrentTab.TextEditor.ResetBackgroundHighlight();
+            }
         }
     }
 }

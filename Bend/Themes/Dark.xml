@@ -81,6 +81,16 @@
     <ScG>0.0129830325</ScG>
     <ScB>0.0129830325</ScB>
   </DefaultBackgroundColor>
+  <DefaultBackgroundHighlightColor>
+    <A>72</A>
+    <R>64</R>
+    <G>64</G>
+    <B>64</B>
+    <ScA>0.2823529411764706</ScA>
+    <ScR>0.25</ScR>
+    <ScG>0.25</ScG>
+    <ScB>0.25</ScB>
+  </DefaultBackgroundHighlightColor>
   <DefaultSelectionColor>
     <A>255</A>
     <R>62</R>

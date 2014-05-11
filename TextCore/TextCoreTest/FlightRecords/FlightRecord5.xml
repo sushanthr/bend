@@ -269,6 +269,137 @@
     <key>F9</key>
     <modifier>None</modifier>
   </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>  <FlightEvent xsi:type="TextEdtiorPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
+  <FlightEvent xsi:type="DisplayManagerPreviewKeyDownFlightEvent">
+    <key>Back</key>
+    <modifier>None</modifier>
+  </FlightEvent>
   <FlightEvent xsi:type="SaveFileFlightEvent">
     <fullFilePath>D:\Projects\sushanth.assembla.com\trunk\TextCore\TextCore\Test\Data\Current\SampleTextSave.txt</fullFilePath>
   </FlightEvent>

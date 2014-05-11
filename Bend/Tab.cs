@@ -45,9 +45,7 @@ namespace Bend
             int currentSearchIndex;
             static System.Threading.Thread findOnPageThread;
             static System.Threading.SemaphoreSlim accessFindOnPageData;
-            string findText;
-            bool findUseRegex;
-            bool findMatchCase;
+            FindOptions findOptions;
             bool encodingChecked;
         #endregion
 
@@ -64,8 +62,8 @@ namespace Bend
                 get { return fullFileName; }                
             }
 
-            internal String FindText {
-                get { return findText; }
+            internal FindOptions FindOptions {
+                get { return this.findOptions; }
             }
         #endregion
 
@@ -93,7 +91,6 @@ namespace Bend
                 this.LoadOptions();
                 this.findResults = new List<FindResult>();
                 this.currentSearchIndex = 0;
-                this.findText = null;
 
                 this.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
                 this.TextEditor.Document.OrdinalShift += new Document.OrdinalShiftEventHandler(Document_OrdinalShift);
@@ -113,22 +110,30 @@ namespace Bend
                     this.fileChangedWatcher = null;
                 }
 
-                try
+                // Register a new file watcher
+                if (fullFileName != String.Empty)
                 {
-                    this.fileChangedWatcher = new System.IO.FileSystemWatcher(System.IO.Path.GetDirectoryName(fullFileName), System.IO.Path.GetFileName(fullFileName));
-                    this.fileChangedWatcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
-                    this.fileChangedWatcher.Changed += new System.IO.FileSystemEventHandler(fileChangedWatcher_Changed);
-                    this.fileChangedWatcher.EnableRaisingEvents = true;
+                    try
+                    {
+                        this.fileChangedWatcher = new System.IO.FileSystemWatcher(System.IO.Path.GetDirectoryName(fullFileName), System.IO.Path.GetFileName(fullFileName));
+                        this.fileChangedWatcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
+                        this.fileChangedWatcher.Changed += new System.IO.FileSystemEventHandler(fileChangedWatcher_Changed);
+                        this.fileChangedWatcher.EnableRaisingEvents = true;
+                    }
+                    catch
+                    {
+                        // For some reason openeing files from temp folder hits this.
+                    }
+                    this.title.TitleText = System.IO.Path.GetFileName(fullFileName);
+                    this.fullFileName = fullFileName;
+                    this.title.ToolTip = fullFileName;  
                 }
-                catch
+                else
                 {
-                    // For some reason openeing files from temp folder hits this.
-                }
-            }
-
-            this.fullFileName = fullFileName;
-            this.title.TitleText = System.IO.Path.GetFileName(fullFileName);
-            this.title.ToolTip = fullFileName;            
+                    this.fullFileName = String.Empty;
+                    this.title.ToolTip = null;
+                } 
+            }       
         }
 
         internal void OpenFile(String fullFileName)
@@ -291,10 +296,10 @@ namespace Bend
         /// <summary>
         ///     Find searchstring and highlights the first instance. Also populates this.findResults.
         /// </summary>
-        public void StartFindOnPage(MainWindow mainWindow, string findText, bool matchCase, bool useRegex)
+        public void StartFindOnPage(MainWindow mainWindow, FindOptions findOptions)
         {
             // This check is needed so that we dont start find on page again when we switch back to this tab from another tab.
-            if (this.findText != findText || this.findMatchCase != matchCase || this.findUseRegex != useRegex)
+            if (this.findOptions != findOptions)
             { 
                 Tab.accessFindOnPageData.Wait();
                 if (Tab.findOnPageThread != null)
@@ -306,26 +311,22 @@ namespace Bend
 
                 string text = this.TextEditor.Document.Text;
                 TextEditor textEditor = this.TextEditor;
-                this.findText = findText;
-                this.findMatchCase = matchCase;
-                this.findUseRegex = useRegex;
-                if (findText.Length > 0 && text.Length > 0)
+                this.findOptions = findOptions;
+                if (findOptions.FindText.Length > 0 && text.Length > 0)
                 {
                     this.findResults.RemoveRange(0, this.findResults.Count);
                     Tab.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
-                    Object[] parameters = new Object[6];
+                    Object[] parameters = new Object[4];
                     parameters[0] = text;
-                    parameters[1] = findText;
-                    parameters[2] = matchCase;
-                    parameters[3] = useRegex;
-                    parameters[4] = textEditor;
-                    parameters[5] = mainWindow;
+                    parameters[1] = findOptions;
+                    parameters[2] = textEditor;
+                    parameters[3] = mainWindow;
                     Tab.findOnPageThread.Start(parameters);
                 }
                 else
                 {
                     this.ClearFindOnPage();
-                    if (findText.Length == 0)
+                    if (findOptions.FindText.Length == 0)
                         mainWindow.SetStatusText("", MainWindow.StatusType.STATUS_CLEAR);
                     else
                         mainWindow.SetStatusText("NO MATCHES FOUND", MainWindow.StatusType.STATUS_FINDONPAGE);
@@ -336,22 +337,20 @@ namespace Bend
         private void FindOnPage_WorkerThread(object parameters)
         {
             string text = (string)((object[])parameters)[0];
-            string findText = (string)((object[])parameters)[1];
-            bool matchCase = (bool)((object[])parameters)[2];
-            bool useRegEx = (bool)((object[])parameters)[3];
-            TextEditor textEditor = (TextEditor)((object[])parameters)[4];
-            MainWindow mainWindow = (MainWindow) ((object[])parameters)[5];
+            FindOptions findOptions = (FindOptions)((object[])parameters)[1];
+            TextEditor textEditor = (TextEditor)((object[])parameters)[2];
+            MainWindow mainWindow = (MainWindow) ((object[])parameters)[3];
             long startTicks = System.DateTime.Now.Ticks;
 
             int findIndex = 0;
             int matchLength = -1;
             List<FindResult> findResults = new List<FindResult>();
             System.Text.RegularExpressions.Regex regEx = null;
-            if (useRegEx)
+            if (findOptions.FindUseRegex)
             {
                 try
                 {
-                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    regEx = new System.Text.RegularExpressions.Regex(findOptions.FindText, findOptions.FindUseRegex ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 }
                 catch
                 {
@@ -362,7 +361,7 @@ namespace Bend
             while (true)
             {
                 matchLength = -1;
-                if (useRegEx)
+                if (findOptions.FindUseRegex)
                 {
                     try
                     {
@@ -377,23 +376,33 @@ namespace Bend
                 }
                 else
                 {
-                    findIndex = text.IndexOf(findText, findIndex, matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-                    matchLength = findIndex >= 0 ? findText.Length : -1;
+                    findIndex = text.IndexOf(findOptions.FindText, findIndex, findOptions.FindMatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    matchLength = findIndex >= 0 ? findOptions.FindText.Length : -1;
                 }
 
                 if (matchLength >= 0)
                 {
-                    findResults.Add(new FindResult(findIndex, (uint)matchLength));
-                    if (findResults.Count % 10 == 0)
+                    bool fIsValidMatch = true;
+                    if (findOptions.IsFindAndReplaceInSelection)
                     {
-                        mainWindow.Dispatcher.BeginInvoke(
-                          new Action(
-                              delegate {
-                                  mainWindow.SetStatusText(findResults.Count.ToString() + " MATCHES", MainWindow.StatusType.STATUS_FINDONPAGE);
-                              }
-                          ));                        
+                        int ordinal = textEditor.Document.GetOrdinalForTextIndex(findIndex);
+                        fIsValidMatch = textEditor.IsInBackgroundHighlight(ordinal);
                     }
-                    findIndex += findText.Length;
+
+                    if (fIsValidMatch)
+                    { 
+                        findResults.Add(new FindResult(findIndex, (uint)matchLength));
+                        if (findResults.Count % 10 == 0)
+                        {
+                            mainWindow.Dispatcher.BeginInvoke(
+                              new Action(
+                                  delegate {
+                                      mainWindow.SetStatusText(findResults.Count.ToString() + " MATCHES", MainWindow.StatusType.STATUS_FINDONPAGE);
+                                  }
+                              ));                        
+                        }
+                    }
+                    findIndex += findOptions.FindText.Length;
                     if (findIndex >= text.Length)
                     {
                         break;
@@ -435,7 +444,7 @@ namespace Bend
             }
             this.TextEditor.CancelSelect();
             this.currentSearchIndex = 0;
-            this.findText = null;
+            this.findOptions = new FindOptions();
         }                
 
         public string HighlightNextMatch()
@@ -516,7 +525,7 @@ namespace Bend
         public string HighlightCurrentMatch()
         {
             string status = "";
-            if (this.findText != null)
+            if (this.findOptions.FindText != null)
             {
                 if (Tab.findOnPageThread != null)
                 {

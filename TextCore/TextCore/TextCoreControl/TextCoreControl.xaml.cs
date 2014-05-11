@@ -193,14 +193,20 @@ namespace TextCoreControl
             this.undoRedoManager.EndTransaction();
         }
 
-        public int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx)
+        public int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx, bool replaceInBackgroundHighlightRange)
         {
             if (this.flightRecorder.IsRecording)
             {
-                this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceAllTextFlightEvent(findText, replaceText, matchCase, useRegEx));
+                this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceAllTextFlightEvent(findText, replaceText, matchCase, useRegEx, replaceInBackgroundHighlightRange));
             }
             this.undoRedoManager.BeginTransaction();
-            int count = this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx);
+            int beginOrdinal = Document.UNDEFINED_ORDINAL;
+            int endOrdinal = Document.UNDEFINED_ORDINAL;
+            if (replaceInBackgroundHighlightRange)
+            { 
+                this.displayManager.GetBackgroundHighlightRange(out beginOrdinal, out endOrdinal);
+            }
+            int count = this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx, beginOrdinal, endOrdinal);
             this.undoRedoManager.EndTransaction();
             return count;
         }
@@ -249,7 +255,11 @@ namespace TextCoreControl
             {
                 int selectionBeginOrdinal;
                 string text = this.displayManager.GetSelectedText(out selectionBeginOrdinal);
-                this.ReplaceText(selectionBeginOrdinal, text.Length, value);                
+                int length = text.Length;
+                if (length > 0)
+                {
+                    this.ReplaceText(selectionBeginOrdinal, length, value);
+                }
             }
         }
 
@@ -271,6 +281,11 @@ namespace TextCoreControl
             }
             this.displayManager.ResetBackgroundHighlight();
             RenderHost.InvalidateVisual();
+        }
+
+        public bool IsInBackgroundHighlight(int ordinal)
+        {
+            return this.displayManager.IsInBackgroundHightlight(ordinal);
         }
 
         #region WIN32 API references

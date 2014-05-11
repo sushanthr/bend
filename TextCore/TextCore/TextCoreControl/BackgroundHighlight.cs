@@ -56,12 +56,22 @@ namespace TextCoreControl
             this.highlightEndOrdinal = Document.UNDEFINED_ORDINAL;
         }
 
+        internal bool IsInBackgroundHighlight(int ordinal)
+        {
+            return ordinal >= hightlightBeginOrdinal && ordinal <= highlightEndOrdinal;
+        }
+
         internal void NotifyOfOrdinalShift(int beginOrdinal, int shift)
         {
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.hightlightBeginOrdinal);
             Document.AdjustOrdinalForShift(beginOrdinal, shift, ref this.highlightEndOrdinal);
         }
 
+        internal void GetBackgroundHightlightRange(out int beginOrdinal, out int endOrdinal)
+        {
+            beginOrdinal = this.hightlightBeginOrdinal;
+            endOrdinal = this.highlightEndOrdinal;
+        }
           
         int hightlightBeginOrdinal;
         int highlightEndOrdinal;      
