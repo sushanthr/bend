@@ -432,6 +432,32 @@ namespace TextCoreControl.SyntaxHighlighting
 
         #region Highlighter
 
+        private bool CompareSyntaxStart(string text, int index)
+        {
+            if (CompareStrings(this.syntaxStart, 0, text, index))
+            {
+                 if (this.languageType == LanguageType.HTML)
+                { 
+                    int nextCharPosition = this.syntaxStart.Length + index;
+                    if (nextCharPosition < text.Length)
+                    {
+                        char nextChar = text[nextCharPosition];
+                        return Char.IsLetter(nextChar) || nextChar == '!' || nextChar == '/';
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool CompareSyntaxEnd(string text, int index)
+        {
+            return CompareStrings(this.syntaxEnd, 0, text, index);
+        }
+
         /// <summary>
         ///     Finds and highlights a range of characters
         /// </summary>
@@ -456,7 +482,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 HighlightStyle highLightStyle = HighlightStyle.NONE;
                 if (this.IsPossibleHighlightRangeEnd(ch))
                 {
-                    if (((highlightState & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareStrings(this.syntaxStart, 0, text, index))
+                    if (((highlightState & (int)HighlightState.IN_NO_SYNTAX) != 0) && CompareSyntaxStart(text, index))
                     {
                         continueFromIndex = index;
                         newHighlightState = (int)HighlightState.NONE;
@@ -621,7 +647,7 @@ namespace TextCoreControl.SyntaxHighlighting
                             {
                                 HighlightState highlightState = HighlightState.NONE;
                                 int highlightStartIndex = beginNonKeywordScan;
-                                if (CompareStrings(this.syntaxEnd, 0, text, beginNonKeywordScan))
+                                if (CompareSyntaxEnd(text, beginNonKeywordScan))
                                 {
                                     highlightState = HighlightState.IN_NO_SYNTAX;
                                     this.highlightRange((uint)beginNonKeywordScan, (uint)this.syntaxEnd.Length, HighlightStyle.BRACKET);

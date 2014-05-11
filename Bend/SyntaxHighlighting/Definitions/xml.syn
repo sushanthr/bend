@@ -7,7 +7,7 @@
 ; Known problems : it doesn't highlight the 
 ; tags so feel free to correct if you can.
 
-C=1
+HTML=1
 
 [Syntax]
 Namespace1 = 6

@@ -1,6 +1,6 @@
 ; TextPad syntax definitions for JavaScript and HTML
 
-C=1
+HTML=1
 
 [Syntax]
 Namespace1 = 6
@@ -562,6 +562,7 @@ H6
 HEAD
 HR
 HTML
+DOCTYPE
 I
 IFRAME
 ILAYER
