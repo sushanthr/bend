@@ -22,6 +22,8 @@ namespace Bend
         public bool SettingsPageAnimation;
         public bool ShowStatusBar;
         public bool IsFirstRun;
+        public bool ReopenFilesOnStart;
+        public bool Diagnostics;
 
         // JSBeautifier Options
         public bool JSBeautifyPreserveLine;
@@ -61,6 +63,8 @@ namespace Bend
             SettingsPageAnimation = true;
             ShowStatusBar = false;
             IsFirstRun = true;
+            ReopenFilesOnStart = false;
+            Diagnostics = false;
 
             JSBeautifyPreserveLine = false;
             JSBeautifyIndent = 4;

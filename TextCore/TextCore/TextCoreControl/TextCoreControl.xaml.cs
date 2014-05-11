@@ -305,6 +305,11 @@ namespace TextCoreControl
             return false;
         }
 
+        public void StartFlightRecord()
+        {
+            this.flightRecorder.StartRecording();
+        }
+
         public void PlaybackFlightRecord(string fullFilePath)
         {
             this.playbackFlightRecordFullPath = fullFilePath;

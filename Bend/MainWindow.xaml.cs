@@ -151,6 +151,22 @@ namespace Bend
             {
                 tab[i].LoadOptions();
             }
+
+            for (int i = Editor.ContextMenu.Items.Count - 1; i >= 0; i--)
+            {
+                MenuItem menuItem = Editor.ContextMenu.Items[i] as MenuItem;
+                if (menuItem != null && menuItem.Header.ToString() == "Record")
+                {
+                    if (PersistantStorage.StorageObject.Diagnostics)
+                    { 
+                        menuItem.Visibility = System.Windows.Visibility.Visible;
+                    }
+                    else
+                    {
+                        menuItem.Visibility = System.Windows.Visibility.Collapsed;
+                    }
+                }
+            }
         }
         #endregion
 
@@ -199,26 +215,9 @@ namespace Bend
                 }
                 else
                 {
-                    if (fileNames == null || fileNames.Length <= 0)
+                    if ((fileNames == null || fileNames.Length <= 0) && PersistantStorage.StorageObject.ReopenFilesOnStart)
                     {
-                        fileNames = PersistantStorage.StorageObject.mruFile;
-                    }
-
-                    if (fileNames != null)
-                    {
-                        for (int mruCount = 0; mruCount < fileNames.Length; mruCount++)
-                        {
-                            string fileName = fileNames[mruCount];
-                            if (System.IO.File.Exists(fileName))
-                            {
-                                this.AddNewTab();
-                                int lastTab = this.tab.Count - 1;
-                                this.tab[lastTab].OpenFile(fileName);
-                                this.tab[lastTab].Title.Opacity = 0.5;
-                                this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
-                                tabOpened = true;
-                            }
-                        }
+                        tabOpened = ReopenLastSession();
                     }
                 }                
             }
@@ -247,6 +246,36 @@ namespace Bend
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
 
             this.QueryContinueDrag += TabDrag_QueryContinueDrag;
+        }
+        
+        private void ReopenLastSession(object sender, RoutedEventArgs e)
+        {
+            this.ReopenLastSession();
+        }
+
+        bool ReopenLastSession()
+        {
+            string[] fileNames = PersistantStorage.StorageObject.mruFile;
+            bool tabOpened = false;
+
+            if (fileNames != null)
+            {
+                for (int mruCount = 0; mruCount < fileNames.Length; mruCount++)
+                {
+                    string fileName = fileNames[mruCount];
+                    if (System.IO.File.Exists(fileName))
+                    {
+                        this.AddNewTab();
+                        int lastTab = this.tab.Count - 1;
+                        this.tab[lastTab].OpenFile(fileName);
+                        this.tab[lastTab].Title.Opacity = 0.5;
+                        this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
+                        tabOpened = true;
+                    }
+                }
+            }
+
+            return tabOpened;
         }
 
         void RenderCapability_TierChanged(object sender, EventArgs e)
@@ -1172,8 +1201,7 @@ namespace Bend
             if( Editor.ContextMenu != null )
             {
                 Editor.ContextMenu.PlacementTarget = Editor;
-                Editor.ContextMenu.IsOpen = true;
-                object element = Editor.ContextMenu.FindName("OpenLink");
+                Editor.ContextMenu.IsOpen = true;                
             }
         }
 
@@ -1293,7 +1321,15 @@ namespace Bend
                     break;
                 }
             }
-        }       
+        }
+
+        private void ContextRecord(object sender, RoutedEventArgs e)
+        {
+            if (this.currentTabIndex >= 0)
+            {
+                tab[this.currentTabIndex].TextEditor.StartFlightRecord();
+            }
+        }
 
         private void ContextClose(object sender, RoutedEventArgs e)
         {

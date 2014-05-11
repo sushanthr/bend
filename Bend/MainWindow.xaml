@@ -70,6 +70,8 @@
                     <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
                 </MenuItem.Icon>
             </MenuItem>
+            <Separator/>
+            <MenuItem Header="Reopen last session" Click="ReopenLastSession" MinHeight="20"/>
         </ContextMenu>
 
         <!-- ContextMenu for Editor -->
@@ -102,6 +104,11 @@
             </MenuItem>
             <Separator></Separator>
             <MenuItem x:Name="GoToLine" Click="ContextGoToLine" Header="Goto" MinHeight="20" InputGestureText="Ctrl + G">
+            </MenuItem>
+            <MenuItem x:Name="Record" Click="ContextRecord" Header="Record" MinHeight="20">
+                <MenuItem.Icon>
+                    <TextBlock FontFamily="Segoe UI Symbol"></TextBlock>
+                </MenuItem.Icon>                
             </MenuItem>
         </ContextMenu>
 

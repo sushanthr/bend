@@ -477,6 +477,8 @@ namespace Bend
             SettingsPageAnimation.IsChecked = persistantStorage.SettingsPageAnimation;
             ShowStatusBar.IsChecked = persistantStorage.ShowStatusBar;
             PreserveIndent.IsChecked = persistantStorage.PreserveIndent;
+            ReopenFilesOnStart.IsChecked = persistantStorage.ReopenFilesOnStart;
+            Diagnostics.IsChecked = persistantStorage.Diagnostics;
 
             // Set up the font picker
             if (persistantStorage.DefaultFontFamilyIndex >= 0 && persistantStorage.DefaultFontFamilyIndex < FontPicker.Items.Count)
@@ -540,6 +542,8 @@ namespace Bend
 
                 persistantStorage.TextShowFormatting = TextFormatShowFormatting.IsChecked ?? true;
                 persistantStorage.SmoothScrolling = SmoothScrolling.IsChecked ?? true;
+                persistantStorage.ReopenFilesOnStart = ReopenFilesOnStart.IsChecked ?? true;
+                persistantStorage.Diagnostics = Diagnostics.IsChecked ?? true;
                 persistantStorage.SyntaxHighlighting = SyntaxHighlighting.IsChecked ?? true;
                 persistantStorage.TextWordWrap = TextWordWrap.IsChecked ?? true;
                 persistantStorage.SettingsPageAnimation = SettingsPageAnimation.IsChecked ?? true;

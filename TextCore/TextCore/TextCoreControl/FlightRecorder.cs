@@ -391,6 +391,10 @@ namespace TextCoreControl
 
         internal void StartRecording()
         {
+            if (this.IsRecording)
+            {
+                this.StopRecording();
+            }
             this.isRecording = true;
             this.SetFlightIdFromNextAvailableIdInDirectory();
         }
@@ -411,6 +415,7 @@ namespace TextCoreControl
         internal void StopRecording()
         {
             this.isRecording = false;
+            WriteEventCollectionToFile();
         }
 
         internal bool IsRecording { get { return this.isRecording; } }
