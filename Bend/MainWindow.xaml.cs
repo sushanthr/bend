@@ -208,17 +208,21 @@ namespace Bend
                     fileNames = null;
                 }
 
-                if (fileNames != null && fileNames.Length == 1 && fileNames[0].StartsWith(BEND_SERIALIZED_TABDATA_PREFIX))
+                if (fileNames != null)
                 {
-                    this.LoadSerializedTabData(fileNames[0]);
-                    tabOpened = true;
-                }
-                else
-                {
-                    if ((fileNames == null || fileNames.Length <= 0) && PersistantStorage.StorageObject.ReopenFilesOnStart)
+                    if (fileNames.Length == 1 && fileNames[0].StartsWith(BEND_SERIALIZED_TABDATA_PREFIX))
                     {
-                        tabOpened = ReopenLastSession();
+                        this.LoadSerializedTabData(fileNames[0]);
+                        tabOpened = true;
                     }
+                    else
+                    {
+                        tabOpened = AddNewTabWithFiles(fileNames);
+                    }
+                }
+                else if ((fileNames == null || fileNames.Length <= 0) && PersistantStorage.StorageObject.ReopenFilesOnStart) 
+                {
+                        tabOpened = AddNewTabWithFiles(PersistantStorage.StorageObject.mruFile);
                 }                
             }
             catch
@@ -250,12 +254,11 @@ namespace Bend
         
         private void ReopenLastSession(object sender, RoutedEventArgs e)
         {
-            this.ReopenLastSession();
+            this.AddNewTabWithFiles(PersistantStorage.StorageObject.mruFile);
         }
 
-        bool ReopenLastSession()
+        bool AddNewTabWithFiles(string[] fileNames)
         {
-            string[] fileNames = PersistantStorage.StorageObject.mruFile;
             bool tabOpened = false;
 
             if (fileNames != null)
