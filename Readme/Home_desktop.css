@@ -1,0 +1,201 @@
+#one
+{
+    height:920px;
+    background-color:#EEEEEE;
+    padding-top:30px;
+    width:100%;
+    margin:0px;
+}
+
+#two
+{
+    min-height:400px;
+    padding-top:75px;
+    line-height: 32px;
+    font-size: 20px;
+    x-color: #799999;
+    font-weight:thinner;
+    padding-bottom:75px;
+}
+
+#three
+{
+    height:230px;
+    background-color:#66666A;
+    color:white;
+    padding-top:30px;
+    padding-bottom:20px;
+    line-height:25px;
+    width:100%;
+    margin:0px;    
+}
+
+#four
+{
+    height:30px;
+    padding-top:80px;
+    text-align:right;
+}
+
+#arrow
+{
+    width:240px;
+    height:240px;
+    float:left;
+}
+
+.center1024
+{
+    margin-right:auto;
+    margin-left:auto;
+    width:1024px;
+    position:relative;
+}
+
+.center840
+{
+    margin-right:auto;
+    margin-left:auto;
+    width:840px;
+    position:relative;
+}
+
+.navbar
+{
+    font-size:16px;
+    height:28px;
+    overflow:hidden;
+    text-align:right;
+    padding-top:10px;
+}
+
+.dimText
+{
+    color:rgb(153,153,153);
+}
+
+.navbar a
+{
+    padding-left:10px;
+    padding-right:10px;
+}
+
+#Title
+{
+     margin-bottom:60px;
+}
+
+#Title H1
+{
+    font-size:62px;
+    margin-bottom:0px;
+    margin-top:10px;
+}
+
+#Title H3
+{
+    font-size:24px;
+    margin-top:5px;
+    margin-bottom:15px;
+}
+
+#demoImage
+{
+    width:840px;
+    margin:auto;
+    display:block;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 1px 1px 10px 0px;
+    box-shadow: rgba(0, 0, 0, 0.4) 1px 1px 10px 0px; 
+}
+
+#up, #down
+
+{
+    width:32px;
+    height:32px;
+    margin:auto;
+    display:block;
+    padding:20px;
+    cursor:pointer;
+}
+
+#S1, #S2, #S3, #S4, #S5, #S6, #S7
+{
+    border:5px solid silver;
+    border-radius:25px;
+    margin-top:20px;
+    margin-bottom:20px;
+    margin-left:auto;
+    margin-right:auto;
+    width:0px;
+    height:0px;
+    cursor:pointer;
+} 
+
+#Flippers
+{
+    position:absolute;
+    right:0px;
+    top:350px;
+}
+
+.Selected
+{
+    border-color:gray !important
+}
+
+#downloadTable
+{
+    background-color:#11A084;
+    padding:2px;
+    padding-left:5px;
+    padding-right:12px;
+    color:white;
+    margin-top:190px;
+    border:1px solid #11A084;
+    border-radius:5px;
+    position:absolute;
+    right:0px;
+    top:-100px;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+#downloadTable img
+{
+    border:0;
+}
+
+#two h4
+{
+    float:left;
+    color:black;
+    font-size:24px;
+    padding-right:10px;
+    margin:0px;
+}
+
+#two img
+{
+    width:64px;
+    height:64px;
+    margin-right:10px;
+    float:left;
+}
+
+.twoColumn
+{
+    -webkit-column-count:2; /* Chrome, Safari, Opera */
+    -moz-column-count:2; /* Firefox */
+    column-count:2;
+}
+
+.justify
+{
+    text-align: justify;
+}
+
+#Title, #three
+{
+    font-weight:400;
+}
