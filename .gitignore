@@ -4,6 +4,7 @@
 
 /TextCore/TextCore/TextCoreControl/obj
 /TextCore/TextCoreTest/obj
-/TextCore/TextCore/TextCore/obj/x86
-/TextCore/TextCore/CopyDLLToBend/obj/x86/Release
-/Bend/obj/x86
+/TextCore/TextCore/TextCore/obj/
+/TextCore/TextCore/CopyDLLToBend/obj/
+/Bend/obj/
+/.vs
