@@ -35,7 +35,7 @@
     <UpdatePeriodically>true</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
-    <InstallUrl>http://www.bendtext.com/bend/</InstallUrl>
+    <InstallUrl>https://raw.githubusercontent.com/sushanthr/bend/master/Publish/</InstallUrl>
     <SupportUrl>http://bendtext.com/</SupportUrl>
     <ErrorReportUrl>http://www.bendtext.com/bugs/</ErrorReportUrl>
     <ProductName>Bend</ProductName>
@@ -45,7 +45,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>13</ApplicationRevision>
+    <ApplicationRevision>14</ApplicationRevision>
     <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

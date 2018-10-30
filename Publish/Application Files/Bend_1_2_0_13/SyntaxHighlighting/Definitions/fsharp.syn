@@ -1,0 +1,70 @@
+; TextPad keyword syntax file for  F# (or OCamel)
+; Copyright (C) 2002, Dec R F Pickering
+
+C=1
+
+[Syntax]
+Namespace1 = 1
+IgnoreCase = No
+InitKeyWordChars = A-Za-z!
+KeyWordChars = A-Za-z0-9_-
+PreprocStart = #
+SyntaxStart = 
+SyntaxEnd = 
+CommentStart = (*
+CommentEnd = *)
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = //
+SingleCommentCol = 
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc =
+CharStart = '
+CharEnd = '
+CharEsc =
+
+[Keywords 1]
+and
+as
+begin
+do
+done
+downto
+else
+end
+exception
+for
+fun
+function
+in
+if
+let
+match
+module
+not
+open
+of
+prefix
+raise
+rec
+struct
+then
+to
+try
+type
+while
+with
+override
+
+[Keywords 2]
+int
+float
+bool
+string
+char
+
+[Keywords 3]
+true
+false
