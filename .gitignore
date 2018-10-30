@@ -8,3 +8,13 @@
 /TextCore/TextCore/CopyDLLToBend/obj/
 /Bend/obj/
 /.vs
+/Bend/.vs/Bend/v15
+/Bend/bin/
+/TextCore/Controls/.vs/DirectXControls/v15/
+/TextCore/Controls/Release/
+/TextCore/TextCore/.vs/
+/TextCore/TextCore/CopyDLLToBend/Release/
+/TextCore/TextCore/CopyDLLToBend/bin/Release
+/TextCore/TextCore/bin/
+/TextCore/TextCore/TextCore/bin/Release
+/TextCore/TextCore/TextCoreControl/bin
