@@ -56,7 +56,7 @@ namespace TextCoreControl
             int lineHeight = (int)Math.Ceiling(visualLine.Height);
             if (lineHeight != caretHeight || ordinal == 0)
             {
-                this.caretHeight = lineHeight;
+                this.caretHeight = (int)((float)lineHeight * dpiY);
                 DestroyCaret();
                 CreateCaret(windowHandle, 0, 0, caretHeight);
 
