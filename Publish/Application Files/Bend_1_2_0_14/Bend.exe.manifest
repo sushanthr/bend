@@ -1,0 +1,435 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="Bend.exe" version="1.2.0.14" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
+  <description asmv2:iconFile="Arrow.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="Bend" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
+    <commandLine file="Bend.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet Unrestricted="true" ID="Custom" SameSite="site" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!--
+          UAC Manifest Options
+          If you want to change the Windows User Account Control level replace the 
+          requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+         If you want to utilize File and Registry Virtualization for backward 
+         compatibility then delete the requestedExecutionLevel node.
+    -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="5" minorVersion="1" buildNumber="2600" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="4.0.30319.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Bend.exe" size="293888">
+      <assemblyIdentity name="Bend" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>TwOcFueAB1oN2AVd5MduKh3FBF3uQcL+pmR9Q5fktuc=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Microsoft.WindowsAPICodePack.DirectX.dll" size="1620480">
+      <assemblyIdentity name="Microsoft.WindowsAPICodePack.DirectX" version="1.1.0.0" language="neutral" processorArchitecture="x86" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>gp23PtEExXMhpNMvUtgByfwu12RokmpFXx9msGeYlyQ=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Microsoft.WindowsAPICodePack.DirectX.Controls.dll" size="61440">
+      <assemblyIdentity name="Microsoft.WindowsAPICodePack.DirectX.Controls" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>YtWvl/jgViINDMyyiiTQHI2mIAx1vFVCyIsOzz3LIWk=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="TextCoreControl.dll" size="98304">
+      <assemblyIdentity name="TextCoreControl" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>ta+X0sJURLgo4y2BYIaSOX1MSqf5aKHisXKesxDSYHM=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="Arrow.ico" size="82726">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>+GGosOjH0KwXNADKA4h2Jgvix07aaFb+vq4XaQd/5zk=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\actionscript3.syn" size="59272">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>3nB4IfpUiWhtmwBk2KnVr53JmiBKBsKTfbyo5yUruy0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\Ada.syn" size="1289">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>MEOr4GVc9a2xKSGWqjqwmWcHYIfxmnaIoXb771228yQ=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\atlwtl.syn" size="47847">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>InucCrUVOYBG5rby/xr/NRBPfGyf+tJp/Bg5HQZua1M=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\cmd.syn" size="3157">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>/4dfGTnjVbe7jD6QFhbJmiy9qGu2uAraBxi30U+rLBo=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\cobol-97.syn" size="21893">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>G55Mvt0qRc93O4zcEFqli8l22UDc0YBE9EdEHfq6iqs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\csharp8.syn" size="1600">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>R9c1yYkCfDGGf/TWSHi8E9L1C36wTtNa535kGIlJkUU=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\css2dot1.syn" size="12776">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>46vmN0wQh4Mw12FLexV7idDVHUGtTkaoWofAUnoMDPM=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\f90.syn" size="7542">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>2tRAdRZ4ubBA38pu8Cu4lRYUro2b0qMmph77U/cOjMQ=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\fsharp.syn" size="742">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>+rMixI6JGc/Q1wVErD9mTQFIlCp0B026HJpi02+bcGQ=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\html.syn" size="7300">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>5fgsrdEpRFHCwbAd16aCYZJsCXmud+F3jVoSwTi+wJc=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\java1_6.syn" size="70548">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>f8NOnHcinhkxpgiwg0ugoxEfgaPFD7o+iKacw5qEm+A=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\javascript.syn" size="31542">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>byhjEhC3CsXdFAhdb/+n6KpI0HhZ5l2o1BP467cFO3k=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\jsp4.syn" size="39781">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>PgvM4qpC+C1C9m/asgJ3cnDcBwm9Iu2geYjuVEoSq08=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\LaTeX.syn" size="24671">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>36Tv8HAvOq6KZBfKvf5t7aiFb2uvvooC1mdtG5A3vMs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\lisp.syn" size="15346">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>LiSKD6riEF2PYNXbcTrvrQWFUDfstlRQVxbaPjiZlCo=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\matlabR12.1.syn" size="89716">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>bwJWbvFYX8Z4m03R7bj/6dLmH4ZWHO6uok4VIMqI1x4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\perl3upd.syn" size="5431">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>LruytFo+mbtczOpHZIqRVhY7MBKL6AF3+vifl3OJeXA=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\php.syn" size="119019">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>vgHkergA54FvSB/xL0rIWykDyha57W2kd2PsGpWoxmg=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\python3.syn" size="3380">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>dc0PPOBf+p+SEWk3Oh7f1/osCoTqknmNSUOUK6U9flo=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\reg.syn" size="1397">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>vh2BKsW/6pxGfVMzpEu5YnV6eLrjoBnj+nIYVxisaJg=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\ruby_on_rails.syn" size="9709">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>cPr2sx83oauSN9LwYdKV2lcta/iaw21cy+W5aqtnYT8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\sql.syn" size="2123">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>hasypbKoNN342EYcvyMaQ2MWpqb1sd9ZA4SU6AJCYC0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\svg.syn" size="6223">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>5uo5otKoBOwVUdwnJb/171GDColya56okAjjBDO4oy4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\tcl.syn" size="1650">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>0BIofIMuC9JhkSVTo1WCC/ukORqxLthw/l3dSsTOwVg=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\vbdotnet9.syn" size="3008">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>a26yztzCcpC+uqQLzB0Uq+OVOGK7L+H7KZ2pATfCd94=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\vbscript56.syn" size="9121">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>FjdHDOiPhh9KVuUkYgbjChvP6NkxCbL0Qnb+gWNCDq0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xaml.syn" size="1613">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>//x8BVl+c+0nG7uc01Yzzcqy1i4SmZAaYPBrA3ps3A4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xhtml.syn" size="3329">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>N37CtN51Y8P+Ca0Sx5r5WmAauX1m4qRB9sCSudoo+ns=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xml.syn" size="1158">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>SZ8NFZDqDoAkweRreq0jaMoe7g9VnE4Fz/kBVArcEt4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xml-excel_2002.syn" size="8421">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>MOyhnO/fupC7YuCAiHx4ftKItR9XeTyHGiynDt/+nIA=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xqy.syn" size="962">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>uHuetFQZ09Hi+RDjfndYGC8tO4ZfkfBXpC6L6WQKPxQ=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xsl.syn" size="5774">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>4DZrK2EVQkCyETl+P+XIcIoBW7GZp1oVpXyRjPhOmxk=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\xslt.syn" size="3513">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>M6/eGh+ARmLEWUITaZnyvwy8vP7N7VPZr+K66i35yq8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\Definitions\yacc.syn" size="1155">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>1lYgrxBPl6O1Wb2px2kP9/ZG/qgUHiynMUJg39VY51Q=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="SyntaxHighlighting\LanguageDetector.config" size="2288">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>z9NaQ/Li2qnN3Cl5Fzvs083PGWK++s26KtCuWGMWoBs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Themes\Dark.xml" size="6628">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>0jDUNjO0efviW7o6T4MgiraQKEbk9NNyAOdp8QTRGFE=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Themes\Light.xml" size="6460">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>fMBwDpsQ/4UPMQzvgaMkVcnTVS0mEMvMdfpF8NlJeow=</dsig:DigestValue>
+    </hash>
+  </file>
+</asmv1:assembly>

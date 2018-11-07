@@ -1,0 +1,499 @@
+; VBScript 5.6 syntax highlighting from scratch
+; by Alex K. Angelopoulos (alexangelopoulos at hotmail dot com)
+; Saturday, 2003-03-08
+
+; NOTES ON MAKING THE BEST USE OF THIS SYNTAX FILE
+; + Set {Keywords 6] coloring to something like red to flag "illegal" words
+; + Set "Other Characters in Words" to include []
+
+
+; This is an exhaustive listing of known VBScript keywords, as well as ALL
+; intrinsic VBScript methods, properties, and objects (known accurate by
+; typelib extraction). Notes on special customization and features below.
+
+; [Syntax]
+; BracketChars = ()
+;   Because nothing else is a bracket in VBScript.
+;   This is critical for correct use of [] in escaping keywordlike names.
+; OperatorChars = .^-*/\+&=<>!,:
+;   Includes characters which are not strictly operators (.,:)
+;   in order to produce correct highlighting.
+; StringAlt = #
+;   To correctly highlight dates.
+
+; [Keywords 1]
+; In-use keywords.  This consists of the default keywords listing from
+; http://support.microsoft.com/default.aspx?scid=KB;en-us;q216528
+; modified as follows:
+; + the unlisted keywords Default, Error, and Explicit have been added
+;   and documented as such.
+; + "Prohibited" reserved keywords - those which cannot be used or
+;   redefined in any way - have been removed (they are in [Keywords 6]).
+
+; [Keywords 2]
+; VBScript global methods.  These are COMPLETE, having been directly
+; extracted from VBScript.dll with a COM browser.
+
+; [Keywords 3]
+; VBScript global properties.  Again, these are COMPLETE, having been
+; directly extracted from VBScript.dll with a COM browser.
+
+; [Keywords 4]
+; VBScript intrinsic names.  
+; Err and Debug and the debugging statement "Stop" are always available;
+; the RegExp name is included since it is an intrinsic VBScript class.
+; this includes commented-out WScript and WSH keywords in case you wish to
+; use these.
+; Class_Initialize and Class_Terminate are "special" names for procedures
+; automatically executed within user-defined VBScript classes.
+; getResource is used within WSF and WSC files to retrieve a named resource.
+; The createComponent method is used to create an instance of another
+; component within the same WSC (and can be used under special circumstances
+; within a WSF as well).
+
+
+; [Keywords 5]
+; Commented-out methods and properties for WScript; this provides an alternate
+; highlighting mechanism to uncommenting 4 if desired.
+
+; [Keywords 6]
+; Forbidden words.  These are the keywords which simply cannot be
+; used in VBScript.  To make them useful for cuing on inappropriate
+; use (handy for people who also use VB/VBA/VB.NET) I suggest setting
+; category 6 to using red or another color which screams "error!" at you.
+
+C=1
+
+
+[Syntax]
+Namespace1 = 6
+; Although VBScript is not case-sensitive, ALL keywords use the correct
+; canonical case. If you would like to also check "proper" casing of
+; VBScript intrinsics, change IgnoreCase to No.
+IgnoreCase = Yes
+KeyWordLength =
+BracketChars = ()
+OperatorChars = .^-*/\+&=<>!,:
+PreprocStart =
+HexPrefix = &H
+; To use ONLY for WSF/WSC syntax highlighting, uncomment the
+; following SyntaxStart and SyntaxEnd lines.
+;SyntaxStart = <![CDATA[
+;SyntaxEnd = ]]>
+CommentStart =
+CommentEnd =
+CommentStartAlt = 
+CommentEndAlt =
+SingleComment = '
+SingleCommentCol =
+; Here is Rem, but why use it when you have ' available?
+SingleCommentAlt = Rem
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines =
+StringStart = "
+StringEnd = "
+; The following line enables recognition of date/time literals as
+; literal data with highlighting identical to that for strings.
+StringAlt = #
+StringEsc = 
+; We use [ ] as char start and end to allow "special" variable names
+; to be correctly highlighted in code.
+CharStart = [
+CharEnd = ]
+CharEsc = 
+
+; 1. VBScript Intrinsic Keywords
+; NOTE - keywords which are not reserved are marked
+[Keywords 1]
+; The following 3 keywords are not really reserved
+Default
+Error
+Explicit
+; End of non-reserved keywords
+And
+ByRef
+ByVal
+Call
+Case
+Class
+Const
+Dim
+Do
+Each
+Else
+ElseIf
+Empty
+End
+Eqv
+Exit
+False
+For
+Function
+Get
+GoTo
+If
+Imp
+In
+Is
+Let
+Loop
+Me
+Mod
+New
+Next
+Not
+Nothing
+Null
+On
+Option
+Or
+Preserve
+Private
+Property
+Public
+ReDim
+Resume
+Select
+Set
+Sub
+Then
+To
+True
+Until
+Wend
+While
+With
+Xor
+
+; 2. VBScript Global Methods
+; Derived by export from vbscript.dll version 5.6.0.8515 on XP
+; via TLViewer. This is identical to the 7426 build.
+[Keywords 2]
+Abs
+Array
+Asc
+AscB
+AscW
+Atn
+CBool
+CByte
+CCur
+CDate
+CDbl
+Chr
+ChrB
+ChrW
+CInt
+CLng
+Cos
+CreateObject
+CSng
+CStr
+Date
+DateAdd
+DateDiff
+DatePart
+DateSerial
+DateValue
+Day
+Erase
+; Escape() is undocumented but exposed.
+Escape
+Eval
+Execute
+ExecuteGlobal
+Exp
+Filter
+Fix
+FormatCurrency
+FormatDateTime
+FormatNumber
+FormatPercent
+GetObject
+GetRef
+Hex
+Hour
+InputBox
+InStr
+InStrB
+InStrRev
+Int
+IsArray
+IsDate
+IsEmpty
+IsNull
+IsNumeric
+IsObject
+Join
+LBound
+LCase
+Left
+LeftB
+Len
+LenB
+LoadPicture
+Log
+LTrim
+Mid
+MidB
+Minute
+Month
+MonthName
+MsgBox
+Now
+Oct
+Randomize
+Replace
+RGB
+Right
+RightB
+Rnd
+Round
+RTrim
+ScriptEngine
+ScriptEngineBuildVersion
+ScriptEngineMajorVersion
+ScriptEngineMinorVersion
+Second
+Sgn
+Sin
+Space
+Split
+Sqr
+StrComp
+string
+StrReverse
+Tan
+Time
+Timer
+TimeSerial
+TimeValue
+Trim
+TypeName
+UBound
+UCase
+; Unescape() is undocumented but exposed.
+Unescape
+VarType
+Weekday
+WeekdayName
+Year
+
+; 3. VBScript Global Properties
+; Derived by export from vbscript.dll version 5.6.0.8515 on XP
+; via TLViewer. This is identical to the 7426 build.
+[Keywords 3]
+vbAbort
+vbAbortRetryIgnore
+vbApplicationModal
+vbArray
+vbBinaryCompare
+vbBlack
+vbBlue
+vbBoolean
+vbByte
+vbCancel
+vbCr
+vbCritical
+vbCrLf
+vbCurrency
+vbCyan
+vbDatabaseCompare
+vbDataObject
+vbDate
+vbDecimal
+vbDefaultButton1
+vbDefaultButton2
+vbDefaultButton3
+vbDefaultButton4
+vbDouble
+vbEmpty
+vbError
+vbExclamation
+vbFalse
+vbFirstFourDays
+vbFirstFullWeek
+vbFirstJan1
+vbFormFeed
+vbFriday
+vbGeneralDate
+vbGreen
+vbIgnore
+vbInformation
+vbInteger
+vbLf
+vbLong
+vbLongDate
+vbLongTime
+vbMagenta
+vbMonday
+vbMsgBoxHelpButton
+vbMsgBoxRight
+vbMsgBoxRtlReading
+; The VbMsgBoxSetForeground property is the only VBScript property
+; whose name prefix uses an uppercase "V".
+VbMsgBoxSetForeground
+vbNewLine
+vbNo
+vbNull
+vbNullChar
+vbNullString
+vbObject
+vbObjectError
+vbOK
+vbOKCancel
+vbOKOnly
+vbQuestion
+vbRed
+vbRetry
+vbRetryCancel
+vbSaturday
+vbShortDate
+vbShortTime
+vbSingle
+vbString
+vbSunday
+vbSystemModal
+vbTab
+vbTextCompare
+vbThursday
+vbTrue
+vbTuesday
+vbUseDefault
+vbUseSystem
+vbUseSystemDayOfWeek
+vbVariant
+vbVerticalTab
+vbWednesday
+vbWhite
+vbYellow
+vbYes
+vbYesNo
+vbYesNoCancel
+
+; 4. VBScript Object Names and Arguments
+; These are all exposed by various hosts which VBScript may have.
+; The methods and the names themselves may be reused elsewhere in
+; some cases.
+[Keywords 4]
+Class_Initialize
+Class_Terminate
+createComponent
+Debug
+Err
+getResource
+RegExp
+Stop
+; You may wish to uncomment the following if only working in WSH.
+; Note that BOTH WScript and WSH refer to the IHost_Class namespace
+; (a.k.a. Windows Script Host Object) automatically.
+;WScript
+;WSH
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; some of my "usual" objects
+; WScript.Shell
+;sh
+; WScript.Network
+;net
+; Scripting.FileSystemObject
+;fso
+; scriptcontrol
+;sc
+; Scripting.Dictionary
+;dct
+; MSScriptControl.ScriptControl
+;sc
+; Shell.Application
+;sa
+; InternetExplorer.Application
+;ie
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; methods and properties are not listed uncommented since they 
+; are so lengthy and may cause odd selection behaviors.
+;Debug.Write
+;Debug.WriteLn
+;Err.Clear
+;Err.Description
+;Err.HelpContext
+;Err.helpfile
+;Err.number
+;Err.Raise
+;Err.Source
+;WScript.Application
+;WScript.Arguments
+;WScript.BuildVersion
+;WScript.ConnectObject
+;WScript.CreateObject
+;WScript.DisconnectObject
+;WScript.Echo
+;WScript.FullName
+;WScript.GetObject
+;WScript.Interactive
+;WScript.Name
+;WScript.Path
+;WScript.Quit
+;WScript.ScriptFullName
+;WScript.ScriptName
+;WScript.Sleep
+;WScript.StdErr
+;WScript.StdIn
+;WScript.StdOut
+;WScript.Timeout
+;WScript.Version
+;WSH.Application
+;WSH.Arguments
+;WSH.BuildVersion
+;WSH.ConnectObject
+;WSH.CreateObject
+;WSH.DisconnectObject
+;WSH.Echo
+;WSH.FullName
+;WSH.GetObject
+;WSH.Interactive
+;WSH.Name
+;WSH.Path
+;WSH.Quit
+;WSH.ScriptFullName
+;WSH.ScriptName
+;WSH.Sleep
+;WSH.StdErr
+;WSH.StdIn
+;WSH.StdOut
+;WSH.Timeout
+;WSH.Version
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; 5. WSH Methods
+; if someone wants to perform simpler highlighting...
+[Keywords 5]
+
+; 6. VBScript "Forbidden" words
+[Keywords 6]
+As
+Boolean
+Byte
+Currency
+Double
+EndIf
+Enum
+Event
+Implements
+Integer
+Like
+Long
+LSet
+Optional
+ParamArray
+RaiseEvent
+RSet
+Shared
+Single
+Static
+Type
+TypeOf
+Variant

@@ -1,0 +1,115 @@
+; TextPad syntax definitions for YACC grammars
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = No
+KeyWordLength =
+BracketChars = {[(<>)]}
+OperatorChars = -+*/!~^&|=
+PreprocStart = #
+SyntaxStart = 
+SyntaxEnd = 
+HexPrefix = 0x
+CommentStart = /*
+CommentEnd = */
+CommentStartAlt =
+CommentEndAlt =
+SingleComment = //
+SingleCommentCol =
+SingleCommentAlt =
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines = Yes
+StringStart = "
+StringEnd = "
+StringAlt =
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
+
+[Keywords 1]
+argc
+argv
+auto
+break
+case
+char
+const
+continue
+default
+do
+double
+else
+enum
+envp
+extern
+float
+for
+goto
+if
+int
+long
+main
+register
+return
+short
+signed
+sizeof
+static
+struct
+switch
+typedef
+union
+unsigned
+void
+volatile
+while
+
+
+[Keywords 2]
+%{
+%}
+%%
+%token
+%union
+%left
+%right
+%nonassoc
+%start
+%type
+%prec
+%T
+%expect
+$$
+
+[Keywords 3]
+yyerror
+yyclearin
+yydebug
+yyerrok
+yyparse
+YYERROR
+YYDEBUG
+YYABORT
+YYACCEPT
+YYBACKUP
+
+[Preprocessor keywords]
+#define
+#elif
+#else
+#endif
+#error
+#if
+#ifdef
+#ifndef
+#include
+#pragma
+#undef
+defined
+
+
+

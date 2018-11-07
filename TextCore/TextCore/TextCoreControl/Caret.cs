@@ -204,7 +204,8 @@ namespace TextCoreControl
 
         internal Point2F PositionInScreenCoOrdinates()
         {
-            return new Point2F(xPos, yPos + caretHeight / 2);
+            // xPos and yPos are saved as scaled up values since SetCaretPosition API expects the values that way.
+            return new Point2F(xPos / dpiX, yPos / dpiY + caretHeight / (2 * dpiY));
         }
 
         #endregion

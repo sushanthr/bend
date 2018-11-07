@@ -1,0 +1,96 @@
+; TextPad syntax definitions for XQuery
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = No
+KeyWordLength =
+BracketChars = {[()]}
+CommentStart = (:
+CommentEnd = :)
+StringStart = "
+StringEnd = "
+OperatorChars = -/<>.!~%^&|=@$:
+StringEsc = \
+CharStart = '
+CharEnd = '
+CharEsc = \
+
+
+; Note: the following are duplicate HTML keywords and are found in both
+; Keywords 2 and 3.  The Namespace1 value above is set to 2 so they can
+; be used in different contexts.
+
+
+
+
+[Keywords 1]
+schema
+namespace
+default
+define
+function
+import
+module
+as
+at
+:=
+
+
+[Keywords 2]
+xs:string
+xs:boolean
+xs:date
+xs:integer
+item()
+element()
+node()
+empty
+compare
+count
+exists
+normalize-space
+lower-case
+true
+xdmp:node-uri
+last
+=
++
+*
+?
+
+
+
+[Keywords 3]
+where
+and
+or
+if
+else
+let
+then
+for
+return
+order
+by
+in
+
+; html attributes
+
+
+
+[Keywords 4]
+; FO elements
+
+
+
+[Keywords 5]
+; FO attributes
+
+
+
+[Keywords 6]
+
+
+
