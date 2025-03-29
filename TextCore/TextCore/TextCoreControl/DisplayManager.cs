@@ -219,7 +219,7 @@ namespace TextCoreControl
         public delegate void ShowContextMenuEventHandler();
         public event ShowContextMenuEventHandler ContextMenu;
 
-        internal void MouseHandler(int unscaledX, int unscaledY, int type, int flags)
+        internal void MouseHandler(int unscaledX, int unscaledY, int type, long flags)
         {
             int x = (int)(unscaledX * (96.0 / this.d2dFactory.DesktopDpi.X));
             int y = (int)(unscaledY * (96.0 / this.d2dFactory.DesktopDpi.Y));
@@ -345,8 +345,8 @@ namespace TextCoreControl
                         significantEvent = true;
                         // WM_MOUSEWHEEL
                         // wparam is passed in as flags
-                        int highWord = flags >> 16;
-                        int lowWord = flags & 0xFF;
+                        int highWord = (int)flags >> 16;
+                        int lowWord = (int)flags & 0xFF;
 
                         // Read http://www.codeproject.com/KB/system/HiResScrollSupp.aspx?display=Mobile for info about
                         // highWord and how it corresponds to mouse type and speed.
@@ -387,7 +387,7 @@ namespace TextCoreControl
             {
                 if (this.flightRecorder.IsRecording)
                 {
-                    this.flightRecorder.AddFlightEvent(new FlightRecorder.MouseHandlerFlightEvent(unscaledX, unscaledY, type, flags));
+                    this.flightRecorder.AddFlightEvent(new FlightRecorder.MouseHandlerFlightEvent(unscaledX, unscaledY, type, (int)flags));
                 }
             }
         }

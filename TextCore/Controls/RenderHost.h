@@ -11,7 +11,7 @@ using namespace System::Runtime::InteropServices;
 namespace  Microsoft { namespace WindowsAPICodePack { namespace DirectX { namespace Controls {
 
 public delegate void RenderHandler();
-public delegate void MouseHandler(int x, int y, int type, int flags);
+public delegate void MouseHandler(int x, int y, int type, Int64 flags);
 public delegate void KeyHandler(int charCode, int lParam);
 public delegate void OtherHandler(int type, int wparam, int lparam);
 

@@ -121,7 +121,7 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 		{
 			int xPos = GET_X_LPARAM((int)lParam);
 			int yPos = GET_Y_LPARAM((int)lParam);
-			MouseHandler(xPos, yPos, msg, (int) wParam);
+			MouseHandler(xPos, yPos, msg, (Int64)wParam);
 			handled = true;
 		}
 		break;
