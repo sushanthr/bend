@@ -61,7 +61,7 @@ namespace Bend
             mainWindowHeight = 600.0;
 
             SettingsPageAnimation = true;
-            ShowStatusBar = false;
+            ShowStatusBar = true;
             IsFirstRun = true;
             ReopenFilesOnStart = false;
             Diagnostics = false;

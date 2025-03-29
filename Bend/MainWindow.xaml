@@ -195,24 +195,24 @@
                     <Label VerticalAlignment="top" VerticalContentAlignment="Center" Height="36" FontStretch="Normal" Foreground="{DynamicResource ForegroundBrush}" FontWeight="ExtraLight" FontFamily="Segoe UI" FontSize="18" Padding="15,0" IsTabStop="True" PreviewMouseLeftButtonUp="ReplaceButtonUp">Replace</Label>
                 </WrapPanel>
             </Grid>
-            <Grid Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+            <Grid Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
-                <WrapPanel Name="StatusBar" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="49,0,0,0">
+                <WrapPanel Name="StatusBar" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="49,2,0,0">
                     <WrapPanel>
-                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center">LN</Label>
-                        <Label Name="Line" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="5,0,0,0" MinWidth="30"></Label>
+                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">LN</Label>
+                        <Label Name="Line" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5,0,0,0" MinWidth="30"></Label>
                     </WrapPanel>
                     <WrapPanel>
-                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="10,0,0,0">COL</Label>
-                        <Label Name="Column" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" Margin="5,0,0,0" MinWidth="30"></Label>
+                        <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="10,0,0,0">COL</Label>
+                        <Label Name="Column" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5,0,0,0" MinWidth="30"></Label>
                     </WrapPanel>
                 </WrapPanel>
-                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,0,0,0" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center">
+                <Label Name="StatusText" Visibility="Hidden" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="49,2,0,0" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="9" FontWeight="Bold" Foreground="#19A2DE" HorizontalContentAlignment="Center">
                 </Label>
             </Grid>
             <Label Content="Bend" Name="Logo" Width="60" Margin="10,0,0,0" HorizontalAlignment="Left" Foreground="{DynamicResource LogoForegroundBrush}" Height="40" VerticalAlignment="Top" FontWeight="SemiBold" HorizontalContentAlignment="Center" FontFamily="Segoe UI" FontSize="16" Padding="0,8" IsTabStop="True" MouseDown="Logo_MouseDown" Background="{DynamicResource LogoBackgroundBrush}"></Label>
