@@ -9,7 +9,7 @@
 /Bend/obj/
 Bend/.vs/
 Publish/
-/.vs
+.vs
 /Bend/.vs/Bend/v15
 /Bend/bin/
 /TextCore/Controls/.vs/DirectXControls/v15/
@@ -26,3 +26,5 @@ TextCore/Controls/x64/
 TextCore/TextCore/CopyDLLToBend/app.config
 TextCore/TextCore/TextCore/app.config
 TextCore/TextCoreTest/bin/
+x64
+x86

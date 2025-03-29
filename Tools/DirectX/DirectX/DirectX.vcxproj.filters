@@ -1,0 +1,1202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\DXGI">
+      <UniqueIdentifier>{ba28de73-d361-453e-94d4-9ff67f8020e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{5fe9acad-5db0-4e2b-ab4c-9b139edf970f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10">
+      <UniqueIdentifier>{712131a1-70c1-4e09-8c49-b1b292ab9c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10\Core">
+      <UniqueIdentifier>{90e25b27-83e8-4576-8ef6-ff52bde9c4b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10\Core\GraphicsPipeline">
+      <UniqueIdentifier>{1dbd9f63-2bdb-4f9a-8a48-58ae1fa772da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10\Resource">
+      <UniqueIdentifier>{707b773d-d07f-4fd7-8205-3455f5f69ec3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10\Shader">
+      <UniqueIdentifier>{86d49b28-cf50-460c-8f99-632f120740a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D10\Effect">
+      <UniqueIdentifier>{4824ff5d-9254-4fc4-8ef0-7def3a2b9169}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11">
+      <UniqueIdentifier>{02a80199-7592-432f-b342-4747d9b6f86e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11\Core">
+      <UniqueIdentifier>{99670012-6a21-4e95-8a60-5d1291e1daac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11\Core\GraphicsPipeline">
+      <UniqueIdentifier>{efb4b90e-2719-46c1-baa8-5b99d0e4d07b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11\Layer">
+      <UniqueIdentifier>{083bd444-2e70-4461-9ea1-d024f708d16a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11\Shader">
+      <UniqueIdentifier>{e383c309-a346-4eff-a713-ee6881a0f41f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3D11\Resource">
+      <UniqueIdentifier>{25448bdb-32d9-4cfe-9d9c-f0ca8132d403}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D2D1">
+      <UniqueIdentifier>{cfd26786-2b25-46fb-bf7e-29cb8c22e387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WIC">
+      <UniqueIdentifier>{a99c4d78-2c0f-4797-84cd-d6f9cecd09fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DWrite">
+      <UniqueIdentifier>{6f88b657-b717-4155-8224-325765e1046d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\D3DCommon">
+      <UniqueIdentifier>{baf7fc84-c981-49ca-9332-d42e10f48d73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\DXGI">
+      <UniqueIdentifier>{cd994e58-5734-4961-9c6c-470ecce58f40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{9fc45c33-b684-410b-a005-ad3d0c0e6ce2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10">
+      <UniqueIdentifier>{37abe281-b8dc-4dad-a61e-ee15ba83dd6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10\Core">
+      <UniqueIdentifier>{d934e4bb-ffe4-4ddb-bc1d-d2c376748962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10\Core\GraphicsPipeline">
+      <UniqueIdentifier>{42244b8e-51d3-497c-bf26-656bee08c719}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10\Effect">
+      <UniqueIdentifier>{e4e570fa-6150-4e62-a73c-93c238a2539e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10\Shader">
+      <UniqueIdentifier>{76e0aa9a-dc37-4b61-bc6d-de465061333c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D10\Resource">
+      <UniqueIdentifier>{2299211f-c958-4085-ac25-73a6185d4217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11">
+      <UniqueIdentifier>{45b70b06-488f-4db6-8d98-c44e4d1cf19a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11\Core">
+      <UniqueIdentifier>{56c62ac4-1b16-4eb9-8887-2b4497499e25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11\Core\GraphicsPipeline">
+      <UniqueIdentifier>{a3fb83a9-93d6-4a54-b60a-d9b7b455a867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11\Layer">
+      <UniqueIdentifier>{82319b50-3fdf-460e-8f2d-a9979e399898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11\Shader">
+      <UniqueIdentifier>{405240e6-ee91-481b-8468-d966da816d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D11\Resource">
+      <UniqueIdentifier>{47bbe39f-e353-4948-ad79-6c17123994eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DWrite">
+      <UniqueIdentifier>{be24c42c-b975-45b9-a49c-5d216cc2e0b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D2D1">
+      <UniqueIdentifier>{97d71506-89ca-43e4-b324-2fe9b1df19aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WIC">
+      <UniqueIdentifier>{5178d197-5641-4efe-9afe-02f92666bb8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3DCommon">
+      <UniqueIdentifier>{0e27337a-0002-4ae2-95ed-b45f7f9c0c75}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalSuppressions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIAdapter.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIAdapter1.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIDevice.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIDevice1.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIDeviceSubObject.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIException.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIFactory.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIFactory1.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIKeyedMutex.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIObject.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIOutput.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIResource.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGIStructs.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGISurface.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGISurface1.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="DXGI\DXGISwapChain.cpp">
+      <Filter>Source Files\DXGI</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoIUnknown.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoPointer.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonUtils.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Convert.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectHelpers.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectObject.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectUnknown.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="LibraryLoader.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Validate.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Structs.cpp">
+      <Filter>Source Files\D3D10</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Asynchronous.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10BlendState.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10BlendState1.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Blob.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Counter.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Debug.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10DepthStencilState.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Device.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Device1.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10DeviceChild.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Include.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10InfoQueue.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10InputLayout.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Multithread.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Predicate.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Query.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10RasterizerState.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10SamplerState.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10StateBlock.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10StateBlockMask.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10SwitchToRef.cpp">
+      <Filter>Source Files\D3D10\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10GeometryShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10InputAssemblerPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10OutputMergerPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10PipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10PixelShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10RasterizerPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10StreamOutputPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10VertexShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Buffer.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10DepthStencilView.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10RenderTargetView.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Resource.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderResourceView.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderResourceView1.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Texture1D.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Texture2D.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Texture3D.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10View.cpp">
+      <Filter>Source Files\D3D10\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10GeometryShader.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10PixelShader.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderReflection.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderReflection1.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderReflectionConstantBuffer.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderReflectionType.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10ShaderReflectionVariable.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10VertexShader.cpp">
+      <Filter>Source Files\D3D10\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10Effect.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectBlendVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectConstantBuffer.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectDepthStencilVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectDepthStencilViewVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectMatrixVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectPass.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectPool.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectRasterizerVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectRenderTargetViewVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectSamplerVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectScalarVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectShaderResourceVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectShaderVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectStringVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectTechnique.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectType.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D10\D3D10EffectVectorVariable.cpp">
+      <Filter>Source Files\D3D10\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Asynchronous.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11BlendState.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11CommandList.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Counter.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DepthStencilState.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Device.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DeviceChild.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DeviceContext.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11InputLayout.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Predicate.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Query.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11RasterizerState.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11SamplerState.cpp">
+      <Filter>Source Files\D3D11\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ComputeShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DomainShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11GeometryShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11HullShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11InputAssemblerPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11OutputMergerPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11PipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11PixelShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11RasterizerPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11StreamOutputPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11VertexShaderPipelineStage.cpp">
+      <Filter>Source Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Debug.cpp">
+      <Filter>Source Files\D3D11\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11InfoQueue.cpp">
+      <Filter>Source Files\D3D11\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11SwitchToRef.cpp">
+      <Filter>Source Files\D3D11\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ClassInstance.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ClassLinkage.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ComputeShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DomainShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11GeometryShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11HullShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11PixelShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11VertexShader.cpp">
+      <Filter>Source Files\D3D11\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Buffer.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11DepthStencilView.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11RenderTargetView.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Resource.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11ShaderResourceView.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Texture1D.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Texture2D.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11Texture3D.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11UnorderedAccessView.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3D11\D3D11View.cpp">
+      <Filter>Source Files\D3D11\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2D\D2DCustom.cpp">
+      <Filter>Source Files\D2D1</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2D\D2DGeometrySink.cpp">
+      <Filter>Source Files\D2D1</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2D\D2DInterfaces.cpp">
+      <Filter>Source Files\D2D1</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2D\D2DStructs.cpp">
+      <Filter>Source Files\D2D1</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct2D\D2DTessellationSink.cpp">
+      <Filter>Source Files\D2D1</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICBitmap.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICBitmapDecoder.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICBitmapFrameDecode.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICBitmapLock.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICBitmapSource.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICFormatConverter.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICImagingFactory.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="WIC\WICStreamWrapper.cpp">
+      <Filter>Source Files\WIC</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteFactory.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteFont.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteFontFace.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteFontFamily.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteFontFamilyCollection.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteInlineObject.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteRenderingParams.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteStructs.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteTextFormat.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteTextLayout.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteTypography.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\DWriteUtils.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectWrite\ICustomInlineObject.cpp">
+      <Filter>Source Files\DWrite</Filter>
+    </ClCompile>
+    <ClCompile Include="Direct3DCommon\Direct3DException.cpp">
+      <Filter>Source Files\D3DCommon</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIAdapter.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIAdapter1.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIDevice.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIDevice1.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIDeviceSubObject.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIEnums.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIException.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIFactory.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIFactory1.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIKeyedMutex.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIObject.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIOutput.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIResource.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGIStructs.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGISurface.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGISurface1.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="DXGI\DXGISwapChain.h">
+      <Filter>Header Files\DXGI</Filter>
+    </ClInclude>
+    <ClInclude Include="AllTypes.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoIUnknown.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoPointer.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonEnums.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonUtils.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Convert.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectHelpers.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectObject.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectUnknown.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXException.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="LibraryLoader.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Validate.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Enums.h">
+      <Filter>Header Files\D3D10</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Structs.h">
+      <Filter>Header Files\D3D10</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Asynchronous.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10BlendState.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10BlendState1.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Blob.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10CheckCounterData.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Counter.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Debug.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10DepthStencilState.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Device.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Device1.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10DeviceChild.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Include.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10InfoQueue.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10InputLayout.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Multithread.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Predicate.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Query.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10RasterizerState.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10SamplerState.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10StateBlock.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10StateBlockMask.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10SwitchToRef.h">
+      <Filter>Header Files\D3D10\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10GeometryShaderPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10InputAssemblerPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10OutputMergerBlendState.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10OutputMergerPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10OutputMergerRenderTargets.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10PipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10PixelShaderPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10RasterizerPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10StreamOutputPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10VertexShaderPipelineStage.h">
+      <Filter>Header Files\D3D10\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Effect.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectBlendVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectConstantBuffer.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectDepthStencilVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectDepthStencilViewVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectMatrixVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectPass.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectPool.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectRasterizerVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectRenderTargetViewVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectSamplerVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectScalarVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectShaderResourceVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectShaderVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectStringVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectTechnique.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectType.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10EffectVectorVariable.h">
+      <Filter>Header Files\D3D10\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10GeometryShader.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10PixelShader.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderReflection.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderReflection1.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderReflectionConstantBuffer.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderReflectionType.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderReflectionVariable.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10VertexShader.h">
+      <Filter>Header Files\D3D10\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Buffer.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10DepthStencilView.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10RenderTargetView.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Resource.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderResourceView.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10ShaderResourceView1.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Texture1D.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Texture2D.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10Texture3D.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D10\D3D10View.h">
+      <Filter>Header Files\D3D10\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Enums.h">
+      <Filter>Header Files\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Structs.h">
+      <Filter>Header Files\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Asynchronous.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11BlendState.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11CheckCounterData.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11CommandList.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Counter.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DepthStencilState.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Device.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DeviceChild.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DeviceContext.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11InputLayout.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Predicate.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Query.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11RasterizerState.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11SamplerState.h">
+      <Filter>Header Files\D3D11\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ComputeShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DomainShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11GeometryShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11HullShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11InputAssemblerPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11OutputMergerBlendState.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11OutputMergerPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11OutputMergerRenderTargets.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11PipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11PixelShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11RasterizerPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11StreamOutputPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11VertexShaderPipelineStage.h">
+      <Filter>Header Files\D3D11\Core\GraphicsPipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Debug.h">
+      <Filter>Header Files\D3D11\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11InfoQueue.h">
+      <Filter>Header Files\D3D11\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11SwitchToRef.h">
+      <Filter>Header Files\D3D11\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ClassInstance.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ClassLinkage.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ComputeShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DomainShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11GeometryShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11HullShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11PixelShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ShaderAndClasses.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11VertexShader.h">
+      <Filter>Header Files\D3D11\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Buffer.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11DepthStencilView.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11RenderTargetView.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Resource.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11ShaderResourceView.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Texture1D.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Texture2D.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11Texture3D.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11UnorderedAccessView.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D11\D3D11View.h">
+      <Filter>Header Files\D3D11\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteEnums.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteFactory.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteFont.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteFontFace.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteFontFamily.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteFontFamilyCollection.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteInlineObject.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteRenderingParams.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteStructs.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteTextFormat.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteTextLayout.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteTypography.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\DWriteUtils.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectWrite\ICustomInlineObject.h">
+      <Filter>Header Files\DWrite</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DCommon.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DEnums.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DException.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DGeometrySink.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DInterfaces.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DInteropTypes.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DPointAndTangent.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DStructs.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D\D2DTessellationSink.h">
+      <Filter>Header Files\D2D1</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICBitmap.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICBitmapDecoder.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICBitmapFrameDecode.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICBitmapLock.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICBitmapSource.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICContainerFormats.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICEnums.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICException.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICFormatConverter.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICImagingFactory.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICPixelFormats.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICStreamWrapper.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="WIC\WICStructs.h">
+      <Filter>Header Files\WIC</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3DCommon\D3DCommonEnums.h">
+      <Filter>Header Files\D3DCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3DCommon\D3DCommonStructs.h">
+      <Filter>Header Files\D3DCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3DCommon\Direct3DException.h">
+      <Filter>Header Files\D3DCommon</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="CodeAnalysisDictionary.xml" />
+  </ItemGroup>
+</Project>
