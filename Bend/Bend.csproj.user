@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PublishUrlHistory>D:\BendPublish\|ftp://ftp.bendtext.com/public_html/bend/|ftp://ftp.bendtext.com/public_html/Bend/|D:\Home\bend\|\\Router\System\www\bend\</PublishUrlHistory>
@@ -24,5 +24,12 @@
   <PropertyGroup>
     <ReferencePath>
     </ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <StartProgram>C:\Users\sushraja\AppData\Local\Apps\2.0\LMK9D62X.PKK\C6Q2AY01.XBB\bend..tion_0000000000000000_0000.0009_6815feff578db3e3\Bend.exe</StartProgram>
+    <StartArguments>/DEBUG</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <StartArguments>/DEBUG</StartArguments>
   </PropertyGroup>
 </Project>
