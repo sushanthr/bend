@@ -13,8 +13,8 @@ namespace TextCoreControl
         {
             // Create the DWrite Factory
             Settings.dwriteFactory                         = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
-            Settings.DefaultTextFormat                     = dwriteFactory.CreateTextFormat("Consolas", 14, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
-            Settings.DefaultShowFormattingTextFormat       = dwriteFactory.CreateTextFormat("Consolas", 12, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
+            Settings.DefaultTextFormat                     = dwriteFactory.CreateTextFormat("Consolas", 16, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
+            Settings.DefaultShowFormattingTextFormat       = dwriteFactory.CreateTextFormat("Consolas", 14, FontWeight.Normal, FontStyle.Normal, FontStretch.Normal);
 
             Settings.AutoWrap                              = true;
             
