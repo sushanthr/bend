@@ -1,0 +1,30 @@
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Roboto Light'), local('Roboto-Light'), url(http://themes.googleusercontent.com/static/fonts/roboto/v10/Hgo13k-tfSpn0qi1SFdUfT8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Regular'), local('Roboto-Regular'), url(http://themes.googleusercontent.com/static/fonts/roboto/v10/2UX7WLTfW3W8TclTUvlFyQ.woff) format('woff');
+}
+
+HTML, BODY
+{
+    margin:0;
+    border:0;
+    padding:0;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+}
+
+a
+{
+    text-decoration:none;
+}
+
+a:link    {color:#19A2DE;}
+a:visited {color:#19A2DE;}

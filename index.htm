@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<HTML>
+    <HEAD>
+        <link href="base.css" rel="stylesheet">
+        <link href="desktop.css" rel="stylesheet">
+        <meta name="description" content="Bend is a modern text editor for windows.">
+        <meta name="viewport" content="width=1048">
+    </HEAD>
+    <SCRIPT>
+        function onArrow(delta)
+        {
+            var current = document.getElementById("demoImage").getAttribute("index");
+            current=parseInt(current);
+            if (current + delta > 7)
+            {
+                onBoxClick(1);
+            }
+            
+            else if (current + delta < 1)
+            {
+                onBoxClick(7);
+            }
+            
+            else if (current + delta >= 1 && current + delta <= 7)
+            {
+                 current = current + delta;
+                 onBoxClick(current);
+            }
+        }
+        
+        function onBoxClick(index)
+        {
+            var current = document.getElementById("demoImage").getAttribute("index");
+            document.getElementById("demoImage").setAttribute("src", "images\\S" + index + ".jpg");
+            document.getElementById("demoImage").setAttribute("index", index);
+            document.getElementById("S"+current).classList.toggle("Selected");
+            document.getElementById("S"+index).classList.toggle("Selected");
+        }
+    </SCRIPT>
+    <BODY onload="setInterval('onArrow(1)', 2000)">
+        <DIV id="one">
+            <DIV class="center1024"> 
+                <DIV class="navbar dimText">
+                    <a href="https://github.com/sushanthr/bend/commits/master/">changelog</a> |
+                    <a href="https://github.com/sushanthr/bend/issues">bugs</a> 
+                </DIV>   
+                <DIV>
+                    <DIV id="Title">
+                        <H1>Bend</H1>
+                        <h3 class="dimText"> A modern text editor for Windows.</h3>
+                        <a href="http://www.bendtext.com/bend/setup.exe">
+                        <table id="downloadTable">
+                            <tr>
+                                <td rowspan=2 valign="middle">
+                                    <img src="images\download.png" height=42>
+                                </td>
+                                <td>Download</td>
+                            </tr>
+                            <tr>
+                                <td>Windows x64 Application</td>
+                            </tr>
+                        </table>
+			</a>
+                    </DIV>
+                    <IMG id="demoImage" src="images\S1.jpg" index=1>
+                    <DIV id="Flippers">
+                        <IMG id="up" src="images\up.png" onclick="onArrow(-1)">
+                        <div id="S1" index=1 onclick="onBoxClick(1)" class="Selected"></div>
+                        <div id="S2" index=2 onclick="onBoxClick(2)"></div>
+                        <div id="S3" index=3 onclick="onBoxClick(3)"></div>
+                        <div id="S4" index=4 onclick="onBoxClick(4)"></div>
+                        <div id="S5" index=5 onclick="onBoxClick(5)"></div>
+                        <div id="S6" index=6 onclick="onBoxClick(6)"></div>
+                        <div id="S7" index=7 onclick="onBoxClick(7)"></div>
+                        <IMG id="down" src="images\down.png" onclick="onArrow(+1)">
+                    </DIV>
+                </DIV>
+            </DIV>
+        </DIV>
+        <DIV id="two">
+        <DIV class="center840 justify"> 
+                <img src="images\Modern.png"><h4>Bend is a modern text editor.</h4> Bend is a sophisticated text editor designed to offer an elegant, streamlined, and enjoyable user experience. 
+                Leveraging the power of XAML, WPF, and Direct2D, it delivers visually stunning, hardware-accelerated text rendering that harmonizes performance with aesthetics. 
+                Explore the latest version by downloading it today.
+        <br><br><br>
+        <img src="images\Fast.png"><h4>Lightning fast.</h4> Using a technique called virtualized display, Bend holds in memory just the lines you see on screen. When opening large files processing the lines not on screen is offloaded to a seperate thread. Infact Bend is faster than notepad at opening large files.        <br><br><br>
+        <img src="images\Tabs.png"><h4>Tabs.</h4> Like every good editor Bend has tabs but it doesnt stop there, Bend supports tear away tabs along with drag & drop tab rearrangement. Speaking of drag & drop, hold down ALT while starting a tab drag to drop the file to another application like Windows Explorer or Visual Studio.  
+        <br><br><br>
+        <img src="images\Settings.png"><h4>Settings.</h4> Knobs and buttons you can tweak to your taste. Choose a Theme, color Bend dark or Turn off line numbering. Everything you need is neatly hidden away behind the Bend logo. 
+        <br><br><br>
+        <img src="images\Search.png"><h4>Search.</h4> Find on page is easy to reach on the top right. Ctrl + H brings up the Find & Replace dialog where you can do advanced Regex Search and Replacement. If you already know where to go - Ctrl + G brings up the goto line number dialog. Find on page is fluid, asynchronous and never makes you wait for Bend to catch up.
+        <br><br><br>
+        <img src="images\Magic.png"><h4>Magic Sauce.</h4> Lots of careful touches that you will appreciate. Find dims the entire page to make the search results stand out. Instant Zoom (ctrl+mouse wheel). Right click integration with Windows Explorer. File change monitoring, notifies if the file you are editing changes underneath you. Syntax highlighting for over 30+ languages, plus heuristics that detect the language as you type. Infinite Clipboard (Ctrl + Shift + Insert), never loose anything you copied within Bend.
+                <br><br><br>
+        <img src="images\Update.png"><h4>Auto Update.</h4> Bend is built on Microsoft ClickOnce technology and auto updates, makes sure you always have the latest and greatest.
+        </DIV>
+        </DIV>
+        <DIV id="three">
+            <div class="center1024 twoColumn">
+                        <h3>Prerequisites</h3>
+                        <ul>
+                            <li>Microsoft .NET Framework 4.8</li>
+                            <li>Windows Installer 4.5</li>
+                            <li>Windows XP/8/8.1/10/11</li>
+                            <li>Visual C++ 2022 Runtime Libraries</li>
+                        </ul>
+                        <h3>Disclaimer</h3>
+                        <div class="justify">                      
+                        This program is distributed in the hope that it will be useful,
+                        but without any warranty; without even the implied warranty of merchantability of fitness for any particular purpose. In simple terms, this software is use at your own risk. There is a distinct possibility of data loss if the software is defective and encounters a software bug before you save your work. Under no event will the author of the software be liable to you for any kind of damage.
+                        </div>
+            </div>
+        </DIV>
+        <DIV id="four" class="center1024">
+           &copy; Bend is free software made by Sushanth Rajasankar.
+        </DIV>
+    </BODY>
+</HTML>
