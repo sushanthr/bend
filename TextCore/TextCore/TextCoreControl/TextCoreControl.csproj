@@ -58,9 +58,8 @@
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
       <HintPath>..\..\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.DirectX.Controls, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Controls\Release\Microsoft.WindowsAPICodePack.DirectX.Controls.dll</HintPath>
+    <Reference Include="Microsoft.WindowsAPICodePack.DirectX.Controls">
+      <HintPath>..\..\Controls\x64\Release\Microsoft.WindowsAPICodePack.DirectX.Controls.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
