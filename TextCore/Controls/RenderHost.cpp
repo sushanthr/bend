@@ -3,6 +3,7 @@
 #include "StdAfx.h"
 #include "RenderHost.h"
 #include "Windowsx.h"
+#include "WinUser.h"
 
 using namespace System;
 using namespace System::Windows;
@@ -69,7 +70,7 @@ HandleRef RenderHost::BuildWindowCore(HandleRef hwndParent)
 		}
 
 		SetClassLong(m_hWnd,    // window handle 
-			GCL_HCURSOR,      // change cursor 
+			-12,      // change cursor 
 			(LONG)LoadCursor(0, IDC_IBEAM));   // new cursor
 
         return HandleRef(this, IntPtr(m_hWnd));

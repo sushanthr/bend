@@ -7,6 +7,8 @@
 /TextCore/TextCore/TextCore/obj/
 /TextCore/TextCore/CopyDLLToBend/obj/
 /Bend/obj/
+Bend/.vs/
+Publish/
 /.vs
 /Bend/.vs/Bend/v15
 /Bend/bin/
@@ -19,3 +21,8 @@
 /TextCore/TextCore/TextCore/bin/Release
 /TextCore/TextCore/TextCoreControl/bin
 /TextCore/TextCore/TextCore/bin/Debug
+TextCore/Controls/.vs/
+TextCore/Controls/x64/
+TextCore/TextCore/CopyDLLToBend/app.config
+TextCore/TextCore/TextCore/app.config
+TextCore/TextCoreTest/bin/
