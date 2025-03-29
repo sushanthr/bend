@@ -43,7 +43,7 @@ try {
         $msBuildVerbosityArg = ""
     }
     & $msBuildPath /target:publish /p:PublishProfile=ClickOnceProfile `
-        /p:ApplicationVersion=$version /p:Configuration=Release `
+        /p:ApplicationVersion=$version /p:Configuration=Release /property:Platform=x64`
         /p:PublishDir=$publishDir /p:PublishUrl=$publishDir `
         $msBuildVerbosityArg
 
