@@ -39,10 +39,10 @@ Bend is built on Microsoft ClickOnce technology and auto updates every 7 days, t
 
 ## Prerequisites
 
--   Microsoft .NET Framework 4 Client Profile (x86 and x64)
+-   Microsoft .NET Framework 4.8 Client Profile (x86 and x64)
 -   Windows Installer 4.5
--   Windows 8.1 should work on anything above Windows XP but tested on Windows 8.1 only
--   Visual C++ 2013 Runtime Libraries (x86)
+-   Windows xp/8/8.1/10/11
+-   Visual C++ 2022 Runtime Libraries (x86)
 
 ## Disclaimer
 
@@ -51,4 +51,4 @@ This program is distributed in the hope that it will be useful, but without any 
 ## Install
 
 Latest Release (ClickOnce Installer)
-[setup.exe](https://github.com/sushanthr/bend/blob/master/Publish/setup.exe?raw=true)
+[Installer Windows x86](https://sushanthr.github.io/bend/Bend.application)
