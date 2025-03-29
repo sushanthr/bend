@@ -160,6 +160,18 @@ void TextLayout::SetTypography(
         ));
 }
 
+void TextLayout::SetDrawingEffect(
+    Brush^ brush,
+    TextRange textRange
+)
+{
+    DWRITE_TEXT_RANGE tempRange;
+    textRange.CopyTo(&tempRange);
+
+    Validate::VerifyResult(
+        CastInterface<IDWriteTextLayout>()->SetDrawingEffect(brush == nullptr ? nullptr : brush->CastInterface<::ID2D1Brush>(), tempRange
+        ));
+}
 
 void TextLayout::SetCultureInfo(        
     Globalization::CultureInfo^ cultureInfo,

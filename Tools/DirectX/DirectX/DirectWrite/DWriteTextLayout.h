@@ -154,6 +154,14 @@ public:
         TextRange textRange
         );    
     
+    // <summary>
+    // Set color of the text
+    // </summary>
+    void SetDrawingEffect(
+        Brush^ brush,
+        TextRange textRange
+        );
+
     /// <summary>
     /// Gets the font family name for the given position and text range for identically-formatted text.
     /// </summary>
