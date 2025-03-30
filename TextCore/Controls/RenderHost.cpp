@@ -104,11 +104,11 @@ IntPtr RenderHost::WndProc( IntPtr hwnd,  int msg,  IntPtr wParam,  IntPtr lPara
 	case WM_PAINT:
     case WM_DISPLAYCHANGE:
 		InvalidateVisual();
-		handled = true;
+		handled = false;
 		break;
 	case WM_SIZE:
   		InvalidateVisual();
-		handled = true;
+		handled = false;
 		break;
 	case WM_LBUTTONDOWN :
 	case WM_LBUTTONUP   :
