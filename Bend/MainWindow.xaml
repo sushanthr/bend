@@ -230,7 +230,7 @@
             <Image Name="MaxButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MaximizeButtonUp" Source="/Bend;component/Images/max.png" />
             <Image Name="QuitButton" Width="20" Height="20" PreviewMouseLeftButtonUp="QuitButtonUp" Source="/Bend;component/Images/quit.png" />
         </WrapPanel>
-        <Canvas Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Name="ResizeCrimp" MouseLeftButtonDown="ResizeCrimp_MouseLeftButtonDown">
+        <Canvas Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Name="ResizeCrimp" MouseLeftButtonDown="ResizeCrimp_MouseLeftButtonDown" Margin="0,0,4,4">
             <Canvas.Background>
                 <ImageBrush ImageSource="/Bend;component/Images/Crimp.png" />
             </Canvas.Background>

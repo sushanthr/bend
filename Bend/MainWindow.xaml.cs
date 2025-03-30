@@ -77,7 +77,8 @@ namespace Bend
             this.windowChrome.ResizeBorderThickness = new Thickness(4);
             this.windowChrome.CaptionHeight = 40;
             this.windowChrome.GlassFrameThickness = new Thickness(1);
-            this.windowChrome.CornerRadius = new CornerRadius(0);            
+            this.windowChrome.CornerRadius = new CornerRadius(0);
+            this.windowChrome.NonClientFrameEdges = NonClientFrameEdges.Bottom;
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
