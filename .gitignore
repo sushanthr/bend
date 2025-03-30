@@ -28,3 +28,7 @@ TextCore/TextCore/TextCore/app.config
 TextCore/TextCoreTest/bin/
 x64
 x86
+/Tools/DirectX/DirectX/Debug
+/Tools/DirectX/DirectX/Release
+/Tools/DirectX/Release
+/Tools/DirectX/DirectX/Template

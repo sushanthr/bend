@@ -74,10 +74,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
-      <HintPath>..\..\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
+      <HintPath>..\..\..\Bend\Dll\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX.Controls">
-      <HintPath>..\..\Controls\x64\Release\Microsoft.WindowsAPICodePack.DirectX.Controls.dll</HintPath>
+      <HintPath>..\..\..\Bend\Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
