@@ -259,7 +259,6 @@ namespace TextCoreControl
 
         private void SetHorizontalScrollBarLimits(double horizontalScrollBound)
         {
-            horizontalScrollBound = horizontalScrollBound / Settings.DefaultTextFormat.FontSize;
             this.horizontalScrollBound = horizontalScrollBound;
             if (horizontalScrollBound > displayManager.AvailbleWidth)
             {

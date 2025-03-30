@@ -145,6 +145,10 @@ namespace TextCore
                     TextCoreControl.Settings.ShowFormatting = !TextCoreControl.Settings.ShowFormatting;                    
                     TextEditor.NotifyOfSettingsChange();
                 }
+                else if (command.Equals("wrap"))
+                {
+                    TextCoreControl.Settings.AutoWrap = !TextCoreControl.Settings.AutoWrap;
+                }
             }
         }                
     }

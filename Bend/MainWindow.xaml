@@ -171,7 +171,7 @@
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"></RotateTransform>
             </Grid.RenderTransform>
-            <Grid Name="Editor" Margin="0,73,0,0" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
+            <Grid Name="Editor" Margin="0,73,2,4" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
                 <Grid.Background>
                     <ImageBrush x:Name="BaseBackgroundImage" ImageSource="Images/SettingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />
                 </Grid.Background>
@@ -197,12 +197,19 @@
             </Grid>
             <Grid Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
-                <WrapPanel Name="StatusBar" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="49,2,0,0">
+                <Label Grid.Column="1" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
+                <Label Grid.Column="2" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
+                <Label Grid.Column="3" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
+                <WrapPanel Name="StatusBar" Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="10,0,0,0">
                     <WrapPanel>
                         <Label Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">LN</Label>
                         <Label Name="Line" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe UI" FontSize="10" FontWeight="Bold" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5,0,0,0" MinWidth="30"></Label>
@@ -225,12 +232,12 @@
             <Label Name="BackButton" Width="50" Margin="0,0,250,0" Padding="0,8" HorizontalAlignment="Right" VerticalAlignment="Top" MouseDown="BackImage_MouseDown" FontWeight="Bold" FontSize="10" Foreground="#19A2DE">BACK</Label>
         </Grid>
         <WrapPanel HorizontalAlignment="Right" Name="WindowControls" VerticalAlignment="Top" Margin="0,8,18,0">
-            <TextBlock Name="FullscreenButton"  Width="20" Height="20" PreviewMouseLeftButtonUp="FullscreenButtonUp" TextAlignment="Center" FontWeight="Bold" Foreground="Gray" FontSize="14" >F</TextBlock>
-            <Image Name="MinButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MinimizeButtonUp" Source="/Bend;component/Images/min.png" />
-            <Image Name="MaxButton" Width="20" Height="20" PreviewMouseLeftButtonUp="MaximizeButtonUp" Source="/Bend;component/Images/max.png" />
-            <Image Name="QuitButton" Width="20" Height="20" PreviewMouseLeftButtonUp="QuitButtonUp" Source="/Bend;component/Images/quit.png" />
+            <Label Name="FullscreenButton" PreviewMouseLeftButtonUp="FullscreenButtonUp" FontFamily="Segoe Fluent Icons" Foreground="Gray" FontSize="14"></Label>
+            <Label Name="MinButton" PreviewMouseLeftButtonUp="MinimizeButtonUp" FontFamily="Segoe Fluent Icons" Foreground="Gray" FontSize="14"></Label>
+            <Label Name="MaxButton" PreviewMouseLeftButtonUp="MaximizeButtonUp" FontFamily="Segoe Fluent Icons" Foreground="Gray" FontSize="12"></Label>
+            <Label Name="QuitButton" PreviewMouseLeftButtonUp="QuitButtonUp" FontFamily="Segoe Fluent Icons" Foreground="Gray" FontSize="14"></Label>
         </WrapPanel>
-        <Canvas Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Name="ResizeCrimp" MouseLeftButtonDown="ResizeCrimp_MouseLeftButtonDown" Margin="0,0,4,4">
+        <Canvas Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" Name="ResizeCrimp" MouseLeftButtonDown="ResizeCrimp_MouseLeftButtonDown" Margin="0,0,4,6">
             <Canvas.Background>
                 <ImageBrush ImageSource="/Bend;component/Images/Crimp.png" />
             </Canvas.Background>

@@ -487,14 +487,14 @@ namespace Bend
                 ClientAreaGrid.Margin = new Thickness(4);
                 this.windowChrome.GlassFrameThickness = new Thickness(0);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Hidden;
-                MaxButton.Source = this.restoreImage;                                                
+                MaxButton.Content = "";                                                
             }
             if (this.WindowState == System.Windows.WindowState.Normal)
             {
                 ClientAreaGrid.Margin = new Thickness(0);
                 this.windowChrome.GlassFrameThickness = new Thickness(1);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Visible;
-                MaxButton.Source = this.maximizeImage;
+                MaxButton.Content = "";
             }
         }
 

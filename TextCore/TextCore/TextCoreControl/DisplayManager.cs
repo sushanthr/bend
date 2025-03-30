@@ -983,7 +983,7 @@ namespace TextCoreControl
                 this.flightRecorder.AddFlightEvent(new FlightRecorder.HScrollBarFlightEvent(e.NewValue));
             }
 
-            this.scrollOffset.Width = (float)e.NewValue * Settings.DefaultTextFormat.FontSize;
+            this.scrollOffset.Width = (float)e.NewValue;
             if (this.scrollOffset.Height != 0 || this.scrollOffset.Width != 0)
             {
                 hwndRenderTarget.Transform = Matrix3x2F.Translation(new SizeF(-scrollOffset.Width, -scrollOffset.Height));

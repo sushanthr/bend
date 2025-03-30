@@ -267,11 +267,6 @@
     <Resource Include="Images\Cut.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\max.png" />
-    <Resource Include="Images\min.png" />
-    <Resource Include="Images\quit.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
     <Resource Include="Images\HDD.png" />
@@ -285,7 +280,6 @@
     <Resource Include="Images\SettingsPattern.png" />
     <Resource Include="Images\FrontBackground.png" />
     <Resource Include="Images\Close.png" />
-    <Resource Include="Images\restore.png" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
