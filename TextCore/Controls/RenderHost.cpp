@@ -69,9 +69,9 @@ HandleRef RenderHost::BuildWindowCore(HandleRef hwndParent)
 			return HandleRef(nullptr, System::IntPtr::Zero);
 		}
 
-		SetClassLong(m_hWnd,    // window handle 
-			-12,      // change cursor 
-			(LONG)LoadCursor(0, IDC_IBEAM));   // new cursor
+		SetClassLongPtrA(m_hWnd,    // window handle 
+			GCLP_HCURSOR,      // change cursor 
+			(LONG_PTR)LoadCursor(0, IDC_IBEAM));   // new cursor
 
         return HandleRef(this, IntPtr(m_hWnd));
     }
