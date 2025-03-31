@@ -42,9 +42,6 @@ namespace Bend
         List<Tab> tab;
         int currentTabIndex;
 
-        BitmapImage maximizeImage;
-        BitmapImage restoreImage;
-
         WindowChrome windowChrome;        
 
         bool isFullScreen;
@@ -185,15 +182,6 @@ namespace Bend
             System.Diagnostics.Debug.Assert(RenderCapability.Tier == 0x00020000);
             RenderCapability.TierChanged += new EventHandler(RenderCapability_TierChanged);
 #endif
-
-            maximizeImage = new BitmapImage();
-            maximizeImage.BeginInit();
-            maximizeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/max.png");
-            maximizeImage.EndInit();
-            restoreImage = new BitmapImage();
-            restoreImage.BeginInit();
-            restoreImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/restore.png");
-            restoreImage.EndInit();
 
             // Reopen from explorer or last session or create empty tab
             bool tabOpened = false;
