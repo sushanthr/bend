@@ -107,6 +107,7 @@ namespace Bend
             StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
 
             Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundColor);
+            Application.Current.Resources["BackgroundTerminalBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundTerminalColor);
             Application.Current.Resources["ForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ForegroundColor);
             Application.Current.Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ScrollButtonColor);
             Application.Current.Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoForegroundColor);
@@ -1142,6 +1143,30 @@ namespace Bend
             }
         }
         
+        private void ToggleBottomPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (MainDockSplitter.Visibility != System.Windows.Visibility.Visible)
+            {
+                MainDockSplitter.Visibility = System.Windows.Visibility.Visible;
+                MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
+                RowDefinition r1 = new RowDefinition();
+                r1.Height = new GridLength(4);
+                RowDefinition r2 = new RowDefinition();
+                r2.Height = new GridLength(300);
+                MainDock.RowDefinitions.Add(r1);
+                MainDock.RowDefinitions.Add(r2);
+                ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
+            }
+            else
+            {
+                MainDockSplitter.Visibility = System.Windows.Visibility.Collapsed;
+                MainDockBottomPanel.Visibility = System.Windows.Visibility.Collapsed;
+                MainDock.RowDefinitions.RemoveRange(1, 2);
+                ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ForegroundColor);
+            }
+            e.Handled = true;
+        }
+
         void slideSettingsInAnimation_Completed(object sender, EventArgs e)
         {
             this.SettingsControl.UpdateFocus();

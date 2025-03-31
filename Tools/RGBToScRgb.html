@@ -1,0 +1,21 @@
+<script>
+// Function to convert RGB to scRGB
+function convertRGBtoScRGB(r, g, b) {
+  // Normalize RGB values (assuming the range is 0-255)
+  let normalizedR = r / 255;
+  let normalizedG = g / 255;
+  let normalizedB = b / 255;
+
+  // Apply a simple conversion for scRGB (extending dynamic range)
+  let scRGB_R = Math.pow(normalizedR, 2.2); // Example gamma correction
+  let scRGB_G = Math.pow(normalizedG, 2.2);
+  let scRGB_B = Math.pow(normalizedB, 2.2);
+
+  return { scRGB_R, scRGB_G, scRGB_B };
+}
+
+// Example usage
+let rgb = { r: 255, g: 110, b: 0 };
+let scrgb = convertRGBtoScRGB(rgb.r, rgb.g, rgb.b);
+console.log(scrgb); 
+</script>

@@ -10,6 +10,16 @@
     <ScG>0.913098633</ScG>
     <ScB>0.913098633</ScB>
   </BackgroundColor>
+  <BackgroundTerminalColor>
+    <A>255</A>
+    <R>235</R>
+    <G>235</G>
+    <B>235</B>
+    <ScA>1</ScA>
+    <ScR>0.853098633</ScR>
+    <ScG>0.853098633</ScG>
+    <ScB>0.853098633</ScB>
+  </BackgroundTerminalColor>
   <ForegroundColor>
     <A>255</A>
     <R>0</R>

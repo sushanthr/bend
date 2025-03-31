@@ -13,6 +13,7 @@ namespace Bend
         public ThemeSettings()
         {
             BackgroundColor = System.Windows.Media.Colors.WhiteSmoke;
+            BackgroundTerminalColor = BackgroundColor;
             ForegroundColor = System.Windows.Media.Colors.Black;
             BaseBackgroundImage = "Images/FrontBackground.png";
             ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
@@ -66,6 +67,7 @@ namespace Bend
         }
 
         public System.Windows.Media.Color BackgroundColor;
+        public System.Windows.Media.Color BackgroundTerminalColor;
         public System.Windows.Media.Color ForegroundColor;
         public System.Windows.Media.Color ScrollButtonColor;
         public System.Windows.Media.Color LogoForegroundColor;

@@ -10,6 +10,16 @@
     <ScG>0.0129830325</ScG>
     <ScB>0.0129830325</ScB>
   </BackgroundColor>
+  <BackgroundTerminalColor>
+    <A>255</A>
+    <R>40</R>
+    <G>40</G>
+    <B>40</B>
+    <ScA>1</ScA>
+    <ScR>0.0149830325</ScR>
+    <ScG>0.0149830325</ScG>
+    <ScB>0.0149830325</ScB>
+  </BackgroundTerminalColor>
   <ForegroundColor>
     <A>255</A>
     <R>192</R>
@@ -32,23 +42,23 @@
   </ScrollButtonColor>
   <LogoForegroundColor>
     <A>255</A>
-    <R>0</R>
-    <G>0</G>
-    <B>0</B>
+    <R>255</R>
+    <G>255</G>
+    <B>255</B>
     <ScA>1</ScA>
-    <ScR>0</ScR>
-    <ScG>0</ScG>
-    <ScB>0</ScB>
+    <ScR>1</ScR>
+    <ScG>1</ScG>
+    <ScB>1</ScB>
   </LogoForegroundColor>
   <LogoBackgroundColor>
     <A>255</A>
-    <R>243</R>
-    <G>243</G>
-    <B>26</B>
+    <R>255</R>
+    <G>110</G>
+    <B>0</B>
     <ScA>1</ScA>
-    <ScR>0.8962694</ScR>
-    <ScG>0.8962694</ScG>
-    <ScB>0.010329823</ScB>
+    <ScR>1</ScR>
+    <ScG>0.15</ScG>
+    <ScB>0</ScB>
   </LogoBackgroundColor>
   <MenuSelectedBackgroundColor>
     <A>255</A>

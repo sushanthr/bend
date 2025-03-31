@@ -171,10 +171,18 @@
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"></RotateTransform>
             </Grid.RenderTransform>
-            <Grid Name="Editor" Margin="0,73,2,4" VerticalAlignment="Stretch" ContextMenu="{StaticResource EditorContextMenu}">
-                <Grid.Background>
-                    <ImageBrush x:Name="BaseBackgroundImage" ImageSource="Images/SettingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />
-                </Grid.Background>
+            <Grid Margin="0,73,2,4" Name="MainDock">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Name="Editor" ContextMenu="{StaticResource EditorContextMenu}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.Background>
+                        <ImageBrush x:Name="BaseBackgroundImage" ImageSource="Images/SettingsPattern.png" Stretch="Fill" TileMode="Tile" Viewport="0,0,142,142" ViewportUnits="Absolute" />
+                    </Grid.Background>
+                </Grid>
+                <GridSplitter Name="MainDockSplitter" Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Visibility="Collapsed"/>
+                <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundTerminalBrush}" Visibility="Collapsed">
+                </Grid>
             </Grid>
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">
                 <WrapPanel MaxHeight="34" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="75,20,0,0" Name="TabBar">
@@ -207,7 +215,7 @@
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="1" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
-                <Label Grid.Column="2" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
+                <Label Name="ToggleBottomPanel" Grid.Column="2" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" MouseDown="ToggleBottomPanel_MouseDown"></Label>
                 <Label Grid.Column="3" Background="{DynamicResource BackgroundBrush}" FontFamily="Segoe Fluent Icons" FontSize="14" Foreground="Gray" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"></Label>
                 <WrapPanel Name="StatusBar" Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Margin="10,0,0,0">
                     <WrapPanel>
