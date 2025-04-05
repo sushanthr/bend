@@ -18,6 +18,7 @@ using System.Windows.Shell;
 using Microsoft.Win32;
 using System.Collections;
 using TextCoreControl;
+using Microsoft.Terminal.Wpf;
 
 namespace Bend
 { 
@@ -42,7 +43,7 @@ namespace Bend
         List<Tab> tab;
         int currentTabIndex;
 
-        WindowChrome windowChrome;        
+        WindowChrome windowChrome;
 
         bool isFullScreen;
         bool isInSettingsAnimation;
@@ -80,7 +81,7 @@ namespace Bend
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
             this.dropWasConsumedAsTabMove = false;
-            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);            
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
@@ -715,7 +716,7 @@ namespace Bend
         {
             if (insertAfterTabIndex != sourceTabIndex - 1)
             {
-                // Need to move a tab from currentTabIndex to after insertAfterTabIndex;                            
+                // Need to move a tab from currentTabIndex to after insertAfterTabIndex;
                 if (insertAfterTabIndex < sourceTabIndex)
                 {
                     insertAfterTabIndex++;
@@ -1054,7 +1055,7 @@ namespace Bend
                     dlg.Filter = FilterString;   
                     if (dlg.ShowDialog(this) ?? false)
                     {
-                        this.tab[this.currentTabIndex].SaveFile(dlg.FileName);                            
+                        this.tab[this.currentTabIndex].SaveFile(dlg.FileName);
                     }                    
                 }
             }
@@ -1083,6 +1084,10 @@ namespace Bend
                     SettingsGridRotateTransform.CenterX = this.Width / 1.5;
                     SettingsGridRotateTransform.CenterY = this.Height;
 
+                    if (MainDockBottomPanel.Visibility == System.Windows.Visibility.Visible)
+                    {
+                        ToggleBottomPanel_MouseDown(sender, e);
+                    }
                     if (this.currentTabIndex >= 0 && this.currentTabIndex < this.tab.Count)
                         this.tab[this.currentTabIndex].TextEditor.Rasterize();
 
@@ -1148,7 +1153,6 @@ namespace Bend
             if (MainDockSplitter.Visibility != System.Windows.Visibility.Visible)
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Visible;
-                MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
                 RowDefinition r1 = new RowDefinition();
                 r1.Height = new GridLength(4);
                 RowDefinition r2 = new RowDefinition();
@@ -1156,13 +1160,25 @@ namespace Bend
                 MainDock.RowDefinitions.Add(r1);
                 MainDock.RowDefinitions.Add(r2);
                 ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
+                MainDockBottomPanel.Background = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackingBackground);
+                var theme = new TerminalTheme
+                {
+                    DefaultBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackground,
+                    DefaultForeground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorForeground,
+                    DefaultSelectionBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorSelectionBackground,
+                    CursorStyle = CursorStyle.BlinkingBar,
+                    ColorTable = PersistantStorage.StorageObject.CurrentTheme.TerminalColors,
+                };
+                Terminal.Theme = theme;
+                Terminal.Terminal.Focus();
+                MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
             }
             else
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Collapsed;
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Collapsed;
                 MainDock.RowDefinitions.RemoveRange(1, 2);
-                ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ForegroundColor);
+                ToggleBottomPanel.Foreground = MaxButton.Foreground;
             }
             e.Handled = true;
         }
@@ -1596,7 +1612,7 @@ namespace Bend
             Column.Content = columnNumber.ToString();
         }
 
-        #endregion        
+        #endregion
     }
 }
  

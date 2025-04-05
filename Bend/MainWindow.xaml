@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
         xmlns:local="clr-namespace:Bend"        
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"         
-        xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"        
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:term="clr-namespace:Console;assembly=Console"
         x:Name="ThisWindow"
         mc:Ignorable="d"
         Title="Bend"
@@ -181,7 +181,9 @@
                     </Grid.Background>
                 </Grid>
                 <GridSplitter Name="MainDockSplitter" Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Visibility="Collapsed"/>
-                <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundTerminalBrush}" Visibility="Collapsed">
+                <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
+                    <term:TerminalControl x:Name="Terminal" StartupCommandLine="c:\\windows\system32\\cmd.exe" Win32InputMode="True" InputCapture="TabKey,DirectionKeys" Margin="8,0,0,18">
+                    </term:TerminalControl>
                 </Grid>
             </Grid>
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">

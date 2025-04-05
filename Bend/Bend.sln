@@ -5,6 +5,10 @@ VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bend", "Bend.csproj", "{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "..\Tools\Console\Console.csproj", "{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BendConsoleHost", "..\BendConsoleHost\BendConsoleHost.csproj", "{18C0ECC8-5216-460E-9715-0DAA4178C282}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,8 +19,19 @@ Global
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Debug|x64.Build.0 = Debug|x64
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Release|x64.ActiveCfg = Release|x64
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Release|x64.Build.0 = Release|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Debug|x64.ActiveCfg = Debug|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Debug|x64.Build.0 = Debug|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.ActiveCfg = Release|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.Build.0 = Release|x64
+		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Debug|x64.ActiveCfg = Debug|x64
+		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Debug|x64.Build.0 = Debug|x64
+		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Release|x64.ActiveCfg = Release|Any CPU
+		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7A67BA2E-0351-4635-94A5-1B0BADBD8447}
 	EndGlobalSection
 EndGlobal

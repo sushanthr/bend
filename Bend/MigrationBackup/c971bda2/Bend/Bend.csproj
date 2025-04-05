@@ -441,21 +441,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BendConsoleHost\BendConsoleHost.csproj">
-      <Project>{18c0ecc8-5216-460e-9715-0daa4178c282}</Project>
-      <Name>BendConsoleHost</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Tools\Console\Console.csproj">
       <Project>{9738d0af-b0da-40cf-aac9-b9725ce252fc}</Project>
       <Name>Console</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CI.Microsoft.Terminal.Wpf">
-      <Version>1.22.250204002</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
