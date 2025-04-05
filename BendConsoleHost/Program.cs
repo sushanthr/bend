@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.ServiceModel;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 public class TermPTYServer : ITermPTYService
 {
@@ -30,7 +31,7 @@ public class TermPTYServer : ITermPTYService
     public void StartCmd(Guid instanceId, string command, int width, int height)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            term.Start(command, width, height);
+            Task.Run(()=>term.Start(command, width, height));
     }
 
     public void WriteInput(Guid instanceId, string data)
@@ -42,7 +43,7 @@ public class TermPTYServer : ITermPTYService
     public void Resize(Guid instanceId, int width, int height)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            term.Resize(width, height);
+            Task.Run(()=>term.Resize(width, height));
     }
 
     public void Close(Guid instanceId)

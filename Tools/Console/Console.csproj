@@ -73,8 +73,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Terminal.Wpf">
-      <HintPath>..\..\..\Users\sushanth\.nuget\packages\ci.microsoft.terminal.wpf\1.22.250204002\lib\net472\Microsoft.Terminal.Wpf.dll</HintPath>
+    <Reference Include="Microsoft.Terminal.Wpf, Version=1.22.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Bend\packages\CI.Microsoft.Terminal.Wpf.1.22.250204002\lib\net472\Microsoft.Terminal.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -108,7 +108,9 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

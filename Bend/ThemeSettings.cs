@@ -46,6 +46,34 @@ namespace Bend
             SyntaxHighlightingNumber = System.Windows.Media.Color.FromRgb(184, 134, 11);
             SyntaxHighlightingString = System.Windows.Media.Color.FromRgb(0, 100, 0);
             SyntaxHighlightingChar = System.Windows.Media.Color.FromRgb(0, 100, 0);
+
+            //{
+            //"name": "One Half Light",
+            //"foreground": "#383A42",
+            //"background": "#FAFAFA",
+            //"cursorColor": "#4F525D",
+            //"black": "#383A42",
+            //"red": "#E45649",
+            //"green": "#50A14F",
+            //"yellow": "#C18301",
+            //"blue": "#0184BC",
+            //"purple": "#A626A4",
+            //"cyan": "#0997B3",
+            //"white": "#FAFAFA",
+            //"brightBlack": "#4F525D",
+            //"brightRed": "#DF6C75",
+            //"brightGreen": "#98C379",
+            //"brightYellow": "#E4C07A",
+            //"brightBlue": "#61AFEF",
+            //"brightPurple": "#C577DD",
+            //"brightCyan": "#56B5C1",
+            //"brightWhite": "#FFFFFF"
+            //}
+            TerminalColors = new uint[] { 0xf1f1f1, 0xE45649, 0x50A14F, 0xC18301, 0x0184BC, 0xA626A4, 0x0997B3, 0x383A42, 0x4F525D, 0xDF6C75, 0x98C379, 0xE4C07A, 0x61AFEF, 0xC577DD, 0x56B5C1, 0xFFFFFF };
+            TerminalColorBackground = 0xF1F1F1;
+            TerminalColorForeground = 0x383A42;
+            TerminalColorSelectionBackground = 0x0184BC;
+            TerminalColorBackingBackground = System.Windows.Media.Color.FromRgb(241, 241, 241);
         }
 
         public static ThemeSettings LoadThemeSettings(string themeName)
@@ -55,7 +83,7 @@ namespace Bend
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(ThemeSettings));
                 String filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Themes\\" + themeName + ".xml";
-                FileStream fs = new FileStream(filePath, FileMode.Open);                
+                FileStream fs = new FileStream(filePath, FileMode.Open);
                 themeSettings = (ThemeSettings)serializer.Deserialize(fs);
                 fs.Close();
             }
@@ -102,5 +130,12 @@ namespace Bend
         public System.Windows.Media.Color SyntaxHighlightingNumber;
         public System.Windows.Media.Color SyntaxHighlightingString;
         public System.Windows.Media.Color SyntaxHighlightingChar;
+
+        // Terminal Theme
+        public uint[] TerminalColors;
+        public uint TerminalColorBackground;
+        public uint TerminalColorForeground;
+        public uint TerminalColorSelectionBackground;
+        public System.Windows.Media.Color TerminalColorBackingBackground;
     }
 }

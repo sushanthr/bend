@@ -1,7 +1,7 @@
 using System;
 using System.ServiceModel;
 
-[ServiceContract]
+[ServiceContract(CallbackContract = typeof(ITermPTYCallback))]
 public interface ITermPTYService
 {
     [OperationContract]
@@ -23,7 +23,6 @@ public interface ITermPTYService
     Guid CreateInstance();
 }
 
-[ServiceContract(CallbackContract = typeof(ITermPTYCallback))]
 public interface ITermPTYCallback
 {
     [OperationContract(IsOneWay = true)]

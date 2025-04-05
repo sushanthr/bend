@@ -180,8 +180,6 @@ namespace Console {
 			SetTheme(Theme);
 			SetCursor(IsCursorVisible);
 			SetReadOnly(IsReadOnly);
-			//Terminal.Focus();
-			await Task.Delay(1000);
 			SetCursor(IsCursorVisible);
 		}
 

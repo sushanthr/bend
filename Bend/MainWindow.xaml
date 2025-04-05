@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
         xmlns:local="clr-namespace:Bend"        
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"         
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:term="clr-namespace:Console;assembly=Console"
         x:Name="ThisWindow"
         mc:Ignorable="d"
@@ -181,8 +181,8 @@
                     </Grid.Background>
                 </Grid>
                 <GridSplitter Name="MainDockSplitter" Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Visibility="Collapsed"/>
-                <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundTerminalBrush}" Visibility="Collapsed">
-                    <term:TerminalControl x:Name="basicTermControl" StartupCommandLine="c:\\windows\system32\\cmd.exe" Theme="{Binding Theme, Mode=OneWay}" FontFamilyWhenSettingTheme="Consolas" LogConPTYOutput="True"  Win32InputMode="True" InputCapture="TabKey,DirectionKeys" >
+                <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
+                    <term:TerminalControl x:Name="Terminal" StartupCommandLine="c:\\windows\system32\\cmd.exe" Win32InputMode="True" InputCapture="TabKey,DirectionKeys" Margin="8,0,0,18">
                     </term:TerminalControl>
                 </Grid>
             </Grid>

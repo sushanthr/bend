@@ -92,7 +92,8 @@ namespace Console
                 ConsoleOutStream = new FileStream(outputPipe.ReadSide, FileAccess.Read);
                 TermProcIsStarted = true;
 
-                if (TermReady != null) TermReady(this, EventArgs.Empty);
+                if (TermReady != null)
+                    Task.Run(() => TermReady(this, EventArgs.Empty));
 
                 _consoleInputPipeWriteHandle = inputPipe.WriteSide;
                 var st = new FileStream(_consoleInputPipeWriteHandle, FileAccess.Write);
