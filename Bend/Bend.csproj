@@ -119,6 +119,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Terminal.Wpf.dll">
+      <HintPath>Dll\CI.Microsoft.Terminal.Wpf.1.22.250204002\lib\net472\Microsoft.Terminal.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack.DirectX">
       <HintPath>.\Microsoft.WindowsAPICodePack.DirectX.dll</HintPath>
     </Reference>

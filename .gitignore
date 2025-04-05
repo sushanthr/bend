@@ -34,7 +34,5 @@ x86
 /Tools/DirectX/DirectX/Template
 /Tools/Console/obj/Debug
 /Tools/Console/bin/Debug
-/Tools/Console/packages/CI.Microsoft.Terminal.Wpf.1.22.250204002
-/Bend/packages/CI.Microsoft.Terminal.Wpf.1.22.250204002
 /BendConsoleHost/obj
 /BendConsoleHost/bin/Release/net48

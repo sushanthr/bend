@@ -202,7 +202,7 @@ namespace Console {
 
 		public static readonly DependencyProperty FontFamilyWhenSettingThemeProperty = DependencyProperty.Register(nameof(FontFamilyWhenSettingTheme), typeof(FontFamily), typeof(TerminalControl), new PropertyMetadata(new FontFamily("Cascadia Code")));
 
-		public static readonly DependencyProperty FontSizeWhenSettingThemeProperty = DependencyProperty.Register(nameof(FontSizeWhenSettingTheme), typeof(int), typeof(TerminalControl), new PropertyMetadata(12));
+		public static readonly DependencyProperty FontSizeWhenSettingThemeProperty = DependencyProperty.Register(nameof(FontSizeWhenSettingTheme), typeof(int), typeof(TerminalControl), new PropertyMetadata(10));
 
 		private class PropHelper : DepPropHelper<TerminalControl> { }
 
