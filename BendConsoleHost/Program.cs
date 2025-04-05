@@ -37,7 +37,7 @@ public class TermPTYServer : ITermPTYService
     public void WriteInput(Guid instanceId, string data)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            term.WriteToTerm(data);
+            Task.Run(()=>term.WriteToTerm(data));
     }
 
     public void Resize(Guid instanceId, int width, int height)
