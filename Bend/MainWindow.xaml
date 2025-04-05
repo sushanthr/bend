@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:Bend"        
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"         
-        xmlns:aero="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"        
+        xmlns:term="clr-namespace:Console;assembly=Console"
         x:Name="ThisWindow"
         mc:Ignorable="d"
         Title="Bend"
@@ -182,6 +182,8 @@
                 </Grid>
                 <GridSplitter Name="MainDockSplitter" Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Visibility="Collapsed"/>
                 <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource BackgroundTerminalBrush}" Visibility="Collapsed">
+                    <term:TerminalControl x:Name="basicTermControl" StartupCommandLine="c:\\windows\system32\\cmd.exe" Theme="{Binding Theme, Mode=OneWay}" FontFamilyWhenSettingTheme="Consolas" LogConPTYOutput="True"  Win32InputMode="True" InputCapture="TabKey,DirectionKeys" >
+                    </term:TerminalControl>
                 </Grid>
             </Grid>
             <Grid Height="40" Name="WindowDrag" VerticalAlignment="Top">

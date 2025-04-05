@@ -442,6 +442,12 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tools\Console\Console.csproj">
+      <Project>{9738d0af-b0da-40cf-aac9-b9725ce252fc}</Project>
+      <Name>Console</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
