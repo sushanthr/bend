@@ -10,6 +10,16 @@
     <ScG>0.0129830325</ScG>
     <ScB>0.0129830325</ScB>
   </BackgroundColor>
+  <BackgroundTerminalColor>
+    <A>255</A>
+    <R>40</R>
+    <G>40</G>
+    <B>40</B>
+    <ScA>1</ScA>
+    <ScR>0.0149830325</ScR>
+    <ScG>0.0149830325</ScG>
+    <ScB>0.0149830325</ScB>
+  </BackgroundTerminalColor>
   <ForegroundColor>
     <A>255</A>
     <R>192</R>
@@ -32,23 +42,23 @@
   </ScrollButtonColor>
   <LogoForegroundColor>
     <A>255</A>
-    <R>0</R>
-    <G>0</G>
-    <B>0</B>
+    <R>255</R>
+    <G>255</G>
+    <B>255</B>
     <ScA>1</ScA>
-    <ScR>0</ScR>
-    <ScG>0</ScG>
-    <ScB>0</ScB>
+    <ScR>1</ScR>
+    <ScG>1</ScG>
+    <ScB>1</ScB>
   </LogoForegroundColor>
   <LogoBackgroundColor>
     <A>255</A>
-    <R>243</R>
-    <G>243</G>
-    <B>26</B>
+    <R>255</R>
+    <G>110</G>
+    <B>0</B>
     <ScA>1</ScA>
-    <ScR>0.8962694</ScR>
-    <ScG>0.8962694</ScG>
-    <ScB>0.010329823</ScB>
+    <ScR>1</ScR>
+    <ScG>0.15</ScG>
+    <ScB>0</ScB>
   </LogoBackgroundColor>
   <MenuSelectedBackgroundColor>
     <A>255</A>
@@ -291,4 +301,35 @@
     <ScG>1</ScG>
     <ScB>0.3712377</ScB>
   </SyntaxHighlightingChar>
+  <TerminalColors>
+    <unsignedInt>1710618</unsignedInt>
+    <unsignedInt>12914463</unsignedInt>
+    <unsignedInt>1286414</unsignedInt>
+    <unsignedInt>12688384</unsignedInt>
+    <unsignedInt>14298</unsignedInt>
+    <unsignedInt>8918936</unsignedInt>
+    <unsignedInt>3839709</unsignedInt>
+    <unsignedInt>13421772</unsignedInt>
+    <unsignedInt>7763574</unsignedInt>
+    <unsignedInt>15157334</unsignedInt>
+    <unsignedInt>1492492</unsignedInt>
+    <unsignedInt>16380325</unsignedInt>
+    <unsignedInt>3897599</unsignedInt>
+    <unsignedInt>11796638</unsignedInt>
+    <unsignedInt>6411990</unsignedInt>
+    <unsignedInt>15921906</unsignedInt>
+  </TerminalColors>
+  <TerminalColorBackground>789516</TerminalColorBackground>
+  <TerminalColorForeground>13421772</TerminalColorForeground>
+  <TerminalColorSelectionBackground>16777215</TerminalColorSelectionBackground>
+  <TerminalColorBackingBackground>
+    <A>255</A>
+    <R>26</R>
+    <G>26</G>
+    <B>26</B>
+    <ScA>1</ScA>
+    <ScR>0.010329823</ScR>
+    <ScG>0.010329823</ScG>
+    <ScB>0.010329823</ScB>
+  </TerminalColorBackingBackground>
 </ThemeSettings>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xrml="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <assemblyIdentity name="Bend.application" version="2.0.7.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" xmlns="urn:schemas-microsoft-com:asm.v1" />
+  <assemblyIdentity name="Bend.application" version="2.1.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <description asmv2:publisher="Bend" co.v1:suiteName="Bend" asmv2:product="Bend" asmv2:supportUrl="http://bendtext.com/" co.v1:errorReportUrl="http://www.bendtext.com/bugs/" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <deployment install="true" trustURLParameters="true" co.v1:createDesktopShortcut="true">
     <subscription>
@@ -14,14 +14,14 @@
     <framework targetVersion="4.8" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Application Files\Bend_2_0_7_0\Bend.exe.manifest" size="21425">
-      <assemblyIdentity name="Bend.exe" version="2.0.7.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" type="win32" />
+    <dependentAssembly dependencyType="install" codebase="Application Files\Bend_2_1_0_0\Bend.exe.manifest" size="23369">
+      <assemblyIdentity name="Bend.exe" version="2.1.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>XBSHUfjSmDi8Bn6L7BQFXIL8tcN+68sV3BLJrQkoWbI=</dsig:DigestValue>
+        <dsig:DigestValue>fXImYDVof7MgR4FAjKXfcH3vycpFlZzsPqAwvYWLrrU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

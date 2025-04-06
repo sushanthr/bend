@@ -10,6 +10,16 @@
     <ScG>0.913098633</ScG>
     <ScB>0.913098633</ScB>
   </BackgroundColor>
+  <BackgroundTerminalColor>
+    <A>255</A>
+    <R>235</R>
+    <G>235</G>
+    <B>235</B>
+    <ScA>1</ScA>
+    <ScR>0.853098633</ScR>
+    <ScG>0.853098633</ScG>
+    <ScB>0.853098633</ScB>
+  </BackgroundTerminalColor>
   <ForegroundColor>
     <A>255</A>
     <R>0</R>
@@ -291,4 +301,35 @@
     <ScG>0.127437681</ScG>
     <ScB>0</ScB>
   </SyntaxHighlightingChar>
+  <TerminalColors>
+    <unsignedInt>15856113</unsignedInt>
+    <unsignedInt>14964297</unsignedInt>
+    <unsignedInt>5284175</unsignedInt>
+    <unsignedInt>12681985</unsignedInt>
+    <unsignedInt>99516</unsignedInt>
+    <unsignedInt>10888868</unsignedInt>
+    <unsignedInt>628659</unsignedInt>
+    <unsignedInt>3684930</unsignedInt>
+    <unsignedInt>5198429</unsignedInt>
+    <unsignedInt>14642293</unsignedInt>
+    <unsignedInt>10011513</unsignedInt>
+    <unsignedInt>14991482</unsignedInt>
+    <unsignedInt>6402031</unsignedInt>
+    <unsignedInt>12941277</unsignedInt>
+    <unsignedInt>5682625</unsignedInt>
+    <unsignedInt>16777215</unsignedInt>
+  </TerminalColors>
+  <TerminalColorBackground>15856113</TerminalColorBackground>
+  <TerminalColorForeground>3684930</TerminalColorForeground>
+  <TerminalColorSelectionBackground>99516</TerminalColorSelectionBackground>
+  <TerminalColorBackingBackground>
+    <A>255</A>
+    <R>241</R>
+    <G>241</G>
+    <B>241</B>
+    <ScA>1</ScA>
+    <ScR>0.8796224</ScR>
+    <ScG>0.8796224</ScG>
+    <ScB>0.8796224</ScB>
+  </TerminalColorBackingBackground>
 </ThemeSettings>
