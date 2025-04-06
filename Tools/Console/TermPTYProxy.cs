@@ -48,13 +48,13 @@ namespace Console
                 }
                 catch (System.ServiceModel.EndpointNotFoundException ex)
                 {
-                    Task.Delay(100);
+                    Task.Delay(500);
                     max_connect_try--;
                 }
             } while (max_connect_try > 0);
         }
 
-        private static void EnsureServerRunning()
+        public static void EnsureServerRunning()
         {
             lock (_lock)
             {
@@ -75,6 +75,7 @@ namespace Console
 
         public void StartCmd(string command, int consoleWidth = 80, int consoleHeight = 30)
         {
+            Task.Delay(2000);
             _service.StartCmd(_instanceId, command, consoleWidth, consoleHeight);
             TermProcIsStarted = true;
         }

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Deployment.Application;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using Console;
 
 namespace Bend
 {
@@ -71,8 +72,7 @@ namespace Bend
                 this.Shutdown();
             }
 
-            //ICLRRuntimeInfo runtimeInfo = (ICLRRuntimeInfo)RuntimeEnvironment.GetRuntimeInterfaceAsObject(Guid.Empty, typeof(ICLRRuntimeInfo).GUID);
-            //runtimeInfo.BindAsLegacyV2Runtime();
+            TermPTYProxy.EnsureServerRunning();
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
         }
 
