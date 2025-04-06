@@ -270,9 +270,6 @@
     <Resource Include="Images\Cut.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Dll\CI.Microsoft.Terminal.Wpf.1.22.250204002\runtimes\win-x64\native\Microsoft.Terminal.Control.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.Controls.dll" />
     <Content Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll" />
     <Resource Include="Images\HDD.png" />
@@ -467,12 +464,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BendConsoleHost.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BendConsoleHost\BendConsoleHost.csproj">
-      <Project>{18c0ecc8-5216-460e-9715-0daa4178c282}</Project>
-      <Name>BendConsoleHost</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Tools\Console\Console.csproj">
       <Project>{9738d0af-b0da-40cf-aac9-b9725ce252fc}</Project>
       <Name>Console</Name>

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bend", "Bend.csproj", "{D54
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "..\Tools\Console\Console.csproj", "{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BendConsoleHost", "..\BendConsoleHost\BendConsoleHost.csproj", "{18C0ECC8-5216-460E-9715-0DAA4178C282}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,10 +21,6 @@ Global
 		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Debug|x64.Build.0 = Debug|x64
 		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.ActiveCfg = Debug|x64
 		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.Build.0 = Debug|x64
-		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Debug|x64.ActiveCfg = Debug|x64
-		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Debug|x64.Build.0 = Debug|x64
-		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Release|x64.ActiveCfg = Debug|x64
-		{18C0ECC8-5216-460E-9715-0DAA4178C282}.Release|x64.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,512 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Terminal.Wpf</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Terminal.Wpf.ITerminalConnection">
+            <summary>
+            Represents a connection to a terminal backend, generally a pty interface.
+            </summary>
+        </member>
+        <member name="E:Microsoft.Terminal.Wpf.ITerminalConnection.TerminalOutput">
+            <summary>
+            Event that should be triggered when the terminal backend has new data for the terminal control.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.ITerminalConnection.Start">
+            <summary>
+            Inform the backend that the terminal control is ready to start sending and receiving data.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.ITerminalConnection.WriteInput(System.String)">
+            <summary>
+            Write user input to the backend.
+            </summary>
+            <param name="data">The data to be written to the terminal backend.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.ITerminalConnection.Resize(System.UInt32,System.UInt32)">
+            <summary>
+            Resize the terminal backend.
+            </summary>
+            <param name="rows">The number of rows to resize to.</param>
+            <param name="columns">The number of columns to resize to.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.ITerminalConnection.Close">
+            <summary>
+            Shut down the terminal backend process.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_SETFOCUS">
+            <summary>
+            The WM_SETFOCUS message is sent to a window after it has gained the keyboard focus.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_KILLFOCUS">
+            <summary>
+            The WM_KILLFOCUS message is sent to a window immediately before it loses the keyboard focus.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_MOUSEACTIVATE">
+            <summary>
+            The WM_MOUSEACTIVATE message is sent when the cursor is in an inactive window and the user presses a mouse button. The parent window receives this message only if the child window passes it to the DefWindowProc function.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_GETOBJECT">
+            <summary>
+            The WM_GETOBJECT message is sent by Active Accessibility when a client calls AccessibleObjectFromWindow or any of the other AccessibleObjectFromX APIs that retrieve an interface to an object.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_WINDOWPOSCHANGED">
+            <summary>
+            The WM_WINDOWPOSCHANGED message is sent to a window whose size, position, or place in the Z order has changed as a result of a call to the SetWindowPos function or another window-management function.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_KEYDOWN">
+            <summary>
+            The WM_KEYDOWN message is posted to the window with the keyboard focus when a nonsystem key is pressed. A nonsystem key is a key that is pressed when the ALT key is not pressed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_KEYUP">
+            <summary>
+            The WM_KEYUP message is posted to the window with the keyboard focus when a nonsystem key is released. A nonsystem key is a key that is pressed when the ALT key is not pressed, or a keyboard key that is pressed when a window has the keyboard focus.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_CHAR">
+            <summary>
+            The WM_CHAR message is posted to the window with the keyboard focus when a WM_KEYDOWN message is translated by the TranslateMessage function. The WM_CHAR message contains the character code of the key that was pressed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_SYSKEYDOWN">
+            <summary>
+            The WM_SYSKEYDOWN message is posted to the window with the keyboard focus when a system key is pressed. A system key is F10 or Alt+Something.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_SYSKEYUP">
+            <summary>
+            The WM_SYSKEYDOWN message is posted to the window with the keyboard focus when a system key is released. A system key is F10 or Alt+Something.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_MOUSEMOVE">
+            <summary>
+            The WM_MOUSEMOVE message is posted to a window when the cursor moves. If the mouse is not captured, the message is posted to the window that contains the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_LBUTTONDOWN">
+            <summary>
+            The WM_LBUTTONDOWN message is posted when the user presses the left mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_RBUTTONDOWN">
+            <summary>
+            The WM_RBUTTONDOWN message is posted when the user presses the right mouse button while the cursor is in the client area of a window. If the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.WindowMessage.WM_MOUSEWHEEL">
+            <summary>
+            The WM_MOUSEWHEEL message is sent to the focus window when the mouse wheel is rotated. The DefWindowProc function propagates the message to the window's parent. There should be no internal forwarding of the message, since DefWindowProc propagates it up the parent chain until it finds a window that processes it.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.VirtualKey.VK_MENU">
+            <summary>
+            ALT key
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_ASYNCWINDOWPOS">
+            <summary>
+                If the calling thread and the thread that owns the window are attached to different input queues, the system posts the request to the thread that owns the window. This prevents the calling thread from blocking its execution while other threads process the request.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_DEFERERASE">
+            <summary>
+                Prevents generation of the WM_SYNCPAINT message.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_DRAWFRAME">
+            <summary>
+                Draws a frame (defined in the window's class description) around the window.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_FRAMECHANGED">
+            <summary>
+                Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message to the window, even if the window's size is not being changed. If this flag is not specified, WM_NCCALCSIZE is sent only when the window's size is being changed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_HIDEWINDOW">
+            <summary>
+                Hides the window.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOACTIVATE">
+            <summary>
+                Does not activate the window. If this flag is not set, the window is activated and moved to the top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter parameter).
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOCOPYBITS">
+            <summary>
+                Discards the entire contents of the client area. If this flag is not specified, the valid contents of the client area are saved and copied back into the client area after the window is sized or repositioned.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOMOVE">
+            <summary>
+                Retains the current position (ignores X and Y parameters).
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOOWNERZORDER">
+            <summary>
+                Does not change the owner window's position in the Z order.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOREDRAW">
+            <summary>
+                Does not redraw changes. If this flag is set, no repainting of any kind occurs. This applies to the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent window uncovered as a result of the window being moved. When this flag is set, the application must explicitly invalidate or redraw any parts of the window and parent window that need redrawing.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOREPOSITION">
+            <summary>
+                Same as the SWP_NOOWNERZORDER flag.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOSENDCHANGING">
+            <summary>
+                Prevents the window from receiving the WM_WINDOWPOSCHANGING message.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOSIZE">
+            <summary>
+                Retains the current size (ignores the cx and cy parameters).
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_NOZORDER">
+            <summary>
+                Retains the current Z order (ignores the hWndInsertAfter parameter).
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.SetWindowPosFlags.SWP_SHOWWINDOW">
+            <summary>
+                Displays the window.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.TilPoint.X">
+            <summary>
+             The x-coordinate of the point.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.TilPoint.Y">
+            <summary>
+            The y-coordinate of the point.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.TilSize.X">
+            <summary>
+             The x size.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.NativeMethods.TilSize.Y">
+            <summary>
+            The y size.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Terminal.Wpf.TerminalContainer">
+            <summary>
+            The container class that hosts the native hwnd terminal.
+            </summary>
+            <remarks>
+            This class is only left public since xaml cannot work with internal classes.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Terminal.Wpf.TerminalContainer"/> class.
+            </summary>
+        </member>
+        <member name="E:Microsoft.Terminal.Wpf.TerminalContainer.TerminalScrolled">
+            <summary>
+            Event that is fired when the terminal buffer scrolls from text output.
+            </summary>
+        </member>
+        <member name="E:Microsoft.Terminal.Wpf.TerminalContainer.UserScrolled">
+            <summary>
+            Event that is fired when the user engages in a mouse scroll over the terminal hwnd.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.AutoResize">
+            <summary>
+            Gets or sets a value indicating whether if the renderer should automatically resize to fill the control
+            on user action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.TerminalControlSize">
+            <summary>
+            Gets or sets the size of the parent user control that hosts the terminal hwnd.
+            </summary>
+            <remarks>Control size is in device independent units, but for simplicity all sizes should be scaled.</remarks>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.TerminalRendererSize">
+            <summary>
+            Gets or sets the size of the terminal renderer.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.Rows">
+            <summary>
+            Gets the current character rows available to the terminal.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.Columns">
+            <summary>
+            Gets the current character columns available to the terminal.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.Hwnd">
+            <summary>
+            Gets the window handle of the terminal.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalContainer.Connection">
+            <summary>
+            Sets the connection to the terminal backend.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.UserScroll(System.Int32)">
+            <summary>
+            Manually invoke a scroll of the terminal buffer.
+            </summary>
+            <param name="viewTop">The top line to show in the terminal.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.SetTheme(Microsoft.Terminal.Wpf.TerminalTheme,System.String,System.Int16)">
+            <summary>
+            Sets the theme for the terminal. This includes font family, size, color, as well as background and foreground colors.
+            </summary>
+            <param name="theme">The color theme for the terminal to use.</param>
+            <param name="fontFamily">The font family to use in the terminal.</param>
+            <param name="fontSize">The font size to use in the terminal.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.GetSelectedText">
+            <summary>
+            Gets the selected text from the terminal renderer and clears the selection.
+            </summary>
+            <returns>The selected text, empty if no text is selected.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.Resize(System.Windows.Size)">
+            <summary>
+            Triggers a resize of the terminal with the given size, redrawing the rendered text.
+            </summary>
+            <param name="renderSize">Size of the rendering window.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.Resize(System.UInt32,System.UInt32)">
+            <summary>
+            Resizes the terminal using row and column count as the new size.
+            </summary>
+            <param name="rows">Number of rows to show.</param>
+            <param name="columns">Number of columns to show.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.CalculateRowsAndColumns(System.Windows.Size)">
+            <summary>
+            Calculates the rows and columns that would fit in the given size.
+            </summary>
+            <param name="size">DPI scaled size.</param>
+            <returns>Amount of rows and columns that would fit the given size.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.RaiseResizedIfDrawSpaceIncreased">
+            <summary>
+            Triggers the terminal resize event if more space is available in the terminal control.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.WndProc(System.IntPtr,System.Int32,System.IntPtr,System.IntPtr,System.Boolean@)">
+            <summary>
+            WPF's HwndHost likes to mark the WM_GETOBJECT message as handled to
+            force the usage of the WPF automation peer. We explicitly mark it as
+            not handled and don't return an automation peer in "OnCreateAutomationPeer" below.
+            This forces the message to go down to the HwndTerminal where we return terminal's UiaProvider.
+            </summary>
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.OnCreateAutomationPeer">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.OnDpiChanged(System.Windows.DpiScale,System.Windows.DpiScale)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.BuildWindowCore(System.Runtime.InteropServices.HandleRef)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalContainer.DestroyWindowCore(System.Runtime.InteropServices.HandleRef)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Terminal.Wpf.TerminalControl">
+            <summary>
+            A basic terminal control. This control can receive and render standard VT100 sequences.
+            </summary>
+            <summary>
+            TerminalControl
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Terminal.Wpf.TerminalControl"/> class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalControl.Rows">
+            <summary>
+            Gets the current character rows available to the terminal.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalControl.Columns">
+            <summary>
+            Gets the current character columns available to the terminal.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalControl.AutoResize">
+            <summary>
+            Gets or sets a value indicating whether if the renderer should automatically resize to fill the control
+            on user action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalControl.Connection">
+            <summary>
+            Sets the connection to a terminal backend.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalControl.TerminalRendererSize">
+            <summary>
+            Gets size of the terminal renderer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.SetTheme(Microsoft.Terminal.Wpf.TerminalTheme,System.String,System.Int16,System.Windows.Media.Color)">
+            <summary>
+            Sets the theme for the terminal. This includes font family, size, color, as well as background and foreground colors.
+            </summary>
+            <param name="theme">The color theme to use in the terminal.</param>
+            <param name="fontFamily">The font family to use in the terminal.</param>
+            <param name="fontSize">The font size to use in the terminal.</param>
+            <param name="externalBackground">Color for the control background when the terminal window is smaller than the hosting WPF window.</param>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.GetSelectedText">
+            <summary>
+            Gets the selected text in the terminal, clearing the selection. Otherwise returns an empty string.
+            </summary>
+            <returns>Selected text, empty string if no content is selected.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.ResizeAsync(System.UInt32,System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Resizes the terminal to the specified rows and columns.
+            </summary>
+            <param name="rows">Number of rows to display.</param>
+            <param name="columns">Number of columns to display.</param>
+            <param name="cancellationToken">Cancellation token for this task.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.TriggerResize(System.Windows.Size)">
+            <summary>
+            Resizes the terminal to the specified dimensions.
+            </summary>
+            <param name="rendersize">Rendering size for the terminal in device independent units.</param>
+            <returns>A tuple of (int, int) representing the number of rows and columns in the terminal.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.OnCreateAutomationPeer">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.OnRenderSizeChanged(System.Windows.SizeChangedInfo)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.CalculateMargins(System.Windows.Size)">
+            <summary>
+            Calculates the margins that should surround the terminal renderer, if any.
+            </summary>
+            <param name="controlSize">New size of the control. Uses the control's current size if not provided.</param>
+            <returns>The new terminal control margin thickness in device independent units.</returns>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalControl.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:Microsoft.Terminal.Wpf.TerminalOutputEventArgs">
+            <summary>
+            Event args for output from the terminal backend.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Terminal.Wpf.TerminalOutputEventArgs.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Terminal.Wpf.TerminalOutputEventArgs"/> class.
+            </summary>
+            <param name="data">The backend data associated with the event.</param>
+        </member>
+        <member name="P:Microsoft.Terminal.Wpf.TerminalOutputEventArgs.Data">
+            <summary>
+            Gets the data sent from the terminal backend.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Terminal.Wpf.CursorStyle">
+            <summary>
+            Enum for the style of cursor to display in the terminal.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.BlinkingBlock">
+            <summary>
+            Cursor will be rendered as a blinking block.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.BlinkingBlockDefault">
+            <summary>
+            Currently identical to <see cref="F:Microsoft.Terminal.Wpf.CursorStyle.BlinkingBlock"/>
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.SteadyBlock">
+            <summary>
+            Cursor will be rendered as a block that does not blink.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.BlinkingUnderline">
+            <summary>
+            Cursor will be rendered as a blinking underline.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.SteadyUnderline">
+            <summary>
+            Cursor will be rendered as an underline that does not blink.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.BlinkingBar">
+            <summary>
+            Cursor will be rendered as a vertical blinking bar.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.CursorStyle.SteadyBar">
+            <summary>
+            Cursor will be rendered as a vertical bar that does not blink.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Terminal.Wpf.TerminalTheme">
+            <summary>
+            Structure for color handling in the terminal.
+            </summary>
+            <remarks>Keep in sync with HwndTerminal.hpp.</remarks>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.TerminalTheme.DefaultBackground">
+            <summary>
+            The default background color of the terminal, represented in Win32 COLORREF format.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.TerminalTheme.DefaultForeground">
+            <summary>
+            The default foreground color of the terminal, represented in Win32 COLORREF format.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.TerminalTheme.DefaultSelectionBackground">
+            <summary>
+            The default selection background color of the terminal, represented in Win32 COLORREF format.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.TerminalTheme.CursorStyle">
+            <summary>
+            The style of cursor to use in the terminal.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Terminal.Wpf.TerminalTheme.ColorTable">
+            <summary>
+            The color array to use for the terminal, filling the standard vt100 16 color table, represented in Win32 COLORREF format.
+            </summary>
+        </member>
+    </members>
+</doc>
