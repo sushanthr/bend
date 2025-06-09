@@ -182,7 +182,7 @@
                 </Grid>
                 <GridSplitter Name="MainDockSplitter" Grid.Row="1" HorizontalAlignment="Stretch" Background="{DynamicResource BackgroundBrush}" Visibility="Collapsed"/>
                 <Grid  Name="MainDockBottomPanel" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
-                    <term:TerminalControl x:Name="Terminal" StartupCommandLine="c:\\windows\system32\\cmd.exe" Win32InputMode="True" InputCapture="TabKey,DirectionKeys" Margin="8,0,0,18">
+                    <term:TerminalControl x:Name="Terminal" StartupCommandLine="c:\\windows\\system32\\cmd.exe /K &quot;cd /d %userprofile%&quot;" Win32InputMode="True" InputCapture="TabKey,DirectionKeys" Margin="8,8,0,18">
                     </term:TerminalControl>
                 </Grid>
             </Grid>
