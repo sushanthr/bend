@@ -81,6 +81,7 @@ namespace Console.Internals
                 if (StartupInfo.lpAttributeList != default)
                 {
                     DeleteProcThreadAttributeList(StartupInfo.lpAttributeList);
+                    Marshal.FreeHGlobal(StartupInfo.lpAttributeList);
                 }
                 // Close process and thread handles
                 if (ProcessInfo.hProcess != IntPtr.Zero)

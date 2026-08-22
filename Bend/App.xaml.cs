@@ -65,11 +65,13 @@ namespace Bend
                 // There is another instance of bend running somewhere, send this file to it.
                 InterBendCommunication.SendFileNameToHwnd(hwnd, argument);
                 this.Shutdown();
+                return;
             }
             else if (!ApplicationDeployment.IsNetworkDeployed && !debugApplication)
             {
                 LaunchBendClickOnceApplication(argument);
                 this.Shutdown();
+                return;
             }
 
             TermPTYProxy.EnsureServerRunning();
@@ -79,6 +81,7 @@ namespace Bend
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             StyledMessageBox.Show( "Unhandled Exception" , sender.ToString() + e.ToString() + "\n" + e.Exception.StackTrace);
+            e.Handled = true;
         }
 
         internal static void LaunchBendClickOnceApplication(string argument)

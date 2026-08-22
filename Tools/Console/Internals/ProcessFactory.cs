@@ -36,6 +36,9 @@ namespace Console.Internals
             IntPtr lpPreviousValue,
             IntPtr lpReturnSize);
 
+        [DllImport("kernel32.dll")]
+        private static extern void DeleteProcThreadAttributeList(IntPtr lpAttributeList);
+
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool CreateProcess(
             string lpApplicationName,
@@ -127,33 +130,40 @@ namespace Console.Internals
             var startupInfo = new STARTUPINFOEX();
             startupInfo.StartupInfo.cb = (int)Marshal.SizeOf<STARTUPINFOEX>();
             startupInfo.lpAttributeList = Marshal.AllocHGlobal((int)lpSize);
-
-            success = InitializeProcThreadAttributeList(
-                startupInfo.lpAttributeList,
-                1,
-                0,
-                ref lpSize);
-
-            if (!success)
+            bool attributeListInitialized = false;
+            try
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not set up attribute list.");
+                success = InitializeProcThreadAttributeList(
+                    startupInfo.lpAttributeList,
+                    1,
+                    0,
+                    ref lpSize);
+
+                if (!success)
+                    throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not set up attribute list.");
+                attributeListInitialized = true;
+
+                success = UpdateProcThreadAttribute(
+                    startupInfo.lpAttributeList,
+                    0,
+                    attributes,
+                    hPC.DangerousGetHandle(),
+                    (IntPtr)IntPtr.Size,
+                    IntPtr.Zero,
+                    IntPtr.Zero);
+
+                if (!success)
+                    throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not set pseudoconsole thread attribute.");
+
+                return startupInfo;
             }
-
-            success = UpdateProcThreadAttribute(
-                startupInfo.lpAttributeList,
-                0,
-                attributes,
-                hPC.DangerousGetHandle(),
-                (IntPtr)IntPtr.Size,
-                IntPtr.Zero,
-                IntPtr.Zero);
-
-            if (!success)
+            catch
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not set pseudoconsole thread attribute.");
+                if (attributeListInitialized)
+                    DeleteProcThreadAttributeList(startupInfo.lpAttributeList);
+                Marshal.FreeHGlobal(startupInfo.lpAttributeList);
+                throw;
             }
-
-            return startupInfo;
         }
 
         private static PROCESS_INFORMATION RunProcess(STARTUPINFOEX sInfoEx, string commandLine)
@@ -176,7 +186,15 @@ namespace Console.Internals
                 out PROCESS_INFORMATION pInfo);
 
             if (!success)
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not create process.");
+            {
+                int error = Marshal.GetLastWin32Error();
+                if (sInfoEx.lpAttributeList != IntPtr.Zero)
+                {
+                    DeleteProcThreadAttributeList(sInfoEx.lpAttributeList);
+                    Marshal.FreeHGlobal(sInfoEx.lpAttributeList);
+                }
+                throw new Win32Exception(error, "Could not create process.");
+            }
 
             return pInfo;
         }

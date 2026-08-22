@@ -11,16 +11,19 @@ using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.Threading;
 
 
 namespace Console
 {
-    public class TermPTYProxy : ITerminalConnection, ITermPTYCallback
+    public class TermPTYProxy : ITerminalConnection, ITermPTYCallback, IDisposable
     {
         private static Process _serverProcess;
-        private static DuplexChannelFactory<ITermPTYService> _factory;
-        private static ITermPTYService _service;
+        private DuplexChannelFactory<ITermPTYService> _factory;
+        private ITermPTYService _service;
         private static readonly object _lock = new object();
+        private readonly object _serviceLock = new object();
+        private bool _disposed;
 
         private readonly Guid _instanceId;
         public event EventHandler<TerminalOutputEventArgs> TerminalOutput;
@@ -31,7 +34,9 @@ namespace Console
         {
             EnsureServerRunning();
 
-            UInt32 max_connect_try = 10;
+            const int maxConnectAttempts = 10;
+            Exception lastError = null;
+            int attempt = 0;
             do
             {
                 try
@@ -44,14 +49,17 @@ namespace Console
 
                     _service = _factory.CreateChannel();
                     _instanceId = _service.CreateInstance();
-                    max_connect_try = 0;
+                    return;
                 }
-                catch (System.ServiceModel.EndpointNotFoundException ex)
+                catch (EndpointNotFoundException ex)
                 {
-                    Task.Delay(500);
-                    max_connect_try--;
+                    lastError = ex;
+                    AbortFactory();
+                    Thread.Sleep(500);
                 }
-            } while (max_connect_try > 0);
+            } while (++attempt < maxConnectAttempts);
+
+            throw new InvalidOperationException("The Bend console host did not become available.", lastError);
         }
 
         public static void EnsureServerRunning()
@@ -68,15 +76,19 @@ namespace Console
                         CreateNoWindow = true,
                         UseShellExecute = false
                     };
+                    if (!File.Exists(serverPath))
+                        throw new FileNotFoundException("The Bend console host executable was not found.", serverPath);
+
                     _serverProcess = Process.Start(startInfo);
+                    if (_serverProcess == null)
+                        throw new InvalidOperationException("The Bend console host process could not be started.");
                 }
             }
         }
 
         public void StartCmd(string command, int consoleWidth = 80, int consoleHeight = 30)
         {
-            Task.Delay(2000);
-            _service.StartCmd(_instanceId, command, consoleWidth, consoleHeight);
+            CallService(service => service.StartCmd(_instanceId, command, consoleWidth, consoleHeight));
             TermProcIsStarted = true;
         }
 
@@ -86,12 +98,12 @@ namespace Console
         }
         void ITerminalConnection.WriteInput(string data)
         {
-            _service.WriteInput(_instanceId, data);
+            CallService(service => service.WriteInput(_instanceId, data));
         }
 
         public void Resize(int height, int width)
         {
-            Task.Run(() => _service.Resize(_instanceId, width, height));
+            CallService(service => service.Resize(_instanceId, width, height));
         }
 
         public void WriteToUITerminal(string str)
@@ -116,19 +128,19 @@ namespace Console
 
         void ITerminalConnection.Resize(uint height, uint width)
         {
-            Task.Run(() => _service.Resize(_instanceId, (int)width, (int)height));
+            Resize((int)height, (int)width);
         }
 
         void ITerminalConnection.Close()
         {
-            _service.Close(_instanceId);
+            Dispose();
         }
 
         void ITermPTYCallback.OnTerminalOutput(Guid instanceId, string output)
         {
             if (instanceId == _instanceId)
             {
-                Task.Run(() => TerminalOutput?.Invoke(this, new TerminalOutputEventArgs(output)));
+                TerminalOutput?.Invoke(this, new TerminalOutputEventArgs(output));
             }
         }
 
@@ -136,13 +148,52 @@ namespace Console
         {
             if (instanceId == _instanceId)
             {
-                Task.Run(() => TermReady?.Invoke(this, EventArgs.Empty));
+                TermReady?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        ~TermPTYProxy()
+        private void CallService(Action<ITermPTYService> action)
         {
-            ((ITerminalConnection)this).Close();
+            lock (_serviceLock)
+            {
+                if (_disposed)
+                    throw new ObjectDisposedException(nameof(TermPTYProxy));
+                action(_service);
+            }
+        }
+
+        private void AbortFactory()
+        {
+            var channel = _service as ICommunicationObject;
+            channel?.Abort();
+            _factory?.Abort();
+            _service = null;
+            _factory = null;
+        }
+
+        public void Dispose()
+        {
+            lock (_serviceLock)
+            {
+                if (_disposed)
+                    return;
+                _disposed = true;
+
+                try
+                {
+                    _service?.Close(_instanceId);
+                    (_service as ICommunicationObject)?.Close();
+                    _factory?.Close();
+                }
+                catch (CommunicationException)
+                {
+                    AbortFactory();
+                }
+                catch (TimeoutException)
+                {
+                    AbortFactory();
+                }
+            }
         }
     }
 }

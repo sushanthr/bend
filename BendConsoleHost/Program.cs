@@ -4,6 +4,7 @@ using System.ServiceModel;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Globalization;
 
 public class TermPTYServer : ITermPTYService
 {
@@ -15,8 +16,8 @@ public class TermPTYServer : ITermPTYService
         var callback = OperationContext.Current.GetCallbackChannel<ITermPTYCallback>();
 
         var term = new TermPTY();
-        term.TerminalOutput += (s, e) => callback.OnTerminalOutput(id, e.Data);
-        term.TermReady += (s, e) => callback.OnTermReady(id);
+        term.TerminalOutput += (s, e) => TryCallback(() => callback.OnTerminalOutput(id, e.Data), id);
+        term.TermReady += (s, e) => TryCallback(() => callback.OnTermReady(id), id);
 
         _instances[id] = term;
         return id;
@@ -31,19 +32,23 @@ public class TermPTYServer : ITermPTYService
     public void StartCmd(Guid instanceId, string command, int width, int height)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            Task.Run(()=>term.Start(command, width, height));
+            Task.Run(() =>
+            {
+                try { term.Start(command, width, height); }
+                finally { _instances.TryRemove(instanceId, out _); }
+            });
     }
 
     public void WriteInput(Guid instanceId, string data)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            Task.Run(()=>term.WriteToTerm(data));
+            term.WriteToTerm(data);
     }
 
     public void Resize(Guid instanceId, int width, int height)
     {
         if (_instances.TryGetValue(instanceId, out var term))
-            Task.Run(()=>term.Resize(width, height));
+            term.Resize(width, height);
     }
 
     public void Close(Guid instanceId)
@@ -54,13 +59,28 @@ public class TermPTYServer : ITermPTYService
             _instances.TryRemove(instanceId, out _);
         }
     }
+
+    private void TryCallback(Action callback, Guid instanceId)
+    {
+        try { callback(); }
+        catch (CommunicationException) { Close(instanceId); }
+        catch (TimeoutException) { Close(instanceId); }
+    }
 }
 
 class Program
 {
-    static void Main()
+    static int Main(string[] args)
     {
+        if (args.Length != 1 || !int.TryParse(args[0], NumberStyles.None, CultureInfo.InvariantCulture, out int parentProcessId) || parentProcessId <= 0)
+            return 2;
+
+        Process parentProcess;
+        try { parentProcess = Process.GetProcessById(parentProcessId); }
+        catch (ArgumentException) { return 3; }
+
         using (var host = new ServiceHost(typeof(TermPTYServer)))
+        using (parentProcess)
         {
             host.AddServiceEndpoint(typeof(ITermPTYService),
                 new NetNamedPipeBinding() { MaxReceivedMessageSize = 1024 * 1024 },
@@ -69,8 +89,8 @@ class Program
             host.Open();
 
             // Wait for parent process
-            var parentProcess = Process.GetProcessById(int.Parse(Environment.GetCommandLineArgs()[1]));
             parentProcess.WaitForExit();
         }
+        return 0;
     }
 }

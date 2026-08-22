@@ -73,7 +73,10 @@ namespace Console {
 
 		private static void OnTermChanged(DependencyObject target, DependencyPropertyChangedEventArgs e) {
 			var cntrl = (target as TerminalControl);
+			var oldTerm = e.OldValue as TermPTYProxy;
 			var newTerm = e.NewValue as TermPTYProxy;
+			if (oldTerm != null)
+				oldTerm.TermReady -= cntrl.Term_TermReady;
 			if (newTerm != null) {
 				if (cntrl.Terminal.IsLoaded)
 					cntrl.Terminal_Loaded(cntrl.Terminal, null);
@@ -149,7 +152,10 @@ namespace Console {
 			Terminal.Focus();
         }
 
-        void MainThreadRun(Action action) => Dispatcher.Invoke(action);
+		void MainThreadRun(Action action) {
+			if (!Dispatcher.HasShutdownStarted && !Dispatcher.HasShutdownFinished)
+				Dispatcher.BeginInvoke(action);
+		}
 
 		private void Term_TermReady(object sender, EventArgs e) {
 			MainThreadRun(() => {
@@ -168,14 +174,10 @@ namespace Console {
 				return;
 			}
 			ConPTYTerm.TermReady += Term_TermReady;
-			MainThreadRun(() => {
-				var cmd = StartupCommandLine;//thread safety for dp
-				var term = ConPTYTerm;
-				var logOutput = LogConPTYOutput;
-				Task.Run(() => term.StartCmd(cmd, column_width, row_height));
-			});
+			var cmd = StartupCommandLine;
+			ConPTYTerm.StartCmd(cmd, column_width, row_height);
 		}
-		private async void Terminal_Loaded(object sender, RoutedEventArgs e) {
+		private void Terminal_Loaded(object sender, RoutedEventArgs e) {
 			StartTerm(Terminal.Columns, Terminal.Rows);
 			SetTheme(Theme);
 			SetCursor(IsCursorVisible);

@@ -57,20 +57,23 @@ namespace Bend
 
         private IntPtr HandleCopyData(WM uMsg, IntPtr wParam, IntPtr lParam, out bool handled)
         {
+            handled = false;
+            if (lParam == IntPtr.Zero)
+                return IntPtr.Zero;
+
             COPYDATASTRUCT copyDataStruct = (COPYDATASTRUCT)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(COPYDATASTRUCT));
 
-            if (copyDataStruct.dwData == MAGIC_NUMBER)
+            if (copyDataStruct.dwData == MAGIC_NUMBER && copyDataStruct.lpData != IntPtr.Zero &&
+                copyDataStruct.cbData >= 0 && copyDataStruct.cbData % 2 == 0)
             {
-                string file = System.Runtime.InteropServices.Marshal.PtrToStringUni(copyDataStruct.lpData);
-                int enforceLength = (int)(copyDataStruct.cbData / 2);
-                file = file.Substring(0, enforceLength);
+                int characterCount = copyDataStruct.cbData / 2;
+                string file = System.Runtime.InteropServices.Marshal.PtrToStringUni(copyDataStruct.lpData, characterCount);
 
-                NotifyOfFileNameRecieved(file);
-                handled = true;
-            }
-            else
-            {
-                handled = false;
+                if (!string.IsNullOrWhiteSpace(file))
+                {
+                    NotifyOfFileNameRecieved(file);
+                    handled = true;
+                }
             }
             return IntPtr.Zero;
         }
@@ -87,6 +90,8 @@ namespace Bend
 
             for (int i = 0; i < otherBends.Length; i++)
             {
+                if (otherBends[i].Id == System.Diagnostics.Process.GetCurrentProcess().Id)
+                    continue;
                 hWnd = otherBends[i].MainWindowHandle;
                 if (hWnd != IntPtr.Zero)
                     return true;
@@ -112,14 +117,24 @@ namespace Bend
         internal static void SendFileNameToHwnd(IntPtr hWnd, string file)
         {
             IntPtr lpData = System.Runtime.InteropServices.Marshal.StringToHGlobalUni(file);
-            COPYDATASTRUCT copyDataStruct = new COPYDATASTRUCT();
-            copyDataStruct.dwData = MAGIC_NUMBER;
-            copyDataStruct.cbData = file.Length * 2;
-            copyDataStruct.lpData = lpData;
-            IntPtr lpStruct = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(copyDataStruct));
-            System.Runtime.InteropServices.Marshal.StructureToPtr(copyDataStruct, lpStruct, false);
-            SendMessage(hWnd, WM.COPYDATA, IntPtr.Zero, lpStruct);
-            SetForegroundWindow(hWnd);
+            IntPtr lpStruct = IntPtr.Zero;
+            try
+            {
+                COPYDATASTRUCT copyDataStruct = new COPYDATASTRUCT();
+                copyDataStruct.dwData = MAGIC_NUMBER;
+                copyDataStruct.cbData = file.Length * 2;
+                copyDataStruct.lpData = lpData;
+                lpStruct = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(copyDataStruct));
+                System.Runtime.InteropServices.Marshal.StructureToPtr(copyDataStruct, lpStruct, false);
+                SendMessage(hWnd, WM.COPYDATA, IntPtr.Zero, lpStruct);
+                SetForegroundWindow(hWnd);
+            }
+            finally
+            {
+                if (lpStruct != IntPtr.Zero)
+                    System.Runtime.InteropServices.Marshal.FreeHGlobal(lpStruct);
+                System.Runtime.InteropServices.Marshal.FreeHGlobal(lpData);
+            }
         }
 
         internal void NotifyOfFileNameRecieved(string fileName)
