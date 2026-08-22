@@ -15,6 +15,14 @@ namespace TextCoreControl.SyntaxHighlighting
     /// </summary>
     internal class LanguageDetector
     {
+        private static readonly string SyntaxHighlightingDirectory =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SyntaxHighlighting");
+
+        private static string GetSyntaxDefinitionPath(string syntaxFile)
+        {
+            return Path.Combine(SyntaxHighlightingDirectory, "Definitions", syntaxFile);
+        }
+
         internal LanguageDetector(Document document)
         {
             this.filenameExtensionChecked = false;
@@ -50,7 +58,7 @@ namespace TextCoreControl.SyntaxHighlighting
                 this.heuristics == null ||
                 this.hSytaxFileNames == null)
             {
-                this.LoadConfig(".\\SyntaxHighlighting\\LanguageDetector.config");
+                this.LoadConfig(Path.Combine(SyntaxHighlightingDirectory, "LanguageDetector.config"));
             }
 
             if (worker.CancellationPending)
@@ -126,7 +134,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         }
                         else
                         {
-                            syntaxHighlighterService = new SyntaxHighlighterService(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile, this.document);
+                            syntaxHighlighterService = new SyntaxHighlighterService(GetSyntaxDefinitionPath(syntaxFile), this.document);
                         }
                         this.currentSyntaxDefinitionFile = syntaxFile;
                         e.Result = syntaxHighlighterService;
@@ -174,7 +182,7 @@ namespace TextCoreControl.SyntaxHighlighting
                         if (filenameExtensions[i] == filenameExtension)
                         {
                             string syntaxFile = extSyntaxFileNames[i];
-                            if (syntaxFile == "none" || System.IO.File.Exists(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile))
+                            if (syntaxFile == "none" || File.Exists(GetSyntaxDefinitionPath(syntaxFile)))
                             {
                                 return syntaxFile;
                             }
@@ -203,7 +211,7 @@ namespace TextCoreControl.SyntaxHighlighting
             if (bestMatchIndex != -1)
             {
                 string syntaxFile = this.hSytaxFileNames[bestMatchIndex];
-                if (System.IO.File.Exists(".\\SyntaxHighlighting\\Definitions\\" + syntaxFile))
+                if (File.Exists(GetSyntaxDefinitionPath(syntaxFile)))
                 {
                     return syntaxFile;
                 }

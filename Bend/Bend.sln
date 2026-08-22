@@ -5,7 +5,9 @@ VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bend", "Bend.csproj", "{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "..\Tools\Console\Console.csproj", "{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "..\Tools\Console\Console.csproj", "{7893EEF7-6A4B-4B9D-AA3F-7402AFA8C289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextCoreControl", "..\TextCore\TextCore\TextCoreControl\TextCoreControl.csproj", "{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,14 @@ Global
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Debug|x64.Build.0 = Debug|x64
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Release|x64.ActiveCfg = Release|x64
 		{D54A6998-9ADA-4A9A-9CBC-988966F8A58B}.Release|x64.Build.0 = Release|x64
+		{7893EEF7-6A4B-4B9D-AA3F-7402AFA8C289}.Debug|x64.ActiveCfg = Debug|x64
+		{7893EEF7-6A4B-4B9D-AA3F-7402AFA8C289}.Debug|x64.Build.0 = Debug|x64
+		{7893EEF7-6A4B-4B9D-AA3F-7402AFA8C289}.Release|x64.ActiveCfg = Release|x64
+		{7893EEF7-6A4B-4B9D-AA3F-7402AFA8C289}.Release|x64.Build.0 = Release|x64
 		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Debug|x64.ActiveCfg = Debug|x64
 		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Debug|x64.Build.0 = Debug|x64
-		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.ActiveCfg = Debug|x64
-		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.Build.0 = Debug|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.ActiveCfg = Release|x64
+		{9738D0AF-B0DA-40CF-AAC9-B9725CE252FC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

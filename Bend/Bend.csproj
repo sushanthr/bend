@@ -139,10 +139,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="TextCoreControl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Dll\TextCoreControl.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -389,7 +385,6 @@
     <Content Include="SyntaxHighlighting\LanguageDetector.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Dll\TextCoreControl.dll" />
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="Dll\CI.Microsoft.Terminal.Wpf.1.22.250204002\runtimes\win-x64\native\Microsoft.Terminal.Control.dll">
@@ -413,16 +408,6 @@
       <FileType>File</FileType>
     </PublishFile>
     <PublishFile Include="Dll\Microsoft.WindowsAPICodePack.DirectX.dll">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>File</FileType>
-    </PublishFile>
-    <PublishFile Include="Dll\TextCoreControl.dll">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -461,8 +446,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tools\Console\Console.csproj">
-      <Project>{9738d0af-b0da-40cf-aac9-b9725ce252fc}</Project>
+      <Project>{7893eef7-6a4b-4b9d-aa3f-7402afa8c289}</Project>
       <Name>Console</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TextCore\TextCore\TextCoreControl\TextCoreControl.csproj">
+      <Project>{9738d0af-b0da-40cf-aac9-b9725ce252fc}</Project>
+      <Name>TextCoreControl</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
