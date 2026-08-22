@@ -250,7 +250,7 @@ namespace TextCoreControl
                         regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                         System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(newFileContents);
                         count = matches.Count;
-                        if (replaceText !=  String.Empty && count != 0)
+                        if (count != 0)
                         {
                             newFileContents = regEx.Replace(newFileContents, replaceText);
                         }
@@ -275,7 +275,7 @@ namespace TextCoreControl
                     else
                     {
                         // Ignore case and replace string.
-                        int startIndex = newFileContents.Length;
+                        int startIndex = newFileContents.Length - 1;
                         StringBuilder tempString = new StringBuilder(newFileContents);
                         do
                         {

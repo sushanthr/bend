@@ -51,7 +51,7 @@ namespace TextCoreControl.SyntaxHighlighting
         internal void AddCharacter(char character)
         {
             int characterAsInt = character;
-            if (characterAsInt >= 0 && characterAsInt <= 256)
+            if (characterAsInt >= 0 && characterAsInt < characterMap.Length)
             {
                 characterMap[characterAsInt] = true;
             }
@@ -65,7 +65,7 @@ namespace TextCoreControl.SyntaxHighlighting
         internal bool Contains(char character)
         {
             int characterAsInt = character;
-            if (characterAsInt >= 0 && characterAsInt <= 256)
+            if (characterAsInt >= 0 && characterAsInt < characterMap.Length)
             {
                 return characterMap[characterAsInt];
             }

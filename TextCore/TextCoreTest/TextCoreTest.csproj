@@ -64,7 +64,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <HintPath>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\Extensions\TestPlatform\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
+          <Private>true</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
