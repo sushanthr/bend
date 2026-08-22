@@ -8,7 +8,7 @@ using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
 
 namespace TextCoreControl
 {
-    internal class VisualLine
+    internal class VisualLine : IDisposable
     {
         internal VisualLine(DWriteFactory dwriteFactory, 
             ShowFormattingService showFormattingService, 
@@ -221,6 +221,20 @@ namespace TextCoreControl
         internal string Text { get { return this.lineText; } }
 
         internal bool ContainsOrdinal(int ordinal) { return this.beginOrdinal <= ordinal && this.nextOrdinal > ordinal; }
+
+        public void Dispose()
+        {
+            if (textLayout != null)
+            {
+                textLayout.Dispose();
+                textLayout = null;
+            }
+            if (noEffectsTextLayout != null)
+            {
+                noEffectsTextLayout.Dispose();
+                noEffectsTextLayout = null;
+            }
+        }
 
         private Point2F position;
         private TextLayout textLayout;

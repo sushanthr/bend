@@ -250,9 +250,9 @@ namespace TextCoreControl
                                 this.hwndRenderTarget.EndDraw();
                                 this.caret.UnprepareAfterRender();
                             }
-                            catch
+                            catch (Exception exception)
                             {
-                                this.RecoverFromRenderException();
+                                this.RecoverFromRenderException(exception);
                             }
 
                             this.caret.OnGetFocus();
@@ -288,9 +288,9 @@ namespace TextCoreControl
                                 this.hwndRenderTarget.EndDraw();
                                 this.caret.UnprepareAfterRender();
                             }
-                            catch
-                            {                
-                                this.RecoverFromRenderException();
+                            catch (Exception exception)
+                            {
+                                this.RecoverFromRenderException(exception);
                             }            
                             
                             this.caret.OnGetFocus();
@@ -333,9 +333,9 @@ namespace TextCoreControl
                                 this.hwndRenderTarget.EndDraw();
                                 this.caret.UnprepareAfterRender();
                             }
-                            catch
-                            {                
-                                this.RecoverFromRenderException();
+                            catch (Exception exception)
+                            {
+                                this.RecoverFromRenderException(exception);
                             }            
                         }
                     }
@@ -687,9 +687,9 @@ namespace TextCoreControl
                             this.hwndRenderTarget.EndDraw();
                             this.caret.UnprepareAfterRender();
                         }
-                        catch
+                        catch (Exception exception)
                         {
-                            this.RecoverFromRenderException();
+                            this.RecoverFromRenderException(exception);
                         }
                         handled = true;
                     }
@@ -835,9 +835,9 @@ namespace TextCoreControl
                     this.hwndRenderTarget.EndDraw();
                     this.caret.UnprepareAfterRender();
                 }
-                catch
+                catch (Exception exception)
                 {
-                    this.RecoverFromRenderException();
+                    this.RecoverFromRenderException(exception);
                 }
             }
         }
@@ -937,12 +937,12 @@ namespace TextCoreControl
                 indexFirstLineBelowScreenWithHardBreak++;
                 if (indexFirstLineBelowScreenWithHardBreak < this.visualLines.Count)
                 {
-                    this.visualLines.RemoveRange(indexFirstLineBelowScreenWithHardBreak, this.visualLines.Count - indexFirstLineBelowScreenWithHardBreak);
+                    this.DisposeVisualLines(indexFirstLineBelowScreenWithHardBreak, this.visualLines.Count - indexFirstLineBelowScreenWithHardBreak);
                 }
             }
             if (indexLastLineAboveScreenWithHardBreak > 0)
             {
-                this.visualLines.RemoveRange(0, indexLastLineAboveScreenWithHardBreak + 1);
+                this.DisposeVisualLines(0, indexLastLineAboveScreenWithHardBreak + 1);
                 if (indexFirstVisibleLine != int.MaxValue)
                 {
                     indexFirstVisibleLine -= (indexLastLineAboveScreenWithHardBreak + 1);
@@ -1068,7 +1068,7 @@ namespace TextCoreControl
             if (this.scrollOffset.Height != newPageTop)
             {
                 // Scrolloffset actually changed.
-                this.visualLines.RemoveRange(0, this.VisualLineCount);
+                this.DisposeVisualLines(0, this.VisualLineCount);
                 this.pageTop = newPageTop;
                 this.pageBeginOrdinal = newPageBeginOrdinal;
                 this.vScrollBar_Scroll(this, new ScrollEventArgs(ScrollEventType.EndScroll, newPageTop));
@@ -1250,7 +1250,7 @@ namespace TextCoreControl
                     // Jump to start.
                     this.pageBeginOrdinal = this.document.FirstOrdinal();
                     this.pageTop = 0;
-                    this.visualLines.Clear();
+                    this.DisposeVisualLines(0, this.VisualLineCount);
                     this.scrollBoundsManager.ScrollBy(-int.MaxValue);
                     firstVisibleLine = this.FirstVisibleLine();
                 }
@@ -1358,9 +1358,9 @@ namespace TextCoreControl
                 this.UpdateCaret(endBeforeOrdinal);
                 this.caret.UnprepareAfterRender();
             }
-            catch
+            catch (Exception exception)
             {
-                this.RecoverFromRenderException();
+                this.RecoverFromRenderException(exception);
             }
         }
 
@@ -1446,14 +1446,17 @@ namespace TextCoreControl
                         stringBuilder.Replace("\n" + leading, "\n");
                         if (beginOrdinal == document.FirstOrdinal())
                         {
-                            bool fStartsWithLeading = true;
+                            bool fStartsWithLeading = stringBuilder.Length >= leading.Length;
                             for (int i = 0; i < leading.Length; i++)
                             {
-                                if (stringBuilder[i] != leading[i])
+                                if (!fStartsWithLeading || stringBuilder[i] != leading[i])
+                                {
                                     fStartsWithLeading = false;
+                                    break;
+                                }
                             }
                             if (fStartsWithLeading)
-                                stringBuilder.Remove(0, 1);
+                                stringBuilder.Remove(0, leading.Length);
                         }
                     }
                     else
@@ -1478,9 +1481,9 @@ namespace TextCoreControl
                         this.hwndRenderTarget.EndDraw();
                         this.caret.UnprepareAfterRender();
                     }
-                    catch
+                    catch (Exception exception)
                     {
-                        this.RecoverFromRenderException();
+                        this.RecoverFromRenderException(exception);
                     }
                 }
             }
@@ -1573,6 +1576,7 @@ namespace TextCoreControl
                     bool lineIsOutsideChange = vl.NextOrdinal < beginOrdinal || vl.BeginOrdinal > endOrdinal;
                     if (!lineIsOutsideChange)
                     {
+                        visualLines[i].Dispose();
                         visualLines[i] = null;
                         if (visualLineStartIndex == -1)
                         {
@@ -1667,9 +1671,9 @@ namespace TextCoreControl
                     hwndRenderTarget.EndDraw();
                     this.caret.UnprepareAfterRender();
                 }
-                catch
-                {                
-                    this.RecoverFromRenderException();
+                catch (Exception exception)
+                {
+                    this.RecoverFromRenderException(exception);
                 }            
 
                 if (forceDocumentBoundsMeasure)
@@ -1750,7 +1754,7 @@ namespace TextCoreControl
             maxVisualLineWidth = 0;
             if (forceRelayout)
             {
-                this.visualLines.Clear();
+                this.DisposeVisualLines(0, this.VisualLineCount);
                 visualLineStartIndex = 0;
             }
             else
@@ -1792,6 +1796,8 @@ namespace TextCoreControl
                 }
                 else
                 {
+                    if (this.visualLines[visualLineStartIndex] != null)
+                        this.visualLines[visualLineStartIndex].Dispose();
                     this.visualLines[visualLineStartIndex] = visualLine;
                     visualLineStartIndex++;
                     if (!forceRelayout && visualLineStartIndex < this.visualLines.Count && this.visualLines[visualLineStartIndex] != null)
@@ -1826,7 +1832,7 @@ namespace TextCoreControl
                     // Ran out of content delete everything after changeEndIndex
                     if (changeEndIndex + 1 < this.visualLines.Count)
                     {
-                        this.visualLines.RemoveRange(changeEndIndex + 1, (this.visualLines.Count - changeEndIndex) - 1);
+                        this.DisposeVisualLines(changeEndIndex + 1, (this.visualLines.Count - changeEndIndex) - 1);
                     }
                 }
                 else
@@ -1837,7 +1843,7 @@ namespace TextCoreControl
                         if (this.visualLines[d] == null)
                         {
                             // everything after this must go.
-                            this.visualLines.RemoveRange(d, this.visualLines.Count - d);
+                            this.DisposeVisualLines(d, this.visualLines.Count - d);
                             break;
                         }
                     }
@@ -1889,9 +1895,9 @@ namespace TextCoreControl
                 hwndRenderTarget.EndDraw();
                 this.caret.UnprepareAfterRender();
             }
-            catch
-            {                
-                this.RecoverFromRenderException();
+            catch (Exception exception)
+            {
+                this.RecoverFromRenderException(exception);
             }            
         }
 
@@ -1987,8 +1993,9 @@ namespace TextCoreControl
             return false;
         }
 
-        private void RecoverFromRenderException()
+        private void RecoverFromRenderException(Exception exception)
         {
+            DebugLog.Write(exception);
             this.NotifyOfSettingsChange(/*recreateRenderTarget*/true);
             this.renderHost.InvalidateVisual();            
         }
@@ -2081,9 +2088,9 @@ namespace TextCoreControl
                 hwndRenderTarget.EndDraw();
                 this.caret.UnprepareAfterRender();
             }
-            catch
-            {                
-                this.RecoverFromRenderException();
+            catch (Exception exception)
+            {
+                this.RecoverFromRenderException(exception);
             }
 
             System.Windows.Media.Imaging.BitmapSource bmpSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
@@ -2102,6 +2109,19 @@ namespace TextCoreControl
         internal int VisualLineCount
         {
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
+        }
+
+        private void DisposeVisualLines(int index, int count)
+        {
+            if (this.visualLines == null || count <= 0)
+                return;
+
+            for (int i = index; i < index + count; i++)
+            {
+                if (this.visualLines[i] != null)
+                    this.visualLines[i].Dispose();
+            }
+            this.visualLines.RemoveRange(index, count);
         }
         
         internal int FirstVisibleOrdinal() 

@@ -55,62 +55,35 @@ namespace TextCoreControl.SyntaxHighlighting
         #region Syn file Parse support
         private void LoadDefinition(string fullSyntaxFilePath)
         {
-            StreamReader fileStream = new StreamReader(fullSyntaxFilePath);
-
-            while (!fileStream.EndOfStream)
+            using (StreamReader fileStream = new StreamReader(fullSyntaxFilePath))
             {
-                string line = fileStream.ReadLine();
-                line = line.Trim();
-                line = line.ToUpper();
-
-                switch (line)
+                while (!fileStream.EndOfStream)
                 {
-                    case "TEXT=1":
-                        this.languageType = LanguageType.TEXT;
-                        break;
-                    case "C=1":
-                        this.languageType = LanguageType.C;
-                        break;
-                    case "HTML=1":
-                        this.languageType = LanguageType.HTML;
-                        this.namespace1 = 1;
-                        this.syntaxStart = "<";
-                        this.syntaxEnd = ">";
-                        break;
-                    case "PERL=1":
-                        this.languageType = LanguageType.PERL;
-                        break;
-                    case "LATEX=1":
-                        this.languageType = LanguageType.LATEX;
-                        break;
-                    case "[SYNTAX]":
-                        this.ParseSyntaxSection(fileStream);
-                        break;
-                    case "[KEYWORDS 1]":
-                        ParseKeywords(fileStream, 1);
-                        break;
-                    case "[KEYWORDS 2]":
-                        ParseKeywords(fileStream, 2);
-                        break;
-                    case "[KEYWORDS 3]":
-                        ParseKeywords(fileStream, 3);
-                        break;
-                    case "[KEYWORDS 4]":
-                        ParseKeywords(fileStream, 4);
-                        break;
-                    case "[KEYWORDS 5]":
-                        ParseKeywords(fileStream, 5);
-                        break;
-                    case "[KEYWORDS 6]":
-                        ParseKeywords(fileStream, 6);
-                        break;
-                    case "[PREPROCESSOR KEYWORDS]":
-                        ParseKeywords(fileStream, 7);
-                        break;
+                    string line = fileStream.ReadLine().Trim().ToUpperInvariant();
+
+                    switch (line)
+                    {
+                        case "TEXT=1": this.languageType = LanguageType.TEXT; break;
+                        case "C=1": this.languageType = LanguageType.C; break;
+                        case "HTML=1":
+                            this.languageType = LanguageType.HTML;
+                            this.namespace1 = 1;
+                            this.syntaxStart = "<";
+                            this.syntaxEnd = ">";
+                            break;
+                        case "PERL=1": this.languageType = LanguageType.PERL; break;
+                        case "LATEX=1": this.languageType = LanguageType.LATEX; break;
+                        case "[SYNTAX]": this.ParseSyntaxSection(fileStream); break;
+                        case "[KEYWORDS 1]": ParseKeywords(fileStream, 1); break;
+                        case "[KEYWORDS 2]": ParseKeywords(fileStream, 2); break;
+                        case "[KEYWORDS 3]": ParseKeywords(fileStream, 3); break;
+                        case "[KEYWORDS 4]": ParseKeywords(fileStream, 4); break;
+                        case "[KEYWORDS 5]": ParseKeywords(fileStream, 5); break;
+                        case "[KEYWORDS 6]": ParseKeywords(fileStream, 6); break;
+                        case "[PREPROCESSOR KEYWORDS]": ParseKeywords(fileStream, 7); break;
+                    }
                 }
             }
-
-            fileStream.Close();
         }
 
         /// <summary>

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.WindowsAPICodePack.DirectX.Direct2D1;
-using Microsoft.WindowsAPICodePack.DirectX.DirectWrite;
 
 namespace TextCoreControl
 {
@@ -13,8 +12,6 @@ namespace TextCoreControl
         internal BackgroundHighlight(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             this.backgroundHighlightBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundHighlightColor);
-            this.d2dFactory = d2dFactory;
-            this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             this.ResetBackgroundHighlight();
         }
 
@@ -77,7 +74,5 @@ namespace TextCoreControl
         int highlightEndOrdinal;      
 
         SolidColorBrush backgroundHighlightBrush;
-        D2DFactory d2dFactory;
-        DWriteFactory dwriteFactory;
     }
 }

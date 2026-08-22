@@ -52,7 +52,7 @@ namespace TextCoreControl
                     textCoreControl.Document.DeleteAt(selectionBeginOrdinal, copyString.Length);
                 }
 
-                item = item % this.clipBoardRing.Count;
+                item = ((item % this.clipBoardRing.Count) + this.clipBoardRing.Count) % this.clipBoardRing.Count;
                 string pasteText = this.clipBoardRing.ElementAt(item);
                 textCoreControl.Document.InsertAt(textCoreControl.DisplayManager.CaretOrdinal, pasteText);
                 this.ringIndex = item;

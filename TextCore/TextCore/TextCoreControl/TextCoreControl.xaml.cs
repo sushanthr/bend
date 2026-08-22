@@ -188,9 +188,15 @@ namespace TextCoreControl
             }
 
             this.undoRedoManager.BeginTransaction();
-            this.document.DeleteAt(index, length);
-            this.document.InsertAt(index, newText);
-            this.undoRedoManager.EndTransaction();
+            try
+            {
+                this.document.DeleteAt(index, length);
+                this.document.InsertAt(index, newText);
+            }
+            finally
+            {
+                this.undoRedoManager.EndTransaction();
+            }
         }
 
         public int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx, bool replaceInBackgroundHighlightRange)
@@ -200,15 +206,18 @@ namespace TextCoreControl
                 this.flightRecorder.AddFlightEvent(new FlightRecorder.ReplaceAllTextFlightEvent(findText, replaceText, matchCase, useRegEx, replaceInBackgroundHighlightRange));
             }
             this.undoRedoManager.BeginTransaction();
-            int beginOrdinal = Document.UNDEFINED_ORDINAL;
-            int endOrdinal = Document.UNDEFINED_ORDINAL;
-            if (replaceInBackgroundHighlightRange)
-            { 
-                this.displayManager.GetBackgroundHighlightRange(out beginOrdinal, out endOrdinal);
+            try
+            {
+                int beginOrdinal = Document.UNDEFINED_ORDINAL;
+                int endOrdinal = Document.UNDEFINED_ORDINAL;
+                if (replaceInBackgroundHighlightRange)
+                    this.displayManager.GetBackgroundHighlightRange(out beginOrdinal, out endOrdinal);
+                return this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx, beginOrdinal, endOrdinal);
             }
-            int count = this.document.ReplaceAllText(findText, replaceText, matchCase, useRegEx, beginOrdinal, endOrdinal);
-            this.undoRedoManager.EndTransaction();
-            return count;
+            finally
+            {
+                this.undoRedoManager.EndTransaction();
+            }
         }
 
         public void ReplaceWithRegexAtOrdinal(string findText, string replaceText, bool matchCase, int beginOrdinal)
@@ -219,8 +228,14 @@ namespace TextCoreControl
             }
 
             this.undoRedoManager.BeginTransaction();
-            this.document.ReplaceWithRegexAtOrdinal(findText, replaceText, matchCase, beginOrdinal);
-            this.undoRedoManager.EndTransaction();
+            try
+            {
+                this.document.ReplaceWithRegexAtOrdinal(findText, replaceText, matchCase, beginOrdinal);
+            }
+            finally
+            {
+                this.undoRedoManager.EndTransaction();
+            }
         }
 
         public void Select(int index, uint length)

@@ -126,6 +126,9 @@ namespace TextCoreControl
             /// <returns>False if not mergeable</returns>
             internal bool Merge(Document document, int shiftCorrectedOrdinal, InsertTextAction otherAction)
             {
+                if (String.IsNullOrEmpty(this.text) || otherAction == null || String.IsNullOrEmpty(otherAction.text))
+                    return false;
+
                 if (document.NextOrdinal(shiftCorrectedOrdinal, (uint)text.Length) == otherAction.ordinal)
                 {
                     // Consecutive text entries which is good. Check for space or control characters
@@ -346,7 +349,7 @@ namespace TextCoreControl
             System.Diagnostics.Debug.Assert(action != null);
 
             int ordinal = action.Value.Ordinal;
-            if (ordinal != Document.BEFOREBEGIN_ORDINAL || ordinal != Document.UNDEFINED_ORDINAL)
+            if (ordinal != Document.BEFOREBEGIN_ORDINAL && ordinal != Document.UNDEFINED_ORDINAL)
             {
                 while (action != null)
                 {

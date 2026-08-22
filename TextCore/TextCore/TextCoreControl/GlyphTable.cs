@@ -28,22 +28,22 @@ namespace TextCoreControl
             {
                 string letterAsString = new string(letter, 1);
 
-                TextLayout measuringLayout;
-                if (Settings.ShowFormatting)
-                {
-                    string StyledLetterAsString = showFormattingService.PrepareShowFormatting(letterAsString, /*ignoreLastCharacter*/false);
-                    measuringLayout = this.dwriteFactory.CreateTextLayout(StyledLetterAsString, defaultFormat, float.MaxValue, float.MaxValue);
-                    showFormattingService.ApplyShowFormatting(letterAsString, this.dwriteFactory, measuringLayout);
-                }
-                else
-                {
-                    measuringLayout = this.dwriteFactory.CreateTextLayout(letterAsString, defaultFormat, float.MaxValue, float.MaxValue);
-                }
                 float charWidth = 0;
-                foreach (ClusterMetrics cm in measuringLayout.ClusterMetrics) 
+                using (TextLayout measuringLayout = Settings.ShowFormatting
+                    ? this.dwriteFactory.CreateTextLayout(
+                        showFormattingService.PrepareShowFormatting(letterAsString, false),
+                        defaultFormat,
+                        float.MaxValue,
+                        float.MaxValue)
+                    : this.dwriteFactory.CreateTextLayout(letterAsString, defaultFormat, float.MaxValue, float.MaxValue))
                 {
-                    charWidth = cm.Width;
-                    break;
+                    if (Settings.ShowFormatting)
+                        showFormattingService.ApplyShowFormatting(letterAsString, this.dwriteFactory, measuringLayout);
+                    foreach (ClusterMetrics cm in measuringLayout.ClusterMetrics)
+                    {
+                        charWidth = cm.Width;
+                        break;
+                    }
                 }
                 charWidths.Add(letter, charWidth);
                 if (!this.hasNonAsciiCharacters)

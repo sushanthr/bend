@@ -10,20 +10,45 @@ namespace TextCoreControl
     {
         static DebugLog()
         {
-            string tempFileName = Path.GetTempFileName();
-            tempFileStream = File.CreateText(tempFileName);
-            tempFileStream.AutoFlush = true;
+            try
+            {
+                LogFilePath = Path.Combine(Path.GetTempPath(), "TextCore.log");
+                tempFileStream = new StreamWriter(LogFilePath, true, Encoding.UTF8);
+                tempFileStream.AutoFlush = true;
+            }
+            catch
+            {
+                tempFileStream = null;
+            }
         }
         
         internal static void Write(string data)
         {
-            tempFileStream.WriteLine(DateTime.Now.ToString() + " " + data);
+            string message = DateTime.Now.ToString("O") + " " + data;
+            System.Diagnostics.Trace.WriteLine(message);
+            try
+            {
+                if (tempFileStream != null)
+                    tempFileStream.WriteLine(message);
+            }
+            catch
+            {
+                // Diagnostics must never crash the editor.
+            }
+        }
+
+        internal static void Write(Exception exception)
+        {
+            Write(exception == null ? "Unknown exception" : exception.ToString());
         }
 
         internal static void Flush()
         {
-            tempFileStream.Close();
+            if (tempFileStream != null)
+                tempFileStream.Flush();
         }
+
+        internal static string LogFilePath { get; private set; }
 
         private static StreamWriter tempFileStream;
     }

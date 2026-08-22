@@ -23,7 +23,6 @@ namespace TextCoreControl
             dimBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultSelectionDimColor);
             this.leftToRightSelection = true;
             this.d2dFactory = d2dFactory;
-            this.dwriteFactory = DWriteFactory.CreateFactory(DWriteFactoryType.Shared);
             this.forceRedraw = false;
             this.backgroundHighlight = new BackgroundHighlight(renderTarget, d2dFactory);
         }
@@ -38,8 +37,16 @@ namespace TextCoreControl
             SizeF scrollOffset,
             RenderTarget renderTarget)
         {
+            if (visualLines == null || visualLines.Count == 0)
+                return;
+
+            firstVisibleLine = Math.Max(0, firstVisibleLine);
+            lastVisibleLine = Math.Min(visualLines.Count - 1, lastVisibleLine);
+            if (firstVisibleLine > lastVisibleLine)
+                return;
+
             if (oldSelectionBegin == Document.BEFOREBEGIN_ORDINAL || oldSelectionBegin == Document.UNDEFINED_ORDINAL ||
-                selectionBeginOrdinal == Document.BEFOREBEGIN_ORDINAL || selectionBeginOrdinal == Document.UNDEFINED_ORDINAL |
+                selectionBeginOrdinal == Document.BEFOREBEGIN_ORDINAL || selectionBeginOrdinal == Document.UNDEFINED_ORDINAL ||
                 oldSelectionEnd == Document.BEFOREBEGIN_ORDINAL || oldSelectionEnd == Document.UNDEFINED_ORDINAL || 
                 selectionEndOrdinal == Document.BEFOREBEGIN_ORDINAL || selectionEndOrdinal == Document.UNDEFINED_ORDINAL)
             {
@@ -181,36 +188,39 @@ namespace TextCoreControl
                         renderTarget.DrawGeometry(selectionGeometry, defaultSelectionOutlineBrush, 1.0f);
 
                     // Clip to selection shape.
-                    Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height));
-                    LayerParameters layerParameters = new LayerParameters(bounds,
-                        selectionGeometry, 
-                        AntiAliasMode.Aliased,
-                        Matrix3x2F.Identity,
-                        1.0f, 
-                        null,
-                        LayerOptions.InitializeForClearType
-                    );
-
-                    renderTarget.PushLayer(layerParameters, layer);
-
-                    if (this.ShouldUseHighlightColors)
-                        renderTarget.FillRectangle(bounds, highlightSelectionBrush);
-                    else
-                        renderTarget.FillRectangle(bounds, defaultSelectionBrush);
-
-                    // Draw content layer - white lines.
-                    for (int j = firstLine; j <= lastLine; j++)
+                    using (Layer layer = renderTarget.CreateLayer(new SizeF(bounds.Width, bounds.Height)))
                     {
-                        VisualLine line = ((VisualLine)visualLines[j]);
-                        // If line is completely unselected then simply skip the line.
-                        if (line.BeginOrdinal > this.selectionEndOrdinal || line.NextOrdinal < this.selectionBeginOrdinal)
-                            continue;
+                        LayerParameters layerParameters = new LayerParameters(bounds,
+                            selectionGeometry,
+                            AntiAliasMode.Aliased,
+                            Matrix3x2F.Identity,
+                            1.0f,
+                            null,
+                            LayerOptions.InitializeForClearType);
 
-                        line.DrawWithoutEffects(whiteBrush, renderTarget);
+                        renderTarget.PushLayer(layerParameters, layer);
+
+                        if (this.ShouldUseHighlightColors)
+                            renderTarget.FillRectangle(bounds, highlightSelectionBrush);
+                        else
+                            renderTarget.FillRectangle(bounds, defaultSelectionBrush);
+
+                        for (int j = firstLine; j <= lastLine; j++)
+                        {
+                            VisualLine line = ((VisualLine)visualLines[j]);
+                            if (line.BeginOrdinal > this.selectionEndOrdinal || line.NextOrdinal < this.selectionBeginOrdinal)
+                                continue;
+
+                            line.DrawWithoutEffects(whiteBrush, renderTarget);
+                        }
+
+                        renderTarget.PopLayer();
                     }
-
-                    renderTarget.PopLayer();
+                    selectionGeometry.Dispose();
                 }
+
+                foreach (Geometry geometry in geometryList)
+                    geometry.Dispose();
 
             }
         }
@@ -337,7 +347,6 @@ namespace TextCoreControl
         SolidColorBrush highlightSelectionBrush;
         SolidColorBrush highlightSelectionOutlineBrush;
         D2DFactory d2dFactory;
-        DWriteFactory dwriteFactory;
         BackgroundHighlight backgroundHighlight;
     }
 }

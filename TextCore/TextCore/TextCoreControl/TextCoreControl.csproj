@@ -98,6 +98,7 @@
     <Compile Include="Caret.cs" />
     <Compile Include="CopyPasteManager.cs" />
     <Compile Include="ContentLineManager.cs" />
+    <Compile Include="DebugLog.cs" />
     <Compile Include="DebugHUD.cs" />
     <Compile Include="BackgroundHighlight.cs" />
     <Compile Include="FlightRecorder.cs" />

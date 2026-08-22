@@ -96,19 +96,9 @@ namespace TextCoreControl.SyntaxHighlighting
             // Check based on heuristics, if file extension check failed
             if (heuristicsEnabled)
             {
-                // Form the document string
-                int ordinal = document.FirstOrdinal();
-                StringBuilder documentString = new StringBuilder();
-                while (ordinal != Document.UNDEFINED_ORDINAL && documentString.Length < 1000)
-                {
-                    char ch = document.CharacterAt(ordinal);
-                    // replace \r's with \n's since regex doesnt like \r.
-                    if (ch == '\r') ch = '\n';
-
-                    documentString.Append(ch);
-                    ordinal = document.NextOrdinal(ordinal);
-                }
-                if (documentString.Length >= 100)
+                // Work on an immutable snapshot; the UI thread may edit the document concurrently.
+                string immutableString = document.GetTextSnapshot(1000).Replace('\r', '\n');
+                if (immutableString.Length >= 100)
                 {
                     // We have more than 100 characters in this document 
                     // time to stop running heuristics. But run one last time.
@@ -117,7 +107,6 @@ namespace TextCoreControl.SyntaxHighlighting
                         this.heuristicsEnabled = false;
                     }
                 }
-                string immutableString = documentString.ToString();
                 syntaxFile = GetSyntaxFileUsingHeuristics(immutableString);
             }
 
@@ -139,8 +128,9 @@ namespace TextCoreControl.SyntaxHighlighting
                         this.currentSyntaxDefinitionFile = syntaxFile;
                         e.Result = syntaxHighlighterService;
                     }
-                    catch
+                    catch (Exception exception)
                     {
+                        DebugLog.Write(exception);
                     }
                 }
                 return;
@@ -195,6 +185,9 @@ namespace TextCoreControl.SyntaxHighlighting
 
         private string GetSyntaxFileUsingHeuristics(string documentString)
         {
+            if (this.heuristics == null || this.hSytaxFileNames == null)
+                return null;
+
             int bestMatchIndex = -1;
             int bestMatchCount = 0;
             for (int i = 0; i < this.heuristics.Length; i++)
@@ -223,8 +216,6 @@ namespace TextCoreControl.SyntaxHighlighting
         {
             try
             {
-                StreamReader fileStream = new StreamReader(dataFile);
-
                 bool isReadingExtension = false;
                 bool isReadingHeuristics = false;
                 ArrayList filenameExtensions = new ArrayList();
@@ -232,63 +223,54 @@ namespace TextCoreControl.SyntaxHighlighting
                 ArrayList heuristics = new ArrayList();
                 ArrayList hSytaxFileNames = new ArrayList();
 
-                while (!fileStream.EndOfStream)
+                using (StreamReader fileStream = new StreamReader(dataFile))
                 {
-                    string line = fileStream.ReadLine();
-                    if (line.Length == 0 || line[0] == ';')
+                    while (!fileStream.EndOfStream)
                     {
-                        // Comment or empty line skip them
-                        continue;
-                    }
-                    else if (line[0] == '[')
-                    {
-                        isReadingExtension = (line.IndexOf("[Filename Extensions Map]") >= 0);
-                        isReadingHeuristics = (line.IndexOf("[Language Hueristics Map]") >= 0);
-                    }
-                    else if (isReadingExtension)
-                    {
-                        string[] parts = line.Split('\t');
-                        if (parts.Length == 2)
+                        string line = fileStream.ReadLine();
+                        if (line.Length == 0 || line[0] == ';')
                         {
-                            string fileExtension = parts[0].Trim();
-                            fileExtension = fileExtension.ToLower();
-                            string syntaxFileName = parts[1].Trim();
-                            if (fileExtension.Length > 0 && syntaxFileName.Length > 0)
+                            continue;
+                        }
+                        else if (line[0] == '[')
+                        {
+                            isReadingExtension = (line.IndexOf("[Filename Extensions Map]") >= 0);
+                            isReadingHeuristics = (line.IndexOf("[Language Hueristics Map]") >= 0);
+                        }
+                        else if (isReadingExtension)
+                        {
+                            string[] parts = line.Split('\t');
+                            if (parts.Length == 2)
                             {
-                                // Valid Entry
-                                filenameExtensions.Add(fileExtension);
-                                extSytaxFileNames.Add(syntaxFileName);
+                                string fileExtension = parts[0].Trim().ToLowerInvariant();
+                                string syntaxFileName = parts[1].Trim();
+                                if (fileExtension.Length > 0 && syntaxFileName.Length > 0)
+                                {
+                                    filenameExtensions.Add(fileExtension);
+                                    extSytaxFileNames.Add(syntaxFileName);
+                                }
                             }
+                            else
+                                isReadingExtension = false;
                         }
-                        else
+                        else if (isReadingHeuristics)
                         {
-                            // break out of reading extensions
-                            isReadingExtension = false;
-                        }
-                    }
-                    else if (isReadingHeuristics)
-                    {
-                        string[] parts = line.Split('\t');
-                        if (parts.Length == 2)
-                        {
-                            string heuristic = parts[0].Trim();
-                            string hSytaxFileName = parts[1].Trim();
-                            if (heuristic.Length > 0 && hSytaxFileName.Length > 0)
+                            string[] parts = line.Split('\t');
+                            if (parts.Length == 2)
                             {
-                                // Valid Entry
-                                heuristics.Add(new Regex(heuristic, RegexOptions.Multiline | RegexOptions.IgnoreCase));
-                                hSytaxFileNames.Add(hSytaxFileName);
+                                string heuristic = parts[0].Trim();
+                                string hSytaxFileName = parts[1].Trim();
+                                if (heuristic.Length > 0 && hSytaxFileName.Length > 0)
+                                {
+                                    heuristics.Add(new Regex(heuristic, RegexOptions.Multiline | RegexOptions.IgnoreCase));
+                                    hSytaxFileNames.Add(hSytaxFileName);
+                                }
                             }
-                        }
-                        else
-                        {
-                            // break out of reading extensions
-                            isReadingExtension = false;
+                            else
+                                isReadingHeuristics = false;
                         }
                     }
                 }
-
-                fileStream.Close();
 
                 // Make the array fixed size now
                 this.filenameExtensions = (string[])filenameExtensions.ToArray(typeof(string));
@@ -298,9 +280,14 @@ namespace TextCoreControl.SyntaxHighlighting
                 this.hSytaxFileNames = (string[])hSytaxFileNames.ToArray(typeof(string));
                 System.Diagnostics.Debug.Assert(this.heuristics.Length == this.hSytaxFileNames.Length);
             }
-            catch
+            catch (Exception exception)
             {
-                System.Diagnostics.Debug.Assert(false, "Error loading language detector config file");
+                DebugLog.Write(exception);
+                // Missing or malformed optional configuration disables detection safely.
+                this.filenameExtensions = new string[0];
+                this.extSyntaxFileNames = new string[0];
+                this.heuristics = new Regex[0];
+                this.hSytaxFileNames = new string[0];
             }
         }
 
@@ -319,30 +306,27 @@ namespace TextCoreControl.SyntaxHighlighting
         /// <param name="newFileName">The new file name</param>
         internal void NotifyOfFileNameChange(string newFileName)
         {
-            int indexOfDot = newFileName.LastIndexOf('.');
-            if (indexOfDot >= 0)
-            {
-                string newFilenameExtension = newFileName.Substring(indexOfDot + 1);
-                if (newFilenameExtension != currentFilenameExtension)
-                {
-                    lock (this)
-                    {
-                        currentFilenameExtension = newFilenameExtension;
-                        this.filenameExtensionChecked = false;
-                    }
+            if (newFileName == null)
+                return;
 
-                    // Need to re detect language.
-                    if (languageDetectorWorkerThread.IsBusy)
-                    {
-                        // Request a restart
-                        languageDetectorWorkerThread.CancelAsync();
-                    }
-                    else
-                    {
-                        this.languageDetectorWorkerThread.RunWorkerAsync(this);
-                    }
+            string newFilenameExtension = Path.GetExtension(newFileName);
+            if (newFilenameExtension.StartsWith("."))
+                newFilenameExtension = newFilenameExtension.Substring(1);
+
+            if (!String.Equals(newFilenameExtension, currentFilenameExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                lock (this)
+                {
+                    currentFilenameExtension = newFilenameExtension;
+                    this.filenameExtensionChecked = false;
+                    this.heuristicsEnabled = true;
                 }
-            }
+
+                if (languageDetectorWorkerThread.IsBusy)
+                    languageDetectorWorkerThread.CancelAsync();
+                else
+                    this.languageDetectorWorkerThread.RunWorkerAsync(this);
+                }
         }
 
         /// <summary>

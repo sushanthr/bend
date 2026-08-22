@@ -20,32 +20,39 @@ namespace TextCoreControl
 
         public void LoadFile(string fullFilePath)
         {
-            System.IO.StreamReader streamReader = new System.IO.StreamReader(fullFilePath, System.Text.Encoding.Default, true);
+            string contents;
+            Encoding detectedEncoding;
+            using (System.IO.StreamReader streamReader = new System.IO.StreamReader(fullFilePath, System.Text.Encoding.Default, true))
+            {
+                contents = streamReader.ReadToEnd();
+                detectedEncoding = streamReader.CurrentEncoding;
+            }
+
             lock (this)
             {
-                fileContents = new StringBuilder(streamReader.ReadToEnd() + "\0");
-                this.currentEncoding = streamReader.CurrentEncoding;
-                streamReader.Close();
-                streamReader.Dispose();
-                this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-                if (this.ContentChange != null)
-                {
-                    this.ContentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
-                }
+                fileContents = new StringBuilder(contents + "\0");
+                this.currentEncoding = detectedEncoding;
                 this.hasUnsavedContent = false;
             }
+            this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
+            ContentChangeEventHandler contentChange = this.ContentChange;
+            if (contentChange != null)
+                contentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
         }
 
         public void SaveFile(string fullFilePath)
         {
-            System.Diagnostics.Debug.Assert(fileContents[fileContents.Length - 1] == 0, "File content must terminate with a null character.");
+            lock (this)
+            {
+                if (fileContents == null || fileContents.Length == 0 || fileContents[fileContents.Length - 1] != '\0')
+                    throw new InvalidOperationException("Document content is not correctly terminated.");
+
+                // Do not temporarily remove the sentinel: a failed write must leave the document usable.
+                string contents = fileContents.ToString(0, fileContents.Length - 1);
+                System.IO.File.WriteAllText(fullFilePath, contents, this.currentEncoding);
+                this.hasUnsavedContent = false;
+            }
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);
-            fileContents.Remove(fileContents.Length - 1, 1);
-            // When endcoding is not specified windows creates a UTF-8 file for text with unicode characters
-            // outside ASCII range and creates ASCII files otherwise.
-            System.IO.File.WriteAllText(fullFilePath, fileContents.ToString(), this.currentEncoding);
-            fileContents.Append('\0');
-            this.hasUnsavedContent = false;
         }
 
         internal char CharacterAt(int ordinal)
@@ -119,27 +126,39 @@ namespace TextCoreControl
         /// <param name="content">String to insert</param>
         internal void InsertAt(int ordinal, string content)
         {
+            if (content == null)
+                throw new ArgumentNullException("content");
+            if (content.Length == 0)
+                return;
+
+            int previousOrdinal;
+            int followingOrdinal;
             lock (this)
             {
-                if (this.PreContentChange != null)
-                {
-                    this.PreContentChange(this.PreviousOrdinal(ordinal), this.NextOrdinal(ordinal));
-                }
+                if (ordinal < 0 || ordinal >= fileContents.Length)
+                    throw new ArgumentOutOfRangeException("ordinal");
+                previousOrdinal = this.PreviousOrdinal(ordinal);
+                followingOrdinal = this.NextOrdinal(ordinal);
+            }
 
+            PreContentChangeEventHandler preContentChange = this.PreContentChange;
+            if (preContentChange != null)
+                preContentChange(previousOrdinal, followingOrdinal);
+
+            int endOrdinal;
+            lock (this)
+            {
                 fileContents = fileContents.Insert(ordinal, content);
-
-                if (this.OrdinalShift != null)
-                {
-                    this.OrdinalShift(this, ordinal, content.Length);
-                }
-
-                if (this.ContentChange != null)
-                {
-                    int endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
-                    this.ContentChange(ordinal, endOrdinal, content);
-                }
+                endOrdinal = this.NextOrdinal(ordinal, (uint)content.Length);
                 this.hasUnsavedContent = true;
             }
+
+            OrdinalShiftEventHandler ordinalShift = this.OrdinalShift;
+            if (ordinalShift != null)
+                ordinalShift(this, ordinal, content.Length);
+            ContentChangeEventHandler contentChange = this.ContentChange;
+            if (contentChange != null)
+                contentChange(ordinal, endOrdinal, content);
         }
 
         /// <summary>
@@ -149,36 +168,42 @@ namespace TextCoreControl
         /// <param name="length">Length of string to delete< /param>
         internal void DeleteAt(int ordinal, int length)
         {
+            if (length <= 0)
+                return;
+
+            string content;
+            int endOrdinal;
+            int previousOrdinal;
+            int followingOrdinal;
             lock (this)
             {
-                System.Diagnostics.Debug.Assert(length > 0);
+                if (ordinal < 0 || ordinal >= this.fileContents.Length)
+                    throw new ArgumentOutOfRangeException("ordinal");
+                if (length > this.fileContents.Length - ordinal - 1)
+                    throw new ArgumentOutOfRangeException("length", "The document terminator cannot be deleted.");
 
-                // Last ordinal is reserved for \0
-                if (ordinal + length < this.fileContents.Length)
-                {
-                    string content = fileContents.ToString(ordinal, length);
-
-                    int endOrdinal = this.NextOrdinal(ordinal, (uint)length);
-
-                    if (this.PreContentChange != null)
-                    {
-                        this.PreContentChange(this.PreviousOrdinal(ordinal), this.NextOrdinal(endOrdinal));
-                    }
-
-                    fileContents = fileContents.Remove(ordinal, length);
-
-                    if (this.OrdinalShift != null)
-                    {
-                        this.OrdinalShift(this, endOrdinal, -length);
-                    }
-
-                    if (this.ContentChange != null)
-                    {
-                        this.ContentChange(ordinal, ordinal, content);
-                    }
-                    this.hasUnsavedContent = true;
-                }
+                content = fileContents.ToString(ordinal, length);
+                endOrdinal = this.NextOrdinal(ordinal, (uint)length);
+                previousOrdinal = this.PreviousOrdinal(ordinal);
+                followingOrdinal = this.NextOrdinal(endOrdinal);
             }
+
+            PreContentChangeEventHandler preContentChange = this.PreContentChange;
+            if (preContentChange != null)
+                preContentChange(previousOrdinal, followingOrdinal);
+
+            lock (this)
+            {
+                fileContents = fileContents.Remove(ordinal, length);
+                this.hasUnsavedContent = true;
+            }
+
+            OrdinalShiftEventHandler ordinalShift = this.OrdinalShift;
+            if (ordinalShift != null)
+                ordinalShift(this, endOrdinal, -length);
+            ContentChangeEventHandler contentChange = this.ContentChange;
+            if (contentChange != null)
+                contentChange(ordinal, ordinal, content);
         }
 
         public static void AdjustOrdinalForShift(int shiftBeginOrdinal , int shift, ref int ordinal)
@@ -194,6 +219,11 @@ namespace TextCoreControl
 
         internal int ReplaceAllText(string findText, string replaceText, bool matchCase, bool useRegEx, int beginOrdinal, int endOrdinal)
         {
+            if (String.IsNullOrEmpty(findText))
+                return 0;
+            if (replaceText == null)
+                replaceText = String.Empty;
+
             int count = 0;
             string newFileContents;
             int replaceLength = 0;
@@ -225,8 +255,9 @@ namespace TextCoreControl
                             newFileContents = regEx.Replace(newFileContents, replaceText);
                         }
                     }
-                    catch
+                    catch (ArgumentException exception)
                     {
+                        DebugLog.Write(exception);
                         count = 0;
                     }
                 }
@@ -235,12 +266,10 @@ namespace TextCoreControl
                     if (matchCase)
                     {
                         int startIndex = -1;
-                        do
+                        while ((startIndex = newFileContents.IndexOf(findText, startIndex + 1, StringComparison.Ordinal)) >= 0)
                         {
-                            startIndex = newFileContents.IndexOf(findText, startIndex + 1);
                             count++;
                         }
-                        while (startIndex >= 0);
                         newFileContents = newFileContents.Replace(findText, replaceText);
                     }
                     else
@@ -280,36 +309,58 @@ namespace TextCoreControl
 
         internal void ReplaceWithRegexAtOrdinal(string findText, string replaceText, bool matchCase, int beginOrdinal)
         {
-            int count = 0;
-            string newFileContents = this.fileContents.ToString();
+            if (String.IsNullOrEmpty(findText))
+                return;
+            if (replaceText == null)
+                replaceText = String.Empty;
+
             lock (this)
-            {  
+            {
                 try
                 {
-                    System.Text.RegularExpressions.Regex regEx;
-                    regEx = new System.Text.RegularExpressions.Regex(findText, matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                    System.Text.RegularExpressions.MatchCollection matches = regEx.Matches(newFileContents, beginOrdinal);
-                    count = matches.Count;
-                    if (replaceText != String.Empty && count != 0)
+                    string currentText = this.fileContents.ToString(0, this.fileContents.Length - 1);
+                    if (beginOrdinal < 0 || beginOrdinal > currentText.Length)
+                        return;
+
+                    System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex(
+                        findText,
+                        matchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    System.Text.RegularExpressions.Match match = regEx.Match(currentText, beginOrdinal);
+                    if (match.Success)
                     {
-                        int oldLength = newFileContents.Length;
-                        int matchLength = matches[0].Length;
-                        newFileContents = regEx.Replace(newFileContents, replaceText, 1, beginOrdinal);
-                        int newLength = newFileContents.Length;
-                        this.DeleteAt(beginOrdinal, matchLength);
-                        this.InsertAt(beginOrdinal, newFileContents.Substring(beginOrdinal, matchLength + (newLength - oldLength)));
+                        string replacement = match.Result(replaceText);
+                        if (match.Length > 0)
+                            this.DeleteAt(match.Index, match.Length);
+                        if (replacement.Length > 0)
+                            this.InsertAt(match.Index, replacement);
                     }
                 }
-                catch
+                catch (ArgumentException exception)
                 {
-
-                }               
+                    DebugLog.Write(exception);
+                }
             }
         }
 
         public string Text
         {
-            get { return this.fileContents.ToString(); }
+            get
+            {
+                lock (this)
+                {
+                    return this.fileContents.ToString();
+                }
+            }
+        }
+
+        internal string GetTextSnapshot(int maximumLength)
+        {
+            lock (this)
+            {
+                int contentLength = Math.Max(0, this.fileContents.Length - 1);
+                int length = Math.Min(contentLength, Math.Max(0, maximumLength));
+                return this.fileContents.ToString(0, length);
+            }
         }
 
         public int GetOrdinalForTextIndex(int textIndex)
@@ -325,7 +376,7 @@ namespace TextCoreControl
         public bool HasUnsavedContent
         {
             get { return this.hasUnsavedContent; }
-            set { this.hasUnsavedContent = true; }
+            set { this.hasUnsavedContent = value; }
         }
 
         public Encoding CurrentEncoding
