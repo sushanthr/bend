@@ -63,18 +63,21 @@ namespace Bend
             if (argumentIsFile && InterBendCommunication.FindOtherApplicationInstance(out hwnd))
             {
                 // There is another instance of bend running somewhere, send this file to it.
-                InterBendCommunication.SendFileNameToHwnd(hwnd, argument);
-                this.Shutdown();
-                return;
+                if (InterBendCommunication.SendFileNameToHwnd(hwnd, argument))
+                {
+                    this.Shutdown();
+                    return;
+                }
             }
             else if (!ApplicationDeployment.IsNetworkDeployed && !debugApplication)
             {
-                LaunchBendClickOnceApplication(argument);
-                this.Shutdown();
-                return;
+                if (LaunchBendClickOnceApplication(argument))
+                {
+                    this.Shutdown();
+                    return;
+                }
             }
 
-            TermPTYProxy.EnsureServerRunning();
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
         }
 
@@ -82,12 +85,22 @@ namespace Bend
         {
             StyledMessageBox.Show( "Unhandled Exception" , sender.ToString() + e.ToString() + "\n" + e.Exception.StackTrace);
             e.Handled = true;
+            this.Shutdown(-1);
         }
 
-        internal static void LaunchBendClickOnceApplication(string argument)
+        internal static bool LaunchBendClickOnceApplication(string argument)
         {
             string clickOnceApplication = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + "\\Programs\\Bend\\Bend\\Bend.appref-ms";
-            System.Diagnostics.Process.Start(clickOnceApplication, argument);
+            if (!System.IO.File.Exists(clickOnceApplication))
+                return false;
+            try
+            {
+                return System.Diagnostics.Process.Start(clickOnceApplication, argument) != null;
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                return false;
+            }
         }
     }
 }

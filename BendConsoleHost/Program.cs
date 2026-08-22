@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Globalization;
 
+[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
 public class TermPTYServer : ITermPTYService
 {
     private readonly ConcurrentDictionary<Guid, TermPTY> _instances = new ConcurrentDictionary<Guid, TermPTY>();
@@ -35,6 +36,7 @@ public class TermPTYServer : ITermPTYService
             Task.Run(() =>
             {
                 try { term.Start(command, width, height); }
+                catch (Exception exception) { Debug.WriteLine(exception); }
                 finally { _instances.TryRemove(instanceId, out _); }
             });
     }
@@ -66,6 +68,7 @@ public class TermPTYServer : ITermPTYService
         catch (CommunicationException) { Close(instanceId); }
         catch (TimeoutException) { Close(instanceId); }
     }
+
 }
 
 class Program
@@ -84,7 +87,7 @@ class Program
         {
             host.AddServiceEndpoint(typeof(ITermPTYService),
                 new NetNamedPipeBinding() { MaxReceivedMessageSize = 1024 * 1024 },
-                "net.pipe://localhost/TermPTYService");
+                "net.pipe://localhost/Bend/TermPTYService/" + parentProcessId.ToString(CultureInfo.InvariantCulture));
 
             host.Open();
 

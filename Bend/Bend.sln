@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextCoreControl", "..\TextC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BendConsoleHost", "..\BendConsoleHost\BendConsoleHost.csproj", "{F9D22547-3A77-4F4E-B1FC-DFA96CA56B12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUnitTest", "..\ConsoleUnitTest\ConsoleUnitTest.csproj", "{C81DF301-5668-479A-BA24-C57FF51433AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextCoreUnitTest", "..\TextCoreUnitTest\TextCoreUnitTest.csproj", "{A7379010-9D5A-45F1-87AD-1299D6B457BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -36,6 +40,14 @@ Global
 		{F9D22547-3A77-4F4E-B1FC-DFA96CA56B12}.Debug|x64.Build.0 = Debug|x64
 		{F9D22547-3A77-4F4E-B1FC-DFA96CA56B12}.Release|x64.ActiveCfg = Release|x64
 		{F9D22547-3A77-4F4E-B1FC-DFA96CA56B12}.Release|x64.Build.0 = Release|x64
+		{C81DF301-5668-479A-BA24-C57FF51433AE}.Debug|x64.ActiveCfg = Debug|x64
+		{C81DF301-5668-479A-BA24-C57FF51433AE}.Debug|x64.Build.0 = Debug|x64
+		{C81DF301-5668-479A-BA24-C57FF51433AE}.Release|x64.ActiveCfg = Release|x64
+		{C81DF301-5668-479A-BA24-C57FF51433AE}.Release|x64.Build.0 = Release|x64
+		{A7379010-9D5A-45F1-87AD-1299D6B457BB}.Debug|x64.ActiveCfg = Debug|x64
+		{A7379010-9D5A-45F1-87AD-1299D6B457BB}.Debug|x64.Build.0 = Debug|x64
+		{A7379010-9D5A-45F1-87AD-1299D6B457BB}.Release|x64.ActiveCfg = Release|x64
+		{A7379010-9D5A-45F1-87AD-1299D6B457BB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

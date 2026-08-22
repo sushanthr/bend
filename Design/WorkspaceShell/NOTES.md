@@ -58,6 +58,23 @@ The terminal header contains the shell/session selector, new-session action, max
 
 Do not display placeholder errors, warnings, synchronization, or agent activity.
 
+## Theme fidelity
+
+**Resolution:** The HTML composition currently previews Bend's bundled Light theme rather than following the browser's light/dark preference.
+
+Direct mappings from `Bend/Themes/Light.xml` include:
+
+- Application and editor background: `BackgroundColor` / `DefaultBackgroundColor` (`#F5F5F5`)
+- Primary text: `ForegroundColor` (`#000000`)
+- Accent: `LogoBackgroundColor` (`#365080`)
+- Selected and hover surface: `MenuSelectedBackgroundColor` (`#DDDDDD`)
+- Line numbers and secondary text: `LineNumberColor` (`#8C8C8C`)
+- Terminal surface: `TerminalColorBackground` and backing background (`#F1F1F1`)
+- Terminal text: `TerminalColorForeground` (`#383A42`)
+- Syntax keyword, type, and comment samples: the corresponding Light theme syntax colors
+
+The legacy theme does not define separate shell panel and divider tokens. For the composition, those are conservatively derived from `BackgroundTerminalColor`, `TerminalColorBackingBackground`, and `ScrollButtonColor`. These derived values should become explicit semantic tokens when the runtime theme model is consolidated.
+
 ## Workspace compositions
 
 The HTML currently demonstrates:

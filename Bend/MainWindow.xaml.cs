@@ -67,10 +67,16 @@ namespace Bend
             var style = (Style)Resources["PlainStyle"];
             this.Style = style;
             tab = new List<Tab>();
-            this.Top = PersistantStorage.StorageObject.mainWindowTop;
-            this.Left = PersistantStorage.StorageObject.mainWindowLeft;
-            this.Width = PersistantStorage.StorageObject.mainWindowWidth;
-            this.Height = PersistantStorage.StorageObject.mainWindowHeight;
+            double savedWidth = PersistantStorage.StorageObject.mainWindowWidth;
+            double savedHeight = PersistantStorage.StorageObject.mainWindowHeight;
+            this.Width = double.IsNaN(savedWidth) || savedWidth < 200 ? 800 : Math.Min(savedWidth, SystemParameters.VirtualScreenWidth);
+            this.Height = double.IsNaN(savedHeight) || savedHeight < 150 ? 600 : Math.Min(savedHeight, SystemParameters.VirtualScreenHeight);
+            double savedLeft = PersistantStorage.StorageObject.mainWindowLeft;
+            double savedTop = PersistantStorage.StorageObject.mainWindowTop;
+            bool intersectsDesktop = savedLeft + this.Width >= SystemParameters.VirtualScreenLeft && savedLeft <= SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth &&
+                savedTop + this.Height >= SystemParameters.VirtualScreenTop && savedTop <= SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight;
+            this.Left = intersectsDesktop ? savedLeft : SystemParameters.WorkArea.Left + 40;
+            this.Top = intersectsDesktop ? savedTop : SystemParameters.WorkArea.Top + 40;
             this.windowChrome = new WindowChrome();
             this.windowChrome.ResizeBorderThickness = new Thickness(4);
             this.windowChrome.CaptionHeight = 40;
@@ -203,8 +209,7 @@ namespace Bend
                 {
                     if (fileNames.Length == 1 && fileNames[0].StartsWith(BEND_SERIALIZED_TABDATA_PREFIX))
                     {
-                        this.LoadSerializedTabData(fileNames[0]);
-                        tabOpened = true;
+                        tabOpened = this.LoadSerializedTabData(fileNames[0]);
                     }
                     else
                     {
@@ -261,7 +266,11 @@ namespace Bend
                     {
                         this.AddNewTab();
                         int lastTab = this.tab.Count - 1;
-                        this.tab[lastTab].OpenFile(fileName);
+                        if (!this.tab[lastTab].OpenFile(fileName))
+                        {
+                            this.TabClose(lastTab);
+                            continue;
+                        }
                         this.tab[lastTab].Title.Opacity = 0.5;
                         this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
                         tabOpened = true;
@@ -319,6 +328,11 @@ namespace Bend
             {
                 e.Cancel = true;
             }
+            else
+            {
+                try { PersistantStorage.Save(); }
+                catch (Exception exception) { StyledMessageBox.Show("SETTINGS", "Bend could not save its settings: " + exception.Message); }
+            }
         }
 
         [DllImport("user32.dll")]
@@ -356,7 +370,7 @@ namespace Bend
             this.Activate();
         }
         
-        private void AddTabWithFile(string filePath)
+        private bool AddTabWithFile(string filePath)
         {
             if (System.IO.File.Exists(filePath))
             {
@@ -376,7 +390,14 @@ namespace Bend
                 Editor.Children.Add(newTab.TextEditor);
                 newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
                 newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
-                newTab.OpenFile(filePath);
+                if (!newTab.OpenFile(filePath))
+                {
+                    TabBar.Children.Remove(newTab.Title);
+                    Editor.Children.Remove(newTab.TextEditor);
+                    newTab.Close();
+                    tab.Remove(newTab);
+                    return false;
+                }
 
                 // Switch focus to the new file
                 if (currentTabIndex >= 0)
@@ -392,7 +413,9 @@ namespace Bend
                 SetFocusAfterTextEditorInitialization();
 
                 StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
+                return true;
             }
+            return false;
         }
 
         /// <summary>
@@ -521,8 +544,7 @@ namespace Bend
                 bool fileSaved = false;
                 if (this.tab[this.currentTabIndex].FullFileName != null)
                 {
-                    this.tab[this.currentTabIndex].SaveFile(this.tab[this.currentTabIndex].FullFileName);
-                    fileSaved = true;
+                    fileSaved = this.tab[this.currentTabIndex].SaveFile(this.tab[this.currentTabIndex].FullFileName);
                 }
                 else
                 {
@@ -539,8 +561,7 @@ namespace Bend
 
                     if (dlg.ShowDialog(this) ?? false)
                     {
-                        this.tab[this.currentTabIndex].SaveFile(dlg.FileName);
-                        fileSaved = true;
+                        fileSaved = this.tab[this.currentTabIndex].SaveFile(dlg.FileName);
                     }
                 }
                 if (fileSaved)
@@ -610,7 +631,8 @@ namespace Bend
                     SetFocusAfterTextEditorInitialization();
                 }
 
-                this.tab[this.currentTabIndex].OpenFile(dlg.FileName);
+                if (!this.tab[this.currentTabIndex].OpenFile(dlg.FileName) && this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty)
+                    this.TabClose(this.currentTabIndex);
             }
         }
 
@@ -766,24 +788,29 @@ namespace Bend
                         this.AddTabWithFile(filePath);
                     }
                 }
-                else if ((dataFormats.Length == 4 &&                    
-                    dataFormats[0] == BEND_FILE_DISPLAY_NAME &&
-                    dataFormats[1] == BEND_FILE_PATH &&
-                    dataFormats[2] == BEND_FILE_CONTENT &&
-                    dataFormats[3] == BEND_FILE_DELETE))
+                else if (dataObject.GetDataPresent(BEND_FILE_DISPLAY_NAME) &&
+                    dataObject.GetDataPresent(BEND_FILE_PATH) &&
+                    dataObject.GetDataPresent(BEND_FILE_CONTENT) &&
+                    dataObject.GetDataPresent(BEND_FILE_DELETE))
                 {
                     // Another bend is trying to send us a tab.
                     int insertAfterTabIndex = FindTabDropPosition(e.GetPosition(WindowDrag).X);
-                    this.AddTabWithFile((String)dataObject.GetData(BEND_FILE_CONTENT));
+                    string contentPath = dataObject.GetData(BEND_FILE_CONTENT) as string;
+                    string originalPath = dataObject.GetData(BEND_FILE_PATH) as string;
+                    string displayName = dataObject.GetData(BEND_FILE_DISPLAY_NAME) as string;
+                    string deletePath = dataObject.GetData(BEND_FILE_DELETE) as string;
+                    if (!this.AddTabWithFile(contentPath))
+                        return;
                     int tabIndex = this.tab.Count - 1;
-                    if (dataFormats[2] != String.Empty)
-                    { 
-                        this.tab[tabIndex].SetFullFileName((String)dataObject.GetData(BEND_FILE_PATH));
+                    if (!String.IsNullOrEmpty(originalPath))
+                    {
+                        this.tab[tabIndex].SetFullFileName(originalPath);
                     }
-                    this.tab[tabIndex].Title.TitleText = (String)dataObject.GetData(BEND_FILE_DISPLAY_NAME);
-                    System.IO.File.Delete((String)dataObject.GetData(BEND_FILE_DELETE));
+                    if (!String.IsNullOrEmpty(displayName))
+                        this.tab[tabIndex].Title.TitleText = displayName;
+                    TryDeleteTransferFile(deletePath);
 
-                    if ((String)dataObject.GetData(BEND_FILE_CONTENT) != (String)dataObject.GetData(BEND_FILE_PATH))
+                    if (!String.Equals(contentPath, originalPath, StringComparison.OrdinalIgnoreCase))
                     {
                         // Document has some kind of change.
                         this.tab[tabIndex].TextEditor.Document.HasUnsavedContent = true;
@@ -944,10 +971,10 @@ namespace Bend
                                 serializedData[1] = (string)data.GetData(BEND_FILE_DISPLAY_NAME);
                                 serializedData[2] = (string)data.GetData(BEND_FILE_PATH);
                                 serializedData[3] = (string)data.GetData(BEND_FILE_DELETE);
-                                serializedData[4] = tabDragVisualLeft.ToString();
-                                serializedData[5] = tabDragVisualTop.ToString();
-                                serializedData[6] = tabDragVisualWidth.ToString();
-                                serializedData[7] = tabDragVisualHeight.ToString();
+                                serializedData[4] = tabDragVisualLeft.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                serializedData[5] = tabDragVisualTop.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                serializedData[6] = tabDragVisualWidth.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                serializedData[7] = tabDragVisualHeight.ToString(System.Globalization.CultureInfo.InvariantCulture);
                                 string serializedDataString = string.Join("\n", serializedData);
                                 string arguments = BEND_SERIALIZED_TABDATA_PREFIX + System.Uri.EscapeDataString(serializedDataString);
 
@@ -960,22 +987,31 @@ namespace Bend
 
                     }
 
+                    TryDeleteTransferFile(deleteFile);
                     sourceTab.TextEditor.Visibility = Visibility.Visible;
                     sourceTab.Title.Visibility = Visibility.Visible;
                 }
             }
         }
 
-        void LoadSerializedTabData(string serializedTabData)
+        bool LoadSerializedTabData(string serializedTabData)
         {
-            serializedTabData = serializedTabData.Substring(BEND_SERIALIZED_TABDATA_PREFIX.Length);
-            serializedTabData = System.Uri.UnescapeDataString(serializedTabData);
-            string[] serializedData = serializedTabData.Split('\n');
-            
-            double left = double.Parse(serializedData[4]);
-            double top = double.Parse(serializedData[5]);
-            double width = double.Parse(serializedData[6]);
-            double height = double.Parse(serializedData[7]);
+            if (String.IsNullOrEmpty(serializedTabData) || !serializedTabData.StartsWith(BEND_SERIALIZED_TABDATA_PREFIX, StringComparison.Ordinal))
+                return false;
+            string[] serializedData;
+            try { serializedData = System.Uri.UnescapeDataString(serializedTabData.Substring(BEND_SERIALIZED_TABDATA_PREFIX.Length)).Split('\n'); }
+            catch (UriFormatException) { return false; }
+            if (serializedData.Length != 8 || !System.IO.File.Exists(serializedData[0]))
+                return false;
+
+            double left, top, width, height;
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+            if (!double.TryParse(serializedData[4], System.Globalization.NumberStyles.Float, culture, out left) ||
+                !double.TryParse(serializedData[5], System.Globalization.NumberStyles.Float, culture, out top) ||
+                !double.TryParse(serializedData[6], System.Globalization.NumberStyles.Float, culture, out width) ||
+                !double.TryParse(serializedData[7], System.Globalization.NumberStyles.Float, culture, out height) ||
+                double.IsNaN(left) || double.IsNaN(top) || double.IsNaN(width) || double.IsNaN(height) || width < 200 || height < 150)
+                return false;
 
             this.Top = top;
             this.Left = left;
@@ -983,15 +1019,36 @@ namespace Bend
             this.Height = height;
 
             // Another bend is trying to send us a tab.
-            this.AddTabWithFile(serializedData[0]);
-            this.tab[0].SetFullFileName(serializedData[2]);            
-            this.tab[0].Title.TitleText = serializedData[1];
-            System.IO.File.Delete(serializedData[3]);
+            if (!this.AddTabWithFile(serializedData[0]))
+                return false;
+            int tabIndex = this.tab.Count - 1;
+            if (!String.IsNullOrEmpty(serializedData[2]))
+                this.tab[tabIndex].SetFullFileName(serializedData[2]);
+            if (!String.IsNullOrEmpty(serializedData[1]))
+                this.tab[tabIndex].Title.TitleText = serializedData[1];
+            TryDeleteTransferFile(serializedData[3]);
 
             if (serializedData[0] != serializedData[2])
             {
                 // Document has some kind of change.
-                this.tab[0].TextEditor.Document.HasUnsavedContent = true;
+                this.tab[tabIndex].TextEditor.Document.HasUnsavedContent = true;
+            }
+            return true;
+        }
+
+        private static void TryDeleteTransferFile(string filePath)
+        {
+            if (String.IsNullOrWhiteSpace(filePath))
+                return;
+            string fullPath;
+            try { fullPath = System.IO.Path.GetFullPath(filePath); }
+            catch { return; }
+            string tempPath = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath());
+            if (fullPath.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase) && System.IO.File.Exists(fullPath))
+            {
+                try { System.IO.File.Delete(fullPath); }
+                catch (System.IO.IOException) { }
+                catch (UnauthorizedAccessException) { }
             }
         }
 
@@ -1170,8 +1227,9 @@ namespace Bend
                     ColorTable = PersistantStorage.StorageObject.CurrentTheme.TerminalColors,
                 };
                 Terminal.Theme = theme;
-                Terminal.Terminal.Focus();
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
+                Terminal.StartTerminal();
+                Terminal.Terminal.Focus();
             }
             else
             {
@@ -1615,4 +1673,3 @@ namespace Bend
         #endregion
     }
 }
- 

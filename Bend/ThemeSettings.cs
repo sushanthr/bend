@@ -83,9 +83,8 @@ namespace Bend
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(ThemeSettings));
                 String filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\Themes\\" + themeName + ".xml";
-                FileStream fs = new FileStream(filePath, FileMode.Open);
-                themeSettings = (ThemeSettings)serializer.Deserialize(fs);
-                fs.Close();
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    themeSettings = (ThemeSettings)serializer.Deserialize(fs);
             }
             catch
             {

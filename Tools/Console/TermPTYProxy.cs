@@ -12,10 +12,12 @@ using System.ServiceModel;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Threading;
+using System.Collections.Generic;
 
 
 namespace Console
 {
+    [CallbackBehavior(UseSynchronizationContext = false, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class TermPTYProxy : ITerminalConnection, ITermPTYCallback, IDisposable
     {
         private static Process _serverProcess;
@@ -23,10 +25,32 @@ namespace Console
         private ITermPTYService _service;
         private static readonly object _lock = new object();
         private readonly object _serviceLock = new object();
+        private readonly object _outputLock = new object();
+        private readonly Queue<string> _pendingOutput = new Queue<string>();
+        private EventHandler<TerminalOutputEventArgs> _terminalOutput;
+        private SynchronizationContext _consumerContext;
+        private bool _consumerStarted;
         private bool _disposed;
+        private static readonly string ServiceAddress = "net.pipe://localhost/Bend/TermPTYService/" + Process.GetCurrentProcess().Id;
 
         private readonly Guid _instanceId;
-        public event EventHandler<TerminalOutputEventArgs> TerminalOutput;
+        public event EventHandler<TerminalOutputEventArgs> TerminalOutput
+        {
+            add
+            {
+                lock (_outputLock)
+                {
+                    _terminalOutput += value;
+                    if (_consumerStarted)
+                        FlushPendingOutput(value);
+                }
+            }
+            remove
+            {
+                lock (_outputLock)
+                    _terminalOutput -= value;
+            }
+        }
         public event EventHandler TermReady;
         public bool TermProcIsStarted { get; private set; }
 
@@ -45,13 +69,25 @@ namespace Console
                     _factory = new DuplexChannelFactory<ITermPTYService>(
                         new InstanceContext(this),
                         binding,
-                        new EndpointAddress("net.pipe://localhost/TermPTYService"));
+                        new EndpointAddress(ServiceAddress));
 
                     _service = _factory.CreateChannel();
                     _instanceId = _service.CreateInstance();
                     return;
                 }
                 catch (EndpointNotFoundException ex)
+                {
+                    lastError = ex;
+                    AbortFactory();
+                    Thread.Sleep(500);
+                }
+                catch (CommunicationException ex)
+                {
+                    lastError = ex;
+                    AbortFactory();
+                    Thread.Sleep(500);
+                }
+                catch (TimeoutException ex)
                 {
                     lastError = ex;
                     AbortFactory();
@@ -88,28 +124,37 @@ namespace Console
 
         public void StartCmd(string command, int consoleWidth = 80, int consoleHeight = 30)
         {
-            CallService(service => service.StartCmd(_instanceId, command, consoleWidth, consoleHeight));
-            TermProcIsStarted = true;
+            TermProcIsStarted = TryCallService(service => service.StartCmd(_instanceId, command, consoleWidth, consoleHeight));
+        }
+
+        public void WriteInput(string data)
+        {
+            TryCallService(service => service.WriteInput(_instanceId, data));
         }
 
         void ITerminalConnection.Start()
         {
-            //_service.Start(_instanceId);
+            lock (_outputLock)
+            {
+                _consumerContext = SynchronizationContext.Current;
+                _consumerStarted = true;
+                if (_terminalOutput != null)
+                    FlushPendingOutput(_terminalOutput);
+            }
         }
         void ITerminalConnection.WriteInput(string data)
         {
-            CallService(service => service.WriteInput(_instanceId, data));
+            WriteInput(data);
         }
 
         public void Resize(int height, int width)
         {
-            CallService(service => service.Resize(_instanceId, width, height));
+            TryCallService(service => service.Resize(_instanceId, width, height));
         }
 
         public void WriteToUITerminal(string str)
         {
-            if (TerminalOutput != null)
-                TerminalOutput(this, new TerminalOutputEventArgs(str));
+            DispatchTerminalOutput(str);
         }
 
         public void SetReadOnly(bool readOnly = true, bool updateCursor = true)
@@ -139,9 +184,7 @@ namespace Console
         void ITermPTYCallback.OnTerminalOutput(Guid instanceId, string output)
         {
             if (instanceId == _instanceId)
-            {
-                TerminalOutput?.Invoke(this, new TerminalOutputEventArgs(output));
-            }
+                DispatchTerminalOutput(output);
         }
 
         void ITermPTYCallback.OnTermReady(Guid instanceId)
@@ -152,14 +195,64 @@ namespace Console
             }
         }
 
-        private void CallService(Action<ITermPTYService> action)
+        private bool TryCallService(Action<ITermPTYService> action)
         {
             lock (_serviceLock)
             {
                 if (_disposed)
-                    throw new ObjectDisposedException(nameof(TermPTYProxy));
-                action(_service);
+                    return false;
+                try
+                {
+                    action(_service);
+                    return true;
+                }
+                catch (CommunicationException)
+                {
+                    AbortFactory();
+                    return false;
+                }
+                catch (TimeoutException)
+                {
+                    AbortFactory();
+                    return false;
+                }
+                catch (ObjectDisposedException)
+                {
+                    AbortFactory();
+                    return false;
+                }
             }
+        }
+
+        private void DispatchTerminalOutput(string output)
+        {
+            EventHandler<TerminalOutputEventArgs> handler;
+            SynchronizationContext consumerContext;
+            lock (_outputLock)
+            {
+                handler = _terminalOutput;
+                if (handler == null || !_consumerStarted)
+                {
+                    _pendingOutput.Enqueue(output);
+                    return;
+                }
+                consumerContext = _consumerContext;
+            }
+
+            if (consumerContext != null && SynchronizationContext.Current != consumerContext)
+            {
+                consumerContext.Post(_ => handler(this, new TerminalOutputEventArgs(output)), null);
+            }
+            else
+            {
+                handler(this, new TerminalOutputEventArgs(output));
+            }
+        }
+
+        private void FlushPendingOutput(EventHandler<TerminalOutputEventArgs> handler)
+        {
+            while (_pendingOutput.Count > 0)
+                handler(this, new TerminalOutputEventArgs(_pendingOutput.Dequeue()));
         }
 
         private void AbortFactory()

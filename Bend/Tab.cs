@@ -27,8 +27,8 @@ namespace Bend
             public static readonly TextCoreControl.CopyPasteManager CopyPasteManager;
 
             private System.IO.FileSystemWatcher fileChangedWatcher;
-            long lastFileChangeTime;
-            private static System.Threading.Semaphore showFileModifiedDialog = new System.Threading.Semaphore(1, 1);
+            long lastSavedWriteTimeUtc;
+            private int fileChangeNotificationPending;
 
             struct FindResult
             {
@@ -43,8 +43,8 @@ namespace Bend
             };
             List<FindResult> findResults;
             int currentSearchIndex;
-            static System.Threading.Thread findOnPageThread;
-            static System.Threading.SemaphoreSlim accessFindOnPageData;
+            System.Threading.CancellationTokenSource findCancellation;
+            readonly object findResultsLock = new object();
             FindOptions findOptions;
             bool encodingChecked;
         #endregion
@@ -72,7 +72,6 @@ namespace Bend
             {
                 // Static constructor
                 CopyPasteManager = new CopyPasteManager();
-                accessFindOnPageData = new System.Threading.SemaphoreSlim(1, 1);
             }
 
             public Tab()
@@ -87,7 +86,7 @@ namespace Bend
                 TextCoreControl.Settings.ShowLineNumber = true;
 
                 this.fileChangedWatcher = null;
-                this.lastFileChangeTime = 1;
+                this.lastSavedWriteTimeUtc = 0;
                 this.LoadOptions();
                 this.findResults = new List<FindResult>();
                 this.currentSearchIndex = 0;
@@ -116,8 +115,11 @@ namespace Bend
                     try
                     {
                         this.fileChangedWatcher = new System.IO.FileSystemWatcher(System.IO.Path.GetDirectoryName(fullFileName), System.IO.Path.GetFileName(fullFileName));
-                        this.fileChangedWatcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
+                        this.fileChangedWatcher.NotifyFilter = System.IO.NotifyFilters.LastWrite | System.IO.NotifyFilters.FileName | System.IO.NotifyFilters.Size;
                         this.fileChangedWatcher.Changed += new System.IO.FileSystemEventHandler(fileChangedWatcher_Changed);
+                        this.fileChangedWatcher.Created += new System.IO.FileSystemEventHandler(fileChangedWatcher_Changed);
+                        this.fileChangedWatcher.Deleted += new System.IO.FileSystemEventHandler(fileChangedWatcher_Changed);
+                        this.fileChangedWatcher.Renamed += new System.IO.RenamedEventHandler(fileChangedWatcher_Changed);
                         this.fileChangedWatcher.EnableRaisingEvents = true;
                     }
                     catch
@@ -136,17 +138,19 @@ namespace Bend
             }       
         }
 
-        internal void OpenFile(String fullFileName)
+        internal bool OpenFile(String fullFileName)
         {
             try
             {
                 this.textEditor.LoadFile(fullFileName);
                 this.SetFullFileName(fullFileName);
                 this.encodingChecked = false;
+                return true;
             }
             catch (Exception exception)
             {
                 StyledMessageBox.Show("ERROR", "Error Opening File: " + exception.ToString());
+                return false;
             }
         }
 
@@ -160,29 +164,30 @@ namespace Bend
             }
         }
 
-        internal void SaveFile(String fullFileName)
+        internal bool SaveFile(String fullFileName)
         {
-            System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
             try
             {
                 this.TextEditor.SaveFile(fullFileName);
+                System.Threading.Interlocked.Exchange(ref this.lastSavedWriteTimeUtc, System.IO.File.GetLastWriteTimeUtc(fullFileName).Ticks);
+                this.SetFullFileName(fullFileName);
+                return true;
             }
             catch (Exception exception)
             {
                 StyledMessageBox.Show("ERROR", "Error Saving File: " + exception.ToString());
+                return false;
             }
-            this.SetFullFileName(fullFileName);
         }
 
         void fileChangedWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
         {
-            if (this.lastFileChangeTime < System.DateTime.Now.Ticks)
+            long currentWriteTime = System.IO.File.Exists(fullFileName) ? System.IO.File.GetLastWriteTimeUtc(fullFileName).Ticks : 0;
+            if (currentWriteTime == 0 || currentWriteTime != System.Threading.Interlocked.Read(ref this.lastSavedWriteTimeUtc))
             {
-                System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
-                object[] copyOfEventArgs = { e };
-                if (showFileModifiedDialog.WaitOne(0))
+                if (System.Threading.Interlocked.Exchange(ref this.fileChangeNotificationPending, 1) == 0)
                 {
-                    System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
+                    object[] copyOfEventArgs = { e };
                     title.Dispatcher.BeginInvoke(new fileChangedWatcher_ChangedInUIThread_Delegate(fileChangedWatcher_ChangedInUIThread), copyOfEventArgs);
                 }
             }
@@ -192,25 +197,42 @@ namespace Bend
         internal void fileChangedWatcher_ChangedInUIThread(System.IO.FileSystemEventArgs e)
         {
             double originalOpacity = this.Title.Opacity;
-            this.Title.Opacity = 0.2;
-            if (StyledMessageBox.Show("FILE MODIFIED", e.FullPath + "\n\nwas modified outside this application, do you want to reload ?"))
+            try
             {
-                try
+                this.Title.Opacity = 0.2;
+                if (!System.IO.File.Exists(fullFileName))
                 {
-                    this.textEditor.LoadFile(fullFileName);
-                    System.Threading.Interlocked.Exchange(ref this.lastFileChangeTime, System.DateTime.Now.AddSeconds(2).Ticks);
+                    StyledMessageBox.Show("FILE REMOVED", e.FullPath + "\n\nwas removed or renamed outside Bend. Your open document has been kept.");
+                    this.TextEditor.Document.HasUnsavedContent = true;
+                    return;
                 }
-                catch
+
+                string warning = this.TextEditor.Document.HasUnsavedContent
+                    ? "\n\nwas modified outside Bend. Reloading will discard your unsaved changes. Reload?"
+                    : "\n\nwas modified outside Bend. Reload?";
+                if (StyledMessageBox.Show("FILE MODIFIED", e.FullPath + warning))
                 {
-                    
+                    try
+                    {
+                        this.textEditor.LoadFile(fullFileName);
+                        System.Threading.Interlocked.Exchange(ref this.lastSavedWriteTimeUtc, System.IO.File.GetLastWriteTimeUtc(fullFileName).Ticks);
+                    }
+                    catch (Exception exception)
+                    {
+                        StyledMessageBox.Show("ERROR", "Error Reloading File: " + exception.Message);
+                    }
                 }
             }
-            this.Title.Opacity = originalOpacity;
-            showFileModifiedDialog.Release();
+            finally
+            {
+                this.Title.Opacity = originalOpacity;
+                System.Threading.Interlocked.Exchange(ref this.fileChangeNotificationPending, 0);
+            }
         }
 
         internal void Close()
         {
+            CancelFind();
             if (this.fileChangedWatcher != null)
             {
                 this.fileChangedWatcher.EnableRaisingEvents = false;
@@ -244,28 +266,22 @@ namespace Bend
 
         void Document_OrdinalShift(Document document, int beginOrdinal, int shift)
         {
-            if (Tab.findOnPageThread != null)
-            {
-                Tab.findOnPageThread.Join();
-                Tab.findOnPageThread = null;
-            }
+            CancelFind();
 
-            // Only care about content deletion
-            for (int i = this.findResults.Count - 1; i >= 0; i--)
+            lock (findResultsLock)
             {
-                int beginIndex = this.findResults[i].beginIndex;
-                Document.AdjustOrdinalForShift(beginOrdinal, shift, ref beginIndex);
-                this.findResults[i] = new FindResult(beginIndex, this.findResults[i].length);
+                for (int i = this.findResults.Count - 1; i >= 0; i--)
+                {
+                    int beginIndex = this.findResults[i].beginIndex;
+                    Document.AdjustOrdinalForShift(beginOrdinal, shift, ref beginIndex);
+                    this.findResults[i] = new FindResult(beginIndex, this.findResults[i].length);
+                }
             }
         }
 
         void Document_ContentChange(int beginOrdinal, int endOrdinal, string content)
         {
-            if (Tab.findOnPageThread != null)
-            {
-                Tab.findOnPageThread.Join();
-                Tab.findOnPageThread = null;
-            }
+            CancelFind();
 
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {
@@ -278,12 +294,15 @@ namespace Bend
                 if (beginOrdinal == endOrdinal)
                 {
                     int indexShift = 0;
-                    for (int i = this.findResults.Count - 1; i >= 0; i--)
+                    lock (findResultsLock)
                     {
-                        if (this.findResults[i].beginIndex == beginOrdinal)
+                        for (int i = this.findResults.Count - 1; i >= 0; i--)
                         {
-                            this.findResults.RemoveAt(i);
-                            if (this.currentSearchIndex >= i) indexShift++;
+                            if (this.findResults[i].beginIndex == beginOrdinal)
+                            {
+                                this.findResults.RemoveAt(i);
+                                if (this.currentSearchIndex >= i) indexShift++;
+                            }
                         }
                     }
                     this.currentSearchIndex -= indexShift;
@@ -300,28 +319,20 @@ namespace Bend
         {
             // This check is needed so that we dont start find on page again when we switch back to this tab from another tab.
             if (this.findOptions != findOptions)
-            { 
-                Tab.accessFindOnPageData.Wait();
-                if (Tab.findOnPageThread != null)
-                {
-                    Tab.findOnPageThread.Abort();
-                    Tab.findOnPageThread = null;
-                }
-                Tab.accessFindOnPageData.Release();
-
+            {
+                CancelFind();
                 string text = this.TextEditor.Document.Text;
-                TextEditor textEditor = this.TextEditor;
                 this.findOptions = findOptions;
                 if (findOptions.FindText.Length > 0 && text.Length > 0)
                 {
-                    this.findResults.RemoveRange(0, this.findResults.Count);
-                    Tab.findOnPageThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(FindOnPage_WorkerThread));
-                    Object[] parameters = new Object[4];
-                    parameters[0] = text;
-                    parameters[1] = findOptions;
-                    parameters[2] = textEditor;
-                    parameters[3] = mainWindow;
-                    Tab.findOnPageThread.Start(parameters);
+                    lock (findResultsLock) this.findResults.Clear();
+                    var cancellation = new System.Threading.CancellationTokenSource();
+                    this.findCancellation = cancellation;
+                    System.Threading.Tasks.Task.Run(() => FindOnPage(text, findOptions, cancellation.Token))
+                        .ContinueWith(task => CompleteFind(mainWindow, findOptions, cancellation, task),
+                            System.Threading.CancellationToken.None,
+                            System.Threading.Tasks.TaskContinuationOptions.None,
+                            System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
                 }
                 else
                 {
@@ -334,45 +345,30 @@ namespace Bend
             }
         }
         
-        private void FindOnPage_WorkerThread(object parameters)
+        private List<FindResult> FindOnPage(string text, FindOptions findOptions, System.Threading.CancellationToken cancellationToken)
         {
-            string text = (string)((object[])parameters)[0];
-            FindOptions findOptions = (FindOptions)((object[])parameters)[1];
-            TextEditor textEditor = (TextEditor)((object[])parameters)[2];
-            MainWindow mainWindow = (MainWindow) ((object[])parameters)[3];
-            long startTicks = System.DateTime.Now.Ticks;
-
             int findIndex = 0;
             int matchLength = -1;
             List<FindResult> findResults = new List<FindResult>();
             System.Text.RegularExpressions.Regex regEx = null;
             if (findOptions.FindUseRegex)
             {
-                try
-                {
-                    regEx = new System.Text.RegularExpressions.Regex(findOptions.FindText, findOptions.FindUseRegex ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                }
-                catch
-                {
-                    return;
-                }
+                var options = findOptions.FindMatchCase ? System.Text.RegularExpressions.RegexOptions.None : System.Text.RegularExpressions.RegexOptions.IgnoreCase;
+                regEx = new System.Text.RegularExpressions.Regex(findOptions.FindText, options, TimeSpan.FromSeconds(2));
             }
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 matchLength = -1;
                 if (findOptions.FindUseRegex)
                 {
-                    try
+                    System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
+                    if (regExMatch.Success)
                     {
-                        System.Text.RegularExpressions.Match regExMatch = regEx.Match(text, findIndex);
-                        if (regExMatch.Success)
-                        {
-                            findIndex = regExMatch.Index;
-                            matchLength = regExMatch.Length;
-                        }
+                        findIndex = regExMatch.Index;
+                        matchLength = regExMatch.Length;
                     }
-                    catch { }
                 }
                 else
                 {
@@ -382,27 +378,8 @@ namespace Bend
 
                 if (matchLength >= 0)
                 {
-                    bool fIsValidMatch = true;
-                    if (findOptions.IsFindAndReplaceInSelection)
-                    {
-                        int ordinal = textEditor.Document.GetOrdinalForTextIndex(findIndex);
-                        fIsValidMatch = textEditor.IsInBackgroundHighlight(ordinal);
-                    }
-
-                    if (fIsValidMatch)
-                    { 
-                        findResults.Add(new FindResult(findIndex, (uint)matchLength));
-                        if (findResults.Count % 10 == 0)
-                        {
-                            mainWindow.Dispatcher.BeginInvoke(
-                              new Action(
-                                  delegate {
-                                      mainWindow.SetStatusText(findResults.Count.ToString() + " MATCHES", MainWindow.StatusType.STATUS_FINDONPAGE);
-                                  }
-                              ));                        
-                        }
-                    }
-                    findIndex += findOptions.FindText.Length;
+                    findResults.Add(new FindResult(findIndex, (uint)matchLength));
+                    findIndex += Math.Max(matchLength, 1);
                     if (findIndex >= text.Length)
                     {
                         break;
@@ -414,34 +391,44 @@ namespace Bend
                 }
             }
             
-            // No lock needed as all consumers Join the thread before accessing findResults.
-            Tab.accessFindOnPageData.Wait();
-            this.currentSearchIndex = -1;
-            this.findResults = findResults;
-            Tab.findOnPageThread = null;
-            Tab.accessFindOnPageData.Release();
+            return findResults;
+        }
 
-            mainWindow.Dispatcher.BeginInvoke(
-                new Action(
-                    delegate {
-                        mainWindow.SetStatusText(this.HighlightNextMatch(), MainWindow.StatusType.STATUS_FINDONPAGE);
-                    }
-                )
-            );            
+        private void CompleteFind(MainWindow mainWindow, FindOptions options, System.Threading.CancellationTokenSource cancellation, System.Threading.Tasks.Task<List<FindResult>> task)
+        {
+            if (this.findCancellation != cancellation || cancellation.IsCancellationRequested)
+            {
+                cancellation.Dispose();
+                return;
+            }
+            this.findCancellation = null;
+            cancellation.Dispose();
+            if (task.IsFaulted)
+            {
+                mainWindow.SetStatusText(task.Exception.InnerException is System.Text.RegularExpressions.RegexMatchTimeoutException ? "SEARCH TIMED OUT" : "INVALID SEARCH", MainWindow.StatusType.STATUS_FINDONPAGE);
+                return;
+            }
+
+            List<FindResult> results = task.Result;
+            if (options.IsFindAndReplaceInSelection)
+                results = results.Where(result => this.TextEditor.IsInBackgroundHighlight(this.TextEditor.Document.GetOrdinalForTextIndex(result.beginIndex))).ToList();
+            lock (findResultsLock) this.findResults = results;
+            this.currentSearchIndex = -1;
+            mainWindow.SetStatusText(this.HighlightNextMatch(), MainWindow.StatusType.STATUS_FINDONPAGE);
+        }
+
+        private void CancelFind()
+        {
+            var cancellation = this.findCancellation;
+            this.findCancellation = null;
+            if (cancellation != null)
+                cancellation.Cancel();
         }
 
         public void ClearFindOnPage()
         {
-            if (Tab.findOnPageThread != null)
-            {
-                Tab.findOnPageThread.Join();
-            }
-            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
-                        
-            if (findResults.Count != 0)
-            {
-                this.findResults.RemoveRange(0, this.findResults.Count);                
-            }
+            CancelFind();
+            lock (findResultsLock) this.findResults.Clear();
             this.TextEditor.CancelSelect();
             this.currentSearchIndex = 0;
             this.findOptions = new FindOptions();
@@ -449,36 +436,29 @@ namespace Bend
 
         public string HighlightNextMatch()
         {
-            if (Tab.findOnPageThread != null)
-            {
-                Tab.findOnPageThread.Join();
-            }
-            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
-            
             string status = "";
-            this.currentSearchIndex++;
-            if (this.findResults.Count == 0)
+            lock (findResultsLock)
             {
-                this.currentSearchIndex = 0;
-                status = ("NO MATCHES FOUND");
-                this.TextEditor.CancelSelect();
-            }
-            else if (this.currentSearchIndex == this.findResults.Count)
-            {
-                // No more results to show
-                status = ("NO MORE MATCHES");
-                this.TextEditor.CancelSelect();
-            }
-            else
-            {
-                if (this.currentSearchIndex > this.findResults.Count)
+                this.currentSearchIndex++;
+                if (this.findResults.Count == 0)
                 {
-                    // loop over results
                     this.currentSearchIndex = 0;
+                    status = ("NO MATCHES FOUND");
+                    this.TextEditor.CancelSelect();
                 }
-                FindResult findResult = this.findResults[this.currentSearchIndex];
-                this.TextEditor.Select(findResult.beginIndex, findResult.length);
-                status = ("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+                else if (this.currentSearchIndex == this.findResults.Count)
+                {
+                    status = ("NO MORE MATCHES");
+                    this.TextEditor.CancelSelect();
+                }
+                else
+                {
+                    if (this.currentSearchIndex > this.findResults.Count)
+                        this.currentSearchIndex = 0;
+                    FindResult findResult = this.findResults[this.currentSearchIndex];
+                    this.TextEditor.Select(findResult.beginIndex, findResult.length);
+                    status = ("MATCH " + (this.currentSearchIndex + 1) + " OF " + this.findResults.Count);
+                }
             }
 
             return status;
@@ -486,12 +466,6 @@ namespace Bend
 
         public string HighlightPreviousMatch()
         {
-            if (Tab.findOnPageThread != null)
-            {
-                Tab.findOnPageThread.Join();
-            }
-            System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
-
             string status = "";
             if (this.findResults.Count == 0)
             {
@@ -527,12 +501,6 @@ namespace Bend
             string status = "";
             if (this.findOptions.FindText != null)
             {
-                if (Tab.findOnPageThread != null)
-                {
-                    Tab.findOnPageThread.Join();
-                }
-                System.Diagnostics.Debug.Assert(Tab.findOnPageThread == null);
-
                 if (this.findResults.Count == 0)
                 {
                     this.currentSearchIndex = 0;

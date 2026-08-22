@@ -15,6 +15,7 @@ using System.Diagnostics;
 
 namespace Console {
 	public class TerminalControl : UserControl {
+		private bool _startRequested;
 		/// <summary>
 		/// Converts Color to COLOREF, note that COLOREF does not support alpha channels so it is ignored
 		/// </summary>
@@ -72,20 +73,8 @@ namespace Console {
 		}
 
 		private static void OnTermChanged(DependencyObject target, DependencyPropertyChangedEventArgs e) {
-			var cntrl = (target as TerminalControl);
-			var oldTerm = e.OldValue as TermPTYProxy;
-			var newTerm = e.NewValue as TermPTYProxy;
-			if (oldTerm != null)
-				oldTerm.TermReady -= cntrl.Term_TermReady;
-			if (newTerm != null) {
-				if (cntrl.Terminal.IsLoaded)
-					cntrl.Terminal_Loaded(cntrl.Terminal, null);
-
-				if (newTerm.TermProcIsStarted)
-					cntrl.Term_TermReady(newTerm, null);
-				else
-					newTerm.TermReady += cntrl.Term_TermReady;
-			}
+			// The terminal starts at the renderer's current dimensions. Do not resize it
+			// again from TermReady: that can race cmd.exe's initial prompt and erase it.
 		}
 		/// <summary>
 		/// Update the Term if you want to set to an existing
@@ -100,8 +89,6 @@ namespace Console {
 		public TermPTYProxy DisconnectConPTYTerm() {
 			if (Terminal != null)
 				Terminal.Connection = null;
-			if (ConPTYTerm != null)
-				ConPTYTerm.TermReady -= Term_TermReady;
 			var ret = ConPTYTerm;
 			ConPTYTerm = null;
 			return ret;
@@ -136,9 +123,9 @@ namespace Console {
 		}
 		private void InitializeComponent() {
             Terminal = new Microsoft.Terminal.Wpf.TerminalControl();
-			ConPTYTerm = new TermPTYProxy();
 			Terminal.AutoResize = true;
 			Terminal.Loaded += Terminal_Loaded;
+			this.IsVisibleChanged += TerminalControl_IsVisibleChanged;
 			var grid = new Grid() { };
 			grid.Children.Add(Terminal);
 			this.Content = grid;
@@ -157,32 +144,46 @@ namespace Console {
 				Dispatcher.BeginInvoke(action);
 		}
 
-		private void Term_TermReady(object sender, EventArgs e) {
-			MainThreadRun(() => {
-				Terminal.Connection = ConPTYTerm;
-				ConPTYTerm.Win32DirectInputMode(Win32InputMode);
-				ConPTYTerm.Resize(Terminal.Columns, Terminal.Rows);//fix the size being partially off on first load
-			});
-		}
 		private void StartTerm(int column_width, int row_height) {
-			if (ConPTYTerm == null)
+			if (_startRequested)
 				return;
+			_startRequested = true;
+			if (ConPTYTerm == null) {
+				try { ConPTYTerm = new TermPTYProxy(); }
+				catch (Exception exception) {
+					Debug.WriteLine("Console integration is unavailable: " + exception);
+					_startRequested = false;
+					return;
+				}
+			}
 
 			if (ConPTYTerm.TermProcIsStarted) {
 				ConPTYTerm.Resize(column_width, row_height);
-				Term_TermReady(ConPTYTerm, null);
 				return;
 			}
-			ConPTYTerm.TermReady += Term_TermReady;
 			var cmd = StartupCommandLine;
-			ConPTYTerm.StartCmd(cmd, column_width, row_height);
+			var term = ConPTYTerm;
+			Terminal.Connection = term;
+			term.Win32DirectInputMode(Win32InputMode);
+			Task.Run(() => term.StartCmd(cmd, column_width, row_height));
 		}
 		private void Terminal_Loaded(object sender, RoutedEventArgs e) {
-			StartTerm(Terminal.Columns, Terminal.Rows);
+			if (IsVisible)
+				StartTerm(Terminal.Columns, Terminal.Rows);
 			SetTheme(Theme);
 			SetCursor(IsCursorVisible);
 			SetReadOnly(IsReadOnly);
 			SetCursor(IsCursorVisible);
+		}
+
+		private void TerminalControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			if (IsVisible && Terminal != null && Terminal.IsLoaded)
+				StartTerm(Terminal.Columns, Terminal.Rows);
+		}
+
+		public void StartTerminal() {
+			if (Terminal != null)
+				StartTerm(Terminal.Columns, Terminal.Rows);
 		}
 
 		#region Depdendency Properties

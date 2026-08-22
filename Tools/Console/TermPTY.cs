@@ -36,6 +36,7 @@ namespace Console
         private SafeFileHandle _consoleInputPipeWriteHandle;
         private StreamWriter _consoleInputWriter;
         private BinaryWriter _consoleInputWriterB;
+        private readonly object _stateLock = new object();
 
         public TermPTY(int READ_BUFFER_SIZE = 1024 * 16, bool USE_BINARY_WRITER = false, IProcessFactory ProcessFactory = null)
         {
@@ -87,28 +88,33 @@ namespace Console
             using (var pseudoConsole = PseudoConsole.Create(inputPipe.ReadSide, outputPipe.WriteSide, consoleWidth, consoleHeight))
             using (var process = factory.Start(command, PInvoke.PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole))
             {
-                Process = process;
-                TheConsole = pseudoConsole;
-                ConsoleOutStream = new FileStream(outputPipe.ReadSide, FileAccess.Read);
-                TermProcIsStarted = true;
+                lock (_stateLock)
+                {
+                    Process = process;
+                    TheConsole = pseudoConsole;
+                    ConsoleOutStream = new FileStream(outputPipe.ReadSide, FileAccess.Read);
+                    _consoleInputPipeWriteHandle = inputPipe.WriteSide;
+                    var st = new FileStream(_consoleInputPipeWriteHandle, FileAccess.Write);
+                    if (!USE_BINARY_WRITER)
+                        _consoleInputWriter = new StreamWriter(st) { AutoFlush = true };
+                    else
+                        _consoleInputWriterB = new BinaryWriter(st);
+                    TermProcIsStarted = true;
+                }
 
-                if (TermReady != null)
-                    Task.Run(() => TermReady(this, EventArgs.Empty));
-
-                _consoleInputPipeWriteHandle = inputPipe.WriteSide;
-                var st = new FileStream(_consoleInputPipeWriteHandle, FileAccess.Write);
-                if (!USE_BINARY_WRITER)
-                    _consoleInputWriter = new StreamWriter(st) { AutoFlush = true };
-                else
-                    _consoleInputWriterB = new BinaryWriter(st);
+                var readyHandler = TermReady;
+                if (readyHandler != null)
+                    Task.Run(() => readyHandler(this, EventArgs.Empty));
 
                 ReadOutputLoop();
-                OnClose(() => DisposeResources(process, pseudoConsole, outputPipe, inputPipe, _consoleInputWriter));
-
                 process.WaitForExit();
                 WriteToUITerminal("Session Terminated");
-
-                TheConsole.Dispose();
+                lock (_stateLock)
+                {
+                    CloseStdinToApp();
+                    TheConsole = null;
+                    Process = null;
+                }
             }
         }
 
@@ -116,26 +122,36 @@ namespace Console
         {
             if (IsDesignMode)
                 return;
-            if (TheConsole.IsDisposed)
-                return;
-            if (_consoleInputWriter == null && _consoleInputWriterB == null)
-                throw new InvalidOperationException("There is no writer attached to a pseudoconsole. Have you called Start on this instance yet?");
-
-            if (!USE_BINARY_WRITER)
-                _consoleInputWriter.Write(input);
-            else
-                WriteToTermBinary(Encoding.UTF8.GetBytes(input));
+            lock (_stateLock)
+            {
+                if (TheConsole == null || TheConsole.IsDisposed)
+                    return;
+                if (_consoleInputWriter == null && _consoleInputWriterB == null)
+                    return;
+                if (!USE_BINARY_WRITER)
+                    _consoleInputWriter.Write(input);
+                else
+                {
+                    _consoleInputWriterB.Write(Encoding.UTF8.GetBytes(input));
+                    _consoleInputWriterB.Flush();
+                }
+            }
         }
 
         public void WriteToTermBinary(byte[] input)
         {
-            if (!USE_BINARY_WRITER)
+            lock (_stateLock)
             {
-                WriteToTerm(Encoding.UTF8.GetString(input));
-                return;
+                if (!USE_BINARY_WRITER)
+                {
+                    WriteToTerm(Encoding.UTF8.GetString(input));
+                    return;
+                }
+                if (_consoleInputWriterB == null || TheConsole == null || TheConsole.IsDisposed)
+                    return;
+                _consoleInputWriterB.Write(input);
+                _consoleInputWriterB.Flush();
             }
-            _consoleInputWriterB.Write(input);
-            _consoleInputWriterB.Flush();
         }
 
         public delegate void InterceptDelegate(ref string str);
@@ -148,24 +164,24 @@ namespace Console
 
         public void CloseStdinToApp()
         {
-            if (_consoleInputWriter != null)
+            lock (_stateLock)
             {
-                _consoleInputWriter.Close();
-                _consoleInputWriter.Dispose();
+                if (_consoleInputWriter != null)
+                    _consoleInputWriter.Dispose();
+                if (_consoleInputWriterB != null)
+                    _consoleInputWriterB.Dispose();
+                _consoleInputWriter = null;
+                _consoleInputWriterB = null;
             }
-            if (_consoleInputWriterB != null)
-            {
-                _consoleInputWriterB.Close();
-                _consoleInputWriterB.Dispose();
-            }
-            _consoleInputWriter = null;
-            _consoleInputWriterB = null;
         }
 
         public void StopExternalTermOnly()
         {
-            if (Process != null && !Process.HasExited)
-                Process.Kill();
+            lock (_stateLock)
+            {
+                if (Process != null && !Process.HasExited)
+                    Process.Kill();
+            }
         }
 
         private static void OnClose(Action handler)
@@ -214,16 +230,20 @@ namespace Console
                 return;
             ReadLoopStarted = true;
 
-            using (StreamReader reader = new StreamReader(ConsoleOutStream))
+            using (FileStream stream = ConsoleOutStream)
             {
+                byte[] byteBuffer = new byte[Math.Max(256, READ_BUFFER_SIZE)];
+                Decoder decoder = Encoding.UTF8.GetDecoder();
                 ReadState state = new ReadState
                 {
                     entireBuffer = new char[READ_BUFFER_SIZE],
                     curBuffer = new char[READ_BUFFER_SIZE]
                 };
 
-                while ((state.readChars = reader.Read(state.curBuffer, 0, state.curBuffer.Length)) != 0)
+                int bytesRead;
+                while ((bytesRead = stream.Read(byteBuffer, 0, byteBuffer.Length)) != 0)
                 {
+                    state.readChars = decoder.GetChars(byteBuffer, 0, bytesRead, state.curBuffer, 0, false);
                     var sendBuffer = HandleRead(ref state);
 
                     if (sendBuffer != null)
@@ -276,8 +296,11 @@ namespace Console
 
         public void Resize(int column_width, int row_height)
         {
-            if (TheConsole != null)
-                TheConsole.Resize(column_width, row_height);
+            lock (_stateLock)
+            {
+                if (TheConsole != null && !TheConsole.IsDisposed)
+                    TheConsole.Resize(column_width, row_height);
+            }
         }
 
         public void SetCursorVisibility(bool visible)
@@ -297,8 +320,7 @@ namespace Console
 
         void ITerminalConnection.Close()
         {
-            if (TheConsole != null)
-                TheConsole.Dispose();
+            StopExternalTermOnly();
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Bend
 
         #endregion
 
-        private PersistantStorage()
+        public PersistantStorage()
         {
             // Prevent object construction and default file creation
             mruFile = null;
@@ -91,10 +91,9 @@ namespace Bend
             try
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(PersistantStorage));
-                String filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\";
-                FileStream fs = new FileStream(filePath + settingsFileName, FileMode.Open);
-                singletonPersistantStorageObject = (PersistantStorage)serializer.Deserialize(fs);
-                fs.Close();
+                string loadPath = File.Exists(SettingsPath) ? SettingsPath : LegacySettingsPath;
+                using (FileStream fs = new FileStream(loadPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    singletonPersistantStorageObject = (PersistantStorage)serializer.Deserialize(fs);
             }
             catch
             {
@@ -110,19 +109,48 @@ namespace Bend
             }
         }
 
-        ~PersistantStorage()
+        private static string SettingsPath
         {
+            get
+            {
+                string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Bend");
+                return Path.Combine(directory, settingsFileName);
+            }
+        }
+
+        private static string LegacySettingsPath
+        {
+            get { return Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), settingsFileName); }
+        }
+
+        public static void Save()
+        {
+            string settingsPath = SettingsPath;
+            string directory = Path.GetDirectoryName(settingsPath);
+            Directory.CreateDirectory(directory);
+            string temporaryPath = Path.Combine(directory, settingsFileName + ".tmp");
+            singletonPersistantStorageObject.IsFirstRun = false;
+            XmlSerializer serializer = new XmlSerializer(typeof(PersistantStorage));
             try
             {
-                this.IsFirstRun = false;
-                XmlSerializer serializer = new XmlSerializer(this.GetType());
-                String filePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\";
-                TextWriter writer = new StreamWriter(filePath + settingsFileName);
-                serializer.Serialize(writer, this);
-                writer.Close();
+                using (FileStream stream = new FileStream(temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    serializer.Serialize(stream, singletonPersistantStorageObject);
+                    stream.Flush(true);
+                }
+                if (File.Exists(settingsPath))
+                    File.Replace(temporaryPath, settingsPath, null);
+                else
+                    File.Move(temporaryPath, settingsPath);
             }
-            catch
+            finally
             {
+                if (File.Exists(temporaryPath))
+                {
+                    try { File.Delete(temporaryPath); }
+                    catch (IOException) { }
+                    catch (UnauthorizedAccessException) { }
+                }
             }
         }
     }

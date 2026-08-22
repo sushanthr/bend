@@ -49,7 +49,31 @@ namespace TextCoreControl
 
                 // Do not temporarily remove the sentinel: a failed write must leave the document usable.
                 string contents = fileContents.ToString(0, fileContents.Length - 1);
-                System.IO.File.WriteAllText(fullFilePath, contents, this.currentEncoding);
+                string directory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(fullFilePath));
+                string temporaryPath = System.IO.Path.Combine(directory, "." + System.IO.Path.GetFileName(fullFilePath) + "." + Guid.NewGuid().ToString("N") + ".tmp");
+                try
+                {
+                    using (var stream = new System.IO.FileStream(temporaryPath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None))
+                    using (var writer = new System.IO.StreamWriter(stream, this.currentEncoding))
+                    {
+                        writer.Write(contents);
+                        writer.Flush();
+                        stream.Flush(true);
+                    }
+                    if (System.IO.File.Exists(fullFilePath))
+                        System.IO.File.Replace(temporaryPath, fullFilePath, null);
+                    else
+                        System.IO.File.Move(temporaryPath, fullFilePath);
+                }
+                finally
+                {
+                    if (System.IO.File.Exists(temporaryPath))
+                    {
+                        try { System.IO.File.Delete(temporaryPath); }
+                        catch (System.IO.IOException) { }
+                        catch (UnauthorizedAccessException) { }
+                    }
+                }
                 this.hasUnsavedContent = false;
             }
             this.LanguageDetector.NotifyOfFileNameChange(fullFilePath);

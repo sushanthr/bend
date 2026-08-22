@@ -37,6 +37,10 @@ namespace Bend
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, WM Msg, IntPtr wParam, IntPtr lParam);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr SendMessageTimeout(IntPtr hWnd, WM msg, IntPtr wParam, IntPtr lParam,
+            uint flags, uint timeout, out IntPtr result);
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -114,7 +118,7 @@ namespace Bend
         }               
 
         internal const int MAGIC_NUMBER = 202020;
-        internal static void SendFileNameToHwnd(IntPtr hWnd, string file)
+        internal static bool SendFileNameToHwnd(IntPtr hWnd, string file)
         {
             IntPtr lpData = System.Runtime.InteropServices.Marshal.StringToHGlobalUni(file);
             IntPtr lpStruct = IntPtr.Zero;
@@ -126,8 +130,11 @@ namespace Bend
                 copyDataStruct.lpData = lpData;
                 lpStruct = System.Runtime.InteropServices.Marshal.AllocHGlobal(System.Runtime.InteropServices.Marshal.SizeOf(copyDataStruct));
                 System.Runtime.InteropServices.Marshal.StructureToPtr(copyDataStruct, lpStruct, false);
-                SendMessage(hWnd, WM.COPYDATA, IntPtr.Zero, lpStruct);
-                SetForegroundWindow(hWnd);
+                IntPtr result;
+                bool sent = SendMessageTimeout(hWnd, WM.COPYDATA, IntPtr.Zero, lpStruct, 0x0002, 3000, out result) != IntPtr.Zero;
+                if (sent)
+                    SetForegroundWindow(hWnd);
+                return sent;
             }
             finally
             {
