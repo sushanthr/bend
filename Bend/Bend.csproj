@@ -440,7 +440,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Content Include="BendConsoleHost.dat">
+    <Content Include="..\BendConsoleHost\bin\$(Platform)\$(Configuration)\BendConsoleHost.exe">
+      <Link>BendConsoleHost.exe</Link>
+      <TargetPath>BendConsoleHost.exe</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -459,6 +461,12 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+  <Target Name="CopyBendConsoleHost" AfterTargets="Build">
+    <ItemGroup>
+      <BendConsoleHostOutput Include="..\BendConsoleHost\bin\$(Platform)\$(Configuration)\BendConsoleHost.pdb" Condition="Exists('..\BendConsoleHost\bin\$(Platform)\$(Configuration)\BendConsoleHost.pdb')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(BendConsoleHostOutput)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

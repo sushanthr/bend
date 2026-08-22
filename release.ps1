@@ -5,6 +5,7 @@ param (
 
 $appName = "Bend"
 $projDir = "Bend"
+$platform = "x64"
 Set-StrictMode -version 2.0
 $ErrorActionPreference = "Stop"
 
@@ -12,9 +13,12 @@ Write-Output "Working directory: $pwd"
 
 # Find MSBuild.
 $msBuildPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
-    -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe `
+    -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe `
     -prerelease | select-object -first 1
-Write-Output "MSBuild: $((Get-Command $msBuildPath).Path)"
+if ([string]::IsNullOrWhiteSpace($msBuildPath)) {
+    throw "MSBuild could not be found."
+}
+Write-Output "MSBuild: $msBuildPath"
 
 # Load current Git tag.
 $tag = $(git describe --tags)
@@ -35,17 +39,31 @@ if (Test-Path $outDir) {
 # Publish the application.
 Push-Location $projDir
 try {
-    Write-Output "Restoring:"
-    dotnet restore -r win-x64
     Write-Output "Publishing:"
     $msBuildVerbosityArg = "/v:m"
     if ($env:CI) {
         $msBuildVerbosityArg = ""
     }
+    & $msBuildPath "../BendConsoleHost/BendConsoleHost.csproj" /target:Build `
+        /p:Configuration=Release /p:Platform=$platform $msBuildVerbosityArg
+    if ($LASTEXITCODE -ne 0) {
+        throw "BendConsoleHost build failed with exit code $LASTEXITCODE."
+    }
     & $msBuildPath /target:publish /p:PublishProfile=ClickOnceProfile `
-        /p:ApplicationVersion=$version /p:Configuration=Release `
+        /p:ApplicationVersion=$version /p:Configuration=Release /p:Platform=$platform `
+        /p:BootstrapperEnabled=false `
         /p:PublishDir=$publishDir /p:PublishUrl=$publishDir `
         $msBuildVerbosityArg
+    if ($LASTEXITCODE -ne 0) {
+        throw "Bend publish failed with exit code $LASTEXITCODE."
+    }
+
+    $publishedHost = Get-ChildItem -Path "$publishDir/Application Files" `
+        -Filter "BendConsoleHost.exe*" -Recurse | Select-Object -First 1
+    if ($null -eq $publishedHost) {
+        throw "Published application does not contain BendConsoleHost.exe."
+    }
+    Write-Output "Console host: $($publishedHost.FullName)"
 
     # Measure publish size.
     $publishSize = (Get-ChildItem -Path "$publishDir/Application Files" -Recurse |

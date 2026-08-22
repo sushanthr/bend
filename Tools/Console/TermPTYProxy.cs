@@ -60,7 +60,7 @@ namespace Console
             {
                 if (_serverProcess == null || _serverProcess.HasExited)
                 {
-                    var serverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BendConsoleHost.dat");
+                    var serverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BendConsoleHost.exe");
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = serverPath,

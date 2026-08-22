@@ -46,6 +46,8 @@ x86
 /Tools/Console/bin/Debug
 /BendConsoleHost/obj
 /BendConsoleHost/bin/Release/net48
+/BendConsoleHost/bin/
+/BendConsoleHost/obj/
 /TextCoreUnitTest/bin/
 /TextCoreUnitTest/obj/
 /Bend/packages/CI.Microsoft.Terminal.Wpf.1.22.250204002/runtimes
