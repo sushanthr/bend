@@ -811,7 +811,7 @@
                         Style="{StaticResource ChromeButton}"
                         Padding="16,0"
                         Click="SettingsBack_Click">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Margin="5,0,5,0">
                         <TextBlock Text="Back to editor" VerticalAlignment="Center" />
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12" Margin="12,1,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
