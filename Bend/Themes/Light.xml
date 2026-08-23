@@ -70,7 +70,6 @@
     <ScG>0.7230551</ScG>
     <ScB>0.7230551</ScB>
   </MenuSelectedBackgroundColor>
-  <BaseBackgroundImage>Images/FrontBackground.png</BaseBackgroundImage>
   <DefaultForegroundColor>
     <A>255</A>
     <R>0</R>

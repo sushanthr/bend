@@ -60,7 +60,6 @@
     <ScG>0.0331047662</ScG>
     <ScB>0.0241576321</ScB>
   </MenuSelectedBackgroundColor>
-  <BaseBackgroundImage>Images/SettingsPattern.png</BaseBackgroundImage>
   <DefaultForegroundColor>
     <A>255</A>
     <R>250</R>

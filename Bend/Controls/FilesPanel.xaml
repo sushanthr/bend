@@ -1,0 +1,77 @@
+<UserControl x:Class="Bend.Controls.FilesPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Bend.Controls"
+             Foreground="{DynamicResource ForegroundBrush}">
+    <UserControl.Resources>
+        <Style x:Key="Codicon" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="/Bend;component/Fonts/#codicon" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="{DynamicResource ShellMutedBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="ExplorerActionButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource ShellMutedBrush}" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="{DynamicResource ShellBorderBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Opacity" Value="0.7" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource ShellMutedBrush}" />
+                                <Setter TargetName="Surface" Property="BorderThickness" Value="1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource ShellChromeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="42" />
+            <RowDefinition Height="24" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="EXPLORER" Margin="14,0" VerticalAlignment="Center" FontSize="11" />
+        <Border Grid.Row="1" BorderBrush="{DynamicResource ShellBorderBrush}" BorderThickness="0,1,0,1">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="NewFileButton" Style="{StaticResource ExplorerActionButton}" Width="28" Height="22" Padding="0" ToolTip="New file" Click="NewFile_Click" AutomationProperties.Name="New file">
+                        <TextBlock Style="{StaticResource Codicon}" Text="&#xEA7F;" />
+                    </Button>
+                    <Button x:Name="NewFolderButton" Style="{StaticResource ExplorerActionButton}" Width="28" Height="22" Padding="0" ToolTip="New folder" Click="NewFolder_Click" AutomationProperties.Name="New folder">
+                        <TextBlock Style="{StaticResource Codicon}" Text="&#xEA80;" />
+                    </Button>
+                    <Button x:Name="RefreshButton" Style="{StaticResource ExplorerActionButton}" Width="28" Height="22" Padding="0" ToolTip="Refresh" Click="Refresh_Click" AutomationProperties.Name="Refresh">
+                        <TextBlock Style="{StaticResource Codicon}" Text="&#xEB37;" />
+                    </Button>
+                    <Button x:Name="CollapseButton" Style="{StaticResource ExplorerActionButton}" Width="28" Height="22" Padding="0" ToolTip="Collapse folders" Click="Collapse_Click" AutomationProperties.Name="Collapse folders">
+                        <TextBlock Style="{StaticResource Codicon}" Text="&#xEAC5;" />
+                    </Button>
+                </StackPanel>
+                <Button x:Name="RootButton" Content="NO FOLDER OPEN" HorizontalContentAlignment="Left" Background="Transparent" BorderThickness="0" Padding="8,0" Click="Root_Click" ToolTip="Workspace folder" Foreground="{DynamicResource ForegroundBrush}" />
+            </DockPanel>
+        </Border>
+        <Grid Grid.Row="2">
+            <controls:FolderTree x:Name="Tree" FileInvoked="Tree_FileInvoked" />
+            <StackPanel x:Name="EmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                <TextBlock Text="No folder open" HorizontalAlignment="Center" Foreground="{DynamicResource ShellMutedBrush}" />
+                <Button Content="Open Folder..." Margin="0,8,0,0" Padding="12,4" Click="OpenFolder_Click" Foreground="{DynamicResource ForegroundBrush}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

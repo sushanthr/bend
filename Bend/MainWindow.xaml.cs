@@ -8,7 +8,6 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -19,6 +18,8 @@ using Microsoft.Win32;
 using System.Collections;
 using TextCoreControl;
 using Microsoft.Terminal.Wpf;
+using Forms = System.Windows.Forms;
+using Bend.Controls;
 
 namespace Bend
 { 
@@ -60,6 +61,8 @@ namespace Bend
         TabDragVisual tabDragVisual;
         bool dropWasConsumedAsTabMove;
         bool extendDragDrop;
+        private string currentFolderPath;
+        private Tab treePreviewTab;
         #endregion
 
         #region Public API
@@ -127,19 +130,12 @@ namespace Bend
             FindText.FontFamily = shellFont;
             SearchHint.RenderTransform = new TranslateTransform(5, 0);
 
-            Path filesGlyph = FilesActivityButton.Content as Path;
-            if (filesGlyph != null) filesGlyph.RenderTransform = new TranslateTransform(1.3, 0);
             Path searchGlyph = SearchActivityButton.Content as Path;
             if (searchGlyph != null)
             {
                 searchGlyph.Width = 18;
                 searchGlyph.Height = 18;
-                searchGlyph.RenderTransform = new TranslateTransform(3, 0);
             }
-            Path sourceGlyph = SourceControlActivityButton.Content as Path;
-            if (sourceGlyph != null) sourceGlyph.RenderTransform = new TranslateTransform(1.3, 0);
-            if (SettingsActivityButton.Content is FrameworkElement settingsGlyph)
-                settingsGlyph.RenderTransform = new TranslateTransform(2, 0);
             findAndReplaceWindow = null;
             var style = (Style)Resources["PlainStyle"];
             this.Style = style;
@@ -165,13 +161,18 @@ namespace Bend
             this.currentStatusType = StatusType.STATUS_OTHER;
             this.dropWasConsumedAsTabMove = false;
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(SettingsLogo, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FindText, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MinButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(QuitButton, /*hitTestVisible*/true);
-            WorkspacePathText.Text = Environment.CurrentDirectory;
+            string savedWorkspace = PersistantStorage.StorageObject.LastWorkspaceFolder;
+            if (!string.IsNullOrWhiteSpace(savedWorkspace) && System.IO.Directory.Exists(savedWorkspace))
+                SetCurrentFolder(savedWorkspace);
+            else if (System.IO.Directory.Exists(Environment.CurrentDirectory))
+                SetCurrentFolder(Environment.CurrentDirectory, false);
         }
 
         internal Tab CurrentTab {
@@ -208,12 +209,6 @@ namespace Bend
             this.Resources["ShellBorderBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.25 : 0.15));
             this.Resources["ShellMutedBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.68 : 0.51));
             
-            BitmapImage backgroundImage = new BitmapImage();
-            backgroundImage.BeginInit();
-            backgroundImage.UriSource = new Uri("pack://application:,,,/Bend;component/" + PersistantStorage.StorageObject.CurrentTheme.BaseBackgroundImage);
-            backgroundImage.EndInit();
-            BaseBackgroundImage.ImageSource = backgroundImage;
-
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultForegroundColor, ref TextCoreControl.Settings.DefaultForegroundColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultBackgroundColor, ref TextCoreControl.Settings.DefaultBackgroundColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionColor, ref TextCoreControl.Settings.DefaultSelectionColor);
@@ -738,24 +733,45 @@ namespace Bend
 
             if (dlg.ShowDialog(this) ?? false)
             {
-                // No tabs / Non Empty new file / tab has some file open
-                if (this.currentTabIndex < 0 || !this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty || this.tab[this.currentTabIndex].FullFileName != null)
-                {
-                    if (this.currentTabIndex >= 0)
-                    {
-                        tab[this.currentTabIndex].Title.Opacity = 0.5;
-                        tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
-                    }
-
-                    this.AddNewTab();
-
-                    this.currentTabIndex = tab.Count - 1;
-                    SetFocusAfterTextEditorInitialization();
-                }
-
-                if (!this.tab[this.currentTabIndex].OpenFile(dlg.FileName) && this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty)
-                    this.TabClose(this.currentTabIndex);
+                CommandOpenFile(dlg.FileName);
             }
+        }
+
+        private void CommandOpenFile(string path)
+        {
+            string normalizedPath;
+            try { normalizedPath = System.IO.Path.GetFullPath(path); }
+            catch (ArgumentException) { return; }
+            for (int i = 0; i < this.tab.Count; i++)
+            {
+                if (this.tab[i].FullFileName != null && string.Equals(this.tab[i].FullFileName, normalizedPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    this.currentTabIndex = i;
+                    this.tab[i].Title.Opacity = 1;
+                    this.tab[i].TextEditor.Visibility = Visibility.Visible;
+                    this.tab[i].TextEditor.Focus();
+                    return;
+                }
+            }
+
+            bool reuseCurrent = this.currentTabIndex >= 0
+                && this.tab[this.currentTabIndex].FullFileName == null
+                && this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty
+                && !this.tab[this.currentTabIndex].TextEditor.Document.HasUnsavedContent;
+            if (!reuseCurrent)
+            {
+                if (this.currentTabIndex >= 0)
+                {
+                    this.tab[this.currentTabIndex].Title.Opacity = 0.5;
+                    this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                }
+                this.AddNewTab();
+                this.currentTabIndex = tab.Count - 1;
+                SetFocusAfterTextEditorInitialization();
+            }
+
+            if (!this.tab[this.currentTabIndex].OpenFile(normalizedPath) && this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty)
+                this.TabClose(this.currentTabIndex);
         }
 
         private void CommandNew(object sender, ExecutedRoutedEventArgs e)
@@ -1252,11 +1268,7 @@ namespace Bend
 
         private void Logo_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (MainDockBottomPanel.Visibility == Visibility.Visible) ToggleBottomPanel_MouseDown(sender, null);
-            if (currentTabIndex >= 0 && currentTabIndex < tab.Count) tab[currentTabIndex].TextEditor.Rasterize();
-            Settings.Visibility = Visibility.Visible;
-            SettingsControl.UpdateFocus();
-            isInSettingsAnimation = false;
+            ShowSettings();
             return;
 #pragma warning disable 162
             try
@@ -1301,9 +1313,10 @@ namespace Bend
         private void BackImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Settings.Visibility = Visibility.Hidden;
+            Editor.Visibility = Visibility.Visible;
+            BottomChrome.Visibility = Visibility.Visible;
             MainWindowGridRotateTransform.Angle = 0;
             SettingsGridRotateTransform.Angle = 0;
-            if (currentTabIndex >= 0 && currentTabIndex < tab.Count) tab[currentTabIndex].TextEditor.UnRasterize();
             isInSettingsAnimation = false;
             return;
 #pragma warning disable 162
@@ -1827,6 +1840,9 @@ namespace Bend
             activeActivity = activity;
             SidePaneTitle.Text = title;
             SidePaneColumn.Width = new GridLength(240);
+            bool showFiles = activity == "files";
+            FilesPanel.Visibility = showFiles ? Visibility.Visible : Visibility.Collapsed;
+            OtherSidePaneContent.Visibility = showFiles ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void FilesActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("files", "FILES"); }
@@ -1835,7 +1851,45 @@ namespace Bend
 
         private void SettingsMenu_Click(object sender, RoutedEventArgs e)
         {
-            if (Settings.Visibility != Visibility.Visible) Logo_MouseDown(null, null);
+            ShowSettings();
+            e.Handled = true;
+        }
+
+        private void SettingsActivity_Click(object sender, RoutedEventArgs e)
+        {
+            ShowSettings();
+            e.Handled = true;
+        }
+
+        private void ShowSettings()
+        {
+            if (Settings.Visibility == Visibility.Visible)
+                return;
+
+            // Do not use ToggleBottomPanel_MouseDown here. During startup the panel and
+            // splitter can briefly have different visibility values, which makes that
+            // method take the open branch and prevents navigation to Settings.
+            MainDockSplitter.Visibility = Visibility.Collapsed;
+            MainDockBottomPanel.Visibility = Visibility.Collapsed;
+            BottomChrome.RowDefinitions[1].Height = new GridLength(0);
+            BottomChrome.RowDefinitions[2].Height = new GridLength(0);
+            TerminalToggleChevron.Data = Geometry.Parse("M0,5 L4,1 L8,5");
+            ToggleBottomPanel.Foreground = MaxButton.Foreground;
+
+            MainWindowGridRotateTransform.Angle = 0;
+            SettingsGridRotateTransform.Angle = 0;
+            Editor.Visibility = Visibility.Hidden;
+            BottomChrome.Visibility = Visibility.Hidden;
+            Settings.Visibility = Visibility.Visible;
+            SettingsControl.UpdateFocus();
+            isInSettingsAnimation = false;
+        }
+
+        private void BendMenu_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menu = sender as MenuItem;
+            if (menu != null) menu.IsSubmenuOpen = true;
+            e.Handled = true;
         }
 
         private void SettingsBack_Click(object sender, RoutedEventArgs e)
@@ -1987,7 +2041,7 @@ namespace Bend
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (FindText != null && FindText.IsMouseOver) return;
+            if (e.OriginalSource != sender || (FindText != null && FindText.IsMouseOver)) return;
             if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
                 WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             else if (e.ChangedButton == MouseButton.Left)
@@ -1996,8 +2050,81 @@ namespace Bend
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            WorkspacePathText.Text = Environment.CurrentDirectory;
+            using (Forms.FolderBrowserDialog dialog = new Forms.FolderBrowserDialog())
+            {
+                dialog.Description = "Select a workspace folder";
+                dialog.SelectedPath = currentFolderPath ?? Environment.CurrentDirectory;
+                if (dialog.ShowDialog() == Forms.DialogResult.OK)
+                    SetCurrentFolder(dialog.SelectedPath);
+            }
             ToggleActivityPane("files", "FILES");
+        }
+
+        private string CurrentFolderPath { get { return this.currentFolderPath; } }
+
+        private void SetCurrentFolder(string path, bool persist = true)
+        {
+            try { path = System.IO.Path.GetFullPath(path); }
+            catch (ArgumentException) { return; }
+            this.currentFolderPath = path;
+            WorkspacePathText.Text = path;
+            FilesPanel.RootPath = path;
+            if (persist)
+            {
+                PersistantStorage.StorageObject.LastWorkspaceFolder = path;
+                try { PersistantStorage.Save(); }
+                catch (Exception exception) { SetStatusText("WORKSPACE COULD NOT BE SAVED: " + exception.Message, StatusType.STATUS_OTHER); }
+            }
+        }
+
+        private void FilesPanel_OpenFolderRequested(object sender, RoutedEventArgs e)
+        {
+            OpenFolder_Click(sender, e);
+        }
+
+        private void FilesPanel_FileInvoked(object sender, RoutedEventArgs e)
+        {
+            FolderTreeNode node = e.OriginalSource as FolderTreeNode;
+            FolderTreeFileInvokedEventArgs fileEvent = e as FolderTreeFileInvokedEventArgs;
+            if (node != null && node.NodeKind == FolderTreeNodeKind.File && fileEvent != null)
+                OpenDocumentFromTree(node.FullPath, fileEvent.IsDoubleClick);
+        }
+
+        private void OpenDocumentFromTree(string path, bool isDoubleClick)
+        {
+            if (!System.IO.File.Exists(path))
+            {
+                SetStatusText("FILE NO LONGER EXISTS", StatusType.STATUS_OTHER);
+                FilesPanel.RootPath = currentFolderPath;
+                return;
+            }
+            string normalizedPath = System.IO.Path.GetFullPath(path);
+            Tab targetTab = this.tab.FirstOrDefault(openTab => openTab.FullFileName != null
+                && string.Equals(openTab.FullFileName, normalizedPath, StringComparison.OrdinalIgnoreCase));
+            Tab priorPreviewTab = this.treePreviewTab;
+            CloseTreePreviewIfAllowed(targetTab);
+            CommandOpenFile(normalizedPath);
+            if (this.currentTabIndex >= 0)
+            {
+                Tab openedTab = this.tab[this.currentTabIndex];
+                bool targetWasDurable = targetTab != null && targetTab != priorPreviewTab;
+                this.treePreviewTab = isDoubleClick || targetWasDurable ? null : openedTab;
+            }
+        }
+
+        private void CloseTreePreviewIfAllowed(Tab targetTab)
+        {
+            if (this.treePreviewTab == null || this.treePreviewTab == targetTab)
+                return;
+            if (this.treePreviewTab.TextEditor.Document.HasUnsavedContent)
+            {
+                this.treePreviewTab = null;
+                return;
+            }
+            int previewIndex = this.tab.IndexOf(this.treePreviewTab);
+            if (previewIndex >= 0)
+                this.TabClose(previewIndex);
+            this.treePreviewTab = null;
         }
 
         private void SaveAsMenu_Click(object sender, RoutedEventArgs e)

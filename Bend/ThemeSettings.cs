@@ -15,7 +15,6 @@ namespace Bend
             BackgroundColor = System.Windows.Media.Colors.WhiteSmoke;
             BackgroundTerminalColor = BackgroundColor;
             ForegroundColor = System.Windows.Media.Colors.Black;
-            BaseBackgroundImage = "Images/FrontBackground.png";
             ScrollButtonColor = System.Windows.Media.Color.FromRgb(208, 208, 208);
             LogoBackgroundColor = System.Windows.Media.Color.FromRgb(54, 80, 128);
             LogoForegroundColor = System.Windows.Media.Colors.White;
@@ -100,8 +99,6 @@ namespace Bend
         public System.Windows.Media.Color LogoForegroundColor;
         public System.Windows.Media.Color LogoBackgroundColor;
         public System.Windows.Media.Color MenuSelectedBackgroundColor;
-
-        public string BaseBackgroundImage;
 
         // Editor Theme
         public System.Windows.Media.Color DefaultForegroundColor;

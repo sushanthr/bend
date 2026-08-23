@@ -127,6 +127,7 @@
       <HintPath>.\Microsoft.WindowsAPICodePack.DirectX.Controls.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -156,6 +157,14 @@
     </Compile>
     <Compile Include="TabTitle.cs" />
     <Compile Include="ThemeSettings.cs" />
+    <Page Include="Controls\FolderTree.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\FilesPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FileEncoding.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -181,6 +190,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InterBendCommunication.cs" />
+    <Compile Include="Controls\FolderTreeNode.cs" />
+    <Compile Include="Controls\IFileSystemTreeService.cs" />
+    <Compile Include="Controls\IFolderTreeCommandProvider.cs" />
+    <Compile Include="Controls\FolderTree.xaml.cs">
+      <DependentUpon>FolderTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FilesPanel.xaml.cs">
+      <DependentUpon>FilesPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SaveChangesMessageBox.xaml.cs">
       <DependentUpon>SaveChangesMessageBox.xaml</DependentUpon>
     </Compile>
@@ -223,6 +241,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Arrow-icon.png" />
+    <Resource Include="Fonts\codicon.ttf" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -277,8 +296,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <Resource Include="Images\SettingsPattern.png" />
-    <Resource Include="Images\FrontBackground.png" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

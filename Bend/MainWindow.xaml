@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Bend"
+        xmlns:controls="clr-namespace:Bend.Controls"
         xmlns:term="clr-namespace:Console;assembly=Console"
         x:Name="ThisWindow"
         Title="Bend"
@@ -95,19 +96,16 @@
             <Setter Property="StrokeEndLineCap"
                     Value="Round"/>
         </Style>
-        <TextBlock x:Key="NewFileIcon" Width="18" Height="20" Text="&#xE8A5;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="OpenFileIcon" Width="18" Height="20" Text="&#xE8E5;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="OpenFolderIcon" Width="18" Height="20" Text="&#xE8B7;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="RecentFilesIcon" Width="18" Height="20" Text="&#xE81C;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="SaveIcon" Width="18" Height="20" Text="&#xE74E;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="SaveAsIcon" Width="18" Height="20" Text="&#xE70F;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="EncodingIcon" Width="18" Height="20" Text="&#xE8A5;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <TextBlock x:Key="SettingsIcon" Width="18" Height="20" Text="&#xE713;" TextAlignment="Center" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
-        <Path x:Key="ExitIcon"
-                Width="18"
-                Height="18"
-                Stroke="{DynamicResource ForegroundBrush}"
-                Data="M2,2 L8,2 L8,5 M8,13 L8,16 L2,16 Z M6,9 L16,9 M12,5 L16,9 L12,13"/>
+        <TextBlock x:Key="NewFileIcon" Width="18" Height="20" Text="&#xEA7F;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="OpenFileIcon" Width="18" Height="20" Text="&#xEA94;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="OpenFolderIcon" Width="18" Height="20" Text="&#xEAF7;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="RecentFilesIcon" Width="18" Height="20" Text="&#xEA82;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}" RenderTransform="{DynamicResource RecentFilesIconOffset}"/>
+        <TextBlock x:Key="SaveIcon" Width="18" Height="20" Text="&#xEB4B;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="SaveAsIcon" Width="18" Height="20" Text="&#xEB4A;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="EncodingIcon" Width="18" Height="20" Text="&#xEA7B;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="SettingsIcon" Width="18" Height="20" Text="&#xEB51;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TextBlock x:Key="ExitIcon" Width="18" Height="20" Text="&#xEA6E;" TextAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ForegroundBrush}"/>
+        <TranslateTransform x:Key="RecentFilesIconOffset" X="2" />
         <Style x:Key="ChromeButton"
                 TargetType="Button">
             <Setter Property="Background"
@@ -152,6 +150,10 @@
                     Value="Normal"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="Transparent"/>
         </Style>
         <ControlTemplate x:Key="FileMenuHeaderTemplate"
                 TargetType="MenuItem">
@@ -201,13 +203,17 @@
                 TargetType="Button"
                 BasedOn="{StaticResource ChromeButton}">
             <Setter Property="Width"
-                    Value="58"/>
+                    Value="48"/>
             <Setter Property="Height"
                     Value="58"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource ShellMutedBrush}"/>
             <Setter Property="Padding"
-                    Value="17"/>
+                    Value="0"/>
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Center"/>
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center"/>
         </Style>
         <ContextMenu x:Key="TabTitleContextMenu"
                 x:Shared="true"
@@ -279,10 +285,6 @@
         </Storyboard>
     </Window.Resources>
     <Grid x:Name="ClientAreaGrid">
-        <Grid.Background>
-            <ImageBrush x:Name="BaseBackgroundImage"
-                    ImageSource="Images/SettingsPattern.png"/>
-        </Grid.Background>
         <Grid x:Name="MainWindowGrid">
             <Grid.RenderTransform>
                 <RotateTransform x:Name="MainWindowGridRotateTransform"/>
@@ -314,6 +316,7 @@
                             FontSize="20"
                             FontWeight="Bold"
                             Padding="7,0,7,0"
+                            Click="BendMenu_Click"
                             Template="{StaticResource FileMenuHeaderTemplate}">
                         <MenuItem Header="New file"
                                 Style="{StaticResource FileMenuItemStyle}"
@@ -333,6 +336,7 @@
                                 Style="{StaticResource FileMenuItemStyle}"
                                 Icon="{DynamicResource RecentFilesIcon}">
                             <MenuItem Header="No recent files"
+                                    Style="{StaticResource FileMenuItemStyle}"
                                     IsEnabled="False"/>
                         </MenuItem>
                         <Separator/>
@@ -454,21 +458,20 @@
                     VerticalAlignment="Bottom"
                     Background="{DynamicResource ShellBorderBrush}"
                     Panel.ZIndex="2"/>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="62"/>
-                    <ColumnDefinition x:Name="SidePaneColumn"
-                            Width="0"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid Background="{DynamicResource ShellPanelBrush}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                        <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48"/>
+                                        <ColumnDefinition x:Name="SidePaneColumn" Width="0"/>
+                                        <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Background="{DynamicResource ShellPanelBrush}">
+                                        <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
                     <Border Grid.RowSpan="5"
                             Width="0.67"
                             HorizontalAlignment="Right"
@@ -478,38 +481,41 @@
                             Style="{StaticResource ActivityButton}"
                             Click="FilesActivity_Click"
                             ToolTip="Files">
-                        <Path Width="16"
-                                Height="22"
-                                Stretch="Uniform"
-                                Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
-                                Data="M5,1 L13,1 L18,6 L18,21 L5,21 Z M13,1 L13,6 L18,6 M2,5 L2,23 L15,23"/>
+                        <TextBlock Text="&#xEAF0;"
+                                FontFamily="/Bend;component/Fonts/#codicon"
+                                FontSize="24"
+                                Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                     </Button>
                     <Button Grid.Row="1"
                             x:Name="SearchActivityButton"
                             Style="{StaticResource ActivityButton}"
                             Click="SearchActivity_Click"
                             ToolTip="Search">
-                        <Path Width="17"
-                                Height="17"
-                                Stretch="Uniform"
-                                Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
-                                Data="M10,2 A8,8 0 1 0 10,18 A8,8 0 1 0 10,2 M16,16 L22,22"/>
+                                                <TextBlock Text="&#xEA6D;"
+                                                                FontFamily="/Bend;component/Fonts/#codicon"
+                                                                FontSize="24"
+                                                                Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
                     </Button>
                     <Button Grid.Row="2"
                             x:Name="SourceControlActivityButton"
                             Style="{StaticResource ActivityButton}"
                             Click="SourceControlActivity_Click"
                             ToolTip="Source control">
-                        <Path Width="20"
-                                Height="20"
-                                Stretch="Uniform"
-                                Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
-                                Data="M6,2 A2,2 0 1 0 6,6 A2,2 0 1 0 6,2 M6,18 A2,2 0 1 0 6,22 A2,2 0 1 0 6,18 M18,4 A2,2 0 1 0 18,8 A2,2 0 1 0 18,4 M6,6 L6,18 M8,16 C15,16 10,8 16,8"/>
+                                                <TextBlock Text="&#xEA68;"
+                                                                FontFamily="/Bend;component/Fonts/#codicon"
+                                                                FontSize="24"
+                                                                Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"/>
                     </Button>
                     <Button Grid.Row="4"
                             x:Name="SettingsActivityButton"
                             Style="{StaticResource ActivityButton}"
-                            Click="SettingsMenu_Click"
+                            Click="SettingsActivity_Click"
                             ToolTip="Settings">
                         <Grid Width="19"
                                 Height="19">
@@ -540,7 +546,13 @@
                                 Margin="14,0"
                                 VerticalAlignment="Center"
                                 FontSize="11"/>
-                        <TextBlock Grid.Row="1"
+                        <controls:FilesPanel x:Name="FilesPanel"
+                                Grid.RowSpan="2"
+                                OpenFolderRequested="FilesPanel_OpenFolderRequested"
+                                FileInvoked="FilesPanel_FileInvoked"
+                                Visibility="Collapsed"/>
+                        <TextBlock x:Name="OtherSidePaneContent"
+                                Grid.Row="1"
                                 Margin="22"
                                 VerticalAlignment="Center"
                                 Text="This pane is intentionally empty in this release."
@@ -781,8 +793,8 @@
                         Foreground="{DynamicResource LogoForegroundBrush}"
                         Padding="8,0"/>
             </Grid>
-        </Grid>
         <Grid x:Name="Settings"
+                Grid.RowSpan="4"
                 Visibility="Hidden"
                 Background="{DynamicResource BackgroundBrush}"
                 Panel.ZIndex="10">
@@ -790,7 +802,7 @@
                 <RotateTransform x:Name="SettingsGridRotateTransform"/>
             </Grid.RenderTransform>
             <Grid.RowDefinitions>
-                <RowDefinition Height="48"/>
+                <RowDefinition Height="49.33"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="24"/>
             </Grid.RowDefinitions>
@@ -799,35 +811,44 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.ColumnSpan="2" Background="{DynamicResource ShellChromeBrush}">
-                <TextBlock Text="Bend"
-                        Margin="20,0"
-                        VerticalAlignment="Center"
-                        FontSize="18"
-                        FontWeight="SemiBold"/>
+                <Menu x:Name="SettingsLogo"
+                        Background="Transparent"
+                        Foreground="{DynamicResource ForegroundBrush}"
+                        FontFamily="Segoe UI"
+                        VerticalAlignment="Stretch">
+                    <MenuItem x:Name="SettingsLogoMenuItem"
+                            Header="Bend"
+                            Height="49.33"
+                            VerticalContentAlignment="Center"
+                            FontSize="20"
+                            FontWeight="SemiBold"
+                            FontFamily="Segoe UI Variable Display"
+                            Padding="22,0"
+                            ToolTip="Back to editor"
+                            Click="SettingsBack_Click"
+                            Template="{StaticResource FileMenuHeaderTemplate}"/>
+                </Menu>
                 <Button x:Name="BackButton"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Stretch"
                         Margin="0,0,34,0"
                         Style="{StaticResource ChromeButton}"
                         Padding="16,0"
+                        ToolTip="Back to editor"
                         Click="SettingsBack_Click">
                     <StackPanel Orientation="Horizontal" Margin="5,0,5,0">
-                        <TextBlock Text="Back to editor" VerticalAlignment="Center" />
-                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12" Margin="12,1,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </Grid>
-            <Grid Grid.Row="1" Background="{DynamicResource ShellPanelBrush}">
-                <Border BorderBrush="{DynamicResource ShellBorderBrush}" BorderThickness="0,0,1,0"/>
-                <Button Style="{StaticResource ChromeButton}" VerticalAlignment="Bottom" Height="52" Padding="0" Click="SettingsBack_Click" ToolTip="Back to editor">
-                    <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="20"/>
-                </Button>
-            </Grid>
-            <local:Settings x:Name="SettingsControl"
-                    Grid.Row="1" Grid.Column="1"/>
-            <Grid Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource LogoBackgroundBrush}">
-                <TextBlock x:Name="SettingsWorkspacePathText" Margin="12,0" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource LogoForegroundBrush}" Text="{Binding Text, ElementName=WorkspacePathText}"/>
-                <TextBlock Text="Settings" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource LogoForegroundBrush}"/>
+                        <TextBlock Text="&#xEA9B;"
+                                FontFamily="/Bend;component/Fonts/#codicon"
+                                FontSize="24"
+                                Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                </Button>
+                        </Grid>
+                        <local:Settings x:Name="SettingsControl" Grid.Row="1" Grid.ColumnSpan="2" />
+                                <TextBlock x:Name="SettingsWorkspacePathText" Grid.Row="2" Grid.ColumnSpan="2" Margin="12,0" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource LogoForegroundBrush}" Text="{Binding Text, ElementName=WorkspacePathText}"/>
+                                <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="Settings" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource LogoForegroundBrush}"/>
             </Grid>
         </Grid>
         <Border BorderBrush="{DynamicResource ShellBorderBrush}"

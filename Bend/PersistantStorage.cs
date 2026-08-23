@@ -49,6 +49,9 @@ namespace Bend
         public string CurrentThemeFilename;
         public ThemeSettings CurrentTheme;
 
+        // Workspace
+        public string LastWorkspaceFolder;
+
         #endregion
 
         public PersistantStorage()
@@ -83,7 +86,9 @@ namespace Bend
             DefaultFontFamilyIndex = -1;
 
             CurrentThemeFilename = "Light";
-            CurrentTheme = new ThemeSettings();            
+            CurrentTheme = new ThemeSettings();
+
+            LastWorkspaceFolder = null;
         }
 
         static PersistantStorage()
