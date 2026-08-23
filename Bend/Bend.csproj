@@ -279,7 +279,6 @@
     </Content>
     <Resource Include="Images\SettingsPattern.png" />
     <Resource Include="Images\FrontBackground.png" />
-    <Resource Include="Images\Close.png" />
     <Content Include="SyntaxHighlighting\Definitions\actionscript3.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

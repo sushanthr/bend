@@ -83,7 +83,7 @@ namespace Bend
 
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            StyledMessageBox.Show( "Unhandled Exception" , sender.ToString() + e.ToString() + "\n" + e.Exception.StackTrace);
+            MessageBox.Show(e.Exception.ToString(), "Bend - Unhandled Exception", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
             this.Shutdown(-1);
         }

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bend UI surface plan</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="polish.css">
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-files" viewBox="0 0 24 24"><path d="M6 2h8l4 4v14H6z"/><path d="M14 2v5h5"/><path d="M3 6v16h12"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="4" r="2"/><circle cx="6" cy="20" r="2"/><circle cx="18" cy="6" r="2"/><path d="M6 6v12M8 16c6 0 2-8 8-8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  </svg>
+  <header class="catalog"><div><strong>Bend UI surface plan</strong><span>Editor Focus target and all supporting surfaces</span></div><label>Preview <select id="surfacePicker"><option value="editor">Editor focus</option><option value="menu">Bend menu</option><option value="files">Files pane (placeholder)</option><option value="searchpane">Search pane (placeholder)</option><option value="git">Source control pane (placeholder)</option><option value="find">Find and replace</option><option value="settings">Settings</option><option value="goto">Go to line</option><option value="encoding">File encoding</option><option value="unsaved">Unsaved changes</option><option value="message">Alert / confirmation</option><option value="tabmenu">Tab context menu</option><option value="editmenu">Editor context menu</option><option value="terminal">Terminal expanded</option><option value="drag">Tab drag feedback</option><option value="empty">Empty editor</option></select></label></header>
+
+  <main class="stage">
+    <section class="window" aria-label="Bend design preview">
+      <header class="titlebar"><button class="brand" id="brand">Bend</button><button class="command"><svg><use href="#i-search"/></svg><span>Search</span><kbd>Ctrl+F</kbd></button><div class="window-actions"><button aria-label="Minimize"><span class="minimize"></span></button><button aria-label="Maximize"><span class="maximize"></span></button><button aria-label="Close"><svg><use href="#i-close"/></svg></button></div></header>
+      <div class="workspace">
+        <nav class="rail"><button data-pane="files" aria-label="Files"><svg><use href="#i-files"/></svg></button><button data-pane="searchpane" aria-label="Search"><svg><use href="#i-search"/></svg></button><button data-pane="git" aria-label="Source control"><svg><use href="#i-git"/></svg></button><span></span><a href="settings.html" aria-label="Open Settings"><svg><use href="#i-settings"/></svg></a></nav>
+        <aside class="side-pane" id="sidePane"><header id="paneTitle">FILES</header><div class="placeholder"><svg><use href="#i-files"/></svg><p>This pane is intentionally empty in the first implementation.</p></div></aside>
+        <section class="editor">
+          <div class="tabs"><button class="tab"><em>X</em> App.xaml</button><button class="tab active"><em>C#</em> MainWindow.xaml.cs <b>●</b><svg><use href="#i-close"/></svg></button><button class="new" aria-label="New file"><svg><use href="#i-plus"/></svg></button><span></span></div>
+          <div class="crumbs">bend <b>›</b> MainWindow.xaml.cs <b>›</b> MainWindow</div>
+          <div class="code"><ol start="18"><li><code><mark>namespace</mark> Bend</code></li><li><code>{</code></li><li><code>    <mark>public partial class</mark> <u>MainWindow</u> : Window</code></li><li><code>    {</code></li><li><code>        <mark>private readonly</mark> GitService git;</code></li><li><code></code></li><li><code>        <mark>public</mark> MainWindow()</code></li><li><code>        {</code></li><li><code>            InitializeComponent();</code></li><li><code>            git = <mark>new</mark> GitService();</code></li><li><code>        }</code></li><li><code></code></li><li><code class="comment">        // Keep the editor central; tools remain contextual.</code></li><li><code>        <mark>private void</mark> OpenWorkspace(<u>string</u> path)</code></li><li><code>        {</code></li><li><code>            workspace.Open(path);</code></li></ol></div>
+          <section class="empty-editor"><h1>Bend</h1><p>Open a file or create a new one to start editing.</p><div><button>Open file…</button><button>New file</button></div><small>Drop a file anywhere in this window to open it.</small></section>
+          <section class="settings-view"><header><div><p>SETTINGS</p><h1>Preferences</h1></div><button class="settings-close"><svg><use href="#i-close"/></svg> Close settings</button></header><nav><button class="selected">Editor</button><button>Application</button><button>System</button><button>About & shortcuts</button></nav><div class="settings-grid"><section><h2>Editor</h2><label>Font family <select><option>Cascadia Code</option><option>Consolas</option></select></label><label>Indent width <input value="4" inputmode="numeric"></label><div class="choice"><span>Indent with</span><label><input type="radio" name="indent" checked> Spaces</label><label><input type="radio" name="indent"> Tabs</label></div><label><span>Word wrap<small>Wrap long lines to the editor width.</small></span><input type="checkbox" checked></label><label><span>Show formatting<small>Display whitespace and formatting marks.</small></span><input type="checkbox"></label><label><span>Preserve indent<small>Match indentation on newly inserted lines.</small></span><input type="checkbox" checked></label><label><span>Syntax highlighting</span><input type="checkbox" checked></label></section><section><h2>Application</h2><label>Color theme <select><option>Light</option><option>Dark</option><option>Green</option></select></label><label><span>Status bar<small>Show document position, encoding, and language.</small></span><input type="checkbox" checked></label><label><span>Smooth scrolling</span><input type="checkbox" checked></label><label><span>Reopen files on start</span><input type="checkbox" checked></label><label><span>Settings page animation</span><input type="checkbox"></label><label><span>Diagnostics</span><input type="checkbox"></label><h2>Windows integration</h2><div class="settings-actions"><button>Enable context menu</button><button>Append Bend to PATH</button><button>Check for updates</button></div></section></div></section>
+        </section>
+      </div>
+      <section class="bottom"><header><button>TERMINAL</button><span></span><button>pwsh <svg><use href="#i-chevron-down"/></svg></button><button aria-label="New terminal"><svg><use href="#i-plus"/></svg></button><button aria-label="Expand terminal"><svg><use href="#i-chevron-up"/></svg></button><button aria-label="Close terminal"><svg><use href="#i-close"/></svg></button></header><pre><span>PS C:\Projects\bend&gt;</span> dotnet build
+<b>Build succeeded.</b>  0 Warning(s) · 0 Error(s)
+<span>PS C:\Projects\bend&gt;</span> ▌</pre></section>
+      <footer class="status"><span><svg><use href="#i-files"/></svg> C:\Projects\bend</span><span>Ln 29, Col 20&nbsp;&nbsp; UTF-8&nbsp;&nbsp; C#</span></footer>
+
+      <div class="app-menu overlay"><button>New file <kbd>Ctrl+N</kbd></button><button>Open file… <kbd>Ctrl+O</kbd></button><button>Open folder…</button><button>Recent files <span>›</span></button><hr><button>Save <kbd>Ctrl+S</kbd></button><button>Save as… <kbd>Ctrl+Shift+S</kbd></button><button>Save with encoding…</button><hr><a class="menu-link" href="settings.html">Settings</a><button>Exit</button></div>
+      <div class="findbar overlay"><div><input value="MainWindow"><span>1 of 3</span><button aria-label="Previous match"><svg><use href="#i-chevron-up"/></svg></button><button aria-label="Next match"><svg><use href="#i-chevron-down"/></svg></button><button aria-label="Close search"><svg><use href="#i-close"/></svg></button></div><div><input placeholder="Replace"><button>Replace</button><button>Replace all</button></div><footer><label><input type="checkbox"> Match case</label><label><input type="checkbox"> Regex</label><label><input type="checkbox"> In selection</label></footer></div>
+      <div class="dialog overlay" data-dialog="goto"><h2>Go to line</h2><p>Enter a line number.</p><label>Line number<input value="29" autofocus></label><footer><button>Cancel</button><button class="primary">Go</button></footer></div>
+      <div class="dialog overlay" data-dialog="encoding"><h2>File encoding</h2><p>Choose the encoding used when this file is saved.</p><label>Encoding<select><option>UTF-8</option><option>ASCII</option><option>Unicode</option><option>UTF-7</option><option>UTF-32</option></select></label><p class="warning">Changing encoding may affect characters not supported by the selected format.</p><footer><button>Cancel</button><button class="primary">Apply</button></footer></div>
+      <div class="dialog overlay" data-dialog="unsaved"><h2>Save changes?</h2><p><strong>MainWindow.xaml.cs</strong> has unsaved changes.</p><footer><button>Cancel</button><button>Don't save</button><button class="primary">Save</button></footer></div>
+      <div class="dialog overlay" data-dialog="message"><h2>File modified</h2><p>This file was modified outside Bend. Reload it and discard the version currently in the editor?</p><footer><button>Keep editor version</button><button class="primary">Reload</button></footer></div>
+      <div class="context overlay tab-context"><button>Refresh <kbd>F5</kbd></button><button>Close</button><button>Close other tabs</button><hr><button>File encoding…</button><button>Copy full path</button><button>Open containing folder</button><hr><button>Reopen last session</button></div>
+      <div class="context overlay edit-context"><button>Cut <kbd>Ctrl+X</kbd></button><button>Copy <kbd>Ctrl+C</kbd></button><button>Paste <kbd>Ctrl+V</kbd></button><hr><button>Undo <kbd>Ctrl+Z</kbd></button><button>Redo <kbd>Ctrl+Y</kbd></button><hr><button>Go to line… <kbd>Ctrl+G</kbd></button><button>Record</button></div>
+      <div class="drag-ghost overlay"><em>C#</em> MainWindow.xaml.cs <svg><use href="#i-close"/></svg></div>
+    </section>
+    <p class="caption" id="caption">Editor Focus — the production milestone requested for the first pass.</p>
+  </main>
+  <script src="preview.js"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Microsoft.Win32;
 
 namespace Bend
@@ -26,15 +26,23 @@ namespace Bend
             fontFamilySegoeUI = new FontFamily("Segoe UI");
         }
 
-        internal TabTitle()
+        internal TabTitle(bool mutedCloseButton = false)
         {
+            this.Height = 34.7;
+            this.Margin = new Thickness(0, 1, 0, 0);
+            this.MinWidth = 150;
+            this.VerticalAlignment = VerticalAlignment.Top;
+            this.SetResourceReference(Panel.BackgroundProperty, "BackgroundBrush");
             titleText = new TextBlock();
             titleText.Text = "New File";
-            titleText.MinWidth = 110;
+            titleText.MinWidth = 120;
+            titleText.MaxWidth = 220;
             titleText.Height = 34;
-            titleText.Padding = new Thickness(5, 2, 0, 0);
-            titleText.VerticalAlignment = VerticalAlignment.Top;
-            titleText.TextAlignment = TextAlignment.Center;
+            titleText.Padding = new Thickness(14, 0, 8, 0);
+            titleText.VerticalAlignment = VerticalAlignment.Center;
+            titleText.RenderTransform = new TranslateTransform(0, 9.5);
+            titleText.TextAlignment = TextAlignment.Left;
+            titleText.TextTrimming = TextTrimming.CharacterEllipsis;
             titleText.FontFamily = fontFamilySegoeUI;
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(titleText, /*isHitTestable*/true);
             titleText.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
@@ -45,14 +53,24 @@ namespace Bend
             seperator.Visibility = Visibility.Hidden;
             this.Children.Add(seperator);
 
-            closeButton = new Image();
-            closeButton.Width = 10;
-            closeButton.Height = 10;
-            BitmapImage closeImage = new BitmapImage();
-            closeImage.BeginInit();
-            closeImage.UriSource = new Uri("pack://application:,,,/Bend;component/Images/Close.png");
-            closeImage.EndInit();
-            closeButton.Source = closeImage;
+            Path closeGlyph = new Path
+            {
+                Width = 9,
+                Height = 9,
+                Stroke = mutedCloseButton ? Brushes.Gray : new SolidColorBrush(Color.FromRgb(240, 76, 76)),
+                StrokeThickness = 1.4,
+                Data = Geometry.Parse("M0,0 L9,9 M9,0 L0,9"),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            closeButton = new Border
+            {
+                Width = 24,
+                Height = 35.7,
+                Background = Brushes.Transparent,
+                Margin = new Thickness(0, 0, 6, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Child = closeGlyph
+            };
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(closeButton, /*isHitTestable*/true);
             this.Children.Add(closeButton);
 
@@ -110,7 +128,7 @@ namespace Bend
             set { this.titleText.Text = value; }
         }
 
-        internal Image CloseButton
+        internal FrameworkElement CloseButton
         {
             get { return this.closeButton; }
         }
@@ -119,6 +137,6 @@ namespace Bend
         internal event CloseButtonClickedEvent CloseButtonClicked;
 
         readonly TextBlock titleText;
-        readonly Image closeButton;
+        readonly FrameworkElement closeButton;
     }
 }

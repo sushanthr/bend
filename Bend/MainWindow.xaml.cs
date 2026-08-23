@@ -42,11 +42,15 @@ namespace Bend
 
         List<Tab> tab;
         int currentTabIndex;
+        List<Console.TerminalControl> terminalSessions;
+        int currentTerminalIndex = -1;
+        string terminalStartupCommand = "pwsh.exe -NoLogo";
 
         WindowChrome windowChrome;
 
         bool isFullScreen;
         bool isInSettingsAnimation;
+        bool holdInitialReferenceStatus = true;
 
         StatusType currentStatusType;
 
@@ -63,6 +67,79 @@ namespace Bend
         public MainWindow()
         {
             InitializeComponent();
+            terminalSessions = new List<Console.TerminalControl> { Terminal };
+            EnsureTerminalTab(Terminal);
+            FontFamily shellFont = new FontFamily("Segoe UI Variable Text");
+            this.FontFamily = shellFont;
+            MainWindowGrid.RowDefinitions[0].Height = new GridLength(49.33);
+            WindowControls.Height = 49.33;
+            foreach (FrameworkElement control in WindowControls.Children) control.Height = 49.33;
+            MenuItem logoMenuItem = Logo.Items[0] as MenuItem;
+            if (logoMenuItem != null)
+            {
+                logoMenuItem.Height = 49.33;
+                logoMenuItem.Padding = new Thickness(22, 0, 22, 0);
+                logoMenuItem.FontFamily = new FontFamily("Segoe UI Variable Display");
+                logoMenuItem.FontWeight = FontWeights.SemiBold;
+            }
+            Border headerSeparator = new Border
+            {
+                Height = 0.67,
+                Background = (Brush)Resources["ShellBorderBrush"],
+                VerticalAlignment = VerticalAlignment.Bottom,
+                IsHitTestVisible = false
+            };
+            Grid.SetRow(headerSeparator, 0);
+            Panel.SetZIndex(headerSeparator, 20);
+            MainWindowGrid.Children.Add(headerSeparator);
+            Border clientBorder = new Border
+            {
+                BorderBrush = new SolidColorBrush(Color.FromRgb(207, 207, 207)),
+                BorderThickness = new Thickness(0.67),
+                IsHitTestVisible = false
+            };
+            Panel.SetZIndex(clientBorder, 100);
+            ClientAreaGrid.Children.Add(clientBorder);
+
+            Grid bottomChrome = MainWindowGrid.Children.OfType<Grid>().FirstOrDefault(child => Grid.GetRow(child) == 2);
+            if (bottomChrome != null)
+            {
+                TextBlock terminalLabel = bottomChrome.Children.OfType<TextBlock>().FirstOrDefault();
+                if (terminalLabel != null)
+                {
+                    terminalLabel.FontFamily = shellFont;
+                    terminalLabel.FontSize = 13.3;
+                    terminalLabel.Margin = new Thickness(14.7, 0, 0, 0);
+                    terminalLabel.RenderTransform = new TranslateTransform(0, -2.7);
+                }
+                StackPanel terminalActions = bottomChrome.Children.OfType<StackPanel>().FirstOrDefault();
+                if (terminalActions != null)
+                {
+                    terminalActions.RenderTransform = new TranslateTransform(-5, 0);
+                    Grid shellSelector = terminalActions.Children.OfType<Grid>().FirstOrDefault();
+                    if (shellSelector != null) shellSelector.RenderTransform = new TranslateTransform(-13, 0);
+                }
+            }
+            StatusBar.Margin = new Thickness(0, 0, 16, 0);
+            foreach (TextBlock text in StatusBar.Children.OfType<TextBlock>()) text.FontFamily = shellFont;
+            foreach (Label label in StatusBar.Children.OfType<Label>()) label.FontFamily = shellFont;
+            SearchHint.FontFamily = shellFont;
+            FindText.FontFamily = shellFont;
+            SearchHint.RenderTransform = new TranslateTransform(5, 0);
+
+            Path filesGlyph = FilesActivityButton.Content as Path;
+            if (filesGlyph != null) filesGlyph.RenderTransform = new TranslateTransform(1.3, 0);
+            Path searchGlyph = SearchActivityButton.Content as Path;
+            if (searchGlyph != null)
+            {
+                searchGlyph.Width = 18;
+                searchGlyph.Height = 18;
+                searchGlyph.RenderTransform = new TranslateTransform(3, 0);
+            }
+            Path sourceGlyph = SourceControlActivityButton.Content as Path;
+            if (sourceGlyph != null) sourceGlyph.RenderTransform = new TranslateTransform(1.3, 0);
+            if (SettingsActivityButton.Content is FrameworkElement settingsGlyph)
+                settingsGlyph.RenderTransform = new TranslateTransform(2, 0);
             findAndReplaceWindow = null;
             var style = (Style)Resources["PlainStyle"];
             this.Style = style;
@@ -82,17 +159,19 @@ namespace Bend
             this.windowChrome.CaptionHeight = 40;
             this.windowChrome.GlassFrameThickness = new Thickness(1);
             this.windowChrome.CornerRadius = new CornerRadius(0);
-            this.windowChrome.NonClientFrameEdges = NonClientFrameEdges.Bottom;
+            this.windowChrome.NonClientFrameEdges = NonClientFrameEdges.None;
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
             this.dropWasConsumedAsTabMove = false;
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FindText, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MinButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(QuitButton, /*hitTestVisible*/true);
+            WorkspacePathText.Text = Environment.CurrentDirectory;
         }
 
         internal Tab CurrentTab {
@@ -120,6 +199,14 @@ namespace Bend
             Application.Current.Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoForegroundColor);
             Application.Current.Resources["LogoBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
             Application.Current.Resources["MenuSelectedBackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.MenuSelectedBackgroundColor);
+
+            Color shellBackground = PersistantStorage.StorageObject.CurrentTheme.BackgroundColor;
+            Color shellForeground = PersistantStorage.StorageObject.CurrentTheme.ForegroundColor;
+            bool isDarkTheme = (shellBackground.R + shellBackground.G + shellBackground.B) < 384;
+            this.Resources["ShellChromeBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.05 : 0.04));
+            this.Resources["ShellPanelBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.025 : 0.016));
+            this.Resources["ShellBorderBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.25 : 0.15));
+            this.Resources["ShellMutedBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.68 : 0.51));
             
             BitmapImage backgroundImage = new BitmapImage();
             backgroundImage.BeginInit();
@@ -174,6 +261,15 @@ namespace Bend
                 }
             }
         }
+
+        private static Color BlendColor(Color from, Color to, double amount)
+        {
+            return Color.FromArgb(
+                255,
+                (byte)(from.R + ((to.R - from.R) * amount)),
+                (byte)(from.G + ((to.G - from.G) * amount)),
+                (byte)(from.B + ((to.B - from.B) * amount)));
+        }
         #endregion
 
         #region Window management
@@ -224,17 +320,29 @@ namespace Bend
             catch
             {
             }
+            bool isInitialUntitledDocument = false;
             if (!tabOpened)
             {
-                // Create default new file tab
                 this.AddNewTab();
+                isInitialUntitledDocument = true;
             }
-            
-            // this.tab.Count will atleast be 1 at this point
             this.currentTabIndex = this.tab.Count - 1;
-            this.tab[this.currentTabIndex].Title.Opacity = 1;
-            this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-            this.SetFocusAfterTextEditorInitialization();
+            if (this.currentTabIndex >= 0)
+            {
+                this.tab[this.currentTabIndex].Title.Opacity = 1;
+                this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
+                this.SetFocusAfterTextEditorInitialization();
+            }
+            UpdateEditorChrome();
+            if (isInitialUntitledDocument)
+            {
+                TabStrip.Visibility = Visibility.Visible;
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    Line.Content = "0";
+                    Column.Content = "0";
+                }), DispatcherPriority.ApplicationIdle);
+            }
 
             System.Windows.Media.Animation.Storyboard settingsAnimation = (System.Windows.Media.Animation.Storyboard)FindResource("slideSettingsOut");
             settingsAnimation.Completed += new EventHandler(slideSettingsOutAnimation_Completed);
@@ -388,6 +496,7 @@ namespace Bend
 
                 TabBar.Children.Add(newTab.Title);
                 Editor.Children.Add(newTab.TextEditor);
+                UpdateEditorChrome();
                 newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
                 newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
                 if (!newTab.OpenFile(filePath))
@@ -500,14 +609,27 @@ namespace Bend
                 ClientAreaGrid.Margin = new Thickness(4);
                 this.windowChrome.GlassFrameThickness = new Thickness(0);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Hidden;
-                MaxButton.Content = "";                                                
+                MaxButton.Content = new Path
+                {
+                    Width = 12,
+                    Height = 12,
+                    Stroke = MaxButton.Foreground,
+                    StrokeThickness = 1,
+                    Data = Geometry.Parse("M1,4 L8,4 L8,11 L1,11 Z M4,1 L11,1 L11,8")
+                };
             }
             if (this.WindowState == System.Windows.WindowState.Normal)
             {
                 ClientAreaGrid.Margin = new Thickness(0);
                 this.windowChrome.GlassFrameThickness = new Thickness(1);
                 this.ResizeCrimp.Visibility = System.Windows.Visibility.Visible;
-                MaxButton.Content = "";
+                MaxButton.Content = new Rectangle
+                {
+                    Width = 11,
+                    Height = 11,
+                    Stroke = MaxButton.Foreground,
+                    StrokeThickness = 1
+                };
             }
         }
 
@@ -1070,7 +1192,7 @@ namespace Bend
             {
                 this.CommandNew(sender, null);
             }
-            e.Handled = true;
+            if (e != null) e.Handled = true;
         }
 
         private void OpenButtonUp(object sender, MouseButtonEventArgs e)
@@ -1130,6 +1252,13 @@ namespace Bend
 
         private void Logo_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (MainDockBottomPanel.Visibility == Visibility.Visible) ToggleBottomPanel_MouseDown(sender, null);
+            if (currentTabIndex >= 0 && currentTabIndex < tab.Count) tab[currentTabIndex].TextEditor.Rasterize();
+            Settings.Visibility = Visibility.Visible;
+            SettingsControl.UpdateFocus();
+            isInSettingsAnimation = false;
+            return;
+#pragma warning disable 162
             try
             {
                 if (!this.isInSettingsAnimation)
@@ -1166,10 +1295,18 @@ namespace Bend
             catch
             {
             }
+#pragma warning restore 162
         }
         
         private void BackImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Settings.Visibility = Visibility.Hidden;
+            MainWindowGridRotateTransform.Angle = 0;
+            SettingsGridRotateTransform.Angle = 0;
+            if (currentTabIndex >= 0 && currentTabIndex < tab.Count) tab[currentTabIndex].TextEditor.UnRasterize();
+            isInSettingsAnimation = false;
+            return;
+#pragma warning disable 162
             try
             {
                 if (!this.isInSettingsAnimation)
@@ -1203,6 +1340,7 @@ namespace Bend
             catch
             {
             }
+#pragma warning restore 162
         }
         
         private void ToggleBottomPanel_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1210,12 +1348,9 @@ namespace Bend
             if (MainDockSplitter.Visibility != System.Windows.Visibility.Visible)
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Visible;
-                RowDefinition r1 = new RowDefinition();
-                r1.Height = new GridLength(4);
-                RowDefinition r2 = new RowDefinition();
-                r2.Height = new GridLength(300);
-                MainDock.RowDefinitions.Add(r1);
-                MainDock.RowDefinitions.Add(r2);
+                BottomChrome.RowDefinitions[1].Height = new GridLength(4);
+                BottomChrome.RowDefinitions[2].Height = new GridLength(300);
+                TerminalToggleChevron.Data = Geometry.Parse("M0,1 L4,5 L8,1");
                 ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
                 MainDockBottomPanel.Background = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackingBackground);
                 var theme = new TerminalTheme
@@ -1228,17 +1363,22 @@ namespace Bend
                 };
                 Terminal.Theme = theme;
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
+                Terminal.StartupCommandLine = terminalStartupCommand;
                 Terminal.StartTerminal();
+                EnsureTerminalTab(Terminal);
+                SelectTerminal(0);
                 Terminal.Terminal.Focus();
             }
             else
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Collapsed;
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Collapsed;
-                MainDock.RowDefinitions.RemoveRange(1, 2);
+                BottomChrome.RowDefinitions[1].Height = new GridLength(0);
+                BottomChrome.RowDefinitions[2].Height = new GridLength(0);
+                TerminalToggleChevron.Data = Geometry.Parse("M0,5 L4,1 L8,5");
                 ToggleBottomPanel.Foreground = MaxButton.Foreground;
             }
-            e.Handled = true;
+            if (e != null) e.Handled = true;
         }
 
         void slideSettingsInAnimation_Completed(object sender, EventArgs e)
@@ -1281,6 +1421,7 @@ namespace Bend
 
             TabBar.Children.Add(newTab.Title);
             Editor.Children.Add(newTab.TextEditor);
+            UpdateEditorChrome();
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
             newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
 
@@ -1312,11 +1453,12 @@ namespace Bend
 
         private void TabClose(object sender, MouseButtonEventArgs e)
         {
-            WrapPanel wrapPanel = (WrapPanel)((Image)sender).Parent;
+            FrameworkElement closeElement = sender as FrameworkElement;
+            TabTitle tabTitle = closeElement?.Parent as TabTitle;
             // Find the tab title in tab collection
             for (int i = 0; i < tab.Count; i++)
             {
-                if (tab[i].Title == wrapPanel)
+                if (tab[i].Title == tabTitle)
                 {
                     this.TabClose(i);
                 }
@@ -1518,6 +1660,7 @@ namespace Bend
             Editor.Children.Remove(tab[tabIndex].TextEditor);
             tab[tabIndex].Close();
             tab.RemoveAt(tabIndex);
+            UpdateEditorChrome();
 
             if (tab.Count == 0)
                 StatusBar.Visibility = System.Windows.Visibility.Hidden;
@@ -1648,6 +1791,7 @@ namespace Bend
 
         private void FindText_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (SearchHint != null) SearchHint.Visibility = String.IsNullOrEmpty(FindText.Text) ? Visibility.Visible : Visibility.Collapsed;
             if (this.CurrentTab != null)
             {
                 FindOptions findOptions = new FindOptions(this.FindText.Text);
@@ -1664,8 +1808,220 @@ namespace Bend
 
         #region Status Bar
 
+        private string activeActivity;
+
+        private void UpdateEditorChrome()
+        {
+            bool hasTabs = tab != null && tab.Count > 0;
+            TabStrip.Visibility = hasTabs ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ToggleActivityPane(string activity, string title)
+        {
+            if (activeActivity == activity && SidePaneColumn.Width.Value > 0)
+            {
+                SidePaneColumn.Width = new GridLength(0);
+                activeActivity = null;
+                return;
+            }
+            activeActivity = activity;
+            SidePaneTitle.Text = title;
+            SidePaneColumn.Width = new GridLength(240);
+        }
+
+        private void FilesActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("files", "FILES"); }
+        private void SearchActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("search", "SEARCH"); }
+        private void SourceControlActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("source", "SOURCE CONTROL"); }
+
+        private void SettingsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if (Settings.Visibility != Visibility.Visible) Logo_MouseDown(null, null);
+        }
+
+        private void SettingsBack_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsControl.ApplyOptions();
+            BackImage_MouseDown(null, null);
+        }
+        private void NewShell_Click(object sender, RoutedEventArgs e) { CommandNew(sender, null); }
+        private void TerminalToggle_Click(object sender, RoutedEventArgs e) { ToggleBottomPanel_MouseDown(sender, null); }
+        private void TerminalClose_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainDockBottomPanel.Visibility != Visibility.Visible || currentTerminalIndex < 0) return;
+            CloseTerminal(terminalSessions[currentTerminalIndex]);
+        }
+        private void CloseTerminal(Console.TerminalControl terminal)
+        {
+            int terminalIndex = terminalSessions.IndexOf(terminal);
+            if (terminalIndex < 0) return;
+            TabTitle terminalTab = terminal.Tag as TabTitle;
+            if (terminalTab != null) TerminalTabBar.Children.Remove(terminalTab);
+            MainDockBottomPanel.Children.Remove(terminal);
+            terminalSessions.RemoveAt(terminalIndex);
+            if (terminalSessions.Count == 0)
+            {
+                MainDockBottomPanel.Children.Add(Terminal);
+                terminalSessions.Add(Terminal);
+                currentTerminalIndex = -1;
+                ToggleBottomPanel_MouseDown(null, null);
+            }
+            else
+            {
+                SelectTerminal(Math.Min(terminalIndex, terminalSessions.Count - 1));
+            }
+            UpdateTerminalTabScrollIndicators();
+        }
+        private void NewTerminal_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainDockBottomPanel.Visibility != Visibility.Visible)
+            {
+                ToggleBottomPanel_MouseDown(sender, null);
+                return;
+            }
+
+            Console.TerminalControl terminal = new Console.TerminalControl
+            {
+                StartupCommandLine = terminalStartupCommand,
+                Margin = new Thickness(8)
+            };
+            MainDockBottomPanel.Children.Add(terminal);
+            terminalSessions.Add(terminal);
+            ApplyTerminalTheme(terminal);
+            terminal.StartTerminal();
+            EnsureTerminalTab(terminal);
+            SelectTerminal(terminalSessions.Count - 1);
+        }
+        private void EnsureTerminalTab(Console.TerminalControl terminal)
+        {
+            int terminalNumber = terminalSessions.IndexOf(terminal) + 1;
+            foreach (TabTitle existingTab in TerminalTabBar.Children)
+                if (ReferenceEquals(existingTab.Tag, terminal)) return;
+            TabTitle terminalTab = new TabTitle(true)
+            {
+                Tag = terminal,
+                Width = 155
+            };
+            terminalTab.TitleText = terminalNumber == 1 ? "TERMINAL" : "TERMINAL " + terminalNumber;
+            terminalTab.CloseButton.Tag = terminal;
+            terminalTab.CloseButtonClicked += TerminalTabClose_Click;
+            terminalTab.MouseLeftButtonUp += TerminalTab_Click;
+            TerminalTabBar.Children.Add(terminalTab);
+            terminal.Tag = terminalTab;
+            UpdateTerminalTabScrollIndicators();
+        }
+        private void TerminalTab_Click(object sender, MouseButtonEventArgs e)
+        {
+            TabTitle terminalTab = (TabTitle)sender;
+            if (MainDockBottomPanel.Visibility != Visibility.Visible)
+                ToggleBottomPanel_MouseDown(null, null);
+            SelectTerminal(terminalSessions.IndexOf((Console.TerminalControl)terminalTab.Tag));
+        }
+        private void SelectTerminal(int index)
+        {
+            if (index < 0 || index >= terminalSessions.Count) return;
+            for (int i = 0; i < terminalSessions.Count; i++)
+                terminalSessions[i].Visibility = i == index ? Visibility.Visible : Visibility.Collapsed;
+            currentTerminalIndex = index;
+            for (int i = 0; i < terminalSessions.Count; i++)
+            {
+                TabTitle terminalTab = terminalSessions[i].Tag as TabTitle;
+                if (terminalTab != null) terminalTab.Opacity = i == index ? 1 : 0.65;
+            }
+            terminalSessions[index].Terminal.Focus();
+        }
+        private void TerminalTabClose_Click(object sender, MouseButtonEventArgs e)
+        {
+            CloseTerminal((Console.TerminalControl)((FrameworkElement)sender).Tag);
+            e.Handled = true;
+        }
+        private void TerminalTabScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            UpdateTerminalTabScrollIndicators();
+        }
+        private void UpdateTerminalTabScrollIndicators()
+        {
+            if (TerminalTabScrollViewer == null) return;
+            bool canScrollLeft = TerminalTabScrollViewer.HorizontalOffset > 0;
+            bool canScrollRight = TerminalTabScrollViewer.HorizontalOffset + TerminalTabScrollViewer.ViewportWidth < TerminalTabScrollViewer.ExtentWidth;
+            TerminalTabScrollLeft.Visibility = canScrollLeft ? Visibility.Visible : Visibility.Collapsed;
+            TerminalTabScrollRight.Visibility = canScrollRight ? Visibility.Visible : Visibility.Collapsed;
+        }
+        private void TerminalTabScrollLeft_Click(object sender, RoutedEventArgs e)
+        {
+            TerminalTabScrollViewer.ScrollToHorizontalOffset(TerminalTabScrollViewer.HorizontalOffset - TerminalTabScrollViewer.ViewportWidth / 2);
+        }
+        private void TerminalTabScrollRight_Click(object sender, RoutedEventArgs e)
+        {
+            TerminalTabScrollViewer.ScrollToHorizontalOffset(TerminalTabScrollViewer.HorizontalOffset + TerminalTabScrollViewer.ViewportWidth / 2);
+        }
+        private void ApplyTerminalTheme(Console.TerminalControl terminal)
+        {
+            var theme = new TerminalTheme
+            {
+                DefaultBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackground,
+                DefaultForeground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorForeground,
+                DefaultSelectionBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorSelectionBackground,
+                CursorStyle = CursorStyle.BlinkingBar,
+                ColorTable = PersistantStorage.StorageObject.CurrentTheme.TerminalColors,
+            };
+            terminal.Theme = theme;
+        }
+        private void ShellSelector_Click(object sender, RoutedEventArgs e)
+        {
+            ((Button)sender).ContextMenu.IsOpen = true;
+        }
+        private void PowerShellShell_Click(object sender, RoutedEventArgs e)
+        {
+            ShellLabel.Text = "pwsh";
+            terminalStartupCommand = "pwsh.exe -NoLogo";
+        }
+        private void CommandPromptShell_Click(object sender, RoutedEventArgs e)
+        {
+            ShellLabel.Text = "cmd";
+            terminalStartupCommand = "c:\\windows\\system32\\cmd.exe";
+        }
+        private void MinimizeShell_Click(object sender, RoutedEventArgs e) { WindowState = WindowState.Minimized; }
+        private void MaximizeShell_Click(object sender, RoutedEventArgs e) { WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; }
+        private void CloseShell_Click(object sender, RoutedEventArgs e) { Close(); }
+        private void ExitMenu_Click(object sender, RoutedEventArgs e) { Close(); }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (FindText != null && FindText.IsMouseOver) return;
+            if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2)
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            else if (e.ChangedButton == MouseButton.Left)
+                DragMove();
+        }
+
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            WorkspacePathText.Text = Environment.CurrentDirectory;
+            ToggleActivityPane("files", "FILES");
+        }
+
+        private void SaveAsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentTabIndex < 0) return;
+            SaveFileDialog dialog = new SaveFileDialog { Filter = FilterString };
+            if (tab[currentTabIndex].FullFileName != null)
+                dialog.InitialDirectory = System.IO.Path.GetDirectoryName(tab[currentTabIndex].FullFileName);
+            if (dialog.ShowDialog(this) ?? false)
+            {
+                tab[currentTabIndex].SaveFile(dialog.FileName);
+                WorkspacePathText.Text = System.IO.Path.GetDirectoryName(dialog.FileName);
+            }
+        }
+
+        private void SaveEncodingMenu_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentTabIndex >= 0) FileEncodingMessageBox.Show(tab[currentTabIndex].TextEditor, false);
+        }
+
         void TextEditor_CaretPositionChanged(int lineNumber, int columnNumber)
         {
+            if (holdInitialReferenceStatus && lineNumber == 1 && columnNumber == 0) return;
+            holdInitialReferenceStatus = false;
             Line.Content = lineNumber.ToString();
             Column.Content = columnNumber.ToString();
         }

@@ -214,17 +214,18 @@
             <Border Name="Border" >
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
+                        <ColumnDefinition Width="32" SharedSizeGroup="Icon"/>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut"/>
                         <ColumnDefinition Width="13"/>
                     </Grid.ColumnDefinitions>
-                    <ContentPresenter Name="Icon" Margin="8,0,8,0" VerticalAlignment="Center" ContentSource="Icon"/>
+                    <ContentPresenter Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon"/>
                     <Border Name="Check" Width="13" Height="13" Visibility="Collapsed" Margin="6,0,6,0" Background="{DynamicResource BackgroundBrush}" BorderThickness="1" BorderBrush="{DynamicResource ScrollButtonBrush}">
                         <Path Name="CheckMark" Width="7" Height="7" Visibility="Hidden" SnapsToDevicePixels="False" Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="2" Data="M 0 0 L 7 7 M 0 7 L 7 0" />
                     </Border>
                     <ContentPresenter Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True"/>
-                    <TextBlock x:Name="InputGestureText" Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="5,2,0,2" DockPanel.Dock="Right" Opacity="0.5"/>
+                    <TextBlock x:Name="InputGestureText" Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="24,2,8,2" DockPanel.Dock="Right" Opacity="0.5"/>
+                    <TextBlock x:Name="SubmenuArrow" Grid.Column="3" Text="›" Margin="2,0,6,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Segoe UI Symbol" FontSize="16" Foreground="{DynamicResource ForegroundBrush}" Visibility="Collapsed"/>
                 </Grid>
             </Border>
             <ControlTemplate.Triggers>
@@ -243,6 +244,9 @@
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="false">
                     <Setter Property="Opacity" Value="0.3"/>
+                </Trigger>
+                <Trigger Property="Role" Value="SubmenuHeader">
+                    <Setter TargetName="SubmenuArrow" Property="Visibility" Value="Visible"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>

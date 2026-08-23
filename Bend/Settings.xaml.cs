@@ -23,6 +23,7 @@ namespace Bend
     {
         #region Member Data
         private bool isApplicationNetworkDeployed;
+        private bool isUpdatingOptions;
         #endregion
 
         #region Settings UI Maintainance
@@ -205,25 +206,8 @@ namespace Bend
         
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            try
-            {
-                TabItem tabItem = (TabItem)SettingsTabs.SelectedItem;
-                if (tabItem != null)
-                {
-                    TabControl tabControl = (TabControl)tabItem.Parent;
-                    for (int i = 0; i < tabControl.Items.Count; i++)
-                    {
-                        ((Label)((TabItem)tabControl.Items[i]).Header).Foreground = Brushes.Gray;
-                    }
-
-                    Label header = (Label)tabItem.Header;
-                    header.Foreground = new SolidColorBrush(Color.FromArgb(255, 25, 162, 222));
-                    ProgressBar.Rect = new Rect(0, 0, 0, 5);
-                }
-            }
-            catch
-            {
-            }
+            if (ProgressBar != null)
+                ProgressBar.Rect = new Rect(0, 0, 0, 4);
         }
         
         private void Settings_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -466,6 +450,9 @@ namespace Bend
         #region Options Tab
         private void UpdateOptions()
         {
+            this.isUpdatingOptions = true;
+            try
+            {
             PersistantStorage persistantStorage = PersistantStorage.StorageObject;
             TextUseSpaces.IsChecked = persistantStorage.TextUseSpaces;
             TextUseTabs.IsChecked = persistantStorage.TextUseTabs;
@@ -509,7 +496,12 @@ namespace Bend
                 {
                     ThemePicker.SelectedIndex = i;
                     break;
-                }            
+                }
+            }
+            }
+            finally
+            {
+                this.isUpdatingOptions = false;
             }
         }
 
@@ -526,6 +518,26 @@ namespace Bend
         }
 
         private void OptionsSave_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyOptions();
+            this.CancelSettingsUI();
+        }
+
+        private void ThemePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.isUpdatingOptions || ThemePicker.SelectedItem == null)
+                return;
+
+            Label selectedTheme = ThemePicker.SelectedItem as Label;
+            if (selectedTheme == null || selectedTheme.Content == null)
+                return;
+
+            PersistantStorage.StorageObject.CurrentThemeFilename = selectedTheme.Content.ToString();
+            SetTheme();
+            MainWindow_LoadOptions();
+        }
+
+        public void ApplyOptions()
         {
             try
             {
@@ -554,8 +566,7 @@ namespace Bend
                 persistantStorage.PreserveIndent = PreserveIndent.IsChecked ?? true;
 
                 SetTheme();
-                MainWindow_LoadOptions();                
-                this.CancelSettingsUI();
+                MainWindow_LoadOptions();
             }
             catch
             {
