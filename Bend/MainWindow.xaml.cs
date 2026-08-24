@@ -2002,10 +2002,12 @@ namespace Bend
             SidePaneTitle.Text = title;
             SidePaneColumn.Width = new GridLength(activity == "source" ? 320 : 240);
             bool showFiles = activity == "files";
+            bool showSearch = activity == "search";
             bool showSource = activity == "source";
             FilesPanel.Visibility = showFiles ? Visibility.Visible : Visibility.Collapsed;
+            SearchPanel.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
             SourceControlPanel.Visibility = showSource ? Visibility.Visible : Visibility.Collapsed;
-            OtherSidePaneContent.Visibility = (showFiles || showSource) ? Visibility.Collapsed : Visibility.Visible;
+            OtherSidePaneContent.Visibility = (showFiles || showSearch || showSource) ? Visibility.Collapsed : Visibility.Visible;
             if (showSource) SourceControlPanel.RefreshAsync();
         }
 
@@ -2279,6 +2281,7 @@ namespace Bend
             this.currentFolderPath = path;
             WorkspacePathText.Text = path;
             FilesPanel.RootPath = path;
+            SearchPanel.RootPath = path;
             SourceControlPanel.WorkspacePath = path;
             if (persist)
             {
@@ -2299,6 +2302,56 @@ namespace Bend
             FolderTreeFileInvokedEventArgs fileEvent = e as FolderTreeFileInvokedEventArgs;
             if (node != null && node.NodeKind == FolderTreeNodeKind.File && fileEvent != null)
                 OpenDocumentFromTree(node.FullPath, fileEvent.IsDoubleClick);
+        }
+
+        private void SearchPanel_ResultInvoked(object sender, RoutedEventArgs e)
+        {
+            SearchResultEventArgs resultEvent = e as SearchResultEventArgs;
+            if (resultEvent == null || resultEvent.Result == null) return;
+            OpenDocumentFromTree(resultEvent.Result.FullPath, true);
+            if (this.CurrentTab != null)
+            {
+                Tab selectedTab = this.CurrentTab;
+                SearchResult result = resultEvent.Result;
+                Dispatcher.BeginInvoke(new Action(() => HighlightSearchResult(selectedTab, result, 0)),
+                    DispatcherPriority.Render);
+            }
+        }
+
+        private void HighlightSearchResult(Tab targetTab, SearchResult result, int attempt)
+        {
+            if (targetTab == null || result == null || String.IsNullOrEmpty(result.SearchText)) return;
+            int matchIndex = FindMatchIndexOnLine(targetTab.TextEditor.Document.Text, result.Line, result.SearchText);
+            if (matchIndex >= 0)
+                targetTab.TextEditor.Select(matchIndex, (uint)result.SearchText.Length);
+            else if (attempt < 4)
+            {
+                DispatcherTimer retryTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+                retryTimer.Tick += (sender, args) =>
+                {
+                    retryTimer.Stop();
+                    HighlightSearchResult(targetTab, result, attempt + 1);
+                };
+                retryTimer.Start();
+            }
+            else
+                targetTab.TextEditor.GoToLine(result.Line);
+        }
+
+        private static int FindMatchIndexOnLine(string text, int lineNumber, string searchText)
+        {
+            if (String.IsNullOrEmpty(text) || lineNumber < 1 || String.IsNullOrEmpty(searchText)) return -1;
+            int lineStart = 0;
+            for (int line = 1; line < lineNumber; line++)
+            {
+                int newline = text.IndexOf('\n', lineStart);
+                if (newline < 0) return -1;
+                lineStart = newline + 1;
+            }
+            int lineEnd = text.IndexOf('\n', lineStart);
+            if (lineEnd < 0) lineEnd = text.Length;
+            int matchIndex = text.IndexOf(searchText, lineStart, lineEnd - lineStart, StringComparison.OrdinalIgnoreCase);
+            return matchIndex;
         }
 
         private void OpenDocumentFromTree(string path, bool isDoubleClick)

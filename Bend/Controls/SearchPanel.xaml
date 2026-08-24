@@ -1,0 +1,96 @@
+<UserControl x:Class="Bend.Controls.SearchPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Bend.Controls"
+             Foreground="{DynamicResource ForegroundBrush}">
+    <UserControl.Resources>
+        <Style TargetType="ScrollBar">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Width" Value="8" />
+            <Setter Property="MinWidth" Value="8" />
+            <Setter Property="Margin" Value="-8,0,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent" ClipToBounds="False">
+                            <controls:MinimumThumbTrack x:Name="PART_Track" IsDirectionReversed="True" ClipToBounds="False">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton IsTabStop="False" Focusable="False" Background="Transparent" BorderThickness="0" Command="ScrollBar.PageUpCommand">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb MinHeight="40" ClipToBounds="False" Background="#777777">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Width="6" MinHeight="40" HorizontalAlignment="Center" Background="#777777" CornerRadius="3" />
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton IsTabStop="False" Focusable="False" Background="Transparent" BorderThickness="0" Command="ScrollBar.PageDownCommand">
+                                        <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent" /></ControlTemplate></RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                            </controls:MinimumThumbTrack>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource ShellChromeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="42" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="SEARCH" Margin="14,0" VerticalAlignment="Center" FontSize="11" />
+        <Grid Grid.Row="1" Margin="10,0,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="QueryBox" Height="28" VerticalContentAlignment="Center" Padding="7,0"
+                     TextChanged="QueryBox_TextChanged" KeyDown="QueryBox_KeyDown" />
+            <Button Grid.Column="1" Margin="6,0,0,0" Content="Search" Padding="8,4" Click="Search_Click" />
+        </Grid>
+        <TextBlock x:Name="HitSummary" Grid.Row="2" Margin="10,0,10,8" Foreground="{DynamicResource ShellMutedBrush}" />
+        <TextBlock x:Name="Status" Grid.Row="3" Margin="10,0,10,8" Foreground="{DynamicResource ShellMutedBrush}" TextWrapping="Wrap" />
+        <Grid Grid.Row="4">
+            <ListBox x:Name="Results" BorderThickness="0" Background="Transparent" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="8,6,0,2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding DisplayPath}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                            <TextBlock Grid.Row="1" Text="{Binding HitCount, StringFormat={}{0} hits}" Margin="0,2,0,2"
+                                       Foreground="{DynamicResource ShellMutedBrush}" FontSize="11" />
+                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Matches}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Tag="{Binding}" Click="Result_Click" HorizontalContentAlignment="Stretch"
+                                                Background="Transparent" BorderThickness="0" Padding="0" FocusVisualStyle="{x:Null}">
+                                            <StackPanel Margin="12,3,4,3">
+                                                <TextBlock Text="{Binding Preview}" TextWrapping="Wrap" Foreground="{DynamicResource ShellMutedBrush}" />
+                                                <TextBlock Text="{Binding LineLabel}" FontSize="11" Foreground="{DynamicResource ShellMutedBrush}" />
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>

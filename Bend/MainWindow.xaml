@@ -575,6 +575,10 @@
                                 OpenFolderRequested="FilesPanel_OpenFolderRequested"
                                 FileInvoked="FilesPanel_FileInvoked"
                                 Visibility="Collapsed"/>
+                        <controls:SearchPanel x:Name="SearchPanel"
+                                Grid.RowSpan="2"
+                                ResultInvoked="SearchPanel_ResultInvoked"
+                                Visibility="Collapsed"/>
                         <scm:SourceControlPanel x:Name="SourceControlPanel" Grid.RowSpan="2" Visibility="Collapsed"
                                 DiffRequested="SourceControlPanel_DiffRequested" DiffModeChanged="SourceControlPanel_DiffModeChanged"/>
                         <TextBlock x:Name="OtherSidePaneContent"

@@ -166,6 +166,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\SearchPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SourceControl\SourceControlPanel.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="SourceControl\CommitMessageDialog.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="FileEncoding.xaml">
@@ -201,6 +205,9 @@
     </Compile>
     <Compile Include="Controls\FilesPanel.xaml.cs">
       <DependentUpon>FilesPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SearchPanel.xaml.cs">
+      <DependentUpon>SearchPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="SourceControl\GitService.cs" />
     <Compile Include="SourceControl\CommitMessageDialog.xaml.cs"><DependentUpon>CommitMessageDialog.xaml</DependentUpon></Compile>
