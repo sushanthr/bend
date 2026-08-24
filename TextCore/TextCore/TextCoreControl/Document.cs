@@ -14,8 +14,22 @@ namespace TextCoreControl
         {
             this.fileContents = new StringBuilder("\0");
             this.LanguageDetector = new SyntaxHighlighting.LanguageDetector(this);
+            this.LanguageDetector.LanguageChange += delegate { OnLanguageChanged(); };
             this.hasUnsavedContent = false;
             this.currentEncoding = Encoding.ASCII;
+        }
+
+        public string DetectedLanguage
+        {
+            get { return this.LanguageDetector.DetectedLanguage; }
+        }
+
+        public event EventHandler LanguageChanged;
+
+        private void OnLanguageChanged()
+        {
+            EventHandler handler = this.LanguageChanged;
+            if (handler != null) handler(this, EventArgs.Empty);
         }
 
         public void LoadFile(string fullFilePath)

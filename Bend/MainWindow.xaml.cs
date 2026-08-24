@@ -509,6 +509,7 @@ namespace Bend
                 newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
                 newTab.Title.CloseButtonClicked += this.TabClose;
                 newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+                newTab.TextEditor.Document.LanguageChanged += Document_LanguageChanged;
                 newTab.Title.MouseMove += TabTitle_MouseMove;
 
                 newTab.Title.Opacity = 0.5;
@@ -1512,6 +1513,7 @@ namespace Bend
             newTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
             newTab.Title.CloseButtonClicked += this.TabClose;
             newTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+            newTab.TextEditor.Document.LanguageChanged += Document_LanguageChanged;
             newTab.Title.MouseMove += TabTitle_MouseMove;            
 
             TabBar.Children.Add(newTab.Title);
@@ -1693,6 +1695,7 @@ namespace Bend
                 tab[tabIndex].Content.Focus();
                 if (!tab[tabIndex].IsDiff) this.FindText.Text = tab[tabIndex].FindOptions.FindText;
                 _ = ApplyDiffModeToTabAsync(tab[tabIndex], GetSelectedDiffMode());
+                UpdateDocumentTypeStatus();
             }
         }
 
@@ -2275,6 +2278,7 @@ namespace Bend
             diffTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
             diffTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
             diffTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+            diffTab.TextEditor.Document.LanguageChanged += Document_LanguageChanged;
             diffTab.Content.Visibility = Visibility.Hidden;
             tab.Add(diffTab); TabBar.Children.Add(diffTab.Title); Editor.Children.Add(diffTab.Content);
             UpdateEditorChrome(); SwitchTabFocusTo(tab.Count - 1);
@@ -2646,6 +2650,25 @@ namespace Bend
             holdInitialReferenceStatus = false;
             Line.Content = lineNumber.ToString();
             Column.Content = columnNumber.ToString();
+        }
+
+        private void Document_LanguageChanged(object sender, EventArgs e)
+        {
+            if (CurrentTab != null && Object.ReferenceEquals(CurrentTab.TextEditor.Document, sender))
+                UpdateDocumentTypeStatus();
+        }
+
+        private void UpdateDocumentTypeStatus()
+        {
+            if (CurrentTab == null)
+            {
+                DocumentTypeStatus.Text = "UTF-8    Plain Text";
+                return;
+            }
+
+            Encoding encoding = CurrentTab.TextEditor.Document.CurrentEncoding;
+            string encodingName = encoding == null ? "UTF-8" : encoding.WebName.ToUpperInvariant();
+            DocumentTypeStatus.Text = encodingName + "    " + CurrentTab.TextEditor.Document.DetectedLanguage;
         }
 
         #endregion

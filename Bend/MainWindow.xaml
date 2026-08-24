@@ -887,7 +887,8 @@
                             HorizontalContentAlignment="Right"
                             Content="0"
                             VerticalContentAlignment="Center"/>
-                    <TextBlock Text="UTF-8    C#"
+                    <TextBlock x:Name="DocumentTypeStatus"
+                            Text="UTF-8    Plain Text"
                             FontSize="13"
                             Foreground="{DynamicResource LogoForegroundBrush}"
                             VerticalAlignment="Center"

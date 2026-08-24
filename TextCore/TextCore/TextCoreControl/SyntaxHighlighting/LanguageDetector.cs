@@ -126,6 +126,7 @@ namespace TextCoreControl.SyntaxHighlighting
                             syntaxHighlighterService = new SyntaxHighlighterService(GetSyntaxDefinitionPath(syntaxFile), this.document);
                         }
                         this.currentSyntaxDefinitionFile = syntaxFile;
+                        this.languageChangedPending = true;
                         e.Result = syntaxHighlighterService;
                     }
                     catch (Exception exception)
@@ -144,14 +145,17 @@ namespace TextCoreControl.SyntaxHighlighting
                 // A restart was requested.
                 this.languageDetectorWorkerThread.RunWorkerAsync(this);
             }
-            else if (e.Error == null && e.Result != null)
+            else if (e.Error == null)
             {
-                // We have detected a language change, notify the world
-                SyntaxHighlighterService syntaxHighlighterService = (SyntaxHighlighterService)e.Result;
-                if (this.LanguageChange != null)
+                bool languageChanged;
+                lock (this)
                 {
-                    this.LanguageChange(syntaxHighlighterService);
+                    languageChanged = this.languageChangedPending;
+                    this.languageChangedPending = false;
                 }
+                // A null service is a valid transition to plain text.
+                if (languageChanged && this.LanguageChange != null)
+                    this.LanguageChange(e.Result as SyntaxHighlighterService);
             }
         }
 
@@ -365,12 +369,61 @@ namespace TextCoreControl.SyntaxHighlighting
                 return this.currentSyntaxDefinitionFile; 
             }
         }
+
+        internal string DetectedLanguage
+        {
+            get
+            {
+                string syntaxFile = this.SyntaxDefinitionFile;
+                switch (syntaxFile.ToLowerInvariant())
+                {
+                    case "actionscript3.syn": return "ActionScript";
+                    case "ada.syn": return "Ada";
+                    case "atlwtl.syn": return "C/C++";
+                    case "cmd.syn": return "Command Script";
+                    case "cobol-97.syn": return "COBOL";
+                    case "csharp8.syn": return "C#";
+                    case "css2dot1.syn": return "CSS";
+                    case "f90.syn": return "Fortran";
+                    case "fsharp.syn": return "F#";
+                    case "html.syn": return "HTML";
+                    case "java1_6.syn": return "Java";
+                    case "javascript.syn": return "JavaScript";
+                    case "jsp4.syn": return "JSP";
+                    case "latex.syn": return "LaTeX";
+                    case "lisp.syn": return "Lisp";
+                    case "matlabr12.1.syn": return "MATLAB";
+                    case "markdown.syn": return "Markdown";
+                    case "objc.syn": return "Objective-C";
+                    case "perl3upd.syn": return "Perl";
+                    case "php.syn": return "PHP";
+                    case "python3.syn": return "Python";
+                    case "reg.syn": return "Registry";
+                    case "ruby_on_rails.syn": return "Ruby";
+                    case "sql.syn": return "SQL";
+                    case "svg.syn": return "SVG";
+                    case "tcl.syn": return "Tcl";
+                    case "vbdotnet9.syn": return "Visual Basic";
+                    case "vbscript56.syn": return "VBScript";
+                    case "xaml.syn": return "XAML";
+                    case "xhtml.syn": return "XHTML";
+                    case "xml-excel_2002.syn": return "Excel XML";
+                    case "xml.syn": return "XML";
+                    case "xqy.syn": return "XQuery";
+                    case "xsl.syn": return "XSL";
+                    case "xslt.syn": return "XSLT";
+                    case "yacc.syn": return "Yacc";
+                    default: return "Plain Text";
+                }
+            }
+        }
         #endregion
 
         #region Member Data
         private string currentFilenameExtension;
         private bool filenameExtensionChecked;
         private bool heuristicsEnabled;
+        private bool languageChangedPending;
 
         private BackgroundWorker languageDetectorWorkerThread;
         private readonly Document document;

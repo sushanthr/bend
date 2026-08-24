@@ -1,0 +1,37 @@
+; Markdown syntax definition for TextCore.
+; The token highlighter supports headings, inline code, HTML comments, link
+; punctuation, block quotes, lists, and emphasis punctuation. Nested fenced
+; code-language highlighting is outside the current definition-file model.
+
+C=1
+
+[Syntax]
+Namespace1 = 6
+IgnoreCase = No
+InitKeyWordChars = A-Za-z_
+KeyWordChars = A-Za-z0-9_-
+BracketChars = {[]()}
+OperatorChars = *_~>-+
+PreprocStart = #
+SyntaxStart =
+SyntaxEnd =
+CommentStart = <!--
+CommentEnd = -->
+CommentStartAlt =
+CommentEndAlt =
+SingleComment =
+SingleCommentCol =
+SingleCommentAlt =
+SingleCommentColAlt =
+SingleCommentEsc =
+StringsSpanLines = No
+StringStart = `
+StringEnd = `
+StringAlt =
+StringEsc = \
+CharStart =
+CharEnd =
+CharEsc =
+
+[Keywords 1]
+

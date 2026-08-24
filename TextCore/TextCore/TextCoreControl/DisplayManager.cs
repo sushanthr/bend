@@ -2376,11 +2376,11 @@ namespace TextCoreControl
         void LanguageDetector_LanguageChange(SyntaxHighlighting.SyntaxHighlighterService syntaxHighlightingService)
         {
             this.syntaxHighlightingService = syntaxHighlightingService;
-            if (this.hwndRenderTarget != null)
+            if (this.hwndRenderTarget != null && this.syntaxHighlightingService != null)
             {
                 this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
-                this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
             }
+            this.NotifyOfSettingsChange(/*recreateRenderTarget*/false);
         }
 
         #endregion

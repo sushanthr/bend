@@ -204,6 +204,9 @@
     <Content Include="SyntaxHighlighting\Definitions\matlabR12.1.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="SyntaxHighlighting\Definitions\markdown.syn">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="SyntaxHighlighting\Definitions\perl3upd.syn">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

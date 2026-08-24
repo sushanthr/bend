@@ -16,6 +16,8 @@ namespace Bend.SourceControl
     public sealed class ChangeGroup : INotifyPropertyChanged
     {
         public string Name { get; set; }
+        public GitChangeLayer Layer { get; set; }
+        public Visibility StageAllVisibility { get; set; } = Visibility.Collapsed;
         public ObservableCollection<ScmTreeNode> Nodes { get; private set; } = new ObservableCollection<ScmTreeNode>();
         private bool isExpanded = true;
         public bool IsExpanded { get { return isExpanded; } set { if (isExpanded == value) return; isExpanded = value; if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded")); } }
@@ -109,7 +111,13 @@ namespace Bend.SourceControl
         private void AddGroup(string name, GitChangeLayer layer)
         {
             var values = status.Changes.Where(c => c.Layer == layer).ToList(); if (values.Count == 0) return;
-            var group = new ChangeGroup { Name = name + " (" + values.Count + ")" };
+            var group = new ChangeGroup
+            {
+                Name = name + " (" + values.Count + ")",
+                Layer = layer,
+                StageAllVisibility = layer == GitChangeLayer.Unstaged || layer == GitChangeLayer.Untracked
+                    ? Visibility.Visible : Visibility.Collapsed
+            };
             foreach (GitChange change in values.OrderBy(c => c.Path, StringComparer.OrdinalIgnoreCase)) AddTreePath(group.Nodes, change);
             SortTree(group.Nodes);
             ChangeGroups.Add(group);
@@ -182,6 +190,27 @@ namespace Bend.SourceControl
             e.Handled = true;
             if (change.Layer == GitChangeLayer.Staged) await RunAndRefresh(() => git.UnstageAsync(status.RepositoryRoot, change.Path, cancellation.Token));
             else await RunAndRefresh(() => git.StageAsync(status.RepositoryRoot, change.Path, cancellation.Token));
+        }
+        private async void StageAll_Click(object sender, RoutedEventArgs e)
+        {
+            ChangeGroup group = (sender as FrameworkElement)?.Tag as ChangeGroup;
+            if (group == null || status == null) return;
+            e.Handled = true;
+            try
+            {
+                List<GitChange> changes = status.Changes.Where(change => change.Layer == group.Layer).ToList();
+                foreach (GitChange change in changes)
+                {
+                    GitResult result = await git.StageAsync(status.RepositoryRoot, change.Path, cancellation.Token);
+                    if (!result.Success)
+                    {
+                        ErrorText.Text = String.IsNullOrWhiteSpace(result.Error) ? result.Output : result.Error;
+                        return;
+                    }
+                }
+                RefreshAsync();
+            }
+            catch (Exception ex) when (!(ex is OperationCanceledException)) { ErrorText.Text = ex.Message; }
         }
         private void UpdateCommitEnabled() { if (CreateCommitButton != null) CreateCommitButton.IsEnabled = status != null; }
 
