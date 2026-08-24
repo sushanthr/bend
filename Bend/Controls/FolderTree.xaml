@@ -32,5 +32,5 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <TreeView x:Name="Tree" ItemsSource="{Binding RootNodes, ElementName=Root}" ItemTemplate="{StaticResource NodeTemplate}" BorderThickness="0" Background="Transparent" SelectedItemChanged="Tree_SelectedItemChanged" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="Tree_PreviewMouseLeftButtonUp" />
+    <TreeView x:Name="Tree" ItemsSource="{Binding RootNodes, ElementName=Root}" ItemTemplate="{StaticResource NodeTemplate}" BorderThickness="0" Background="Transparent" SelectedItemChanged="Tree_SelectedItemChanged" PreviewMouseLeftButtonDown="Tree_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="Tree_PreviewMouseLeftButtonUp" PreviewMouseRightButtonDown="Tree_PreviewMouseRightButtonDown" />
 </UserControl>

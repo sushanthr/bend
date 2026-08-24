@@ -195,6 +195,11 @@ namespace Bend
 
             Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundColor);
             Application.Current.Resources["BackgroundTerminalBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundTerminalColor);
+            uint terminalBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackground;
+            Application.Current.Resources["TerminalColorBrush"] = new SolidColorBrush(Color.FromRgb(
+                (byte)((terminalBackground >> 16) & 0xFF),
+                (byte)((terminalBackground >> 8) & 0xFF),
+                (byte)(terminalBackground & 0xFF)));
             Application.Current.Resources["ForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ForegroundColor);
             Application.Current.Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ScrollButtonColor);
             Application.Current.Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoForegroundColor);
@@ -1365,7 +1370,7 @@ namespace Bend
                 BottomChrome.RowDefinitions[2].Height = new GridLength(300);
                 TerminalToggleChevron.Data = Geometry.Parse("M0,1 L4,5 L8,1");
                 ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
-                MainDockBottomPanel.Background = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackingBackground);
+                MainDockBottomPanel.Background = (SolidColorBrush)Application.Current.Resources["TerminalColorBrush"];
                 var theme = new TerminalTheme
                 {
                     DefaultBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackground,

@@ -616,6 +616,9 @@
                         Height="1"
                         VerticalAlignment="Top"
                         Background="{DynamicResource ShellBorderBrush}"/>
+                <Border Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        Background="{DynamicResource TerminalColorBrush}"/>
                 <Grid Grid.Column="0"
                         Grid.ColumnSpan="2"
                         Grid.Row="0">
@@ -724,16 +727,20 @@
                                                 Grid.Row="1"
                                         Grid.ColumnSpan="3"
                                                 Height="4"
+                                                Background="{DynamicResource TerminalColorBrush}"
                                                 Visibility="Collapsed"/>
                                 <Grid x:Name="MainDockBottomPanel"
                                                 Grid.Row="2"
                                         Grid.ColumnSpan="3"
+                                                        Background="{DynamicResource TerminalColorBrush}"
                                                 Visibility="Collapsed">
-                                        <term:TerminalControl x:Name="Terminal"
+                                                <Border Background="{DynamicResource TerminalColorBrush}"
+                                                Padding="5,0,0,0">
+                                                <term:TerminalControl x:Name="Terminal"
                                                             StartupCommandLine="pwsh.exe -NoLogo"
                                                         Win32InputMode="True"
-                                                        InputCapture="TabKey,DirectionKeys"
-                                                        Margin="8"/>
+                                                        InputCapture="TabKey,DirectionKeys"/>
+                                        </Border>
                                 </Grid>
             </Grid>
             <Grid Grid.Row="3"

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -30,6 +31,8 @@ namespace Bend.Controls
         private string selectedPath;
         private bool doubleClickHandled;
         private FolderTreeNode pressedNode;
+
+        public IFolderTreeCommandProvider CommandProvider { get; set; }
 
         public FolderTree() : this(new FileSystemTreeService()) { }
 
@@ -215,6 +218,39 @@ namespace Bend.Controls
                 RaiseEvent(new FolderTreeFileInvokedEventArgs(FileInvokedEvent, node, e.ClickCount > 1));
                 e.Handled = true;
             }
+        }
+
+        private void Tree_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (this.CommandProvider == null) return;
+            DependencyObject source = e.OriginalSource as DependencyObject;
+            TreeViewItem item = FindAncestor<TreeViewItem>(source);
+            FolderTreeNode node = item == null ? null : item.DataContext as FolderTreeNode;
+            if (node != null && !node.IsPlaceholder)
+            {
+                node.IsSelected = true;
+                this.selectedPath = node.FullPath;
+                SetValue(SelectedPathPropertyKey, node.FullPath);
+            }
+            string invocationPath = node != null && !node.IsPlaceholder ? node.FullPath : this.RootPath;
+            List<string> selectedPaths = node == null ? new List<string>() : new List<string> { node.FullPath };
+            List<FolderTreeCommand> commands = this.CommandProvider.GetCommands(this.RootPath, invocationPath, selectedPaths);
+            if (commands == null || commands.Count == 0) return;
+            ContextMenu menu = new ContextMenu { MinWidth = 210 };
+            foreach (FolderTreeCommand command in commands)
+            {
+                if (command.IsSeparator)
+                {
+                    menu.Items.Add(new Separator());
+                    continue;
+                }
+                MenuItem itemMenu = new MenuItem { Header = command.Label, IsEnabled = command.IsEnabled, InputGestureText = command.Gesture };
+                itemMenu.Click += (menuSender, menuArgs) => command.Callback();
+                menu.Items.Add(itemMenu);
+            }
+            this.Tree.ContextMenu = menu;
+            menu.IsOpen = true;
+            e.Handled = true;
         }
 
         private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
