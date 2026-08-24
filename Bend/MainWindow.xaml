@@ -327,6 +327,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="372"/>
+                    <ColumnDefinition Width="46"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Menu x:Name="Logo"
@@ -388,15 +389,17 @@
                                 Click="ExitMenu_Click"/>
                     </MenuItem>
                 </Menu>
-                <Border Grid.Column="2"
+                <Border Grid.Column="0" Grid.ColumnSpan="5"
+                        Width="372"
+                        HorizontalAlignment="Center"
                         Height="32"
-                        Margin="12,0"
+                        Margin="0,0,46,0"
                         VerticalAlignment="top"
                         BorderThickness="1"
                         BorderBrush="{DynamicResource ShellBorderBrush}"
                         Background="{DynamicResource BackgroundBrush}">
                     <Border.RenderTransform>
-                        <TranslateTransform X="6"
+                        <TranslateTransform X="0"
                                 Y="9"/>
                     </Border.RenderTransform>
                     <Grid>
@@ -435,8 +438,13 @@
                                 FontSize="13"/>
                     </Grid>
                 </Border>
+                <Button x:Name="AgentButton" Grid.Column="0" Grid.ColumnSpan="5" Width="46" Height="32" Margin="372,9,0,0"
+                        VerticalAlignment="Top" Style="{StaticResource ChromeButton}" Click="AgentButton_Click" ToolTip="Agent">
+                    <TextBlock Text="&#xEC67;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16"
+                            Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"/>
+                </Button>
                 <WrapPanel x:Name="WindowControls"
-                        Grid.Column="3"
+                        Grid.Column="4"
                         Height="28"
                         VerticalAlignment="Top">
                     <Button x:Name="FullscreenButton"
@@ -487,6 +495,8 @@
                                         <ColumnDefinition Width="48"/>
                                         <ColumnDefinition x:Name="SidePaneColumn" Width="0"/>
                                         <ColumnDefinition Width="*" MinWidth="100"/>
+                                        <ColumnDefinition x:Name="AgentSplitterColumn" Width="0"/>
+                                        <ColumnDefinition x:Name="AgentPaneColumn" Width="0"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Background="{DynamicResource ShellPanelBrush}">
                                         <Grid.RowDefinitions>
@@ -591,7 +601,7 @@
                                 Foreground="{DynamicResource ShellMutedBrush}"/>
                     </Grid>
                 </Border>
-                <GridSplitter Grid.Column="1"
+                <GridSplitter x:Name="SidePaneSplitter" Grid.Column="1"
                         Width="5"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Stretch"
@@ -599,6 +609,7 @@
                         ResizeDirection="Columns"
                         ResizeBehavior="CurrentAndNext"
                         ShowsPreview="False"
+                        DragCompleted="SidePaneSplitter_DragCompleted"
                         Panel.ZIndex="3"/>
                 <Grid Grid.Column="2"
                         x:Name="MainDock">
@@ -635,6 +646,28 @@
                             </Button>
                         </DockPanel>
                     </Border>
+                </Grid>
+                <GridSplitter x:Name="AgentPaneSplitter" Grid.Column="3" Width="5" Margin="-2,0" HorizontalAlignment="Stretch"
+                        Background="Transparent" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"
+                        DragCompleted="AgentPaneSplitter_DragCompleted" Visibility="Collapsed" Panel.ZIndex="3"/>
+                <Border Grid.Column="3" Width="0.67" HorizontalAlignment="Center"
+                        Background="{DynamicResource ShellBorderBrush}" IsHitTestVisible="False" Panel.ZIndex="2"/>
+                <Grid x:Name="AgentPane" Grid.Column="4" Visibility="Collapsed" Background="{DynamicResource TerminalColorBrush}">
+                    <Grid.RowDefinitions><RowDefinition Height="35.7"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Background="{DynamicResource ShellPanelBrush}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions>
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+                            <StackPanel x:Name="AgentTabBar" Orientation="Horizontal" Height="35.7"/>
+                        </ScrollViewer>
+                        <Button Grid.Column="1" Style="{StaticResource ChromeButton}" Click="AgentNewTerminalMenu_Click" ToolTip="New agent terminal">
+                            <Button.ContextMenu><ContextMenu x:Name="AgentCliMenu"/></Button.ContextMenu>
+                            <TextBlock Text="&#xEAB4;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource ChromeButton}" Click="AgentClosePane_Click" ToolTip="Collapse right pane">
+                            <TextBlock Text="&#xEC00;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
+                        </Button>
+                    </Grid>
+                    <Grid x:Name="AgentTerminalHost" Grid.Row="1" Background="{DynamicResource TerminalColorBrush}"/>
                 </Grid>
             </Grid>
                         <Grid x:Name="BottomChrome"
@@ -771,6 +804,7 @@
                         Opacity="0"
                         Cursor="SizeNS"
                         DragDelta="BottomPaneResizeThumb_DragDelta"
+                        DragCompleted="BottomPaneResizeThumb_DragCompleted"
                         Visibility="Collapsed"
                         Panel.ZIndex="4"/>
                                 <GridSplitter x:Name="MainDockSplitter"
@@ -885,8 +919,9 @@
                 <ColumnDefinition Width="52"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.ColumnSpan="2" Background="{DynamicResource ShellChromeBrush}">
+            <Grid Grid.ColumnSpan="2" Background="{DynamicResource ShellChromeBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Menu x:Name="SettingsLogo"
+                        HorizontalAlignment="Left"
                         Background="Transparent"
                         Foreground="{DynamicResource ForegroundBrush}"
                         FontFamily="Segoe UI"

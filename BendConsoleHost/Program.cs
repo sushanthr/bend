@@ -10,6 +10,7 @@ using System.Globalization;
 public class TermPTYServer : ITermPTYService
 {
     private readonly ConcurrentDictionary<Guid, TermPTY> _instances = new ConcurrentDictionary<Guid, TermPTY>();
+    private readonly ConcurrentDictionary<Guid, ITermPTYCallback> _callbacks = new ConcurrentDictionary<Guid, ITermPTYCallback>();
 
     public Guid CreateInstance()
     {
@@ -21,6 +22,7 @@ public class TermPTYServer : ITermPTYService
         term.TermReady += (s, e) => TryCallback(() => callback.OnTermReady(id), id);
 
         _instances[id] = term;
+        _callbacks[id] = callback;
         return id;
     }
 
@@ -37,7 +39,12 @@ public class TermPTYServer : ITermPTYService
             {
                 try { term.Start(command, width, height); }
                 catch (Exception exception) { Debug.WriteLine(exception); }
-                finally { _instances.TryRemove(instanceId, out _); }
+                finally
+                {
+                    if (_callbacks.TryRemove(instanceId, out var callback))
+                        TryCallback(() => callback.OnTermExited(instanceId), instanceId);
+                    _instances.TryRemove(instanceId, out _);
+                }
             });
     }
 
@@ -59,6 +66,7 @@ public class TermPTYServer : ITermPTYService
         {
             term.StopExternalTermOnly();
             _instances.TryRemove(instanceId, out _);
+            _callbacks.TryRemove(instanceId, out _);
         }
     }
 

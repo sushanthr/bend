@@ -47,6 +47,9 @@ namespace Bend
         List<Console.TerminalControl> terminalSessions;
         int currentTerminalIndex = -1;
         string terminalStartupCommand = "pwsh.exe -NoLogo";
+        readonly List<Console.TerminalControl> agentTerminalSessions = new List<Console.TerminalControl>();
+        int currentAgentTerminalIndex = -1;
+        bool agentPaneExpanded;
 
         WindowChrome windowChrome;
 
@@ -170,6 +173,7 @@ namespace Bend
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(Logo, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(SettingsLogo, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FindText, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(AgentButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
@@ -425,6 +429,9 @@ namespace Bend
                     PersistantStorage.StorageObject.mainWindowWidth = this.Width;
                     PersistantStorage.StorageObject.mainWindowHeight = this.Height;
                 }
+                if (BottomChrome.RowDefinitions[2].ActualHeight > 0) PersistantStorage.StorageObject.BottomTerminalHeight = BottomChrome.RowDefinitions[2].ActualHeight;
+                if (SidePaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
+                if (AgentPaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
             }
             catch
             {
@@ -1398,7 +1405,8 @@ namespace Bend
                 MainDockSplitter.Visibility = System.Windows.Visibility.Visible;
                 BottomPaneResizeThumb.Visibility = Visibility.Visible;
                 BottomChrome.RowDefinitions[1].Height = new GridLength(4);
-                BottomChrome.RowDefinitions[2].Height = new GridLength(300);
+                double terminalHeight = PersistantStorage.StorageObject.BottomTerminalHeight;
+                BottomChrome.RowDefinitions[2].Height = new GridLength(terminalHeight >= 80 ? terminalHeight : 300);
                 TerminalToggleChevron.Data = Geometry.Parse("M0,1 L4,5 L8,1");
                 ToggleBottomPanel.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
                 MainDockBottomPanel.Background = (SolidColorBrush)Application.Current.Resources["TerminalColorBrush"];
@@ -1439,6 +1447,33 @@ namespace Bend
             double maximumHeight = currentHeight + Math.Max(0, MainWindowGrid.RowDefinitions[1].ActualHeight - minimumEditorHeight);
             double newHeight = Math.Max(minimumPaneHeight, Math.Min(maximumHeight, currentHeight - e.VerticalChange));
             BottomChrome.RowDefinitions[2].Height = new GridLength(newHeight);
+        }
+
+        private void BottomPaneResizeThumb_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            if (BottomChrome.RowDefinitions[2].ActualHeight > 0)
+                PersistantStorage.StorageObject.BottomTerminalHeight = BottomChrome.RowDefinitions[2].ActualHeight;
+            SavePaneLayout();
+        }
+
+        private void SidePaneSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            if (SidePaneColumn.ActualWidth > 0)
+                PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
+            SavePaneLayout();
+        }
+
+        private void AgentPaneSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            if (AgentPaneColumn.ActualWidth > 0)
+                PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
+            SavePaneLayout();
+        }
+
+        private static void SavePaneLayout()
+        {
+            try { PersistantStorage.Save(); }
+            catch (Exception exception) { System.Diagnostics.Debug.WriteLine("Could not persist pane layout: " + exception); }
         }
 
         void slideSettingsInAnimation_Completed(object sender, EventArgs e)
@@ -2000,7 +2035,8 @@ namespace Bend
             }
             activeActivity = activity;
             SidePaneTitle.Text = title;
-            SidePaneColumn.Width = new GridLength(activity == "source" ? 320 : 240);
+            double savedPaneWidth = PersistantStorage.StorageObject.LeftPaneWidth;
+            SidePaneColumn.Width = new GridLength(savedPaneWidth >= 140 ? savedPaneWidth : (activity == "source" ? 320 : 240));
             bool showFiles = activity == "files";
             bool showSearch = activity == "search";
             bool showSource = activity == "source";
@@ -2014,6 +2050,196 @@ namespace Bend
         private void FilesActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("files", "FILES"); }
         private void SearchActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("search", "SEARCH"); }
         private void SourceControlActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("source", "SOURCE CONTROL"); }
+
+        private void AgentButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (agentTerminalSessions.Count == 0)
+                OpenAgentTerminal(GetDefaultAgentCommand());
+            else
+                SetAgentPaneExpanded(!agentPaneExpanded);
+            e.Handled = true;
+        }
+
+        private string GetDefaultAgentCommand()
+        {
+            string command = PersistantStorage.StorageObject.DefaultAgentCli;
+            return String.IsNullOrWhiteSpace(command) ? "copilot" : command.Trim();
+        }
+
+        private void SetAgentPaneExpanded(bool expanded)
+        {
+            if (expanded)
+            {
+                if (!agentPaneExpanded)
+                {
+                    double width = PersistantStorage.StorageObject.AgentPaneWidth;
+                    AgentPaneColumn.MinWidth = 320;
+                    AgentSplitterColumn.Width = new GridLength(1);
+                    AgentPaneColumn.Width = new GridLength(width >= 320 ? width : 360);
+                    AgentPaneSplitter.Visibility = Visibility.Visible;
+                    AgentPane.Visibility = Visibility.Visible;
+                    AgentButton.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
+                }
+                agentPaneExpanded = true;
+                FocusAgentTerminalAfterLayout();
+            }
+            else
+            {
+                if (AgentPaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
+                AgentPane.Visibility = Visibility.Collapsed;
+                AgentPaneSplitter.Visibility = Visibility.Collapsed;
+                AgentPaneColumn.MinWidth = 0;
+                AgentSplitterColumn.Width = new GridLength(0);
+                AgentPaneColumn.Width = new GridLength(0);
+                AgentButton.Foreground = MaxButton.Foreground;
+                agentPaneExpanded = false;
+                SavePaneLayout();
+            }
+        }
+
+        private void OpenAgentTerminal(string command)
+        {
+            if (String.IsNullOrWhiteSpace(command)) return;
+            string startupCommand = GetAgentStartupCommand(command.Trim());
+            Console.TerminalControl terminal = new Console.TerminalControl
+            {
+                StartupCommandLine = startupCommand,
+                Win32InputMode = true,
+                InputCapture = Console.TerminalControl.INPUT_CAPTURE.TabKey | Console.TerminalControl.INPUT_CAPTURE.DirectionKeys,
+                Margin = new Thickness(5)
+            };
+            terminal.Visibility = Visibility.Collapsed;
+            terminal.TermExited += AgentTerminal_Exited;
+            AgentTerminalHost.Children.Add(terminal);
+            agentTerminalSessions.Add(terminal);
+            ApplyTerminalTheme(terminal);
+
+            TabTitle terminalTab = new TabTitle(true) { Tag = terminal, Width = 155 };
+            string executableName = System.IO.Path.GetFileNameWithoutExtension(command.Trim().Split(' ')[0]);
+            terminalTab.TitleText = String.Equals(executableName, "copilot", StringComparison.OrdinalIgnoreCase) ? "Copilot" :
+                String.Equals(executableName, "opencode", StringComparison.OrdinalIgnoreCase) ? "OpenCode" :
+                String.Equals(executableName, "claude", StringComparison.OrdinalIgnoreCase) ? "Claude" : executableName;
+            terminalTab.CloseButton.Tag = terminal;
+            terminalTab.CloseButtonClicked += AgentTerminalTabClose_Click;
+            terminalTab.MouseLeftButtonUp += AgentTerminalTab_Click;
+            terminal.Tag = terminalTab;
+            AgentTabBar.Children.Add(terminalTab);
+            SetAgentPaneExpanded(true);
+            SelectAgentTerminal(agentTerminalSessions.Count - 1);
+            terminal.StartTerminal();
+            FocusAgentTerminalAfterLayout();
+            ResizeAgentTerminalAfterLayout(terminal);
+        }
+
+        private void ResizeAgentTerminalAfterLayout(Console.TerminalControl terminal)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!agentTerminalSessions.Contains(terminal)) return;
+                terminal.UpdateLayout();
+                terminal.ResizeToCurrentDimensions();
+            }), System.Windows.Threading.DispatcherPriority.ContextIdle);
+        }
+
+        private static string GetAgentStartupCommand(string command)
+        {
+            if (String.Equals(command, "opencode", StringComparison.OrdinalIgnoreCase) ||
+                String.Equals(command, "claude", StringComparison.OrdinalIgnoreCase))
+                return "cmd.exe /d /s /c \"" + command + "\"";
+            return command;
+        }
+
+        private void AgentTerminal_Exited(object sender, EventArgs e)
+        {
+            Console.TerminalControl terminal = sender as Console.TerminalControl;
+            if (terminal == null) return;
+            Dispatcher.BeginInvoke(new Action(() => CloseAgentTerminal(terminal)));
+        }
+
+        private void FocusAgentTerminalAfterLayout()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!agentPaneExpanded || currentAgentTerminalIndex < 0 || currentAgentTerminalIndex >= agentTerminalSessions.Count)
+                    return;
+                Console.TerminalControl terminal = agentTerminalSessions[currentAgentTerminalIndex];
+                terminal.Focus();
+                terminal.Terminal.Focus();
+                Keyboard.Focus(terminal.Terminal);
+            }), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void SelectAgentTerminal(int index)
+        {
+            if (index < 0 || index >= agentTerminalSessions.Count) return;
+            currentAgentTerminalIndex = index;
+            for (int i = 0; i < agentTerminalSessions.Count; i++)
+            {
+                agentTerminalSessions[i].Visibility = i == index ? Visibility.Visible : Visibility.Collapsed;
+                TabTitle tabTitle = agentTerminalSessions[i].Tag as TabTitle;
+                if (tabTitle != null) tabTitle.Opacity = i == index ? 1 : .65;
+            }
+            agentTerminalSessions[index].Terminal.Focus();
+            ResizeAgentTerminalAfterLayout(agentTerminalSessions[index]);
+        }
+
+        private void AgentTerminalTab_Click(object sender, MouseButtonEventArgs e)
+        {
+            TabTitle title = (TabTitle)sender;
+            SelectAgentTerminal(agentTerminalSessions.IndexOf((Console.TerminalControl)title.Tag));
+        }
+
+        private void AgentTerminalTabClose_Click(object sender, MouseButtonEventArgs e)
+        {
+            CloseAgentTerminal((Console.TerminalControl)((FrameworkElement)sender).Tag);
+            e.Handled = true;
+        }
+
+        private void CloseAgentTerminal(Console.TerminalControl terminal)
+        {
+            int index = agentTerminalSessions.IndexOf(terminal);
+            if (index < 0) return;
+            TabTitle title = terminal.Tag as TabTitle;
+            terminal.TermExited -= AgentTerminal_Exited;
+            if (title != null) AgentTabBar.Children.Remove(title);
+            AgentTerminalHost.Children.Remove(terminal);
+            Console.TermPTYProxy connection = terminal.DisconnectConPTYTerm();
+            if (connection != null) connection.Dispose();
+            agentTerminalSessions.RemoveAt(index);
+            if (agentTerminalSessions.Count == 0)
+            {
+                currentAgentTerminalIndex = -1;
+                SetAgentPaneExpanded(false);
+            }
+            else SelectAgentTerminal(Math.Min(index, agentTerminalSessions.Count - 1));
+        }
+
+        private void AgentClosePane_Click(object sender, RoutedEventArgs e)
+        {
+            SetAgentPaneExpanded(false);
+            e.Handled = true;
+        }
+
+        private void AgentNewTerminalMenu_Click(object sender, RoutedEventArgs e)
+        {
+            AgentCliMenu.Items.Clear();
+            List<string> commands = new List<string> { "copilot", "opencode", "claude" };
+            string configured = PersistantStorage.StorageObject.AdditionalAgentClis;
+            if (!String.IsNullOrWhiteSpace(configured))
+                commands.AddRange(configured.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(value => value.Trim()));
+            foreach (string command in commands.Where(value => !String.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                MenuItem item = new MenuItem { Header = command, Tag = command };
+                item.Click += AgentCliMenuItem_Click;
+                AgentCliMenu.Items.Add(item);
+            }
+            ((Button)sender).ContextMenu.IsOpen = true;
+        }
+
+        private void AgentCliMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenAgentTerminal((string)((MenuItem)sender).Tag);
+        }
 
         private void SourceControlPanel_DiffRequested(object sender, DiffRequestedEventArgs e)
         {
@@ -2077,6 +2303,9 @@ namespace Bend
             if (Settings.Visibility == Visibility.Visible)
                 return;
 
+            if (agentPaneExpanded)
+                SetAgentPaneExpanded(false);
+
             // Do not use ToggleBottomPanel_MouseDown here. During startup the panel and
             // splitter can briefly have different visibility values, which makes that
             // method take the open branch and prevents navigation to Settings.
@@ -2126,7 +2355,9 @@ namespace Bend
             terminalSessions.RemoveAt(terminalIndex);
             if (terminalSessions.Count == 0)
             {
-                MainDockBottomPanel.Children.Add(Terminal);
+                // Terminal is declared inside the XAML host Border and remains its
+                // logical child even when its tab is closed. Re-register the session;
+                // adding it to MainDockBottomPanel would give it a second parent.
                 terminalSessions.Add(Terminal);
                 currentTerminalIndex = -1;
                 ToggleBottomPanel_MouseDown(null, null);
@@ -2167,7 +2398,7 @@ namespace Bend
                 Tag = terminal,
                 Width = 155
             };
-            terminalTab.TitleText = terminalNumber == 1 ? "TERMINAL" : "TERMINAL " + terminalNumber;
+            terminalTab.TitleText = terminalNumber == 1 ? "Terminal" : "Terminal " + terminalNumber;
             terminalTab.CloseButton.Tag = terminal;
             terminalTab.CloseButtonClicked += TerminalTabClose_Click;
             terminalTab.MouseLeftButtonUp += TerminalTab_Click;

@@ -4,6 +4,19 @@
              xmlns:controls="clr-namespace:Bend.Controls"
              Foreground="{DynamicResource ForegroundBrush}">
     <UserControl.Resources>
+        <Style x:Key="SearchInput" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ShellBorderBrush}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}" />
+        </Style>
+        <Style x:Key="SearchButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ShellPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ShellBorderBrush}" />
+        </Style>
+        <Style TargetType="ListBox"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" /></Style>
+        <Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" /></Style>
         <Style TargetType="ScrollBar">
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Background" Value="Transparent" />
@@ -56,8 +69,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox x:Name="QueryBox" Height="28" VerticalContentAlignment="Center" Padding="7,0"
-                     TextChanged="QueryBox_TextChanged" KeyDown="QueryBox_KeyDown" />
-            <Button Grid.Column="1" Margin="6,0,0,0" Content="Search" Padding="8,4" Click="Search_Click" />
+                     Style="{StaticResource SearchInput}" TextChanged="QueryBox_TextChanged" KeyDown="QueryBox_KeyDown" />
+            <Button Grid.Column="1" Margin="6,0,0,0" Content="Search" Padding="8,4" Style="{StaticResource SearchButton}" Click="Search_Click" />
         </Grid>
         <TextBlock x:Name="HitSummary" Grid.Row="2" Margin="10,0,10,8" Foreground="{DynamicResource ShellMutedBrush}" />
         <TextBlock x:Name="Status" Grid.Row="3" Margin="10,0,10,8" Foreground="{DynamicResource ShellMutedBrush}" TextWrapping="Wrap" />
@@ -78,7 +91,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Button Tag="{Binding}" Click="Result_Click" HorizontalContentAlignment="Stretch"
-                                                Background="Transparent" BorderThickness="0" Padding="0" FocusVisualStyle="{x:Null}">
+                                                Foreground="{DynamicResource ForegroundBrush}" Background="Transparent" BorderThickness="0" Padding="0" FocusVisualStyle="{x:Null}">
                                             <StackPanel Margin="12,3,4,3">
                                                 <TextBlock Text="{Binding Preview}" TextWrapping="Wrap" Foreground="{DynamicResource ShellMutedBrush}" />
                                                 <TextBlock Text="{Binding LineLabel}" FontSize="11" Foreground="{DynamicResource ShellMutedBrush}" />

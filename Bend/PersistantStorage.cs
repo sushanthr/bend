@@ -54,6 +54,11 @@ namespace Bend
 
         // Workspace
         public string LastWorkspaceFolder;
+        public double BottomTerminalHeight;
+        public double LeftPaneWidth;
+        public double AgentPaneWidth;
+        public string DefaultAgentCli;
+        public string AdditionalAgentClis;
 
         #endregion
 
@@ -93,6 +98,11 @@ namespace Bend
             CurrentTheme = new ThemeSettings();
 
             LastWorkspaceFolder = null;
+            BottomTerminalHeight = 300;
+            LeftPaneWidth = 240;
+            AgentPaneWidth = 360;
+            DefaultAgentCli = "copilot";
+            AdditionalAgentClis = String.Empty;
         }
 
         static PersistantStorage()

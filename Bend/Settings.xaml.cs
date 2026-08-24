@@ -466,6 +466,8 @@ namespace Bend
             PreserveIndent.IsChecked = persistantStorage.PreserveIndent;
             ReopenFilesOnStart.IsChecked = persistantStorage.ReopenFilesOnStart;
             Diagnostics.IsChecked = persistantStorage.Diagnostics;
+            DefaultAgentCli.Text = String.IsNullOrWhiteSpace(persistantStorage.DefaultAgentCli) ? "copilot" : persistantStorage.DefaultAgentCli;
+            AdditionalAgentClis.Text = persistantStorage.AdditionalAgentClis ?? String.Empty;
 
             // Set up the font picker
             if (persistantStorage.DefaultFontFamilyIndex >= 0 && persistantStorage.DefaultFontFamilyIndex < FontPicker.Items.Count)
@@ -556,6 +558,8 @@ namespace Bend
                 persistantStorage.SmoothScrolling = SmoothScrolling.IsChecked ?? true;
                 persistantStorage.ReopenFilesOnStart = ReopenFilesOnStart.IsChecked ?? true;
                 persistantStorage.Diagnostics = Diagnostics.IsChecked ?? true;
+                persistantStorage.DefaultAgentCli = String.IsNullOrWhiteSpace(DefaultAgentCli.Text) ? "copilot" : DefaultAgentCli.Text.Trim();
+                persistantStorage.AdditionalAgentClis = AdditionalAgentClis.Text == null ? String.Empty : AdditionalAgentClis.Text.Trim();
                 persistantStorage.SyntaxHighlighting = SyntaxHighlighting.IsChecked ?? true;
                 persistantStorage.TextWordWrap = TextWordWrap.IsChecked ?? true;
                 persistantStorage.SettingsPageAnimation = SettingsPageAnimation.IsChecked ?? true;

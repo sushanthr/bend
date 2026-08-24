@@ -52,6 +52,7 @@ namespace Console
             }
         }
         public event EventHandler TermReady;
+        public event EventHandler TermExited;
         public bool TermProcIsStarted { get; private set; }
 
         public TermPTYProxy()
@@ -222,6 +223,19 @@ namespace Console
                     return false;
                 }
             }
+        }
+
+        void ITermPTYCallback.OnTermExited(Guid instanceId)
+        {
+            if (instanceId != _instanceId) return;
+            TermProcIsStarted = false;
+            EventHandler handler = TermExited;
+            if (handler == null) return;
+            SynchronizationContext consumerContext = _consumerContext;
+            if (consumerContext != null && SynchronizationContext.Current != consumerContext)
+                consumerContext.Post(_ => handler(this, EventArgs.Empty), null);
+            else
+                handler(this, EventArgs.Empty);
         }
 
         private void DispatchTerminalOutput(string output)

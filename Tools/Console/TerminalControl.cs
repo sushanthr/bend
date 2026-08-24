@@ -15,6 +15,7 @@ using System.Diagnostics;
 
 namespace Console {
 	public class TerminalControl : UserControl {
+		public event EventHandler TermExited;
 		private bool _startRequested;
 		/// <summary>
 		/// Converts Color to COLOREF, note that COLOREF does not support alpha channels so it is ignored
@@ -149,7 +150,10 @@ namespace Console {
 				return;
 			_startRequested = true;
 			if (ConPTYTerm == null) {
-				try { ConPTYTerm = new TermPTYProxy(); }
+				try {
+					ConPTYTerm = new TermPTYProxy();
+					ConPTYTerm.TermExited += (sender, args) => MainThreadRun(() => TermExited?.Invoke(this, EventArgs.Empty));
+				}
 				catch (Exception exception) {
 					Debug.WriteLine("Console integration is unavailable: " + exception);
 					_startRequested = false;
@@ -184,6 +188,11 @@ namespace Console {
 		public void StartTerminal() {
 			if (Terminal != null)
 				StartTerm(Terminal.Columns, Terminal.Rows);
+		}
+
+		public void ResizeToCurrentDimensions() {
+			if (Terminal != null && ConPTYTerm != null && ConPTYTerm.TermProcIsStarted)
+				ConPTYTerm.Resize(Terminal.Rows, Terminal.Columns);
 		}
 
 		#region Depdendency Properties

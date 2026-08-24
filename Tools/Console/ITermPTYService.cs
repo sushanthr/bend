@@ -30,4 +30,7 @@ public interface ITermPTYCallback
     
     [OperationContract(IsOneWay = true)]
     void OnTermReady(Guid instanceId);
+
+    [OperationContract(IsOneWay = true)]
+    void OnTermExited(Guid instanceId);
 }
