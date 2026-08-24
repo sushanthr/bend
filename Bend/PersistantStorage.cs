@@ -40,6 +40,9 @@ namespace Bend
         public bool SmoothScrolling;
         public bool SyntaxHighlighting;
         public bool PreserveIndent;
+        // Stored by name so older settings files (where the element is absent)
+        // can safely fall back to Inline instead of depending on enum ordinals.
+        public string DiffViewMode;
 
         // Font Picker
         public int DefaultFontFamilyIndex;
@@ -82,6 +85,7 @@ namespace Bend
             SmoothScrolling = true;
             SyntaxHighlighting = true;
             PreserveIndent = true;
+            DiffViewMode = "Inline";
             DefaultFontFamily = "Consolas";
             DefaultFontFamilyIndex = -1;
 

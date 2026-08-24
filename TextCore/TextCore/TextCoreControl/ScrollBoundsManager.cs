@@ -29,6 +29,7 @@ namespace TextCoreControl
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
             this.verticalScrollBound = 0;
             this.horizontalScrollBound = 0;
+            this.knownVerticalBound = -1;
             this.pendingCancellation = false;
 
             this.scrollLengthEstimator = new BackgroundWorker();
@@ -50,11 +51,12 @@ namespace TextCoreControl
             DisableVScrollbar();
             DisableHScrollbar();
             vScrollBar.SmallChange = this.textLayoutBuilder.AverageLineHeight();
-            vScrollBar.LargeChange = this.displayManager.AvailableHeight;
+            vScrollBar.LargeChange = NormalizeScrollMetric(this.displayManager.AvailableHeight);
         }
 
         internal void UpdateVerticalScrollBoundsDueToContentChange(double deltaVertical, double maxNewVisualLineWidth = -1)
         {
+            this.knownVerticalBound = -1;
             this.SetVerticalScrollBarLimits(this.verticalScrollBound + deltaVertical);
             if (maxNewVisualLineWidth > this.horizontalScrollBound)
                 this.SetHorizontalScrollBarLimits(maxNewVisualLineWidth);
@@ -74,6 +76,19 @@ namespace TextCoreControl
             this.currentFirstVisibleOrdinal = Document.UNDEFINED_ORDINAL;
             this.verticalScrollBound = 0;
             this.horizontalScrollBound = 0;
+            this.knownVerticalBound = -1;
+        }
+
+        internal void ResetForDocumentLoad()
+        {
+            verticalScrollBound = 0;
+            horizontalScrollBound = 0;
+            knownVerticalBound = -1;
+            currentFirstVisibleOrdinal = document.FirstOrdinal();
+            vScrollBar.Value = 0;
+            hScrollBar.Value = 0;
+            DisableVScrollbar();
+            DisableHScrollbar();
         }
 
         internal bool HasSeenNonAsciiCharacters
@@ -227,6 +242,7 @@ namespace TextCoreControl
 
         void scrollLengthEstimator_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            if (pendingCancellation) return;
             int verticalScrollBound = e.ProgressPercentage;
             // To prevent jittery scroll thumb updates, update the thumb only if totalLineCount increases.
             // On completion, we do update the thumb size to the final value correctly.
@@ -238,17 +254,21 @@ namespace TextCoreControl
 
         private void SetVerticalScrollBarLimits(double verticalScrollBound)
         {
+            verticalScrollBound = NormalizeScrollMetric(verticalScrollBound);
+            if (knownVerticalBound >= 0)
+                verticalScrollBound = Math.Min(verticalScrollBound, knownVerticalBound);
             this.verticalScrollBound = verticalScrollBound;
-            if (displayManager.AvailableHeight < this.verticalScrollBound && displayManager.AvailableHeight != 0)
+            double availableHeight = NormalizeScrollMetric(displayManager.AvailableHeight);
+            if (availableHeight < this.verticalScrollBound && availableHeight > 0)
             {
                 // Need to show scrollbars
                 this.vScrollBar.IsEnabled = true;
                 this.vScrollBar.Minimum = 0;
-                this.vScrollBar.Maximum = this.verticalScrollBound - displayManager.AvailableHeight;
-                this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
+                this.vScrollBar.Maximum = Math.Max(0, this.verticalScrollBound - availableHeight);
+                if (this.vScrollBar.Track != null && this.vScrollBar.Track.Thumb != null)
+                    this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
 
-                // Guesstimate the thumb hieght
-                this.vScrollBar.ViewportSize = this.verticalScrollBound * displayManager.AvailableHeight / (this.verticalScrollBound - displayManager.AvailableHeight);
+                this.vScrollBar.ViewportSize = availableHeight;
             }
             else
             {
@@ -259,8 +279,10 @@ namespace TextCoreControl
 
         private void SetHorizontalScrollBarLimits(double horizontalScrollBound)
         {
+            horizontalScrollBound = NormalizeScrollMetric(horizontalScrollBound);
             this.horizontalScrollBound = horizontalScrollBound;
-            if (horizontalScrollBound > displayManager.AvailbleWidth)
+            double availableWidth = NormalizeScrollMetric(displayManager.AvailbleWidth);
+            if (availableWidth > 0 && horizontalScrollBound > availableWidth)
             {
                 // Need to show scrollbars
                 this.vScrollBar.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal,
@@ -270,18 +292,10 @@ namespace TextCoreControl
                         {
                             this.hScrollBar.IsEnabled = true;
                             this.hScrollBar.Minimum = 0;
-                            this.hScrollBar.Maximum = horizontalScrollBound - displayManager.AvailbleWidth;
-                            this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
-
-                            // Guesstimate the thumb hieght
-                            if (displayManager.AvailbleWidth < horizontalScrollBound)
-                            {
-                                this.hScrollBar.ViewportSize = horizontalScrollBound * displayManager.AvailbleWidth  / (horizontalScrollBound - displayManager.AvailbleWidth);
-                            }
-                            else
-                            {
-                                this.hScrollBar.ViewportSize = double.MaxValue;
-                            }
+                            this.hScrollBar.Maximum = Math.Max(0, horizontalScrollBound - availableWidth);
+                            if (this.hScrollBar.Track != null && this.hScrollBar.Track.Thumb != null)
+                                this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Visible;
+                            this.hScrollBar.ViewportSize = availableWidth;
                         }
                     )
                 );
@@ -303,7 +317,7 @@ namespace TextCoreControl
                 this.vScrollBar.Value));
         }
 
-        internal double AdjustVScrollOffset(double offset) 
+        internal double AdjustVScrollOffset(double offset)
         {
             double newScrollValue = this.vScrollBar.Value + offset;
             if (newScrollValue < 0) newScrollValue = 0;
@@ -311,6 +325,25 @@ namespace TextCoreControl
 
             this.vScrollBar.Value = newScrollValue;
             return this.vScrollBar.Value;
+        }
+
+        internal static double NormalizeScrollMetric(double value)
+        {
+            return Double.IsNaN(value) || Double.IsInfinity(value) || value < 0 ? 0 : value;
+        }
+
+        /// <summary>
+        /// Once layout reaches EOF, the rendered bottom is authoritative. This
+        /// corrects estimates and incremental deltas that may have over-counted
+        /// the document and immediately coerces the current scrollbar value.
+        /// </summary>
+        internal double ConstrainToKnownDocumentEnd(double documentBottom)
+        {
+            knownVerticalBound = Math.Max(0, documentBottom);
+            SetVerticalScrollBarLimits(Math.Max(0, documentBottom));
+            if (vScrollBar.Value > vScrollBar.Maximum)
+                vScrollBar.Value = vScrollBar.Maximum;
+            return vScrollBar.Value;
         }
 
         private void DisableVScrollbar()
@@ -323,7 +356,8 @@ namespace TextCoreControl
                     {
                         this.vScrollBar.IsEnabled = false;
                         this.vScrollBar.Maximum = 0.0f;
-                        this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
+                        if (this.vScrollBar.Track != null && this.vScrollBar.Track.Thumb != null)
+                            this.vScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
                     }
                 )
             );
@@ -338,7 +372,8 @@ namespace TextCoreControl
                     {
                         this.hScrollBar.IsEnabled = false;
                         this.hScrollBar.Maximum = 0.0f;
-                        this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
+                        if (this.hScrollBar.Track != null && this.hScrollBar.Track.Thumb != null)
+                            this.hScrollBar.Track.Thumb.Visibility = System.Windows.Visibility.Hidden;
                     }
                 )
             );
@@ -359,6 +394,7 @@ namespace TextCoreControl
 
         double verticalScrollBound;
         double horizontalScrollBound;
+        double knownVerticalBound;
 
         bool hasSeenNonAsciiCharacters;
         bool pendingCancellation;

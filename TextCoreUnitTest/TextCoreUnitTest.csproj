@@ -30,6 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
       <HintPath>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\Extensions\TestPlatform\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
       <Private>true</Private>
@@ -37,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocumentTests.cs" />
+    <Compile Include="DiffModelTests.cs" />
+    <Compile Include="DiffSessionTests.cs" />
     <Compile Include="CharacterCollectionTests.cs" />
     <Compile Include="OrdinalKeyedLinkedListTests.cs" />
     <Compile Include="UndoRedoManagerTests.cs" />

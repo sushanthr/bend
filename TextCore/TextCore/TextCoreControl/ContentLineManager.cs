@@ -122,7 +122,8 @@ namespace TextCoreControl
             Document document, 
             SizeF scrollOffset,
             int   leftMargin,
-            RenderTarget renderTarget)
+            RenderTarget renderTarget,
+            System.Collections.Generic.IList<int> displayLineNumbers = null)
         {
             if (Settings.ShowLineNumber && redrawEnd >= 0)
             {
@@ -170,9 +171,12 @@ namespace TextCoreControl
                             rect.Top = visualLines[i].Position.Y;
                             rect.Bottom = rect.Top + visualLines[i].Height;
                             int visualLineNumber = lineNumber + 1;
-                            string text = visualLineNumber.ToString();
-                            text = text.PadLeft(maxNumberOfDigits);
-                            renderTarget.DrawText(text, Settings.DefaultTextFormat, rect, lineNumberBrush);
+                            int shownLineNumber = displayLineNumbers != null && lineNumber < displayLineNumbers.Count ? displayLineNumbers[lineNumber] : visualLineNumber;
+                            if (shownLineNumber > 0)
+                            {
+                                string text = shownLineNumber.ToString().PadLeft(maxNumberOfDigits);
+                                renderTarget.DrawText(text, Settings.DefaultTextFormat, rect, lineNumberBrush);
+                            }
                         }
 
                         lastLineHadHardBreak = visualLines[i].HasHardBreak;

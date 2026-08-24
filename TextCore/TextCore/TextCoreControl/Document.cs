@@ -377,6 +377,19 @@ namespace TextCoreControl
             }
         }
 
+        public void LoadText(string contents, string fileName = null)
+        {
+            lock (this)
+            {
+                fileContents = new StringBuilder((contents ?? String.Empty) + "\0");
+                currentEncoding = Encoding.UTF8;
+                hasUnsavedContent = false;
+            }
+            if (!String.IsNullOrWhiteSpace(fileName)) this.LanguageDetector.NotifyOfFileNameChange(fileName);
+            ContentChangeEventHandler contentChange = this.ContentChange;
+            if (contentChange != null) contentChange(UNDEFINED_ORDINAL, UNDEFINED_ORDINAL, null);
+        }
+
         internal string GetTextSnapshot(int maximumLength)
         {
             lock (this)

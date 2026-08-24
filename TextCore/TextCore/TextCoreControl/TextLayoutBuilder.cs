@@ -10,6 +10,7 @@ namespace TextCoreControl
 {
     internal class TextLayoutBuilder
     {
+        internal bool? AutoWrapOverride { get; set; }
         internal TextLayoutBuilder()
         {
             this.showFormattingService = new ShowFormattingService();
@@ -66,7 +67,7 @@ namespace TextCoreControl
                     hasHardBreak = true;
                     break;
                 }
-                else if (Settings.AutoWrap)
+                else if (this.AutoWrapOverride ?? Settings.AutoWrap)
                 {
                     if (TextLayoutBuilder.IsBreakOppertunity(letter))
                     {
@@ -143,7 +144,17 @@ namespace TextCoreControl
                 }
             }
 
-            System.Diagnostics.Debug.Assert(beginOrdinal != nextOrdinal, "Line building should have consumed atleast 1 ordinal.");
+            // Layout widths can briefly be zero, negative, or otherwise unusable while
+            // the editor is being resized or a second diff surface is initialized. A
+            // line builder must nevertheless always advance: callers iterate until the
+            // document terminator and a zero-progress result would hang the estimator.
+            if (beginOrdinal == nextOrdinal)
+            {
+                char fallback = document.CharacterAt(nextOrdinal);
+                lineText.Append(fallback);
+                nextOrdinal = document.NextOrdinal(nextOrdinal);
+                hasHardBreak = IsHardBreakChar(fallback);
+            }
             if (nextOrdinal == Document.UNDEFINED_ORDINAL) hasHardBreak = true;
             VisualLine textLine = new VisualLine(this.dwriteFactory, this.showFormattingService, lineText.ToString(), glyphTable.DefaultFormat, beginOrdinal, nextOrdinal, hasHardBreak);
             return textLine;

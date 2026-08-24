@@ -11,6 +11,8 @@ namespace TextCoreControl
 
     internal class SelectionManager
     {
+        internal Action<int, int, RenderTarget> DrawDocumentBackgrounds { get; set; }
+
         internal SelectionManager(HwndRenderTarget renderTarget, D2DFactory d2dFactory)
         {
             defaultBackgroundBrush = renderTarget.CreateSolidColorBrush(Settings.DefaultBackgroundColor);
@@ -160,6 +162,12 @@ namespace TextCoreControl
                     // Wipe out background for affected lines
                     renderTarget.FillRectangle(bounds, defaultBackgroundBrush);
                 }
+                // Selection updates are incremental and repaint their affected
+                // rows. Restore persistent document layers (such as diff added,
+                // removed, and padding rows) before drawing transient find or
+                // selection layers on top.
+                if (this.DrawDocumentBackgrounds != null)
+                    this.DrawDocumentBackgrounds(firstLine, lastLine, renderTarget);
                 this.backgroundHighlight.Draw(visualLines, firstLine, lastLine, document, scrollOffset, renderTarget);
                 renderTarget.PopAxisAlignedClip();
 

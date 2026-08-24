@@ -102,6 +102,7 @@
     <Compile Include="DebugHUD.cs" />
     <Compile Include="BackgroundHighlight.cs" />
     <Compile Include="FlightRecorder.cs" />
+    <Compile Include="FindTarget.cs" />
     <Compile Include="ScrollBoundsManager.cs" />
     <Compile Include="SelectionManager.cs" />
     <Compile Include="Settings.cs" />
@@ -118,6 +119,8 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="DisplayManager.cs" />
+    <Compile Include="DiffModel.cs" />
+    <Compile Include="DiffSession.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="GlyphTable.cs" />
     <Compile Include="TextLayoutBuilder.cs" />

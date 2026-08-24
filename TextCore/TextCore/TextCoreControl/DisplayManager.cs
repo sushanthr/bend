@@ -19,6 +19,11 @@ namespace TextCoreControl
     {
         const int MOUSEWHEEL_WINDOWS_STEP_QUANTUM = 120;
 
+        // RenderHost owns the native keyboard input path, so the WPF control's
+        // PreviewKeyDown/PreviewTextInput handlers are not sufficient to make a
+        // surface read-only.
+        internal bool CanEdit { get; set; } = true;
+
         internal DisplayManager(RenderHost renderHost, 
             Document document, 
             ScrollBar vScrollBar, 
@@ -95,6 +100,9 @@ namespace TextCoreControl
 
                 // defaultSelectionBrush has to be solid color and not alpha
                 defaultSelectionBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DefaultSelectionColor);
+                diffAddedBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DiffAddedBackgroundColor);
+                diffRemovedBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DiffRemovedBackgroundColor);
+                diffPaddingBrush = hwndRenderTarget.CreateSolidColorBrush(Settings.DiffPaddingPatternColor);
 
                 if (this.syntaxHighlightingService != null)
                     this.syntaxHighlightingService.InitDisplayResources(this.hwndRenderTarget);
@@ -112,6 +120,7 @@ namespace TextCoreControl
                 this.caret.CaretPositionChanged += this.caret_CaretPositionChanged;
 
                 this.selectionManager = new SelectionManager(hwndRenderTarget, this.d2dFactory);
+                this.selectionManager.DrawDocumentBackgrounds = this.DrawDiffBackgrounds;
                 this.selectionManager.SelectionChange += selectionManager_SelectionChange;
 
                 this.contentLineManager = new ContentLineManager(this.document, hwndRenderTarget, this.d2dFactory);
@@ -219,6 +228,11 @@ namespace TextCoreControl
         public delegate void ShowContextMenuEventHandler();
         public event ShowContextMenuEventHandler ContextMenu;
 
+        internal void RaiseContextMenu()
+        {
+            if (this.ContextMenu != null) this.ContextMenu();
+        }
+
         internal void MouseHandler(int unscaledX, int unscaledY, int type, long flags)
         {
             int x = (int)(unscaledX * (96.0 / this.d2dFactory.DesktopDpi.X));
@@ -301,10 +315,7 @@ namespace TextCoreControl
                     // WM_RBUTTONUP
                     {
                         significantEvent = true;
-                        if (this.ContextMenu != null)
-                        {
-                            this.ContextMenu();
-                        }
+                        this.RaiseContextMenu();
                     }
                     break;
                 case 0X0204:
@@ -407,6 +418,9 @@ namespace TextCoreControl
                 this.flightRecorder.AddFlightEvent(new FlightRecorder.KeyHandlerFlightEvent(wparam, lparam));
             }
 
+            if (!this.CanEdit)
+                return;
+
             char key = (char)wparam;
             if (this.SelectionBegin != this.SelectionEnd)
             {
@@ -452,6 +466,12 @@ namespace TextCoreControl
             if (this.flightRecorder.IsRecording)
             {
                 this.flightRecorder.AddFlightEvent(new FlightRecorder.DisplayManagerPreviewKeyDownFlightEvent(key, modifier));
+            }
+
+            if (!this.CanEdit && IsMutationKey(key, modifier))
+            {
+                handled = true;
+                return;
             }
 
             bool adjustSelection = false;
@@ -974,6 +994,8 @@ namespace TextCoreControl
             this.caret.PrepareBeforeRender();
             this.Render();
             this.caret.UnprepareAfterRender();
+            EventHandler scrollChanged = this.VerticalScrollChanged;
+            if (scrollChanged != null) scrollChanged(this, EventArgs.Empty);
         }
         
         internal void hScrollBar_Scroll(object sender, ScrollEventArgs e)
@@ -1055,6 +1077,18 @@ namespace TextCoreControl
                     minLinesToAdd--;
                 }
                 yTop += vl.Height;
+            }
+
+            if (nextOrdinalFwd == Document.UNDEFINED_ORDINAL)
+            {
+                double boundedOffset = this.scrollBoundsManager.ConstrainToKnownDocumentEnd(yTop);
+                if (this.scrollOffset.Height > boundedOffset)
+                {
+                    this.scrollOffset.Height = (float)boundedOffset;
+                    // The corrected viewport may expose rows above the current
+                    // cache; populate them before the scroll pass trims lines.
+                    this.AddLinesAbove(/*minLinesToAdd*/0);
+                }
             }
         }
 
@@ -1229,7 +1263,7 @@ namespace TextCoreControl
             }
         }
 
-        public bool ScrollOrdinalIntoView(int ordinal, bool ignoreScrollBounds = false)
+        public bool ScrollOrdinalIntoView(int ordinal, bool ignoreScrollBounds = false, bool allowSmoothScroll = true)
         {
             Debug.WriteLine("Scrolling to ordinal " + ordinal);
             bool didScroll = false;
@@ -1290,7 +1324,8 @@ namespace TextCoreControl
                         // scroll to make the lineToVerify be somewhere in the middle.
                         int deltaAdded = lineToVerify - startLineToVerify;
                         int extraDelta = 3 * (lastVisibleLine - firstVisibleLine) / 4;
-                        this.SmoothScrollBy(deltaAdded + extraDelta);
+                        if (allowSmoothScroll) this.SmoothScrollBy(deltaAdded + extraDelta);
+                        else this.ScrollBy(deltaAdded + extraDelta);
                         didScroll = true;
                     }
                 }
@@ -1323,7 +1358,8 @@ namespace TextCoreControl
                     if (numberOfLinesToScrollBy != 0)
                     {
                         int extraDelta = 1 * (lastVisibleLine - firstVisibleLine) / 4;
-                        this.SmoothScrollBy(-numberOfLinesToScrollBy - extraDelta);
+                        if (allowSmoothScroll) this.SmoothScrollBy(-numberOfLinesToScrollBy - extraDelta);
+                        else this.ScrollBy(-numberOfLinesToScrollBy - extraDelta);
                         didScroll = true;
                     }
                 }
@@ -1531,6 +1567,9 @@ namespace TextCoreControl
             if (beginOrdinal == Document.UNDEFINED_ORDINAL)
             {
                 // Full reset, most likely a new file was loaded.
+                this.scrollOffset.Height = 0;
+                this.scrollOffset.Width = 0;
+                this.scrollBoundsManager.ResetForDocumentLoad();
                 this.pageBeginOrdinal = document.FirstOrdinal();
                 this.pageTop = 0;
                 this.SelectRange(this.pageBeginOrdinal, this.pageBeginOrdinal);
@@ -1924,6 +1963,7 @@ namespace TextCoreControl
                 renderTarget.FillRectangle(wipeBounds, defaultBackgroundBrush);
             }
 
+            DrawDiffBackgrounds(redrawBegin, redrawEnd, renderTarget);
             this.selectionManager.BackgroundHighlight.Draw(this.visualLines,
                 redrawBegin,
                 redrawEnd,
@@ -1953,8 +1993,9 @@ namespace TextCoreControl
                 this.visualLines, 
                 this.document,
                 this.scrollOffset,
-                this.LeftMargin, 
-                renderTarget);
+                this.LeftMargin,
+                renderTarget,
+                diffLineNumbers);
 
             DebugHUD.Draw(renderTarget, this.scrollOffset);
 
@@ -2111,6 +2152,85 @@ namespace TextCoreControl
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
         }
 
+        /// <summary>Places a zero-based content line at the top of the viewport, bounded by the document extent.</summary>
+        internal void ScrollContentLineToTop(int contentLineNumber)
+        {
+            if (contentLineManager == null || !IsReady) return;
+            int lastLine = Math.Max(0, contentLineManager.MaxContentLines - 1);
+            contentLineNumber = Math.Max(0, Math.Min(lastLine, contentLineNumber));
+            int targetOrdinal = contentLineManager.MaxContentLines <= contentLineNumber
+                ? document.LastOrdinal()
+                : contentLineManager.GetBeginOrdinal(document, contentLineNumber);
+            if (targetOrdinal == Document.UNDEFINED_ORDINAL || targetOrdinal == Document.BEFOREBEGIN_ORDINAL) return;
+
+            ScrollOrdinalIntoView(targetOrdinal, false, false);
+            for (int index = 0; index < visualLines.Count; index++)
+            {
+                VisualLine line = visualLines[index];
+                if (line.BeginOrdinal <= targetOrdinal && line.NextOrdinal > targetOrdinal)
+                {
+                    // ScrollBoundsManager clamps this delta, so the final viewport cannot pass the document end.
+                    scrollBoundsManager.ScrollBy(line.Position.Y - scrollOffset.Height);
+                    return;
+                }
+            }
+        }
+
+        private static bool IsMutationKey(System.Windows.Input.Key key, System.Windows.Input.ModifierKeys modifier)
+        {
+            if (key == System.Windows.Input.Key.Back || key == System.Windows.Input.Key.Delete ||
+                key == System.Windows.Input.Key.Tab || key == System.Windows.Input.Key.Return)
+                return true;
+
+            return (key == System.Windows.Input.Key.V || key == System.Windows.Input.Key.X) &&
+                (modifier & System.Windows.Input.ModifierKeys.Control) != 0;
+        }
+
+        private void DrawDiffBackgrounds(int redrawBegin, int redrawEnd, RenderTarget renderTarget)
+        {
+            if (diffLineKinds == null || contentLineManager == null) return;
+            for (int i = redrawBegin; i <= redrawEnd && i >= 0 && i < visualLines.Count; i++)
+            {
+                VisualLine line = visualLines[i];
+                int number = contentLineManager.GetLineNumber(document, line.BeginOrdinal);
+                if (number < 0 || number >= diffLineKinds.Count) continue;
+                DiffLineKind kind = diffLineKinds[number];
+                SolidColorBrush brush = kind == DiffLineKind.Added ? diffAddedBrush : kind == DiffLineKind.Removed ? diffRemovedBrush : null;
+                if (brush != null) renderTarget.FillRectangle(new RectF(0, line.Position.Y, renderTarget.Size.Width + scrollOffset.Width, line.Position.Y + line.Height), brush);
+                if (kind == DiffLineKind.Padding && diffPaddingBrush != null)
+                {
+                    float left = scrollOffset.Width, right = renderTarget.Size.Width + scrollOffset.Width;
+                    float top = line.Position.Y, bottom = top + line.Height;
+                    for (float x = left - line.Height; x < right; x += 8)
+                        renderTarget.DrawLine(new Point2F(x, bottom), new Point2F(x + line.Height, top), diffPaddingBrush, 1);
+                }
+            }
+        }
+
+        public void SetDiffLineKinds(System.Collections.Generic.IList<DiffLineKind> kinds)
+        {
+            diffLineKinds = kinds;
+            if (renderHost != null) renderHost.InvalidateVisual();
+        }
+
+        public void SetDiffLineNumbers(System.Collections.Generic.IList<int> numbers)
+        {
+            diffLineNumbers = numbers;
+            if (renderHost != null) renderHost.InvalidateVisual();
+        }
+
+        public int FirstVisibleContentLine
+        {
+            get { return contentLineManager == null || pageBeginOrdinal == Document.UNDEFINED_ORDINAL ? 0 : contentLineManager.GetLineNumber(document, pageBeginOrdinal); }
+        }
+        public bool IsReady { get { return hwndRenderTarget != null && caret != null && contentLineManager != null; } }
+
+        public void SetWordWrapOverride(bool? value)
+        {
+            this.textLayoutBuilder.AutoWrapOverride = value;
+            this.NotifyOfSettingsChange(false);
+        }
+
         private void DisposeVisualLines(int index, int count)
         {
             if (this.visualLines == null || count <= 0)
@@ -2229,6 +2349,7 @@ namespace TextCoreControl
         public delegate void Caret_PositionChanged(int lineNumber, int columnNumber);
 
         public event Caret_PositionChanged CaretPositionChanged;
+        public event EventHandler VerticalScrollChanged;
  
         void caret_CaretPositionChanged()
         {
@@ -2270,6 +2391,11 @@ namespace TextCoreControl
         SolidColorBrush              defaultBackgroundBrush;
         SolidColorBrush              defaultForegroundBrush;
         SolidColorBrush              defaultSelectionBrush;
+        SolidColorBrush              diffAddedBrush;
+        SolidColorBrush              diffRemovedBrush;
+        SolidColorBrush              diffPaddingBrush;
+        System.Collections.Generic.IList<DiffLineKind> diffLineKinds;
+        System.Collections.Generic.IList<int> diffLineNumbers;
         readonly RenderHost          renderHost;
         readonly Document            document;
         TextLayoutBuilder            textLayoutBuilder;

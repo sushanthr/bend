@@ -26,6 +26,9 @@ namespace Bend
             DefaultSelectionOutlineColor = System.Windows.Media.Color.FromRgb(94, 114, 153);
             DefaultSelectionDimColor = System.Windows.Media.Color.FromArgb(128, 245, 245, 245);
             DefaultBackgroundHighlightColor = System.Windows.Media.Color.FromArgb(64, 106, 124, 159);
+            DiffAddedBackgroundColor = System.Windows.Media.Color.FromRgb(168, 228, 160);
+            DiffRemovedBackgroundColor = System.Windows.Media.Color.FromArgb(128, 128, 48, 48);
+            DiffPaddingPatternColor = System.Windows.Media.Color.FromArgb(90, 110, 110, 110);
             LineNumberColor = System.Windows.Media.Color.FromRgb(140, 140, 140);
 
             DefaultShowFormattingColor = System.Windows.Media.Color.FromRgb(189, 189, 189);
@@ -107,6 +110,9 @@ namespace Bend
         public System.Windows.Media.Color DefaultSelectionOutlineColor;
         public System.Windows.Media.Color DefaultSelectionDimColor;
         public System.Windows.Media.Color DefaultBackgroundHighlightColor;
+        public System.Windows.Media.Color DiffAddedBackgroundColor;
+        public System.Windows.Media.Color DiffRemovedBackgroundColor;
+        public System.Windows.Media.Color DiffPaddingPatternColor;
         public System.Windows.Media.Color LineNumberColor;
 
         public System.Windows.Media.Color DefaultShowFormattingColor;

@@ -22,7 +22,7 @@
         </Border.BitmapEffect>
         <StackPanel Margin="20" Background="{DynamicResource BackgroundBrush}" Focusable="True">
             <Grid Margin="0,20,0,0">
-                <Canvas VerticalAlignment="Stretch" Width="10" Background="Orange" HorizontalAlignment="Left"></Canvas>
+                <Canvas VerticalAlignment="Stretch" Width="10" Background="{DynamicResource LogoBackgroundBrush}" HorizontalAlignment="Left"></Canvas>
                 <StackPanel Margin="30,0,10,0" MinHeight="46">
                     <TextBlock  Name="MessageTitle" Text="ACHTUNG" FontSize="16" FontWeight="ExtraLight" FontFamily="Segoe UI" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="{DynamicResource ForegroundBrush}">
                     </TextBlock>

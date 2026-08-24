@@ -22,6 +22,8 @@ namespace Bend
         #region Member data
             private TabTitle title;   
             private TextCoreControl.TextEditor textEditor;
+            private FrameworkElement content;
+            private string diffKey;
             private String fullFileName;
 
             public static readonly TextCoreControl.CopyPasteManager CopyPasteManager;
@@ -59,8 +61,13 @@ namespace Bend
             }
 
             internal String FullFileName {
-                get { return fullFileName; }                
+                get { return fullFileName; }
             }
+
+            internal FrameworkElement Content { get { return content; } }
+            internal bool IsDiff { get { return diffKey != null; } }
+            internal string DiffKey { get { return diffKey; } }
+            internal IFindTarget FindTarget { get { return textEditor; } }
 
             internal FindOptions FindOptions {
                 get { return this.findOptions; }
@@ -79,6 +86,7 @@ namespace Bend
                 this.title = new TabTitle();                
 
                 textEditor = new TextEditor();
+                content = textEditor;
                 textEditor.CopyPasteManager = Tab.CopyPasteManager;
                 textEditor.HorizontalAlignment = HorizontalAlignment.Stretch;
                 textEditor.Margin = new Thickness(0);
@@ -93,6 +101,26 @@ namespace Bend
 
                 this.TextEditor.Document.ContentChange += new Document.ContentChangeEventHandler(Document_ContentChange);
                 this.TextEditor.Document.OrdinalShift += new Document.OrdinalShiftEventHandler(Document_OrdinalShift);
+            }
+
+            internal void ConfigureDiff(string key, string titleText, DiffModel model, DiffViewMode mode)
+            {
+                string fileName = model.Files.Count == 0 ? titleText : (model.Files[0].NewPath ?? model.Files[0].OldPath);
+                ConfigureDiff(key, titleText, fileName, model.BuildNewText(), model.BuildOldText(), mode);
+            }
+
+            internal void ConfigureDiff(string key, string titleText, string fileName, string currentText, string baseText, DiffViewMode mode)
+            {
+                diffKey = key;
+                textEditor.LoadText(currentText ?? String.Empty, fileName, baseText ?? String.Empty);
+                textEditor.AllowEdit = false;
+                textEditor.ShowDiffControls = false;
+                textEditor.DiffMode = mode;
+                content = textEditor;
+                string normalizedName = String.IsNullOrWhiteSpace(fileName) ? null : fileName.Replace('/', System.IO.Path.DirectorySeparatorChar);
+                title.TitleText = String.IsNullOrWhiteSpace(normalizedName) ? titleText : System.IO.Path.GetFileName(normalizedName);
+                title.ToolTip = titleText;
+                fullFileName = null;
             }
         #endregion
 
@@ -317,6 +345,13 @@ namespace Bend
         /// </summary>
         public void StartFindOnPage(MainWindow mainWindow, FindOptions findOptions)
         {
+            if (this.FindTarget != null)
+            {
+                this.findOptions = findOptions;
+                FindNavigationResult result = this.FindTarget.StartFind(new FindQuery { Text = findOptions.FindText, MatchCase = findOptions.FindMatchCase, UseRegex = findOptions.FindUseRegex, InSelection = findOptions.IsFindAndReplaceInSelection });
+                mainWindow.SetStatusText(result.Message, MainWindow.StatusType.STATUS_FINDONPAGE);
+                return;
+            }
             // This check is needed so that we dont start find on page again when we switch back to this tab from another tab.
             if (this.findOptions != findOptions)
             {
@@ -427,6 +462,13 @@ namespace Bend
 
         public void ClearFindOnPage()
         {
+            if (this.FindTarget != null)
+            {
+                this.FindTarget.ClearFind();
+                this.currentSearchIndex = 0;
+                this.findOptions = new FindOptions();
+                return;
+            }
             CancelFind();
             lock (findResultsLock) this.findResults.Clear();
             this.TextEditor.CancelSelect();
@@ -436,6 +478,7 @@ namespace Bend
 
         public string HighlightNextMatch()
         {
+            if (this.FindTarget != null) return this.FindTarget.FindNext().Message;
             string status = "";
             lock (findResultsLock)
             {
@@ -466,6 +509,7 @@ namespace Bend
 
         public string HighlightPreviousMatch()
         {
+            if (this.FindTarget != null) return this.FindTarget.FindPrevious().Message;
             string status = "";
             if (this.findResults.Count == 0)
             {

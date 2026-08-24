@@ -90,6 +90,10 @@
     <ScG>0.913098633</ScG>
     <ScB>0.913098633</ScB>
   </DefaultBackgroundColor>
+  <DiffAddedBackgroundColor>
+    <A>255</A><R>168</R><G>228</G><B>160</B>
+    <ScA>1</ScA><ScR>0.391572478</ScR><ScG>0.775822218</ScG><ScB>0.3515326</ScB>
+  </DiffAddedBackgroundColor>
   <DefaultBackgroundHighlightColor>
     <A>64</A>
     <R>106</R>

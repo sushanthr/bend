@@ -24,6 +24,9 @@ namespace TextCoreControl
             Settings.DefaultSelectionOutlineColor          = new ColorF(0.3686f, 0.447f, 0.6f, 1.0f);
             Settings.DefaultSelectionDimColor              = new ColorF(245 / 255f, 245 / 255f, 245 / 255f, 0.50f);
             Settings.DefaultBackgroundHighlightColor       = new ColorF(0.86f, 0.86f, 0.86f);
+            Settings.DiffAddedBackgroundColor              = new ColorF(40 / 255f, 80 / 255f, 45 / 255f, 0.75f);
+            Settings.DiffRemovedBackgroundColor            = new ColorF(90 / 255f, 40 / 255f, 40 / 255f, 0.75f);
+            Settings.DiffPaddingPatternColor               = new ColorF(0.45f, 0.45f, 0.45f, 0.35f);
             Settings.LineNumberColor                       = new ColorF(0.55f, 0.55f, 0.55f);
 
             Settings.MouseWheel_Normal_Step_LineCount      = 4;
@@ -146,6 +149,9 @@ namespace TextCoreControl
         public static ColorF        DefaultSelectionOutlineColor;
         public static ColorF        DefaultSelectionDimColor;
         public static ColorF        DefaultBackgroundHighlightColor;
+        public static ColorF        DiffAddedBackgroundColor;
+        public static ColorF        DiffRemovedBackgroundColor;
+        public static ColorF        DiffPaddingPatternColor;
         public static ColorF        LineNumberColor;
 
         public static int           MouseWheel_Normal_Step_LineCount;

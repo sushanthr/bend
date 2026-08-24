@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Bend"
         xmlns:controls="clr-namespace:Bend.Controls"
+        xmlns:scm="clr-namespace:Bend.SourceControl"
         xmlns:term="clr-namespace:Console;assembly=Console"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
         x:Name="ThisWindow"
@@ -136,6 +137,28 @@
                                         Property="Background"
                                         Value="{DynamicResource MenuSelectedBackgroundBrush}"/>
                             </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="StatusSegment" TargetType="RadioButton">
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Foreground" Value="{DynamicResource LogoForegroundBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="SegmentBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="4,1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="SegmentBorder" Property="Background" Value="#45FFFFFF"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SegmentBorder" Property="Background" Value="#28FFFFFF"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".4"/></Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -552,6 +575,8 @@
                                 OpenFolderRequested="FilesPanel_OpenFolderRequested"
                                 FileInvoked="FilesPanel_FileInvoked"
                                 Visibility="Collapsed"/>
+                        <scm:SourceControlPanel x:Name="SourceControlPanel" Grid.RowSpan="2" Visibility="Collapsed"
+                                DiffRequested="SourceControlPanel_DiffRequested" DiffModeChanged="SourceControlPanel_DiffModeChanged"/>
                         <TextBlock x:Name="OtherSidePaneContent"
                                 Grid.Row="1"
                                 Margin="22"
@@ -789,6 +814,17 @@
                         Grid.Column="1"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,12,0" ToolTip="Diff presentation">
+                        <RadioButton x:Name="DiffNoneButton" GroupName="AppDiffMode" Style="{StaticResource StatusSegment}" ToolTip="Hide diff" Checked="DiffMode_Checked">
+                            <TextBlock Text="&#xEADD;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16"/>
+                        </RadioButton>
+                        <RadioButton x:Name="DiffInlineButton" GroupName="AppDiffMode" Style="{StaticResource StatusSegment}" Margin="-1,0,0,0" ToolTip="Inline diff" Checked="DiffMode_Checked">
+                            <TextBlock Text="&#xEAE1;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16"/>
+                        </RadioButton>
+                        <RadioButton x:Name="DiffSideBySideButton" GroupName="AppDiffMode" Style="{StaticResource StatusSegment}" Margin="-1,0,0,0" ToolTip="Side-by-side diff" Checked="DiffMode_Checked">
+                            <TextBlock Text="&#xEB56;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16"/>
+                        </RadioButton>
+                    </StackPanel>
                     <TextBlock Text="Ln"
                             FontSize="13"
                             Foreground="{DynamicResource LogoForegroundBrush}"
@@ -797,6 +833,8 @@
                             FontSize="13"
                             Foreground="{DynamicResource LogoForegroundBrush}"
                             Padding="4,0,0,0"
+                            Width="38"
+                            HorizontalContentAlignment="Right"
                             Content="0"
                             VerticalContentAlignment="Center"/>
                     <TextBlock Text=", Col"
@@ -807,6 +845,8 @@
                             FontSize="13"
                             Foreground="{DynamicResource LogoForegroundBrush}"
                             Padding="4,0,0,0"
+                            Width="38"
+                            HorizontalContentAlignment="Right"
                             Content="0"
                             VerticalContentAlignment="Center"/>
                     <TextBlock Text="UTF-8    C#"
@@ -819,6 +859,8 @@
                         Grid.ColumnSpan="2"
                         Visibility="Hidden"
                         HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Center"
                         Foreground="{DynamicResource LogoForegroundBrush}"
                         Padding="8,0"/>
             </Grid>

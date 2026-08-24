@@ -1,16 +1,20 @@
-﻿<UserControl x:Class="TextCoreControl.TextEditor"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:controls="clr-namespace:Microsoft.WindowsAPICodePack.DirectX.Controls;assembly=Microsoft.WindowsAPICodePack.DirectX.Controls" 
-             mc:Ignorable="d" 
-             d:DesignHeight="276" d:DesignWidth="431">
-    <Grid ClipToBounds="True" Margin="5,0,0,0">
-        <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16" MinHeight="2"/>
-        <Image Name="RasterHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16"></Image>
-        <ScrollBar HorizontalAlignment="Right" Name="vScrollBar" VerticalAlignment="Stretch" Margin="0,0,0,16"/>
-        <ScrollBar Name="hScrollBar" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,16,0"/>
-        <Canvas Name="BottomRightPatch" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom"></Canvas>        
-    </Grid>
+<UserControl x:Class="TextCoreControl.TextEditor" x:Name="Root"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+ xmlns:controls="clr-namespace:Microsoft.WindowsAPICodePack.DirectX.Controls;assembly=Microsoft.WindowsAPICodePack.DirectX.Controls"
+ mc:Ignorable="d" d:DesignHeight="276" d:DesignWidth="431">
+ <Grid>
+  <Grid x:Name="ComparisonHost" ClipToBounds="True">
+   <Grid.ColumnDefinitions><ColumnDefinition x:Name="BaseColumn" Width="0"/><ColumnDefinition x:Name="ComparisonSplitterColumn" Width="0"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <ContentControl x:Name="BaseEditorHost" Grid.Column="0"/>
+   <GridSplitter x:Name="ComparisonSplitter" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#50808080" Visibility="Collapsed"/>
+   <Grid x:Name="EditorSurface" Grid.Column="2" ClipToBounds="True" Margin="5,0,0,0">
+    <controls:RenderHost x:Name="RenderHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16" MinHeight="2"/>
+    <Image Name="RasterHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Cursor="IBeam" Margin="0,0,16,16"/>
+    <ScrollBar HorizontalAlignment="Right" Name="vScrollBar" VerticalAlignment="Stretch" Margin="0,0,0,16"/>
+    <ScrollBar Name="hScrollBar" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,0,16,0"/>
+    <Canvas Name="BottomRightPatch" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+   </Grid>
+  </Grid>
+ </Grid>
 </UserControl>

@@ -20,6 +20,7 @@ using TextCoreControl;
 using Microsoft.Terminal.Wpf;
 using Forms = System.Windows.Forms;
 using Bend.Controls;
+using Bend.SourceControl;
 
 namespace Bend
 { 
@@ -63,6 +64,11 @@ namespace Bend
         bool extendDragDrop;
         private string currentFolderPath;
         private Tab treePreviewTab;
+        private readonly IGitService diffGitService = new GitService();
+        private readonly Dictionary<string, string> sessionFileBaselines =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private System.Threading.CancellationTokenSource diffBaseCancellation;
+        private bool initializingDiffMode;
         #endregion
 
         #region Public API
@@ -140,6 +146,7 @@ namespace Bend
             var style = (Style)Resources["PlainStyle"];
             this.Style = style;
             tab = new List<Tab>();
+            InitializeDiffModeControl();
             double savedWidth = PersistantStorage.StorageObject.mainWindowWidth;
             double savedHeight = PersistantStorage.StorageObject.mainWindowHeight;
             this.Width = double.IsNaN(savedWidth) || savedWidth < 200 ? 800 : Math.Min(savedWidth, SystemParameters.VirtualScreenWidth);
@@ -191,6 +198,9 @@ namespace Bend
 
         internal void LoadOptions()
         {
+            // Theme definitions are authoritative. Persisted ThemeSettings instances may
+            // predate newly added colors and otherwise keep stale serialized values.
+            PersistantStorage.StorageObject.CurrentTheme = ThemeSettings.LoadThemeSettings(PersistantStorage.StorageObject.CurrentThemeFilename);
             StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
 
             Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundColor);
@@ -220,6 +230,9 @@ namespace Bend
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionOutlineColor, ref TextCoreControl.Settings.DefaultSelectionOutlineColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultSelectionDimColor, ref TextCoreControl.Settings.DefaultSelectionDimColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultBackgroundHighlightColor, ref TextCoreControl.Settings.DefaultBackgroundHighlightColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DiffAddedBackgroundColor, ref TextCoreControl.Settings.DiffAddedBackgroundColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DiffRemovedBackgroundColor, ref TextCoreControl.Settings.DiffRemovedBackgroundColor);
+            TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DiffPaddingPatternColor, ref TextCoreControl.Settings.DiffPaddingPatternColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.LineNumberColor, ref TextCoreControl.Settings.LineNumberColor);
 
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultShowFormattingColor, ref TextCoreControl.Settings.DefaultShowFormattingColor);
@@ -330,7 +343,7 @@ namespace Bend
             if (this.currentTabIndex >= 0)
             {
                 this.tab[this.currentTabIndex].Title.Opacity = 1;
-                this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
+                this.tab[this.currentTabIndex].Content.Visibility = Visibility.Visible;
                 this.SetFocusAfterTextEditorInitialization();
             }
             UpdateEditorChrome();
@@ -380,7 +393,7 @@ namespace Bend
                             continue;
                         }
                         this.tab[lastTab].Title.Opacity = 0.5;
-                        this.tab[lastTab].TextEditor.Visibility = Visibility.Hidden;
+                        this.tab[lastTab].Content.Visibility = Visibility.Hidden;
                         tabOpened = true;
                     }
                 }
@@ -492,34 +505,36 @@ namespace Bend
                 newTab.Title.MouseMove += TabTitle_MouseMove;
 
                 newTab.Title.Opacity = 0.5;
-                newTab.TextEditor.Visibility = Visibility.Hidden;
+                newTab.Content.Visibility = Visibility.Hidden;
 
                 TabBar.Children.Add(newTab.Title);
-                Editor.Children.Add(newTab.TextEditor);
+                Editor.Children.Add(newTab.Content);
                 UpdateEditorChrome();
                 newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
                 newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
                 if (!newTab.OpenFile(filePath))
                 {
                     TabBar.Children.Remove(newTab.Title);
-                    Editor.Children.Remove(newTab.TextEditor);
+                    Editor.Children.Remove(newTab.Content);
                     newTab.Close();
                     tab.Remove(newTab);
                     return false;
                 }
+                CaptureSessionBaseline(newTab);
 
                 // Switch focus to the new file
                 if (currentTabIndex >= 0)
                 {
-                    tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                    tab[currentTabIndex].Content.Visibility = Visibility.Hidden;
                     tab[currentTabIndex].Title.Opacity = 0.5;
                 }
 
                 int newTabFocus = tab.Count - 1;
                 this.currentTabIndex = newTabFocus;
                 tab[newTabFocus].Title.Opacity = 1.0;
-                tab[newTabFocus].TextEditor.Visibility = Visibility.Visible;
+                tab[newTabFocus].Content.Visibility = Visibility.Visible;
                 SetFocusAfterTextEditorInitialization();
+                _ = ApplyDiffModeToTabAsync(newTab, GetSelectedDiffMode());
 
                 StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
                 return true;
@@ -587,8 +602,7 @@ namespace Bend
                 this.WindowState = System.Windows.WindowState.Normal;
                 this.WindowState = System.Windows.WindowState.Maximized;
                 this.isFullScreen = true;
-                // Neon Carrot (Crayola) (Hex: #FF9933) (RGB: 255, 153, 51)
-                FullscreenButton.Foreground = new SolidColorBrush(Color.FromRgb(255, 153, 51));
+                FullscreenButton.Foreground = (Brush)Application.Current.Resources["LogoBackgroundBrush"];
             }
         }
 
@@ -598,7 +612,7 @@ namespace Bend
             this.WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
             this.ResizeMode = System.Windows.ResizeMode.CanResizeWithGrip;
             this.WindowState = System.Windows.WindowState.Normal;
-            FullscreenButton.Foreground = Brushes.Gray;
+            FullscreenButton.ClearValue(Control.ForegroundProperty);
             this.isFullScreen = false;
         }
 
@@ -659,6 +673,11 @@ namespace Bend
 
         private void CommandSave(object sender, ExecutedRoutedEventArgs e)
         {
+            if (this.currentTabIndex >= 0 && this.tab[this.currentTabIndex].IsDiff)
+            {
+                this.SetStatusText("DIFFS ARE READ-ONLY", MainWindow.StatusType.STATUS_OTHER);
+                return;
+            }
             if (this.currentTabIndex >= 0)
             {
                 this.tab[this.currentTabIndex].CheckEncoding();
@@ -753,7 +772,7 @@ namespace Bend
                 {
                     this.currentTabIndex = i;
                     this.tab[i].Title.Opacity = 1;
-                    this.tab[i].TextEditor.Visibility = Visibility.Visible;
+                    this.tab[i].Content.Visibility = Visibility.Visible;
                     this.tab[i].TextEditor.Focus();
                     return;
                 }
@@ -768,15 +787,21 @@ namespace Bend
                 if (this.currentTabIndex >= 0)
                 {
                     this.tab[this.currentTabIndex].Title.Opacity = 0.5;
-                    this.tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                    this.tab[this.currentTabIndex].Content.Visibility = Visibility.Hidden;
                 }
                 this.AddNewTab();
                 this.currentTabIndex = tab.Count - 1;
                 SetFocusAfterTextEditorInitialization();
             }
 
-            if (!this.tab[this.currentTabIndex].OpenFile(normalizedPath) && this.tab[this.currentTabIndex].TextEditor.Document.IsEmpty)
+            Tab openedTab = this.tab[this.currentTabIndex];
+            if (!openedTab.OpenFile(normalizedPath) && openedTab.TextEditor.Document.IsEmpty)
+            {
                 this.TabClose(this.currentTabIndex);
+                return;
+            }
+            CaptureSessionBaseline(openedTab);
+            _ = ApplyDiffModeToTabAsync(openedTab, GetSelectedDiffMode());
         }
 
         private void CommandNew(object sender, ExecutedRoutedEventArgs e)
@@ -784,7 +809,7 @@ namespace Bend
             if (this.currentTabIndex >= 0)
             {
                 tab[this.currentTabIndex].Title.Opacity = 0.5;
-                tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                tab[this.currentTabIndex].Content.Visibility = Visibility.Hidden;
             }
 
             this.AddNewTab();
@@ -843,8 +868,7 @@ namespace Bend
             {
                 try
                 {
-                    TextCoreControl.TextEditor textEditor = tab[this.currentTabIndex].TextEditor;
-                    textEditor.DisplayManager.ScrollToContentLineNumber(lineNumber, /*moveCaret*/ true);
+                    tab[this.currentTabIndex].TextEditor.GoToLine(lineNumber);
                 }
                 catch
                 {
@@ -895,7 +919,7 @@ namespace Bend
                 Editor.Children.RemoveAt(sourceTabIndex);
                 tab.Insert(insertAfterTabIndex, tabBeingMoved);
                 TabBar.Children.Insert(insertAfterTabIndex, tabBeingMoved.Title);
-                Editor.Children.Insert(insertAfterTabIndex, tabBeingMoved.TextEditor);
+                Editor.Children.Insert(insertAfterTabIndex, tabBeingMoved.Content);
                 this.SwitchTabFocusTo(insertAfterTabIndex);
             }
         }
@@ -1048,7 +1072,7 @@ namespace Bend
                     }
 
                     Tab sourceTab = tab[tabIndex];
-                    sourceTab.TextEditor.Visibility = Visibility.Collapsed;
+                    sourceTab.Content.Visibility = Visibility.Collapsed;
                     sourceTab.Title.Visibility = Visibility.Collapsed;
 
                     // Package the data.
@@ -1131,7 +1155,7 @@ namespace Bend
                     }
 
                     TryDeleteTransferFile(deleteFile);
-                    sourceTab.TextEditor.Visibility = Visibility.Visible;
+                    sourceTab.Content.Visibility = Visibility.Visible;
                     sourceTab.Title.Visibility = Visibility.Visible;
                 }
             }
@@ -1240,6 +1264,12 @@ namespace Bend
             {
                 if (this.currentTabIndex >= 0)
                 {
+                    if (this.tab[this.currentTabIndex].IsDiff)
+                    {
+                        this.SetStatusText("DIFFS ARE READ-ONLY", MainWindow.StatusType.STATUS_OTHER);
+                        e.Handled = true;
+                        return;
+                    }
                     this.tab[this.currentTabIndex].CheckEncoding();
 
                     SaveFileDialog dlg = new SaveFileDialog();
@@ -1450,7 +1480,7 @@ namespace Bend
             newTab.Title.MouseMove += TabTitle_MouseMove;            
 
             TabBar.Children.Add(newTab.Title);
-            Editor.Children.Add(newTab.TextEditor);
+            Editor.Children.Add(newTab.Content);
             UpdateEditorChrome();
             newTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
             newTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
@@ -1508,7 +1538,7 @@ namespace Bend
                 {
                     // Delete the tab                
                     TabBar.Children.Remove(tab[i].Title);
-                    Editor.Children.Remove(tab[i].TextEditor);
+                    Editor.Children.Remove(tab[i].Content);
                     tab.RemoveAt(i);                 
                 }
             }
@@ -1518,8 +1548,8 @@ namespace Bend
             {
                 this.currentTabIndex = 0;
                 tab[this.currentTabIndex].Title.Opacity = 1.0;
-                tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-                tab[this.currentTabIndex].TextEditor.SetFocus();
+                tab[this.currentTabIndex].Content.Visibility = Visibility.Visible;
+                tab[this.currentTabIndex].Content.Focus();
             }
         }
 
@@ -1616,7 +1646,7 @@ namespace Bend
             // Set Focus to tab.
             if (currentTabIndex >= 0)
             {
-                tab[currentTabIndex].TextEditor.Visibility = Visibility.Hidden;
+                tab[currentTabIndex].Content.Visibility = Visibility.Hidden;
                 tab[currentTabIndex].Title.Opacity = 0.5;
             }
             
@@ -1624,9 +1654,10 @@ namespace Bend
             { 
                 this.currentTabIndex = tabIndex;
                 tab[tabIndex].Title.Opacity = 1.0;
-                tab[tabIndex].TextEditor.Visibility = Visibility.Visible;
-                tab[tabIndex].TextEditor.SetFocus();
-                this.FindText.Text = tab[tabIndex].FindOptions.FindText;
+                tab[tabIndex].Content.Visibility = Visibility.Visible;
+                tab[tabIndex].Content.Focus();
+                if (!tab[tabIndex].IsDiff) this.FindText.Text = tab[tabIndex].FindOptions.FindText;
+                _ = ApplyDiffModeToTabAsync(tab[tabIndex], GetSelectedDiffMode());
             }
         }
 
@@ -1662,8 +1693,8 @@ namespace Bend
                     if (this.currentTabIndex >= 0)
                     {
                         tab[this.currentTabIndex].Title.Opacity = 1.0;
-                        tab[this.currentTabIndex].TextEditor.Visibility = Visibility.Visible;
-                        tab[this.currentTabIndex].TextEditor.SetFocus();
+                        tab[this.currentTabIndex].Content.Visibility = Visibility.Visible;
+                        tab[this.currentTabIndex].Content.Focus();
                     }
                 }
                 else
@@ -1672,8 +1703,8 @@ namespace Bend
                     this.currentTabIndex = tabIndex;
 
                     tab[this.currentTabIndex + 1].Title.Opacity = 1.0;
-                    tab[this.currentTabIndex + 1].TextEditor.Visibility = Visibility.Visible;
-                    tab[this.currentTabIndex + 1].TextEditor.SetFocus();
+                    tab[this.currentTabIndex + 1].Content.Visibility = Visibility.Visible;
+                    tab[this.currentTabIndex + 1].Content.Focus();
                 }
             }
             else
@@ -1687,7 +1718,7 @@ namespace Bend
 
             // Delete current tab                    
             TabBar.Children.Remove(tab[tabIndex].Title);
-            Editor.Children.Remove(tab[tabIndex].TextEditor);
+            Editor.Children.Remove(tab[tabIndex].Content);
             tab[tabIndex].Close();
             tab.RemoveAt(tabIndex);
             UpdateEditorChrome();
@@ -1743,7 +1774,7 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
-                Tab.CopyPasteManager.Copy(this.tab[this.currentTabIndex].TextEditor);
+                this.tab[this.currentTabIndex].TextEditor.CopySelection();
             }
         }
 
@@ -1840,6 +1871,119 @@ namespace Bend
 
         private string activeActivity;
 
+        private void InitializeDiffModeControl()
+        {
+            initializingDiffMode = true;
+            DiffViewMode mode = ParseDiffMode(PersistantStorage.StorageObject.DiffViewMode);
+            DiffNoneButton.IsChecked = mode == DiffViewMode.None;
+            DiffInlineButton.IsChecked = mode == DiffViewMode.Inline;
+            DiffSideBySideButton.IsChecked = mode == DiffViewMode.SideBySide;
+            initializingDiffMode = false;
+        }
+
+        private static DiffViewMode ParseDiffMode(string value)
+        {
+            DiffViewMode mode;
+            return Enum.TryParse(value, true, out mode) ? mode : DiffViewMode.Inline;
+        }
+
+        private DiffViewMode GetSelectedDiffMode()
+        {
+            if (DiffSideBySideButton.IsChecked == true) return DiffViewMode.SideBySide;
+            if (DiffNoneButton.IsChecked == true) return DiffViewMode.None;
+            return DiffViewMode.Inline;
+        }
+
+        private async void DiffMode_Checked(object sender, RoutedEventArgs e)
+        {
+            if (initializingDiffMode || tab == null) return;
+            DiffViewMode mode = GetSelectedDiffMode();
+            PersistantStorage.StorageObject.DiffViewMode = mode.ToString();
+            try { PersistantStorage.Save(); } catch { }
+
+            // Existing comparison tabs can switch immediately. A normal file gets
+            // its HEAD version lazily without replacing its editable document.
+            foreach (Tab openTab in tab.Where(t => t.TextEditor.HasDiffBase))
+                openTab.TextEditor.DiffMode = mode;
+            if (CurrentTab != null && !CurrentTab.TextEditor.HasDiffBase)
+                await ApplyDiffModeToTabAsync(CurrentTab, mode);
+        }
+
+        private async System.Threading.Tasks.Task ApplyDiffModeToTabAsync(Tab target, DiffViewMode mode)
+        {
+            if (target == null) return;
+            if (mode == DiffViewMode.None)
+            {
+                target.TextEditor.DiffMode = DiffViewMode.None;
+                return;
+            }
+            if (target.TextEditor.HasDiffBase)
+            {
+                target.TextEditor.DiffMode = mode;
+                return;
+            }
+
+            if (diffBaseCancellation != null) diffBaseCancellation.Cancel();
+            diffBaseCancellation = new System.Threading.CancellationTokenSource();
+            System.Threading.CancellationToken token = diffBaseCancellation.Token;
+            try
+            {
+                string baseText = String.Empty;
+                if (!String.IsNullOrWhiteSpace(target.FullFileName))
+                {
+                    string workspace = !String.IsNullOrWhiteSpace(currentFolderPath)
+                        ? currentFolderPath : System.IO.Path.GetDirectoryName(target.FullFileName);
+                    baseText = await diffGitService.GetWorkingFileBaseAsync(workspace, target.FullFileName, token);
+                }
+                if (token.IsCancellationRequested || !tab.Contains(target)) return;
+                target.TextEditor.SetDiffBase(baseText, target.FullFileName);
+                target.TextEditor.DiffMode = mode;
+            }
+            catch (OperationCanceledException) { }
+            catch
+            {
+                if (!token.IsCancellationRequested && tab.Contains(target))
+                {
+                    string sessionBase;
+                    if (TryGetSessionBaseline(target, out sessionBase))
+                    {
+                        target.TextEditor.SetDiffBase(sessionBase, target.FullFileName);
+                        target.TextEditor.DiffMode = mode;
+                    }
+                    else
+                    {
+                        target.TextEditor.ClearDiffBase();
+                    }
+                }
+            }
+        }
+
+        private void CaptureSessionBaseline(Tab target)
+        {
+            if (target == null || String.IsNullOrWhiteSpace(target.FullFileName)) return;
+            string path;
+            try { path = System.IO.Path.GetFullPath(target.FullFileName); }
+            catch (Exception) { return; }
+            if (sessionFileBaselines.ContainsKey(path)) return;
+
+            string text = target.TextEditor.Document.Text ?? String.Empty;
+            if (text.Length > 0 && text[text.Length - 1] == '\0')
+                text = text.Substring(0, text.Length - 1);
+            sessionFileBaselines[path] = text;
+        }
+
+        private bool TryGetSessionBaseline(Tab target, out string baseline)
+        {
+            baseline = null;
+            if (target == null || String.IsNullOrWhiteSpace(target.FullFileName)) return false;
+            try
+            {
+                return sessionFileBaselines.TryGetValue(
+                    System.IO.Path.GetFullPath(target.FullFileName), out baseline);
+            }
+            catch (Exception) { return false; }
+        }
+
         private void UpdateEditorChrome()
         {
             bool hasTabs = tab != null && tab.Count > 0;
@@ -1856,15 +2000,63 @@ namespace Bend
             }
             activeActivity = activity;
             SidePaneTitle.Text = title;
-            SidePaneColumn.Width = new GridLength(240);
+            SidePaneColumn.Width = new GridLength(activity == "source" ? 320 : 240);
             bool showFiles = activity == "files";
+            bool showSource = activity == "source";
             FilesPanel.Visibility = showFiles ? Visibility.Visible : Visibility.Collapsed;
-            OtherSidePaneContent.Visibility = showFiles ? Visibility.Collapsed : Visibility.Visible;
+            SourceControlPanel.Visibility = showSource ? Visibility.Visible : Visibility.Collapsed;
+            OtherSidePaneContent.Visibility = (showFiles || showSource) ? Visibility.Collapsed : Visibility.Visible;
+            if (showSource) SourceControlPanel.RefreshAsync();
         }
 
         private void FilesActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("files", "FILES"); }
         private void SearchActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("search", "SEARCH"); }
         private void SourceControlActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("source", "SOURCE CONTROL"); }
+
+        private void SourceControlPanel_DiffRequested(object sender, DiffRequestedEventArgs e)
+        {
+            e.Mode = GetSelectedDiffMode();
+            Tab existing = tab.FirstOrDefault(t => t.IsDiff && String.Equals(t.DiffKey, e.Key, StringComparison.Ordinal));
+            Tab priorPreview = this.treePreviewTab;
+            bool targetWasDurable = existing != null && existing != priorPreview;
+            CloseTreePreviewIfAllowed(existing);
+            if (existing != null)
+            {
+                if (e.CurrentText != null || e.BaseText != null)
+                    existing.TextEditor.LoadText(e.CurrentText ?? String.Empty, e.FileName, e.BaseText ?? String.Empty);
+                else
+                {
+                    DiffModel refreshedModel = DiffModel.Parse(e.Patch, e.Title);
+                    string refreshedName = refreshedModel.Files.Count == 0 ? e.Title : (refreshedModel.Files[0].NewPath ?? refreshedModel.Files[0].OldPath);
+                    existing.TextEditor.LoadText(refreshedModel.BuildNewText(), refreshedName, refreshedModel.BuildOldText());
+                }
+                existing.TextEditor.DiffMode = e.Mode;
+                SwitchTabFocusTo(tab.IndexOf(existing));
+                this.treePreviewTab = e.IsPinned || targetWasDurable ? null : existing;
+                return;
+            }
+            Tab diffTab = new Tab();
+            if (e.CurrentText != null || e.BaseText != null)
+                diffTab.ConfigureDiff(e.Key, e.Title, e.FileName, e.CurrentText, e.BaseText, e.Mode);
+            else
+                diffTab.ConfigureDiff(e.Key, e.Title, DiffModel.Parse(e.Patch, e.Title), e.Mode);
+            diffTab.Title.MouseLeftButtonUp += this.TabClick;
+            diffTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
+            diffTab.Title.CloseButtonClicked += this.TabClose;
+            diffTab.Title.MouseMove += TabTitle_MouseMove;
+            diffTab.TextEditor.DisplayManager.ContextMenu += new DisplayManager.ShowContextMenuEventHandler(DisplayManager_ContextMenu);
+            diffTab.TextEditor.DisplayManager.SelectionChange += DisplayManager_SelectionChange;
+            diffTab.TextEditor.DisplayManager.CaretPositionChanged += TextEditor_CaretPositionChanged;
+            diffTab.Content.Visibility = Visibility.Hidden;
+            tab.Add(diffTab); TabBar.Children.Add(diffTab.Title); Editor.Children.Add(diffTab.Content);
+            UpdateEditorChrome(); SwitchTabFocusTo(tab.Count - 1);
+            this.treePreviewTab = e.IsPinned ? null : diffTab;
+        }
+
+        private void SourceControlPanel_DiffModeChanged(object sender, EventArgs e)
+        {
+            foreach (Tab openTab in tab.Where(t => t.IsDiff)) openTab.TextEditor.DiffMode = GetSelectedDiffMode();
+        }
 
         private void SettingsMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -2087,6 +2279,7 @@ namespace Bend
             this.currentFolderPath = path;
             WorkspacePathText.Text = path;
             FilesPanel.RootPath = path;
+            SourceControlPanel.WorkspacePath = path;
             if (persist)
             {
                 PersistantStorage.StorageObject.LastWorkspaceFolder = path;

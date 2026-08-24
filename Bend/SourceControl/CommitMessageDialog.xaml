@@ -1,0 +1,13 @@
+<Window x:Class="Bend.SourceControl.CommitMessageDialog"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Commit Changes" Width="480" SizeToContent="Height" ResizeMode="NoResize" ShowInTaskbar="False"
+ WindowStartupLocation="CenterOwner" Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource ForegroundBrush}">
+ <Grid Margin="18"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="110"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <TextBlock Text="COMMIT STAGED CHANGES" FontSize="16" Margin="0,0,0,10"/>
+  <TextBox x:Name="MessageBox" Grid.Row="1" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Padding="6" TextChanged="MessageBox_TextChanged"/>
+  <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+   <Button x:Name="CommitButton" Content="COMMIT" Width="82" Height="26" IsDefault="True" IsEnabled="False" Click="Commit_Click"/>
+   <Button Content="CANCEL" Width="82" Height="26" IsCancel="True" Margin="8,0,0,0"/>
+  </StackPanel>
+ </Grid>
+</Window>

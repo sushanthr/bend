@@ -20,6 +20,16 @@ namespace TextCoreUnitTest
         }
 
         [TestMethod]
+        public void LoadTextCreatesCleanInMemoryDocument()
+        {
+            Document document = new Document();
+            document.LoadText("old\nnew", "sample.cs");
+            Assert.AreEqual("old\nnew\0", document.Text);
+            Assert.IsFalse(document.HasUnsavedContent);
+            Assert.AreEqual(Encoding.UTF8, document.CurrentEncoding);
+        }
+
+        [TestMethod]
         public void InsertAndDeletePreserveTerminatorAndDirtyState()
         {
             Document document = new Document();
