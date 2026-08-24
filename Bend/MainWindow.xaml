@@ -4,6 +4,7 @@
         xmlns:local="clr-namespace:Bend"
         xmlns:controls="clr-namespace:Bend.Controls"
         xmlns:term="clr-namespace:Console;assembly=Console"
+        xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
         x:Name="ThisWindow"
         Title="Bend"
         Width="1200"
@@ -462,7 +463,7 @@
                                 <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="48"/>
                                         <ColumnDefinition x:Name="SidePaneColumn" Width="0"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*" MinWidth="100"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Background="{DynamicResource ShellPanelBrush}">
                                         <Grid.RowDefinitions>
@@ -561,6 +562,15 @@
                                 Foreground="{DynamicResource ShellMutedBrush}"/>
                     </Grid>
                 </Border>
+                <GridSplitter Grid.Column="1"
+                        Width="5"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        ResizeDirection="Columns"
+                        ResizeBehavior="CurrentAndNext"
+                        ShowsPreview="False"
+                        Panel.ZIndex="3"/>
                 <Grid Grid.Column="2"
                         x:Name="MainDock">
                     <Grid.RowDefinitions>
@@ -723,11 +733,23 @@
                                 Data="M0,5 L4,1 L8,5"/>
                     </Button>
                 </StackPanel>
+                <primitives:Thumb x:Name="BottomPaneResizeThumb"
+                        Grid.RowSpan="3"
+                        Grid.ColumnSpan="3"
+                        Height="5"
+                        VerticalAlignment="Top"
+                        Background="Transparent"
+                        Opacity="0"
+                        Cursor="SizeNS"
+                        DragDelta="BottomPaneResizeThumb_DragDelta"
+                        Visibility="Collapsed"
+                        Panel.ZIndex="4"/>
                                 <GridSplitter x:Name="MainDockSplitter"
                                                 Grid.Row="1"
                                         Grid.ColumnSpan="3"
                                                 Height="4"
                                                 Background="{DynamicResource TerminalColorBrush}"
+                                                IsHitTestVisible="False"
                                                 Visibility="Collapsed"/>
                                 <Grid x:Name="MainDockBottomPanel"
                                                 Grid.Row="2"

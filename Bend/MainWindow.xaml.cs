@@ -1366,6 +1366,7 @@ namespace Bend
             if (MainDockSplitter.Visibility != System.Windows.Visibility.Visible)
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Visible;
+                BottomPaneResizeThumb.Visibility = Visibility.Visible;
                 BottomChrome.RowDefinitions[1].Height = new GridLength(4);
                 BottomChrome.RowDefinitions[2].Height = new GridLength(300);
                 TerminalToggleChevron.Data = Geometry.Parse("M0,1 L4,5 L8,1");
@@ -1390,6 +1391,7 @@ namespace Bend
             else
             {
                 MainDockSplitter.Visibility = System.Windows.Visibility.Collapsed;
+                BottomPaneResizeThumb.Visibility = Visibility.Collapsed;
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Collapsed;
                 BottomChrome.RowDefinitions[1].Height = new GridLength(0);
                 BottomChrome.RowDefinitions[2].Height = new GridLength(0);
@@ -1397,6 +1399,16 @@ namespace Bend
                 ToggleBottomPanel.Foreground = MaxButton.Foreground;
             }
             if (e != null) e.Handled = true;
+        }
+
+        private void BottomPaneResizeThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            const double minimumPaneHeight = 80;
+            const double minimumEditorHeight = 80;
+            double currentHeight = BottomChrome.RowDefinitions[2].ActualHeight;
+            double maximumHeight = currentHeight + Math.Max(0, MainWindowGrid.RowDefinitions[1].ActualHeight - minimumEditorHeight);
+            double newHeight = Math.Max(minimumPaneHeight, Math.Min(maximumHeight, currentHeight - e.VerticalChange));
+            BottomChrome.RowDefinitions[2].Height = new GridLength(newHeight);
         }
 
         void slideSettingsInAnimation_Completed(object sender, EventArgs e)
@@ -1875,6 +1887,7 @@ namespace Bend
             // splitter can briefly have different visibility values, which makes that
             // method take the open branch and prevents navigation to Settings.
             MainDockSplitter.Visibility = Visibility.Collapsed;
+            BottomPaneResizeThumb.Visibility = Visibility.Collapsed;
             MainDockBottomPanel.Visibility = Visibility.Collapsed;
             BottomChrome.RowDefinitions[1].Height = new GridLength(0);
             BottomChrome.RowDefinitions[2].Height = new GridLength(0);
