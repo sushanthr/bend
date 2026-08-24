@@ -181,6 +181,7 @@ namespace Bend.SourceControl
         {
             if (ChangesTree == null) return; bool commit = CommitMode.IsChecked == true;
             ChangesTree.Visibility = commit ? Visibility.Collapsed : Visibility.Visible; CommitView.Visibility = commit ? Visibility.Visible : Visibility.Collapsed;
+            StateText.Visibility = commit ? Visibility.Collapsed : Visibility.Visible;
         }
         private void DiffMode_Checked(object sender, RoutedEventArgs e) { if (DiffModeChanged != null) DiffModeChanged(this, EventArgs.Empty); }
         private void Refresh_Click(object sender, RoutedEventArgs e) { RefreshAsync(); }
