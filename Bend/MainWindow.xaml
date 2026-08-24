@@ -681,7 +681,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="235"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.ColumnSpan="3"
                         Grid.RowSpan="3"
@@ -747,6 +747,19 @@
                         Grid.Row="0"
                                                 HorizontalAlignment="Right"
                         Orientation="Horizontal">
+                    <Button x:Name="SavedCommandsButton" Width="105"
+                            Style="{StaticResource ChromeButton}"
+                            Click="SavedCommands_Click"
+                            ToolTip="Saved commands">
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="SavedCommandsMenu" Opened="SavedCommandsMenu_Opened"/>
+                        </Button.ContextMenu>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="&#xEA65;" Width="16" TextAlignment="Center" VerticalAlignment="Center" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
+                            <TextBlock Text="Macro" Margin="6,0,0,0" VerticalAlignment="Center" FontFamily="Segoe UI" FontSize="12" Foreground="{DynamicResource ShellMutedBrush}"/>
+                            <Path Width="8" Height="5" VerticalAlignment="Center" Margin="7,0,0,0" Stroke="{DynamicResource ShellMutedBrush}" StrokeThickness="1" Data="M0,0 L4,4 L8,0"/>
+                        </StackPanel>
+                    </Button>
                     <Button Width="90"
                             Style="{StaticResource ChromeButton}"
                             Click="ShellSelector_Click"
@@ -762,7 +775,7 @@
                                                 <StackPanel Orientation="Horizontal"
                                                                 HorizontalAlignment="Center">
                             <TextBlock x:Name="ShellLabel"
-                                    Text="pwsh"
+                                    Text="Pwsh"
                                     VerticalAlignment="Center"
                                     FontFamily="Segoe UI"
                                     FontSize="14"

@@ -7,6 +7,20 @@ using System.IO;
 
 namespace Bend
 {
+    public class SavedTerminalCommand
+    {
+        public string Name { get; set; }
+        public string CommandLine { get; set; }
+
+        public SavedTerminalCommand() { }
+
+        public SavedTerminalCommand(string name, string commandLine)
+        {
+            Name = name;
+            CommandLine = commandLine;
+        }
+    }
+
     public class PersistantStorage
     {
         static PersistantStorage singletonPersistantStorageObject;
@@ -59,6 +73,8 @@ namespace Bend
         public double AgentPaneWidth;
         public string DefaultAgentCli;
         public string AdditionalAgentClis;
+        public List<SavedTerminalCommand> PowerShellCommands;
+        public List<SavedTerminalCommand> CommandPromptCommands;
 
         #endregion
 
@@ -103,6 +119,8 @@ namespace Bend
             AgentPaneWidth = 360;
             DefaultAgentCli = "copilot";
             AdditionalAgentClis = String.Empty;
+            PowerShellCommands = new List<SavedTerminalCommand>();
+            CommandPromptCommands = new List<SavedTerminalCommand>();
         }
 
         static PersistantStorage()
@@ -126,6 +144,13 @@ namespace Bend
             {
                 return singletonPersistantStorageObject;
             }
+        }
+
+        public List<SavedTerminalCommand> GetTerminalCommands(bool powerShell)
+        {
+            if (PowerShellCommands == null) PowerShellCommands = new List<SavedTerminalCommand>();
+            if (CommandPromptCommands == null) CommandPromptCommands = new List<SavedTerminalCommand>();
+            return powerShell ? PowerShellCommands : CommandPromptCommands;
         }
 
         private static string SettingsPath

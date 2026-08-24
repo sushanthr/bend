@@ -2471,14 +2471,52 @@ namespace Bend
         {
             ((Button)sender).ContextMenu.IsOpen = true;
         }
+        private bool IsPowerShellSelected { get { return ShellLabel.Text == "Pwsh"; } }
+        private void SavedCommands_Click(object sender, RoutedEventArgs e)
+        {
+            ((Button)sender).ContextMenu.IsOpen = true;
+        }
+        private void SavedCommandsMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            RebuildSavedCommandsMenu();
+        }
+        private void RebuildSavedCommandsMenu()
+        {
+            if (SavedCommandsMenu == null) return;
+            SavedCommandsMenu.Items.Clear();
+            foreach (SavedTerminalCommand command in PersistantStorage.StorageObject.GetTerminalCommands(IsPowerShellSelected))
+            {
+                MenuItem item = new MenuItem { Header = command.Name, Tag = command };
+                item.Click += SavedCommand_Click;
+                SavedCommandsMenu.Items.Add(item);
+            }
+            if (SavedCommandsMenu.Items.Count > 0) SavedCommandsMenu.Items.Add(new Separator());
+            MenuItem add = new MenuItem { Header = "+ Add Command" };
+            add.Click += AddSavedCommand_Click;
+            SavedCommandsMenu.Items.Add(add);
+        }
+        private void SavedCommand_Click(object sender, RoutedEventArgs e)
+        {
+            SavedTerminalCommand command = ((MenuItem)sender).Tag as SavedTerminalCommand;
+            if (command == null || currentTerminalIndex < 0 || currentTerminalIndex >= terminalSessions.Count) return;
+            Console.TerminalControl terminal = terminalSessions[currentTerminalIndex];
+            if (terminal.ConPTYTerm != null) terminal.ConPTYTerm.WriteInput(command.CommandLine);
+            terminal.Terminal.Focus();
+        }
+        private void AddSavedCommand_Click(object sender, RoutedEventArgs e)
+        {
+            bool powerShell = IsPowerShellSelected;
+            ShowSettings();
+            SettingsControl.SelectTerminalCommands(powerShell);
+        }
         private void PowerShellShell_Click(object sender, RoutedEventArgs e)
         {
-            ShellLabel.Text = "pwsh";
+            ShellLabel.Text = "Pwsh";
             terminalStartupCommand = "pwsh.exe -NoLogo";
         }
         private void CommandPromptShell_Click(object sender, RoutedEventArgs e)
         {
-            ShellLabel.Text = "cmd";
+            ShellLabel.Text = "Cmd";
             terminalStartupCommand = "c:\\windows\\system32\\cmd.exe";
         }
         private void MinimizeShell_Click(object sender, RoutedEventArgs e) { WindowState = WindowState.Minimized; }

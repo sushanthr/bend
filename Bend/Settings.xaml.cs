@@ -24,6 +24,8 @@ namespace Bend
         #region Member Data
         private bool isApplicationNetworkDeployed;
         private bool isUpdatingOptions;
+        private SavedTerminalCommand editingPowerShellCommand;
+        private SavedTerminalCommand editingCommandPromptCommand;
         #endregion
 
         #region Settings UI Maintainance
@@ -209,10 +211,23 @@ namespace Bend
             if (ProgressBar != null)
                 ProgressBar.Rect = new Rect(0, 0, 0, 4);
         }
+
+        public void SelectTerminalCommands(bool powerShell)
+        {
+            foreach (TabItem item in SettingsTabs.Items)
+            {
+                if ((string)item.Header == "Terminal") { SettingsTabs.SelectedItem = item; break; }
+            }
+            RefreshTerminalCommands();
+            TextBox target = powerShell ? PowerShellCommandName : CommandPromptCommandName;
+            target.Focus();
+            Keyboard.Focus(target);
+        }
         
         private void Settings_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             ProgressBar.Rect = new Rect(0, 0, 0, 5);
+            if (IsVisible) RefreshTerminalCommands();
         }
         #endregion
 
@@ -468,6 +483,7 @@ namespace Bend
             Diagnostics.IsChecked = persistantStorage.Diagnostics;
             DefaultAgentCli.Text = String.IsNullOrWhiteSpace(persistantStorage.DefaultAgentCli) ? "copilot" : persistantStorage.DefaultAgentCli;
             AdditionalAgentClis.Text = persistantStorage.AdditionalAgentClis ?? String.Empty;
+            RefreshTerminalCommands();
 
             // Set up the font picker
             if (persistantStorage.DefaultFontFamilyIndex >= 0 && persistantStorage.DefaultFontFamilyIndex < FontPicker.Items.Count)
@@ -505,6 +521,119 @@ namespace Bend
             {
                 this.isUpdatingOptions = false;
             }
+        }
+
+        private sealed class TerminalCommandTag
+        {
+            public bool PowerShell;
+            public SavedTerminalCommand Command;
+        }
+
+        private void RefreshTerminalCommands()
+        {
+            if (PowerShellCommandList == null || CommandPromptCommandList == null) return;
+            PopulateTerminalCommandList(PowerShellCommandList, true);
+            PopulateTerminalCommandList(CommandPromptCommandList, false);
+        }
+
+        private void PopulateTerminalCommandList(StackPanel panel, bool powerShell)
+        {
+            panel.Children.Clear();
+            List<SavedTerminalCommand> commands = PersistantStorage.StorageObject.GetTerminalCommands(powerShell);
+            if (commands.Count == 0)
+            {
+                TextBlock empty = new TextBlock { Text = "No saved commands", Margin = new Thickness(0, 9, 0, 9) };
+                empty.SetResourceReference(TextBlock.ForegroundProperty, "ShellMutedBrush");
+                panel.Children.Add(empty);
+                return;
+            }
+            foreach (SavedTerminalCommand command in commands)
+            {
+                Grid row = new Grid { MinHeight = 48 };
+                row.ColumnDefinitions.Add(new ColumnDefinition());
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                StackPanel text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+                text.Children.Add(new TextBlock { Text = command.Name });
+                TextBlock commandLine = new TextBlock { Text = command.CommandLine, FontSize = 10, TextTrimming = TextTrimming.CharacterEllipsis };
+                commandLine.SetResourceReference(TextBlock.ForegroundProperty, "ShellMutedBrush");
+                text.Children.Add(commandLine);
+                row.Children.Add(text);
+                StackPanel actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+                TerminalCommandTag tag = new TerminalCommandTag { PowerShell = powerShell, Command = command };
+                Button edit = new Button { Content = "Edit", Tag = tag };
+                edit.Click += EditTerminalCommand_Click;
+                Button delete = new Button { Content = "Delete", Tag = tag, Margin = new Thickness(0) };
+                delete.Click += DeleteTerminalCommand_Click;
+                actions.Children.Add(edit);
+                actions.Children.Add(delete);
+                Grid.SetColumn(actions, 1);
+                row.Children.Add(actions);
+                Border border = new Border { BorderThickness = new Thickness(0, 1, 0, 0), Child = row };
+                border.SetResourceReference(Border.BorderBrushProperty, "ShellBorderBrush");
+                panel.Children.Add(border);
+            }
+        }
+
+        private void SavePowerShellCommand_Click(object sender, RoutedEventArgs e) { SaveTerminalCommand(true); }
+        private void SaveCommandPromptCommand_Click(object sender, RoutedEventArgs e) { SaveTerminalCommand(false); }
+        private void SaveTerminalCommand(bool powerShell)
+        {
+            TextBox nameBox = powerShell ? PowerShellCommandName : CommandPromptCommandName;
+            TextBox commandBox = powerShell ? PowerShellCommandLine : CommandPromptCommandLine;
+            if (String.IsNullOrWhiteSpace(nameBox.Text) || String.IsNullOrWhiteSpace(commandBox.Text)) return;
+            SavedTerminalCommand command = powerShell ? editingPowerShellCommand : editingCommandPromptCommand;
+            if (command == null)
+                PersistantStorage.StorageObject.GetTerminalCommands(powerShell).Add(new SavedTerminalCommand(nameBox.Text.Trim(), commandBox.Text.Trim()));
+            else
+            {
+                command.Name = nameBox.Text.Trim();
+                command.CommandLine = commandBox.Text.Trim();
+            }
+            ClearTerminalCommandEditor(powerShell);
+            SaveAndRefreshTerminalCommands();
+        }
+        private void EditTerminalCommand_Click(object sender, RoutedEventArgs e)
+        {
+            TerminalCommandTag tag = (TerminalCommandTag)((Button)sender).Tag;
+            TextBox nameBox = tag.PowerShell ? PowerShellCommandName : CommandPromptCommandName;
+            TextBox commandBox = tag.PowerShell ? PowerShellCommandLine : CommandPromptCommandLine;
+            Button save = tag.PowerShell ? PowerShellCommandSave : CommandPromptCommandSave;
+            Button cancel = tag.PowerShell ? PowerShellCommandCancel : CommandPromptCommandCancel;
+            if (tag.PowerShell) editingPowerShellCommand = tag.Command; else editingCommandPromptCommand = tag.Command;
+            nameBox.Text = tag.Command.Name;
+            commandBox.Text = tag.Command.CommandLine;
+            save.Content = "Save";
+            save.Margin = new Thickness(0, 0, 67, 0);
+            cancel.Visibility = Visibility.Visible;
+            nameBox.Focus();
+        }
+        private void CancelPowerShellCommand_Click(object sender, RoutedEventArgs e) { ClearTerminalCommandEditor(true); }
+        private void CancelCommandPromptCommand_Click(object sender, RoutedEventArgs e) { ClearTerminalCommandEditor(false); }
+        private void ClearTerminalCommandEditor(bool powerShell)
+        {
+            TextBox nameBox = powerShell ? PowerShellCommandName : CommandPromptCommandName;
+            TextBox commandBox = powerShell ? PowerShellCommandLine : CommandPromptCommandLine;
+            Button save = powerShell ? PowerShellCommandSave : CommandPromptCommandSave;
+            Button cancel = powerShell ? PowerShellCommandCancel : CommandPromptCommandCancel;
+            if (powerShell) editingPowerShellCommand = null; else editingCommandPromptCommand = null;
+            nameBox.Clear();
+            commandBox.Clear();
+            save.Content = "Add";
+            save.Margin = new Thickness(0);
+            cancel.Visibility = Visibility.Collapsed;
+        }
+        private void DeleteTerminalCommand_Click(object sender, RoutedEventArgs e)
+        {
+            TerminalCommandTag tag = (TerminalCommandTag)((Button)sender).Tag;
+            if ((tag.PowerShell && editingPowerShellCommand == tag.Command) || (!tag.PowerShell && editingCommandPromptCommand == tag.Command))
+                ClearTerminalCommandEditor(tag.PowerShell);
+            PersistantStorage.StorageObject.GetTerminalCommands(tag.PowerShell).Remove(tag.Command);
+            SaveAndRefreshTerminalCommands();
+        }
+        private void SaveAndRefreshTerminalCommands()
+        {
+            PersistantStorage.Save();
+            RefreshTerminalCommands();
         }
 
         private void OptionsCancel_Click(object sender, RoutedEventArgs e)

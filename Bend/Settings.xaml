@@ -47,6 +47,18 @@
      <Border Style="{StaticResource SettingRow}" MinHeight="76" BorderThickness="0,1,0,1"><Grid><StackPanel VerticalAlignment="Center"><TextBlock Text="Updates"/><TextBlock Text="Check whether a newer version of Bend is available." Style="{StaticResource SecondaryText}"/></StackPanel><StackPanel HorizontalAlignment="Right" VerticalAlignment="Center"><Border Height="4" Width="125" HorizontalAlignment="Right" Margin="0,0,7,6" Background="{DynamicResource ShellBorderBrush}"><Path Fill="{DynamicResource LogoBackgroundBrush}"><Path.Data><RectangleGeometry x:Name="ProgressBar" Rect="0,0,0,4"/></Path.Data></Path></Border><Button x:Name="CheckForUpdatesButton" Width="125" Content="Check for updates" HorizontalAlignment="Right" VerticalAlignment="Center" Click="CheckForUpdates_Click"/></StackPanel></Grid></Border>
     </StackPanel></ScrollViewer>
    </TabItem>
+   <TabItem Header="Terminal" Style="{StaticResource SettingsTab}">
+    <ScrollViewer Style="{StaticResource PageScroller}" Margin="0"><StackPanel Width="720" HorizontalAlignment="Left" Margin="0,24,0,30">
+     <TextBlock Text="Saved commands" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
+     <TextBlock Text="Commands are inserted into the active terminal without being run." Style="{StaticResource SecondaryText}" Margin="0,0,0,14"/>
+     <TextBlock Text="PowerShell" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,7"/>
+     <StackPanel x:Name="PowerShellCommandList"/>
+     <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="180"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox x:Name="PowerShellCommandName" Height="28" Padding="8,3" Margin="0,0,7,0" ToolTip="Command name"/><TextBox x:Name="PowerShellCommandLine" Grid.Column="1" Height="28" Padding="8,3" Margin="0,0,7,0" ToolTip="Command line"/><Button x:Name="PowerShellCommandSave" Grid.Column="2" Content="Add" Click="SavePowerShellCommand_Click"/><Button x:Name="PowerShellCommandCancel" Grid.Column="2" Content="Cancel" Visibility="Collapsed" Click="CancelPowerShellCommand_Click"/></Grid>
+     <Grid Margin="0,24,0,7"><TextBlock Text="Command Prompt" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/></Grid>
+     <StackPanel x:Name="CommandPromptCommandList"/>
+     <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="180"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBox x:Name="CommandPromptCommandName" Height="28" Padding="8,3" Margin="0,0,7,0" ToolTip="Command name"/><TextBox x:Name="CommandPromptCommandLine" Grid.Column="1" Height="28" Padding="8,3" Margin="0,0,7,0" ToolTip="Command line"/><Button x:Name="CommandPromptCommandSave" Grid.Column="2" Content="Add" Click="SaveCommandPromptCommand_Click"/><Button x:Name="CommandPromptCommandCancel" Grid.Column="2" Content="Cancel" Visibility="Collapsed" Click="CancelCommandPromptCommand_Click"/></Grid>
+    </StackPanel></ScrollViewer>
+   </TabItem>
    <TabItem Header="About &amp; shortcuts" Style="{StaticResource SettingsTab}">
     <ScrollViewer Style="{StaticResource PageScroller}" Margin="0"><StackPanel Width="720" HorizontalAlignment="Left" Margin="0,24,0,30">
      <TextBlock Text="About Bend" Style="{StaticResource SectionTitle}" Margin="0,0,0,7"/><TextBlock Text="Bend" FontSize="24" FontWeight="SemiBold"/><TextBlock Text="A modern text editor" Foreground="{DynamicResource ShellMutedBrush}" Margin="0,3,0,0"/><TextBlock x:Name="Version" Foreground="{DynamicResource ShellMutedBrush}" Margin="0,2,0,0"/>
