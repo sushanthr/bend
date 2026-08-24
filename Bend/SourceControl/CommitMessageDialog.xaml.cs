@@ -10,5 +10,9 @@ namespace Bend.SourceControl
         public string CommitMessage { get { return MessageBox.Text.Trim(); } }
         private void MessageBox_TextChanged(object sender, TextChangedEventArgs e) { CommitButton.IsEnabled = !String.IsNullOrWhiteSpace(MessageBox.Text); }
         private void Commit_Click(object sender, RoutedEventArgs e) { DialogResult = true; }
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Escape) DialogResult = false;
+        }
     }
 }

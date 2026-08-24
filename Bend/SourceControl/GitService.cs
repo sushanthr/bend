@@ -63,6 +63,9 @@ namespace Bend.SourceControl
         Task<GitResult> UnstageAsync(string repository, string path, CancellationToken token);
         Task<GitResult> DiscardAsync(string repository, GitChange change, CancellationToken token);
         Task<GitResult> CommitAsync(string repository, string message, CancellationToken token);
+        Task<GitResult> PushAsync(string repository, bool forceWithLease, CancellationToken token);
+        Task<GitResult> PullAsync(string repository, CancellationToken token);
+        Task<GitResult> FetchAsync(string repository, CancellationToken token);
     }
 
     public sealed class GitService : IGitService
@@ -181,6 +184,12 @@ namespace Bend.SourceControl
         public Task<GitResult> StageAsync(string repository, string path, CancellationToken token) { return RunAsync(repository, new[] { "add", "--", path }, token); }
         public Task<GitResult> UnstageAsync(string repository, string path, CancellationToken token) { return RunAsync(repository, new[] { "reset", "-q", "HEAD", "--", path }, token); }
         public Task<GitResult> CommitAsync(string repository, string message, CancellationToken token) { return RunAsync(repository, new[] { "commit", "-m", message }, token); }
+        public Task<GitResult> PushAsync(string repository, bool forceWithLease, CancellationToken token)
+        {
+            return RunAsync(repository, forceWithLease ? new[] { "push", "--force-with-lease" } : new[] { "push" }, token);
+        }
+        public Task<GitResult> PullAsync(string repository, CancellationToken token) { return RunAsync(repository, new[] { "pull" }, token); }
+        public Task<GitResult> FetchAsync(string repository, CancellationToken token) { return RunAsync(repository, new[] { "fetch", "--all", "--prune" }, token); }
 
         public Task<GitResult> DiscardAsync(string repository, GitChange change, CancellationToken token)
         {

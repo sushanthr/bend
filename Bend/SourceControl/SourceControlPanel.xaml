@@ -153,7 +153,16 @@
   </Grid>
   <GridSplitter Grid.Row="2" Height="5" HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Background="{DynamicResource ShellBorderBrush}"/>
   <Grid Grid.Row="3" Margin="0,5,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-   <ComboBox x:Name="BranchPicker" MinHeight="34" Style="{StaticResource FlatBranchPicker}" SelectionChanged="BranchPicker_SelectionChanged"/>
+   <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*" MinWidth="110"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+    <ComboBox x:Name="BranchPicker" MinHeight="34" MaxWidth="240" HorizontalAlignment="Stretch" Style="{StaticResource FlatBranchPicker}" SelectionChanged="BranchPicker_SelectionChanged"/>
+    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="4,0,0,0" VerticalAlignment="Center">
+     <Button Style="{StaticResource ScmIconButton}" Click="Push_Click" ToolTip="Push"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB41;"/></Button>
+     <Button Style="{StaticResource ScmIconButton}" Click="ForcePush_Click" ToolTip="Force Push with Lease"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB3F;"/></Button>
+     <Button Style="{StaticResource ScmIconButton}" Click="Pull_Click" ToolTip="Pull"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB40;"/></Button>
+     <Button Style="{StaticResource ScmIconButton}" Click="Fetch_Click" ToolTip="Fetch All Remotes"><TextBlock Style="{StaticResource Codicon}" Text="&#xEAC2;"/></Button>
+    </StackPanel>
+   </Grid>
    <ListBox x:Name="HistoryList" Grid.Row="1" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Commits, ElementName=Root}" SelectionChanged="History_SelectionChanged" MouseDoubleClick="History_DoubleClick">
     <ListBox.ItemTemplate><DataTemplate><Grid Margin="2,4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Row="1" FontSize="10" Opacity=".6" TextTrimming="CharacterEllipsis"><Run Text="{Binding Author}"/><Run Text=" · "/><Run Text="{Binding Date}"/></TextBlock></Grid></DataTemplate></ListBox.ItemTemplate>
    </ListBox>

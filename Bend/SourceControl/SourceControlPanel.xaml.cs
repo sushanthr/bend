@@ -184,6 +184,14 @@ namespace Bend.SourceControl
         }
         private void DiffMode_Checked(object sender, RoutedEventArgs e) { if (DiffModeChanged != null) DiffModeChanged(this, EventArgs.Empty); }
         private void Refresh_Click(object sender, RoutedEventArgs e) { RefreshAsync(); }
+        private async void Push_Click(object sender, RoutedEventArgs e) { if (status != null) await RunAndRefresh(() => git.PushAsync(status.RepositoryRoot, false, cancellation.Token)); }
+        private async void ForcePush_Click(object sender, RoutedEventArgs e)
+        {
+            if (status != null && StyledMessageBox.Show("FORCE PUSH", "Force push the current branch using --force-with-lease?"))
+                await RunAndRefresh(() => git.PushAsync(status.RepositoryRoot, true, cancellation.Token));
+        }
+        private async void Pull_Click(object sender, RoutedEventArgs e) { if (status != null) await RunAndRefresh(() => git.PullAsync(status.RepositoryRoot, cancellation.Token)); }
+        private async void Fetch_Click(object sender, RoutedEventArgs e) { if (status != null) await RunAndRefresh(() => git.FetchAsync(status.RepositoryRoot, cancellation.Token)); }
         private async void StageToggle_Click(object sender, RoutedEventArgs e)
         {
             GitChange change = (sender as FrameworkElement)?.Tag as GitChange; if (change == null || status == null) return;
