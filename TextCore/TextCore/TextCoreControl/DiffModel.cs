@@ -101,21 +101,31 @@ namespace TextCoreControl
         private static void AlignReplacements(DiffModel model)
         {
             // Pair adjacent delete/add blocks for side-by-side presentation without losing inline semantics.
-            for (int i = 0; i < model.Lines.Count; i++)
+            AlignReplacements(model.Lines);
+            foreach (DiffFile file in model.Files)
+                foreach (DiffHunk hunk in file.Hunks)
+                    for (int i = hunk.Lines.Count - 1; i >= 0; i--)
+                        if (!model.Lines.Contains(hunk.Lines[i])) hunk.Lines.RemoveAt(i);
+        }
+
+        private static void AlignReplacements(ObservableCollection<DiffLine> lines)
+        {
+            int i = 0;
+            while (i < lines.Count)
             {
-                if (model.Lines[i].Kind != DiffLineKind.Removed) continue;
+                if (lines[i].Kind != DiffLineKind.Removed) { i++; continue; }
                 int removedStart = i, removedCount = 0, addedStart;
-                while (i < model.Lines.Count && model.Lines[i].Kind == DiffLineKind.Removed) { removedCount++; i++; }
+                while (i < lines.Count && lines[i].Kind == DiffLineKind.Removed) { removedCount++; i++; }
                 addedStart = i; int addedCount = 0;
-                while (i < model.Lines.Count && model.Lines[i].Kind == DiffLineKind.Added) { addedCount++; i++; }
+                while (i < lines.Count && lines[i].Kind == DiffLineKind.Added) { addedCount++; i++; }
                 int paired = Math.Min(removedCount, addedCount);
                 for (int p = 0; p < paired; p++)
                 {
-                    DiffLine removed = model.Lines[removedStart + p], added = model.Lines[addedStart + p];
+                    DiffLine removed = lines[removedStart + p], added = lines[addedStart];
                     removed.NewLineNumber = added.NewLineNumber; removed.NewText = added.NewText; removed.Kind = DiffLineKind.Modified;
-                    model.Lines.RemoveAt(addedStart); i--;
+                    lines.RemoveAt(addedStart);
                 }
-                i--;
+                i = removedStart + removedCount + addedCount - paired;
             }
         }
     }

@@ -176,7 +176,7 @@ namespace Bend.SourceControl
 
         public async Task<string> GetCommitDiffAsync(string repository, string commit, CancellationToken token)
         {
-            GitResult result = await RunAsync(repository, new[] { "show", "--first-parent", "--format=fuller", "--no-ext-diff", "--no-color", "--find-renames", "--binary", commit }, token);
+            GitResult result = await RunAsync(repository, new[] { "show", "--first-parent", "--format=fuller", "--no-ext-diff", "--no-color", "--find-renames", "--binary", "--unified=2147483647", commit }, token);
             if (!result.Success) throw new InvalidOperationException(CleanError(result));
             return result.Output;
         }

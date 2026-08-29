@@ -19,6 +19,18 @@ namespace TextCoreUnitTest
         }
 
         [TestMethod]
+        public void ParsePairsMultiLineReplacementWithoutSkippingAddedLines()
+        {
+            DiffModel model = DiffModel.Parse("diff --git a/a.txt b/a.txt\n--- a/a.txt\n+++ b/a.txt\n@@ -1,3 +1,3 @@\n-old one\n-old two\n-old three\n+new one\n+new two\n+new three");
+
+            Assert.AreEqual(4, model.Lines.Count);
+            Assert.AreEqual(4, model.Files[0].Hunks[0].Lines.Count);
+            Assert.AreEqual("new one", model.Lines[1].NewText);
+            Assert.AreEqual("new two", model.Lines[2].NewText);
+            Assert.AreEqual("new three", model.Lines[3].NewText);
+        }
+
+        [TestMethod]
         public void ParseRepresentsBinaryChanges()
         {
             DiffModel model = DiffModel.Parse("diff --git a/p.png b/p.png\nBinary files a/p.png and b/p.png differ");
