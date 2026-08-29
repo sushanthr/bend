@@ -102,6 +102,14 @@ namespace Bend
         public System.Windows.Media.Color LogoForegroundColor;
         public System.Windows.Media.Color LogoBackgroundColor;
         public System.Windows.Media.Color MenuSelectedBackgroundColor;
+        public System.Windows.Media.Color ShellChromeColor;
+        public System.Windows.Media.Color ShellPanelColor;
+        public System.Windows.Media.Color ShellBorderColor;
+        public System.Windows.Media.Color ShellMutedColor;
+        public System.Windows.Media.Color TabBackgroundColor;
+        public System.Windows.Media.Color ActivityBarColor;
+        public System.Windows.Media.Color SourceControlStatusColor;
+        public System.Windows.Media.Color ErrorForegroundColor;
 
         // Editor Theme
         public System.Windows.Media.Color DefaultForegroundColor;

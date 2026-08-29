@@ -32,7 +32,7 @@ namespace Bend
             this.Margin = new Thickness(0, 1, 0, 0);
             this.MinWidth = 150;
             this.VerticalAlignment = VerticalAlignment.Top;
-            this.SetResourceReference(Panel.BackgroundProperty, "BackgroundBrush");
+            this.SetResourceReference(Panel.BackgroundProperty, "TabBackgroundBrush");
             titleText = new TextBlock();
             titleText.Text = "New File";
             titleText.MinWidth = 120;

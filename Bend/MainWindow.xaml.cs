@@ -209,11 +209,12 @@ namespace Bend
 
             Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundColor);
             Application.Current.Resources["BackgroundTerminalBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.BackgroundTerminalColor);
+            Application.Current.Resources["EditorSurfaceBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.DefaultBackgroundColor);
             uint terminalBackground = PersistantStorage.StorageObject.CurrentTheme.TerminalColorBackground;
             Application.Current.Resources["TerminalColorBrush"] = new SolidColorBrush(Color.FromRgb(
-                (byte)((terminalBackground >> 16) & 0xFF),
+                (byte)(terminalBackground & 0xFF),
                 (byte)((terminalBackground >> 8) & 0xFF),
-                (byte)(terminalBackground & 0xFF)));
+                (byte)((terminalBackground >> 16) & 0xFF)));
             Application.Current.Resources["ForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ForegroundColor);
             Application.Current.Resources["ScrollButtonBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.ScrollButtonColor);
             Application.Current.Resources["LogoForegroundBrush"] = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoForegroundColor);
@@ -223,10 +224,23 @@ namespace Bend
             Color shellBackground = PersistantStorage.StorageObject.CurrentTheme.BackgroundColor;
             Color shellForeground = PersistantStorage.StorageObject.CurrentTheme.ForegroundColor;
             bool isDarkTheme = (shellBackground.R + shellBackground.G + shellBackground.B) < 384;
-            this.Resources["ShellChromeBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.05 : 0.04));
-            this.Resources["ShellPanelBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.025 : 0.016));
-            this.Resources["ShellBorderBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.25 : 0.15));
-            this.Resources["ShellMutedBrush"] = new SolidColorBrush(BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.68 : 0.51));
+            ThemeSettings currentTheme = PersistantStorage.StorageObject.CurrentTheme;
+            Application.Current.Resources["TabBackgroundBrush"] = new SolidColorBrush(currentTheme.TabBackgroundColor.A > 0
+                ? currentTheme.TabBackgroundColor : currentTheme.BackgroundColor);
+            Application.Current.Resources["ActivityBarBrush"] = new SolidColorBrush(currentTheme.ActivityBarColor.A > 0
+                ? currentTheme.ActivityBarColor : currentTheme.BackgroundColor);
+            Application.Current.Resources["SourceControlStatusBrush"] = new SolidColorBrush(currentTheme.SourceControlStatusColor.A > 0
+                ? currentTheme.SourceControlStatusColor : Color.FromRgb(214, 168, 75));
+            Application.Current.Resources["ErrorForegroundBrush"] = new SolidColorBrush(currentTheme.ErrorForegroundColor.A > 0
+                ? currentTheme.ErrorForegroundColor : Color.FromRgb(224, 108, 117));
+            this.Resources["ShellChromeBrush"] = new SolidColorBrush(currentTheme.ShellChromeColor.A > 0
+                ? currentTheme.ShellChromeColor : BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.05 : 0.04));
+            this.Resources["ShellPanelBrush"] = new SolidColorBrush(currentTheme.ShellPanelColor.A > 0
+                ? currentTheme.ShellPanelColor : BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.025 : 0.016));
+            this.Resources["ShellBorderBrush"] = new SolidColorBrush(currentTheme.ShellBorderColor.A > 0
+                ? currentTheme.ShellBorderColor : BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.25 : 0.15));
+            this.Resources["ShellMutedBrush"] = new SolidColorBrush(currentTheme.ShellMutedColor.A > 0
+                ? currentTheme.ShellMutedColor : BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.68 : 0.51));
             
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultForegroundColor, ref TextCoreControl.Settings.DefaultForegroundColor);
             TextCoreControl.Settings.CopyColor(PersistantStorage.StorageObject.CurrentTheme.DefaultBackgroundColor, ref TextCoreControl.Settings.DefaultBackgroundColor);
@@ -396,7 +410,7 @@ namespace Bend
                             this.TabClose(lastTab);
                             continue;
                         }
-                        this.tab[lastTab].Title.Opacity = 0.5;
+                        this.tab[lastTab].Title.Opacity = 0.72;
                         this.tab[lastTab].Content.Visibility = Visibility.Hidden;
                         tabOpened = true;
                     }
@@ -512,7 +526,7 @@ namespace Bend
                 newTab.TextEditor.Document.LanguageChanged += Document_LanguageChanged;
                 newTab.Title.MouseMove += TabTitle_MouseMove;
 
-                newTab.Title.Opacity = 0.5;
+                newTab.Title.Opacity = 0.72;
                 newTab.Content.Visibility = Visibility.Hidden;
 
                 TabBar.Children.Add(newTab.Title);
@@ -534,7 +548,7 @@ namespace Bend
                 if (currentTabIndex >= 0)
                 {
                     tab[currentTabIndex].Content.Visibility = Visibility.Hidden;
-                    tab[currentTabIndex].Title.Opacity = 0.5;
+                    tab[currentTabIndex].Title.Opacity = 0.72;
                 }
 
                 int newTabFocus = tab.Count - 1;
@@ -794,7 +808,7 @@ namespace Bend
             {
                 if (this.currentTabIndex >= 0)
                 {
-                    this.tab[this.currentTabIndex].Title.Opacity = 0.5;
+                    this.tab[this.currentTabIndex].Title.Opacity = 0.72;
                     this.tab[this.currentTabIndex].Content.Visibility = Visibility.Hidden;
                 }
                 this.AddNewTab();
@@ -816,7 +830,7 @@ namespace Bend
         {
             if (this.currentTabIndex >= 0)
             {
-                tab[this.currentTabIndex].Title.Opacity = 0.5;
+                tab[this.currentTabIndex].Title.Opacity = 0.72;
                 tab[this.currentTabIndex].Content.Visibility = Visibility.Hidden;
             }
 
@@ -1685,7 +1699,7 @@ namespace Bend
             if (currentTabIndex >= 0)
             {
                 tab[currentTabIndex].Content.Visibility = Visibility.Hidden;
-                tab[currentTabIndex].Title.Opacity = 0.5;
+                tab[currentTabIndex].Title.Opacity = 0.72;
             }
             
             if (tabIndex >= 0)

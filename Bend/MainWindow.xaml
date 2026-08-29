@@ -498,7 +498,7 @@
                                         <ColumnDefinition x:Name="AgentSplitterColumn" Width="0"/>
                                         <ColumnDefinition x:Name="AgentPaneColumn" Width="0"/>
                                 </Grid.ColumnDefinitions>
-                                <Grid Background="{DynamicResource ShellPanelBrush}">
+                                <Grid Background="{DynamicResource ActivityBarBrush}">
                                         <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
@@ -672,7 +672,7 @@
             </Grid>
                         <Grid x:Name="BottomChrome"
                                         Grid.Row="2"
-                                        Background="{DynamicResource ShellPanelBrush}">
+                        Background="{DynamicResource ShellChromeBrush}">
                                 <Grid.RowDefinitions>
                                         <RowDefinition Height="35.7"/>
                                         <RowDefinition Height="0"/>
@@ -919,7 +919,7 @@
         <Grid x:Name="Settings"
                 Grid.RowSpan="4"
                 Visibility="Hidden"
-                Background="{DynamicResource BackgroundBrush}"
+                Background="{DynamicResource EditorSurfaceBrush}"
                 Panel.ZIndex="10">
             <Grid.RenderTransform>
                 <RotateTransform x:Name="SettingsGridRotateTransform"/>

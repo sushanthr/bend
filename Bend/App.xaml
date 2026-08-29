@@ -10,6 +10,11 @@
         <SolidColorBrush x:Key="LogoForegroundBrush" Color="Black"/>
         <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>
         <SolidColorBrush x:Key="MenuSelectedBackgroundBrush" Color="#DDDDDD" />
+        <SolidColorBrush x:Key="EditorSurfaceBrush" Color="#141414" />
+        <SolidColorBrush x:Key="TabBackgroundBrush" Color="#141414" />
+        <SolidColorBrush x:Key="ActivityBarBrush" Color="#141414" />
+        <SolidColorBrush x:Key="SourceControlStatusBrush" Color="#D6A84B" />
+        <SolidColorBrush x:Key="ErrorForegroundBrush" Color="#E06C75" />
 
         <!-- SCROLLBAR TEMPLATES -->
         <Style x:Key="Scrollbar_LineButton" TargetType="{x:Type RepeatButton}">
@@ -17,7 +22,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Border Background="{DynamicResource BackgroundBrush}">
+                        <Border Background="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}">
                             <ContentPresenter x:Name="ContentSite" />
                         </Border>
                     </ControlTemplate>
@@ -39,7 +44,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Rectangle Fill="{DynamicResource BackgroundBrush}" />
+                        <Rectangle Fill="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -73,7 +78,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border BorderBrush="{DynamicResource BackgroundBrush}" BorderThickness="3" Background="#505050" />
+                        <Border BorderBrush="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}" BorderThickness="3" Background="{DynamicResource ScrollButtonBrush}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -85,7 +90,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border BorderBrush="{DynamicResource BackgroundBrush}" BorderThickness="3" Background="#505050" />
+                        <Border BorderBrush="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type ScrollBar}}}" BorderThickness="3" Background="{DynamicResource ScrollButtonBrush}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -94,12 +99,12 @@
         </Style>
 
         <Style TargetType="{x:Type ScrollBar}">
-            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource EditorSurfaceBrush}" />
             <Setter Property="MinWidth" Value="20" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid Background="{DynamicResource BackgroundBrush}">
+                        <Grid Background="{TemplateBinding Background}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="20"/>
                             </Grid.ColumnDefinitions>
@@ -108,7 +113,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="20" />
                             </Grid.RowDefinitions>
-                            <Border Grid.Column="1" Background="{DynamicResource BackgroundBrush}"/>
+                            <Border Grid.Column="1" Background="{TemplateBinding Background}"/>
                             <RepeatButton Grid.Row="0" Style="{DynamicResource Scrollbar_LineButton}" Command="ScrollBar.LineUpCommand" Content="5" />
                             <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="true">
                                 <Track.DecreaseRepeatButton>
@@ -128,12 +133,12 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="Orientation" Value="Horizontal" >
-                    <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource EditorSurfaceBrush}" />
                     <Setter Property="MinHeight" Value="20" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ScrollBar}">
-                                <Grid Background="{DynamicResource BackgroundBrush}">
+                                <Grid Background="{TemplateBinding Background}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="20"/>
                                     </Grid.RowDefinitions>
@@ -143,7 +148,7 @@
                                         <ColumnDefinition Width="2*"/>
                                         <ColumnDefinition Width="20" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="2" Background="{DynamicResource BackgroundBrush}"/>
+                                    <Border Grid.Column="2" Background="{TemplateBinding Background}"/>
                                     <RepeatButton Grid.Column="1" Style="{DynamicResource Scrollbar_LineButton}" Command="ScrollBar.LineLeftCommand" Content="3" />
                                     <Track Grid.Column="2" Name="PART_Track">
                                         <Track.DecreaseRepeatButton>

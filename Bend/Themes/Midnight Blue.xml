@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ThemeSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BackgroundColor><A>255</A><R>8</R><G>27</G><B>42</B></BackgroundColor>
+  <BackgroundTerminalColor><A>255</A><R>11</R><G>34</G><B>53</B></BackgroundTerminalColor>
+  <ForegroundColor><A>255</A><R>215</R><G>234</G><B>245</B></ForegroundColor>
+  <ScrollButtonColor><A>255</A><R>74</R><G>116</G><B>141</B></ScrollButtonColor>
+  <LogoForegroundColor><A>255</A><R>232</R><G>247</G><B>255</B></LogoForegroundColor>
+  <LogoBackgroundColor><A>255</A><R>11</R><G>76</G><B>116</B></LogoBackgroundColor>
+  <MenuSelectedBackgroundColor><A>255</A><R>16</R><G>58</G><B>87</B></MenuSelectedBackgroundColor>
+  <DefaultForegroundColor><A>255</A><R>225</R><G>240</G><B>247</B></DefaultForegroundColor>
+  <DefaultBackgroundColor><A>255</A><R>6</R><G>24</G><B>36</B></DefaultBackgroundColor>
+  <DiffAddedBackgroundColor><A>180</A><R>22</R><G>82</G><B>64</B></DiffAddedBackgroundColor>
+  <DiffRemovedBackgroundColor><A>180</A><R>103</R><G>42</G><B>55</B></DiffRemovedBackgroundColor>
+  <DiffPaddingPatternColor><A>110</A><R>56</R><G>94</G><B>117</B></DiffPaddingPatternColor>
+  <DefaultBackgroundHighlightColor><A>82</A><R>34</R><G>139</G><B>190</B></DefaultBackgroundHighlightColor>
+  <DefaultSelectionColor><A>255</A><R>24</R><G>90</G><B>128</B></DefaultSelectionColor>
+  <DefaultSelectionOutlineColor><A>255</A><R>42</R><G>145</G><B>194</B></DefaultSelectionOutlineColor>
+  <DefaultSelectionDimColor><A>128</A><R>6</R><G>24</G><B>36</B></DefaultSelectionDimColor>
+  <LineNumberColor><A>255</A><R>91</R><G>126</G><B>147</B></LineNumberColor>
+  <DefaultShowFormattingColor><A>255</A><R>42</R><G>72</G><B>91</B></DefaultShowFormattingColor>
+  <DefaultShowFormattingColorAlt><A>255</A><R>20</R><G>52</G><B>72</B></DefaultShowFormattingColorAlt>
+  <SyntaxHighlightingKeyword1><A>255</A><R>92</R><G>200</G><B>255</B></SyntaxHighlightingKeyword1>
+  <SyntaxHighlightingKeyword2><A>255</A><R>131</R><G>216</G><B>255</B></SyntaxHighlightingKeyword2>
+  <SyntaxHighlightingKeyword3><A>255</A><R>77</R><G>166</G><B>255</B></SyntaxHighlightingKeyword3>
+  <SyntaxHighlightingKeyword4><A>255</A><R>81</R><G>214</G><B>208</B></SyntaxHighlightingKeyword4>
+  <SyntaxHighlightingKeyword5><A>255</A><R>199</R><G>155</G><B>255</B></SyntaxHighlightingKeyword5>
+  <SyntaxHighlightingKeyword6><A>255</A><R>255</R><G>202</G><B>112</B></SyntaxHighlightingKeyword6>
+  <SyntaxHighlightingPreProcessorKeyword><A>255</A><R>98</R><G>209</G><B>139</B></SyntaxHighlightingPreProcessorKeyword>
+  <SyntaxHighlightingPreProcessor><A>255</A><R>81</R><G>214</G><B>208</B></SyntaxHighlightingPreProcessor>
+  <SyntaxHighlightingComment><A>255</A><R>112</R><G>145</G><B>164</B></SyntaxHighlightingComment>
+  <SyntaxHighlightingOperator><A>255</A><R>255</R><G>181</G><B>112</B></SyntaxHighlightingOperator>
+  <SyntaxHighlightingBracket><A>255</A><R>255</R><G>205</G><B>116</B></SyntaxHighlightingBracket>
+  <SyntaxHighlightingNumber><A>255</A><R>229</R><G>181</G><B>103</B></SyntaxHighlightingNumber>
+  <SyntaxHighlightingString><A>255</A><R>131</R><G>227</G><B>164</B></SyntaxHighlightingString>
+  <SyntaxHighlightingChar><A>255</A><R>117</R><G>230</G><B>223</B></SyntaxHighlightingChar>
+  <TerminalColors><unsignedInt>399396</unsignedInt><unsignedInt>16743302</unsignedInt><unsignedInt>6476171</unsignedInt><unsignedInt>15054183</unsignedInt><unsignedInt>6080767</unsignedInt><unsignedInt>13081599</unsignedInt><unsignedInt>5363408</unsignedInt><unsignedInt>14150389</unsignedInt><unsignedInt>5797514</unsignedInt><unsignedInt>16751267</unsignedInt><unsignedInt>8643492</unsignedInt><unsignedInt>15911293</unsignedInt><unsignedInt>8640767</unsignedInt><unsignedInt>14203135</unsignedInt><unsignedInt>7726815</unsignedInt><unsignedInt>16777215</unsignedInt></TerminalColors>
+  <TerminalColorBackground>399396</TerminalColorBackground>
+  <TerminalColorForeground>14150389</TerminalColorForeground>
+  <TerminalColorSelectionBackground>1596032</TerminalColorSelectionBackground>
+  <TerminalColorBackingBackground><A>255</A><R>6</R><G>24</G><B>36</B></TerminalColorBackingBackground>
+</ThemeSettings>

@@ -66,10 +66,10 @@
          <RepeatButton IsTabStop="False" Focusable="False" Background="Transparent" BorderThickness="0" Command="ScrollBar.PageUpCommand"/>
         </Track.DecreaseRepeatButton>
         <Track.Thumb>
-           <Thumb MinHeight="40" ClipToBounds="False" Background="#777777">
+           <Thumb MinHeight="40" ClipToBounds="False" Background="{DynamicResource ShellMutedBrush}">
           <Thumb.Template>
            <ControlTemplate TargetType="Thumb">
-            <Border Width="6" MinHeight="40" HorizontalAlignment="Center" Background="#777777" CornerRadius="3"/>
+            <Border Width="6" MinHeight="40" HorizontalAlignment="Center" Background="{DynamicResource ShellMutedBrush}" CornerRadius="3"/>
            </ControlTemplate>
           </Thumb.Template>
          </Thumb>
@@ -98,10 +98,10 @@
            <RepeatButton IsTabStop="False" Focusable="False" Background="Transparent" BorderThickness="0" Command="ScrollBar.PageLeftCommand"/>
           </Track.DecreaseRepeatButton>
           <Track.Thumb>
-              <Thumb Width="40" MinWidth="40" ClipToBounds="False" Background="#777777">
+              <Thumb Width="40" MinWidth="40" ClipToBounds="False" Background="{DynamicResource ShellMutedBrush}">
             <Thumb.Template>
              <ControlTemplate TargetType="Thumb">
-                <Border Width="40" Height="6" MinWidth="40" VerticalAlignment="Center" Background="#777777" CornerRadius="3"/>
+                <Border Width="40" Height="6" MinWidth="40" VerticalAlignment="Center" Background="{DynamicResource ShellMutedBrush}" CornerRadius="3"/>
              </ControlTemplate>
             </Thumb.Template>
            </Thumb>
@@ -126,7 +126,7 @@
     </Button>
    </Grid>
   </HierarchicalDataTemplate>
-  <HierarchicalDataTemplate DataType="{x:Type local:ScmTreeNode}" ItemsSource="{Binding Children}" xmlns:local="clr-namespace:Bend.SourceControl"><Grid Height="25" ToolTip="{Binding FullPath}"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions><TextBlock Style="{StaticResource Codicon}" Text="{Binding IconGlyph}" Opacity=".75"/><TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding StatusText}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#D6A84B"/><Button Grid.Column="3" Tag="{Binding Change}" Visibility="{Binding ActionVisibility}" Style="{StaticResource ScmIconButton}" ToolTip="{Binding ActionToolTip}" Click="StageToggle_Click"><TextBlock Style="{StaticResource Codicon}" FontSize="13" Text="{Binding ActionGlyph}"/></Button></Grid></HierarchicalDataTemplate>
+  <HierarchicalDataTemplate DataType="{x:Type local:ScmTreeNode}" ItemsSource="{Binding Children}" xmlns:local="clr-namespace:Bend.SourceControl"><Grid Height="25" ToolTip="{Binding FullPath}"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions><TextBlock Style="{StaticResource Codicon}" Text="{Binding IconGlyph}" Opacity=".82"/><TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding StatusText}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SourceControlStatusBrush}"/><Button Grid.Column="3" Tag="{Binding Change}" Visibility="{Binding ActionVisibility}" Style="{StaticResource ScmIconButton}" ToolTip="{Binding ActionToolTip}" Click="StageToggle_Click"><TextBlock Style="{StaticResource Codicon}" FontSize="13" Text="{Binding ActionGlyph}"/></Button></Grid></HierarchicalDataTemplate>
   <Style TargetType="TreeViewItem"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><EventSetter Event="Expanded" Handler="Folder_Expanded"/></Style>
  </UserControl.Resources>
  <Grid Margin="10,8"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="5"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -145,7 +145,7 @@
    <Grid x:Name="CommitView" Visibility="Collapsed"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
     <StackPanel Margin="4,0,4,8">
      <TextBlock x:Name="CommitDescription" Text="Select a commit from history." TextWrapping="Wrap" FontWeight="SemiBold"/>
-     <TextBlock x:Name="CommitMetadata" Margin="0,3,0,0" FontSize="10" Opacity=".6" TextWrapping="Wrap"/>
+     <TextBlock x:Name="CommitMetadata" Margin="0,3,0,0" FontSize="10" Foreground="{DynamicResource ShellMutedBrush}" TextWrapping="Wrap"/>
     </StackPanel>
     <TreeView x:Name="CommitFilesTree" Grid.Row="1" ItemsSource="{Binding CommitChangeGroups, ElementName=Root}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectedItemChanged="CommitTree_SelectedItemChanged" MouseDoubleClick="CommitTree_DoubleClick"/>
    </Grid>
@@ -164,9 +164,9 @@
     </StackPanel>
    </Grid>
    <ListBox x:Name="HistoryList" Grid.Row="1" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Commits, ElementName=Root}" SelectionChanged="History_SelectionChanged" MouseDoubleClick="History_DoubleClick">
-    <ListBox.ItemTemplate><DataTemplate><Grid Margin="2,4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Row="1" FontSize="10" Opacity=".6" TextTrimming="CharacterEllipsis"><Run Text="{Binding Author}"/><Run Text=" · "/><Run Text="{Binding Date}"/></TextBlock></Grid></DataTemplate></ListBox.ItemTemplate>
+    <ListBox.ItemTemplate><DataTemplate><Grid Margin="2,4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Row="1" FontSize="10" Foreground="{DynamicResource ShellMutedBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding Author}"/><Run Text=" · "/><Run Text="{Binding Date}"/></TextBlock></Grid></DataTemplate></ListBox.ItemTemplate>
    </ListBox>
   </Grid>
-  <TextBlock x:Name="ErrorText" Grid.Row="4" Foreground="#E06C75" TextWrapping="Wrap" Margin="0,5,0,0"/>
+  <TextBlock x:Name="ErrorText" Grid.Row="4" Foreground="{DynamicResource ErrorForegroundBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
  </Grid>
 </UserControl>
