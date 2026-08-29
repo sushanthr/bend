@@ -25,8 +25,10 @@ $tag = $(git describe --tags)
 Write-Output "Tag: $tag"
 
 # Parse tag into a three-number version.
-$version = $tag.Split('-')[0].TrimStart('v')
-$version = "$version.0.0"
+$base = $tag.Split('-')[0].TrimStart('v')
+$parts = $base.Split('.')
+while ($parts.Count -lt 4) { $parts += "0" }
+$version = ($parts[0..3] -join '.')
 Write-Output "Version: $version"
 
 # Clean output directory.
