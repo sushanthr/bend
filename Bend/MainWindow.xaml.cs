@@ -1914,6 +1914,9 @@ namespace Bend
         {
             initializingDiffMode = true;
             DiffViewMode mode = ParseDiffMode(PersistantStorage.StorageObject.DiffViewMode);
+            if (String.IsNullOrWhiteSpace(PersistantStorage.StorageObject.LastDiffViewMode))
+                PersistantStorage.StorageObject.LastDiffViewMode =
+                    (mode == DiffViewMode.SideBySide ? DiffViewMode.SideBySide : DiffViewMode.Inline).ToString();
             DiffNoneButton.IsChecked = mode == DiffViewMode.None;
             DiffInlineButton.IsChecked = mode == DiffViewMode.Inline;
             DiffSideBySideButton.IsChecked = mode == DiffViewMode.SideBySide;
