@@ -66,6 +66,7 @@ namespace Bend
         bool extendDragDrop;
         private string currentFolderPath;
         private Tab treePreviewTab;
+        private const string LineEndingsOnlyStatus = "ONLY LINE ENDINGS CHANGED";
         private readonly IGitService diffGitService = new GitService();
         private readonly Dictionary<string, string> sessionFileBaselines =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -1688,11 +1689,14 @@ namespace Bend
             }
             
             if (tabIndex >= 0)
-            { 
+            {
                 this.currentTabIndex = tabIndex;
                 tab[tabIndex].Title.Opacity = 1.0;
                 tab[tabIndex].Content.Visibility = Visibility.Visible;
                 tab[tabIndex].Content.Focus();
+                StatusBar.Visibility = PersistantStorage.StorageObject.ShowStatusBar ? Visibility.Visible : Visibility.Hidden;
+                if (!tab[tabIndex].IsDiff && String.Equals(StatusText.Content as string, LineEndingsOnlyStatus, StringComparison.Ordinal))
+                    SetStatusText("", StatusType.STATUS_CLEAR);
                 if (!tab[tabIndex].IsDiff) this.FindText.Text = tab[tabIndex].FindOptions.FindText;
                 _ = ApplyDiffModeToTabAsync(tab[tabIndex], GetSelectedDiffMode());
                 UpdateDocumentTypeStatus();
@@ -2271,18 +2275,27 @@ namespace Bend
             Tab priorPreview = this.treePreviewTab;
             bool targetWasDurable = existing != null && existing != priorPreview;
             CloseTreePreviewIfAllowed(existing);
+            DiffModel model = null;
+            bool onlyLineEndings;
+            if (e.CurrentText != null || e.BaseText != null)
+                onlyLineEndings = IsOnlyLineEndingsChanged(e.BaseText, e.CurrentText);
+            else
+            {
+                model = DiffModel.Parse(e.Patch, e.Title);
+                onlyLineEndings = IsOnlyLineEndingsChanged(model);
+            }
             if (existing != null)
             {
                 if (e.CurrentText != null || e.BaseText != null)
                     existing.TextEditor.LoadText(e.CurrentText ?? String.Empty, e.FileName, e.BaseText ?? String.Empty);
                 else
                 {
-                    DiffModel refreshedModel = DiffModel.Parse(e.Patch, e.Title);
-                    string refreshedName = refreshedModel.Files.Count == 0 ? e.Title : (refreshedModel.Files[0].NewPath ?? refreshedModel.Files[0].OldPath);
-                    existing.TextEditor.LoadText(refreshedModel.BuildNewText(), refreshedName, refreshedModel.BuildOldText());
+                    string refreshedName = model.Files.Count == 0 ? e.Title : (model.Files[0].NewPath ?? model.Files[0].OldPath);
+                    existing.TextEditor.LoadText(model.BuildNewText(), refreshedName, model.BuildOldText());
                 }
                 existing.TextEditor.DiffMode = e.Mode;
                 SwitchTabFocusTo(tab.IndexOf(existing));
+                UpdateLineEndingsOnlyStatus(onlyLineEndings);
                 this.treePreviewTab = e.IsPinned || targetWasDurable ? null : existing;
                 return;
             }
@@ -2290,7 +2303,7 @@ namespace Bend
             if (e.CurrentText != null || e.BaseText != null)
                 diffTab.ConfigureDiff(e.Key, e.Title, e.FileName, e.CurrentText, e.BaseText, e.Mode);
             else
-                diffTab.ConfigureDiff(e.Key, e.Title, DiffModel.Parse(e.Patch, e.Title), e.Mode);
+                diffTab.ConfigureDiff(e.Key, e.Title, model, e.Mode);
             diffTab.Title.MouseLeftButtonUp += this.TabClick;
             diffTab.Title.ContextMenu = (ContextMenu)Resources["TabTitleContextMenu"];
             diffTab.Title.CloseButtonClicked += this.TabClose;
@@ -2302,7 +2315,32 @@ namespace Bend
             diffTab.Content.Visibility = Visibility.Hidden;
             tab.Add(diffTab); TabBar.Children.Add(diffTab.Title); Editor.Children.Add(diffTab.Content);
             UpdateEditorChrome(); SwitchTabFocusTo(tab.Count - 1);
+            UpdateLineEndingsOnlyStatus(onlyLineEndings);
             this.treePreviewTab = e.IsPinned ? null : diffTab;
+        }
+
+        private static bool IsOnlyLineEndingsChanged(DiffModel model)
+        {
+            return model != null && model.Lines.Any(line => line.Kind == DiffLineKind.Modified ||
+                line.Kind == DiffLineKind.Added || line.Kind == DiffLineKind.Removed) &&
+                String.Equals(model.BuildOldText(), model.BuildNewText(), StringComparison.Ordinal);
+        }
+
+        private static bool IsOnlyLineEndingsChanged(string oldText, string newText)
+        {
+            oldText = oldText ?? String.Empty;
+            newText = newText ?? String.Empty;
+            return !String.Equals(oldText, newText, StringComparison.Ordinal) &&
+                String.Equals(oldText.Replace("\r\n", "\n").Replace('\r', '\n'),
+                    newText.Replace("\r\n", "\n").Replace('\r', '\n'), StringComparison.Ordinal);
+        }
+
+        private void UpdateLineEndingsOnlyStatus(bool onlyLineEndings)
+        {
+            if (onlyLineEndings)
+                SetStatusText(LineEndingsOnlyStatus, StatusType.STATUS_OTHER);
+            else if (String.Equals(StatusText.Content as string, LineEndingsOnlyStatus, StringComparison.Ordinal))
+                SetStatusText("", StatusType.STATUS_CLEAR);
         }
 
         private void SourceControlPanel_DiffModeChanged(object sender, EventArgs e)

@@ -33,7 +33,7 @@ namespace Bend.SourceControl
         public string CommitKey { get; set; }
         public ObservableCollection<ScmTreeNode> Children { get; private set; } = new ObservableCollection<ScmTreeNode>();
         public bool IsDirectory { get { return Change == null; } }
-        private bool isExpanded;
+        private bool isExpanded = true;
         public bool IsExpanded { get { return isExpanded; } set { if (isExpanded == value) return; isExpanded = value; if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded")); } }
         public event PropertyChangedEventHandler PropertyChanged;
         public string IconGlyph { get { return IsDirectory ? "\uEAF7" : "\uEA7B"; } }
