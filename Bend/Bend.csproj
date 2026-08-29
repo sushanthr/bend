@@ -197,6 +197,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="InterBendCommunication.cs" />
+    <Compile Include="ModernFolderPicker.cs" />
     <Compile Include="Controls\FolderTreeNode.cs" />
     <Compile Include="Controls\IFileSystemTreeService.cs" />
     <Compile Include="Controls\IFolderTreeCommandProvider.cs" />

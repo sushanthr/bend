@@ -18,7 +18,6 @@ using Microsoft.Win32;
 using System.Collections;
 using TextCoreControl;
 using Microsoft.Terminal.Wpf;
-using Forms = System.Windows.Forms;
 using Bend.Controls;
 using Bend.SourceControl;
 
@@ -2491,12 +2490,23 @@ namespace Bend
         }
         private void ShellSelector_Click(object sender, RoutedEventArgs e)
         {
-            ((Button)sender).ContextMenu.IsOpen = true;
+            OpenContextMenuBelow((Button)sender);
         }
         private bool IsPowerShellSelected { get { return ShellLabel.Text == "Pwsh"; } }
         private void SavedCommands_Click(object sender, RoutedEventArgs e)
         {
-            ((Button)sender).ContextMenu.IsOpen = true;
+            OpenContextMenuBelow((Button)sender);
+        }
+        private static void OpenContextMenuBelow(Button button)
+        {
+            ContextMenu menu = button.ContextMenu;
+            if (menu == null) return;
+
+            menu.PlacementTarget = button;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.HorizontalOffset = 0;
+            menu.VerticalOffset = 0;
+            menu.IsOpen = true;
         }
         private void SavedCommandsMenu_Opened(object sender, RoutedEventArgs e)
         {
@@ -2557,13 +2567,9 @@ namespace Bend
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            using (Forms.FolderBrowserDialog dialog = new Forms.FolderBrowserDialog())
-            {
-                dialog.Description = "Select a workspace folder";
-                dialog.SelectedPath = currentFolderPath ?? Environment.CurrentDirectory;
-                if (dialog.ShowDialog() == Forms.DialogResult.OK)
-                    SetCurrentFolder(dialog.SelectedPath);
-            }
+            string selectedPath;
+            if (ModernFolderPicker.TryShow(this, currentFolderPath ?? Environment.CurrentDirectory, out selectedPath))
+                SetCurrentFolder(selectedPath);
             ToggleActivityPane("files", "FILES");
         }
 
