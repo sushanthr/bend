@@ -1422,6 +1422,7 @@ namespace Bend
                 Terminal.Theme = theme;
                 MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
                 Terminal.StartupCommandLine = terminalStartupCommand;
+                Terminal.WorkingDirectory = currentFolderPath;
                 Terminal.StartTerminal();
                 EnsureTerminalTab(Terminal);
                 SelectTerminal(0);
@@ -1925,6 +1926,12 @@ namespace Bend
             return Enum.TryParse(value, true, out mode) ? mode : DiffViewMode.Inline;
         }
 
+        private static DiffViewMode ParseLastDiffMode(string value)
+        {
+            DiffViewMode mode = ParseDiffMode(value);
+            return mode == DiffViewMode.SideBySide ? DiffViewMode.SideBySide : DiffViewMode.Inline;
+        }
+
         private DiffViewMode GetSelectedDiffMode()
         {
             if (DiffSideBySideButton.IsChecked == true) return DiffViewMode.SideBySide;
@@ -1937,6 +1944,8 @@ namespace Bend
             if (initializingDiffMode || tab == null) return;
             DiffViewMode mode = GetSelectedDiffMode();
             PersistantStorage.StorageObject.DiffViewMode = mode.ToString();
+            if (mode != DiffViewMode.None)
+                PersistantStorage.StorageObject.LastDiffViewMode = mode.ToString();
             try { PersistantStorage.Save(); } catch { }
 
             // Existing comparison tabs can switch immediately. A normal file gets
@@ -2107,6 +2116,7 @@ namespace Bend
             Console.TerminalControl terminal = new Console.TerminalControl
             {
                 StartupCommandLine = startupCommand,
+                WorkingDirectory = currentFolderPath,
                 Win32InputMode = true,
                 InputCapture = Console.TerminalControl.INPUT_CAPTURE.TabKey | Console.TerminalControl.INPUT_CAPTURE.DirectionKeys,
                 Margin = new Thickness(5)
@@ -2246,6 +2256,14 @@ namespace Bend
 
         private void SourceControlPanel_DiffRequested(object sender, DiffRequestedEventArgs e)
         {
+            if (GetSelectedDiffMode() == DiffViewMode.None)
+            {
+                DiffViewMode lastMode = ParseLastDiffMode(PersistantStorage.StorageObject.LastDiffViewMode);
+                if (lastMode == DiffViewMode.SideBySide)
+                    DiffSideBySideButton.IsChecked = true;
+                else
+                    DiffInlineButton.IsChecked = true;
+            }
             e.Mode = GetSelectedDiffMode();
             Tab existing = tab.FirstOrDefault(t => t.IsDiff && String.Equals(t.DiffKey, e.Key, StringComparison.Ordinal));
             Tab priorPreview = this.treePreviewTab;
@@ -2383,6 +2401,7 @@ namespace Bend
             Console.TerminalControl terminal = new Console.TerminalControl
             {
                 StartupCommandLine = terminalStartupCommand,
+                WorkingDirectory = currentFolderPath,
                 Margin = new Thickness(8)
             };
             MainDockBottomPanel.Children.Add(terminal);

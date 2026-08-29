@@ -5,7 +5,7 @@ using System.ServiceModel;
 public interface ITermPTYService
 {
     [OperationContract]
-    void StartCmd(Guid instanceId, string command, int width, int height);
+    void StartCmd(Guid instanceId, string command, int width, int height, string workingDirectory);
 
     [OperationContract]
     void Start(Guid instanceId);

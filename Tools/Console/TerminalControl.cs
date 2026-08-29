@@ -113,6 +113,11 @@ namespace Console {
 			set => SetValue(Win32InputModeProperty, value);
 		}
 
+		public string WorkingDirectory {
+			get => (string)GetValue(WorkingDirectoryProperty);
+			set => SetValue(WorkingDirectoryProperty, value);
+		}
+
 		public FontFamily FontFamilyWhenSettingTheme {
 			get => (FontFamily)GetValue(FontFamilyWhenSettingThemeProperty);
 			set => SetValue(FontFamilyWhenSettingThemeProperty, value);
@@ -169,7 +174,8 @@ namespace Console {
 			var term = ConPTYTerm;
 			Terminal.Connection = term;
 			term.Win32DirectInputMode(Win32InputMode);
-			Task.Run(() => term.StartCmd(cmd, column_width, row_height));
+			var workingDirectory = WorkingDirectory;
+			Task.Run(() => term.StartCmd(cmd, column_width, row_height, workingDirectory));
 		}
 		private void Terminal_Loaded(object sender, RoutedEventArgs e) {
 			if (IsVisible)
@@ -206,6 +212,7 @@ namespace Console {
 
 		public static readonly DependencyProperty ConPTYTermProperty = DependencyProperty.Register(nameof(ConPTYTerm), typeof(TermPTYProxy), typeof(TerminalControl), new PropertyMetadata(null, OnTermChanged));
 		public static readonly DependencyProperty StartupCommandLineProperty = DependencyProperty.Register(nameof(StartupCommandLine), typeof(string), typeof(TerminalControl), new PropertyMetadata("powershell.exe"));
+		public static readonly DependencyProperty WorkingDirectoryProperty = DependencyProperty.Register(nameof(WorkingDirectory), typeof(string), typeof(TerminalControl), new PropertyMetadata(null));
 
 		public static readonly DependencyProperty LogConPTYOutputProperty = DependencyProperty.Register(nameof(LogConPTYOutput), typeof(bool), typeof(TerminalControl), new PropertyMetadata(false));
 		public static readonly DependencyProperty Win32InputModeProperty = DependencyProperty.Register(nameof(Win32InputMode), typeof(bool), typeof(TerminalControl), new PropertyMetadata(true));

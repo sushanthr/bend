@@ -14,7 +14,7 @@ namespace Console.Internals
 
     public interface IProcessFactory
     {
-        IProcess Start(string command, UIntPtr attributes, PseudoConsole console);
+        IProcess Start(string command, UIntPtr attributes, PseudoConsole console, string workingDirectory);
     }
 
     public static class ProcessFactory
@@ -106,10 +106,10 @@ namespace Console.Internals
             }
         }
 
-        public static WrappedProcess Start(string command, UIntPtr attributes, PseudoConsole console)
+        public static WrappedProcess Start(string command, UIntPtr attributes, PseudoConsole console, string workingDirectory = null)
         {
             var startupInfo = ConfigureProcessThread(console.Handle, attributes);
-            var processInfo = RunProcess(startupInfo, command);
+            var processInfo = RunProcess(startupInfo, command, workingDirectory);
             return new WrappedProcess(new Process(startupInfo, processInfo));
         }
 
@@ -166,7 +166,7 @@ namespace Console.Internals
             }
         }
 
-        private static PROCESS_INFORMATION RunProcess(STARTUPINFOEX sInfoEx, string commandLine)
+        private static PROCESS_INFORMATION RunProcess(STARTUPINFOEX sInfoEx, string commandLine, string workingDirectory)
         {
             var pSec = new SECURITY_ATTRIBUTES { nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>() };
             var tSec = new SECURITY_ATTRIBUTES { nLength = Marshal.SizeOf<SECURITY_ATTRIBUTES>() };
@@ -181,7 +181,7 @@ namespace Console.Internals
                 false,
                 EXTENDED_STARTUPINFO_PRESENT,
                 IntPtr.Zero,
-                null,
+                String.IsNullOrWhiteSpace(workingDirectory) ? null : workingDirectory,
                 ref sInfoEx,
                 out PROCESS_INFORMATION pInfo);
 

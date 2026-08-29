@@ -123,9 +123,9 @@ namespace Console
             }
         }
 
-        public void StartCmd(string command, int consoleWidth = 80, int consoleHeight = 30)
+        public void StartCmd(string command, int consoleWidth = 80, int consoleHeight = 30, string workingDirectory = null)
         {
-            TermProcIsStarted = TryCallService(service => service.StartCmd(_instanceId, command, consoleWidth, consoleHeight));
+            TermProcIsStarted = TryCallService(service => service.StartCmd(_instanceId, command, consoleWidth, consoleHeight, workingDirectory));
         }
 
         public void WriteInput(string data)

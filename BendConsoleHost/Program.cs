@@ -32,12 +32,12 @@ public class TermPTYServer : ITermPTYService
             term.Start();
     }
 
-    public void StartCmd(Guid instanceId, string command, int width, int height)
+    public void StartCmd(Guid instanceId, string command, int width, int height, string workingDirectory)
     {
         if (_instances.TryGetValue(instanceId, out var term))
             Task.Run(() =>
             {
-                try { term.Start(command, width, height); }
+                try { term.Start(command, width, height, workingDirectory: workingDirectory); }
                 catch (Exception exception) { Debug.WriteLine(exception); }
                 finally
                 {

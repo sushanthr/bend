@@ -15,9 +15,9 @@ namespace Console
     {
         protected class InternalProcessFactory : IProcessFactory
         {
-            public IProcess Start(string command, UIntPtr attributes, PseudoConsole console)
+            public IProcess Start(string command, UIntPtr attributes, PseudoConsole console, string workingDirectory)
             {
-                return ProcessFactory.Start(command, attributes, console);
+                return ProcessFactory.Start(command, attributes, console, workingDirectory);
             }
         }
 
@@ -66,7 +66,7 @@ namespace Console
         public IProcess Process { get; protected set; }
         private PseudoConsole TheConsole;
 
-        public void Start(string command, int consoleWidth = 80, int consoleHeight = 30, bool logOutput = false, IProcessFactory factory = null)
+        public void Start(string command, int consoleWidth = 80, int consoleHeight = 30, bool logOutput = false, IProcessFactory factory = null, string workingDirectory = null)
         {
             if (Process != null)
                 throw new Exception("Called Start on ConPTY term after already started");
@@ -86,7 +86,7 @@ namespace Console
             using (var inputPipe = new PseudoConsolePipe())
             using (var outputPipe = new PseudoConsolePipe())
             using (var pseudoConsole = PseudoConsole.Create(inputPipe.ReadSide, outputPipe.WriteSide, consoleWidth, consoleHeight))
-            using (var process = factory.Start(command, PInvoke.PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole))
+            using (var process = factory.Start(command, PInvoke.PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, pseudoConsole, workingDirectory))
             {
                 lock (_stateLock)
                 {

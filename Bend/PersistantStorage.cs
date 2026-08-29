@@ -57,6 +57,7 @@ namespace Bend
         // Stored by name so older settings files (where the element is absent)
         // can safely fall back to Inline instead of depending on enum ordinals.
         public string DiffViewMode;
+        public string LastDiffViewMode;
 
         // Font Picker
         public int DefaultFontFamilyIndex;
@@ -107,6 +108,7 @@ namespace Bend
             SyntaxHighlighting = true;
             PreserveIndent = true;
             DiffViewMode = "Inline";
+            LastDiffViewMode = "Inline";
             DefaultFontFamily = "Consolas";
             DefaultFontFamilyIndex = -1;
 
