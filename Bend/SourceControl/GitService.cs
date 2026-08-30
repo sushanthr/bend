@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace Bend.SourceControl
 {
     public enum GitChangeLayer { Staged, Unstaged, Untracked, Conflict }
+    public enum GitResetMode { Soft, Mixed, Hard }
 
     public sealed class GitChange
     {
@@ -40,6 +41,15 @@ namespace Bend.SourceControl
         public string Subject { get; set; }
         public string Display { get { return ShortHash + "  " + Subject; } }
     }
+    public sealed class GitReflogEntry
+    {
+        public string Hash { get; set; }
+        public string ShortHash { get; set; }
+        public string Selector { get; set; }
+        public string Subject { get; set; }
+        public DateTimeOffset Date { get; set; }
+        public string Display { get { return Selector + "  " + Subject; } }
+    }
     public sealed class GitFileComparison { public string BaseText { get; set; } public string CurrentText { get; set; } }
 
     public sealed class GitResult
@@ -55,6 +65,7 @@ namespace Bend.SourceControl
         Task<GitRepositoryStatus> GetStatusAsync(string workspace, CancellationToken token);
         Task<IList<string>> GetBranchesAsync(string repository, CancellationToken token);
         Task<IList<GitCommit>> GetLogAsync(string repository, string branch, int maximum, CancellationToken token);
+        Task<IList<GitReflogEntry>> GetReflogAsync(string repository, int maximum, CancellationToken token);
         Task<string> GetFileDiffAsync(string repository, GitChange change, CancellationToken token);
         Task<GitFileComparison> GetFileComparisonAsync(string repository, GitChange change, CancellationToken token);
         Task<string> GetWorkingFileBaseAsync(string workspace, string fullFilePath, CancellationToken token);
@@ -66,6 +77,13 @@ namespace Bend.SourceControl
         Task<GitResult> PushAsync(string repository, bool forceWithLease, CancellationToken token);
         Task<GitResult> PullAsync(string repository, CancellationToken token);
         Task<GitResult> FetchAsync(string repository, CancellationToken token);
+        Task<GitResult> CheckoutAsync(string repository, string revision, CancellationToken token);
+        Task<GitResult> CheckoutRemoteBranchAsync(string repository, string remote, string branch, string localBranch, CancellationToken token);
+        Task<GitResult> CreateBranchAsync(string repository, string name, string startPoint, CancellationToken token);
+        Task<GitResult> RenameCurrentBranchAsync(string repository, string name, CancellationToken token);
+        Task<GitResult> DeleteBranchAsync(string repository, string name, CancellationToken token);
+        Task<GitResult> ResetAsync(string repository, string revision, GitResetMode mode, CancellationToken token);
+        Task<GitResult> RevertAsync(string repository, string revision, CancellationToken token);
     }
 
     public sealed class GitService : IGitService
@@ -107,6 +125,21 @@ namespace Bend.SourceControl
                     commits.Add(new GitCommit { Hash = fields[0], ShortHash = fields[1], Author = fields[2], Date = date, Subject = fields[4] });
             }
             return commits;
+        }
+
+        public async Task<IList<GitReflogEntry>> GetReflogAsync(string repository, int maximum, CancellationToken token)
+        {
+            GitResult result = await RunAsync(repository, new[] { "reflog", "--date=iso-strict", "--format=%H%x1f%h%x1f%gD%x1f%gs%x1f%aI", "-n", Math.Max(1, maximum).ToString() }, token);
+            if (!result.Success) throw new InvalidOperationException(CleanError(result));
+            var entries = new List<GitReflogEntry>();
+            foreach (string line in result.Output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string[] fields = line.Split(new[] { '\x1f' }, 5);
+                DateTimeOffset date;
+                if (fields.Length == 5 && DateTimeOffset.TryParse(fields[4], out date))
+                    entries.Add(new GitReflogEntry { Hash = fields[0], ShortHash = fields[1], Selector = fields[2], Subject = fields[3], Date = date });
+            }
+            return entries;
         }
 
         public async Task<string> GetFileDiffAsync(string repository, GitChange change, CancellationToken token)
@@ -190,6 +223,23 @@ namespace Bend.SourceControl
         }
         public Task<GitResult> PullAsync(string repository, CancellationToken token) { return RunAsync(repository, new[] { "pull" }, token); }
         public Task<GitResult> FetchAsync(string repository, CancellationToken token) { return RunAsync(repository, new[] { "fetch", "--all", "--prune" }, token); }
+        public Task<GitResult> CheckoutAsync(string repository, string revision, CancellationToken token) { return RunAsync(repository, new[] { "checkout", revision }, token); }
+        public async Task<GitResult> CheckoutRemoteBranchAsync(string repository, string remote, string branch, string localBranch, CancellationToken token)
+        {
+            string remoteTrackingBranch = remote + "/" + branch;
+            GitResult fetch = await RunAsync(repository, new[] { "fetch", remote, "+refs/heads/" + branch + ":refs/remotes/" + remoteTrackingBranch }, token);
+            if (!fetch.Success) return fetch;
+            return await RunAsync(repository, new[] { "checkout", "-b", localBranch, "--track", remoteTrackingBranch }, token);
+        }
+        public Task<GitResult> CreateBranchAsync(string repository, string name, string startPoint, CancellationToken token) { return RunAsync(repository, new[] { "checkout", "-b", name, startPoint }, token); }
+        public Task<GitResult> RenameCurrentBranchAsync(string repository, string name, CancellationToken token) { return RunAsync(repository, new[] { "branch", "-m", name }, token); }
+        public Task<GitResult> DeleteBranchAsync(string repository, string name, CancellationToken token) { return RunAsync(repository, new[] { "branch", "-d", name }, token); }
+        public Task<GitResult> ResetAsync(string repository, string revision, GitResetMode mode, CancellationToken token)
+        {
+            string option = mode == GitResetMode.Soft ? "--soft" : (mode == GitResetMode.Hard ? "--hard" : "--mixed");
+            return RunAsync(repository, new[] { "reset", option, revision }, token);
+        }
+        public Task<GitResult> RevertAsync(string repository, string revision, CancellationToken token) { return RunAsync(repository, new[] { "revert", "--no-edit", revision }, token); }
 
         public Task<GitResult> DiscardAsync(string repository, GitChange change, CancellationToken token)
         {

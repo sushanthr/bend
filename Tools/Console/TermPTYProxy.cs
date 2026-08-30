@@ -200,7 +200,7 @@ namespace Console
         {
             lock (_serviceLock)
             {
-                if (_disposed)
+                if (_disposed || _service == null)
                     return false;
                 try
                 {

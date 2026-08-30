@@ -186,12 +186,22 @@
      <Button Style="{StaticResource ScmIconButton}" Click="Push_Click" ToolTip="Push"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB41;"/></Button>
      <Button Style="{StaticResource ScmIconButton}" Click="ForcePush_Click" ToolTip="Force Push with Lease"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB3F;"/></Button>
      <Button Style="{StaticResource ScmIconButton}" Click="Pull_Click" ToolTip="Pull"><TextBlock Style="{StaticResource Codicon}" Text="&#xEB40;"/></Button>
-     <Button Style="{StaticResource ScmIconButton}" Click="Fetch_Click" ToolTip="Fetch All Remotes"><TextBlock Style="{StaticResource Codicon}" Text="&#xEAC2;"/></Button>
+     <Button Style="{StaticResource ScmIconButton}" Click="FetchActions_Click" ToolTip="Fetch and FETCH_HEAD actions"><TextBlock Style="{StaticResource Codicon}" Text="&#xEAC2;"/></Button>
+     <Button Style="{StaticResource ScmIconButton}" Click="BranchActions_Click" ToolTip="Checkout, create, rename, or delete branches"><TextBlock Style="{StaticResource Codicon}" Text="&#xEA7C;"/></Button>
     </StackPanel>
    </Grid>
-   <ListBox x:Name="HistoryList" Grid.Row="1" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Commits, ElementName=Root}" SelectionChanged="History_SelectionChanged" MouseDoubleClick="History_DoubleClick">
+   <Grid Grid.Row="1"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid Margin="0,5,0,3"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+     <RadioButton x:Name="HistoryMode" GroupName="HistoryMode" Style="{StaticResource Segment}" IsChecked="True" Checked="HistoryMode_Checked" ToolTip="Show commits reachable from the selected branch">Commits</RadioButton>
+     <RadioButton x:Name="ReflogMode" Grid.Column="1" GroupName="HistoryMode" Style="{StaticResource Segment}" Checked="HistoryMode_Checked" ToolTip="Show recent movements of HEAD and branch references">Reflog</RadioButton>
+    </Grid>
+   <ListBox x:Name="HistoryList" Grid.Row="1" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Commits, ElementName=Root}" SelectionChanged="History_SelectionChanged" MouseDoubleClick="History_DoubleClick" PreviewMouseRightButtonDown="History_RightClick">
     <ListBox.ItemTemplate><DataTemplate><Grid Margin="2,4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Row="1" FontSize="10" Foreground="{DynamicResource ShellMutedBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding Author}"/><Run Text=" · "/><Run Text="{Binding Date}"/></TextBlock></Grid></DataTemplate></ListBox.ItemTemplate>
    </ListBox>
+   <ListBox x:Name="ReflogList" Grid.Row="1" Visibility="Collapsed" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding ReflogEntries, ElementName=Root}" PreviewMouseRightButtonDown="Reflog_RightClick">
+    <ListBox.ItemTemplate><DataTemplate><Grid Margin="2,4"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/><TextBlock Grid.Row="1" FontSize="10" Foreground="{DynamicResource ShellMutedBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding ShortHash}"/><Run Text=" · "/><Run Text="{Binding Date}"/></TextBlock></Grid></DataTemplate></ListBox.ItemTemplate>
+   </ListBox>
+   </Grid>
   </Grid>
   <TextBlock x:Name="ErrorText" Grid.Row="4" Foreground="{DynamicResource ErrorForegroundBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
  </Grid>

@@ -256,5 +256,47 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+
+        <!-- Menu items that open a second-level menu need their own role template. -->
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
+            <Border x:Name="Border">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32" SharedSizeGroup="Icon"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut"/>
+                        <ColumnDefinition Width="13"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter x:Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon"/>
+                    <ContentPresenter x:Name="HeaderHost" Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True"/>
+                    <TextBlock x:Name="InputGestureText" Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="24,2,8,2" Opacity="0.5"/>
+                    <Path Grid.Column="3" Width="4" Height="8" Margin="2,0,6,0"
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None"
+                          Stroke="{DynamicResource ForegroundBrush}" StrokeThickness="1.25"
+                          StrokeStartLineCap="Square" StrokeEndLineCap="Square"
+                          Data="M 0,0 L 4,4 L 0,8"/>
+                    <Popup x:Name="PART_Popup" Grid.ColumnSpan="4" Placement="Right" HorizontalOffset="-1"
+                           AllowsTransparency="True" Focusable="False" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource ScrollButtonBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="0,3,0,3">
+                            <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+                                <ItemsPresenter Grid.IsSharedSizeScope="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Icon" Value="{x:Null}">
+                    <Setter TargetName="Icon" Property="Visibility" Value="Hidden"/>
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Opacity" Value="0.3"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
     </Application.Resources>
 </Application>

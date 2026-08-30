@@ -172,6 +172,7 @@
     </Page>
     <Page Include="SourceControl\SourceControlPanel.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="SourceControl\CommitMessageDialog.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="SourceControl\RemoteBranchDialog.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="FileEncoding.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -212,6 +213,7 @@
     </Compile>
     <Compile Include="SourceControl\GitService.cs" />
     <Compile Include="SourceControl\CommitMessageDialog.xaml.cs"><DependentUpon>CommitMessageDialog.xaml</DependentUpon></Compile>
+    <Compile Include="SourceControl\RemoteBranchDialog.xaml.cs"><DependentUpon>RemoteBranchDialog.xaml</DependentUpon></Compile>
     <Compile Include="SourceControl\SourceControlPanel.xaml.cs"><DependentUpon>SourceControlPanel.xaml</DependentUpon></Compile>
     <Compile Include="SaveChangesMessageBox.xaml.cs">
       <DependentUpon>SaveChangesMessageBox.xaml</DependentUpon>
