@@ -10,6 +10,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TextCoreControl;
 using System.ComponentModel;
+using System.IO;
+using System.Windows.Threading;
 
 namespace Bend.SourceControl
 {
@@ -65,13 +67,27 @@ namespace Bend.SourceControl
         private readonly IGitService git;
         private CancellationTokenSource cancellation;
         private CancellationTokenSource diffCancellation;
+        private CancellationTokenSource watcherCancellation;
         private GitRepositoryStatus status;
         private bool updatingBranches;
+        private FileSystemWatcher workspaceWatcher;
+        private string watchedWorkspacePath;
+        private bool watcherNeedsFullRefresh;
+        private readonly DispatcherTimer watcherRefreshTimer;
 
         public SourceControlPanel() : this(new GitService()) { }
         internal SourceControlPanel(IGitService gitService)
         {
-            git = gitService; InitializeComponent(); DataContext = this;
+            git = gitService;
+            watcherRefreshTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher)
+            {
+                Interval = TimeSpan.FromMilliseconds(350)
+            };
+            watcherRefreshTimer.Tick += WatcherRefreshTimer_Tick;
+            InitializeComponent();
+            DataContext = this;
+            Loaded += SourceControlPanel_Loaded;
+            Unloaded += SourceControlPanel_Unloaded;
         }
 
         public ObservableCollection<ChangeGroup> ChangeGroups { get; private set; } = new ObservableCollection<ChangeGroup>();
@@ -83,10 +99,160 @@ namespace Bend.SourceControl
 
         public static readonly DependencyProperty WorkspacePathProperty = DependencyProperty.Register("WorkspacePath", typeof(string), typeof(SourceControlPanel), new PropertyMetadata(null, WorkspaceChanged));
         public string WorkspacePath { get { return (string)GetValue(WorkspacePathProperty); } set { SetValue(WorkspacePathProperty, value); } }
-        private static void WorkspaceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) { ((SourceControlPanel)d).RefreshAsync(); }
+        private static void WorkspaceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            SourceControlPanel panel = (SourceControlPanel)d;
+            panel.WatchWorkspace(e.NewValue as string);
+            panel.RefreshAsync();
+        }
+
+        private void WatchWorkspace(string path)
+        {
+            watcherRefreshTimer.Stop();
+            watcherNeedsFullRefresh = false;
+            if (watcherCancellation != null) watcherCancellation.Cancel();
+            watchedWorkspacePath = null;
+            if (workspaceWatcher != null)
+            {
+                workspaceWatcher.EnableRaisingEvents = false;
+                workspaceWatcher.Dispose();
+                workspaceWatcher = null;
+            }
+            if (String.IsNullOrWhiteSpace(path) || !Directory.Exists(path)) return;
+
+            try
+            {
+                watchedWorkspacePath = Path.GetFullPath(path);
+                workspaceWatcher = new FileSystemWatcher(path)
+                {
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName |
+                        NotifyFilters.LastWrite | NotifyFilters.Size
+                };
+                workspaceWatcher.Changed += WorkspaceWatcher_Changed;
+                workspaceWatcher.Created += WorkspaceWatcher_Changed;
+                workspaceWatcher.Deleted += WorkspaceWatcher_Changed;
+                workspaceWatcher.Renamed += WorkspaceWatcher_Changed;
+                workspaceWatcher.Error += WorkspaceWatcher_Error;
+                workspaceWatcher.EnableRaisingEvents = true;
+            }
+            catch (ArgumentException) { watchedWorkspacePath = null; }
+            catch (IOException) { watchedWorkspacePath = null; }
+        }
+
+        private void WorkspaceWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            bool isGitMetadata = IsGitMetadataPath(e.FullPath);
+            bool refreshHistory = isGitMetadata && IsGitHistoryMetadataPath(e.FullPath);
+            bool refreshChanges = !isGitMetadata || IsGitIndexPath(e.FullPath);
+            if (!refreshHistory && !refreshChanges) return;
+            Dispatcher.BeginInvoke(new Action(() => ScheduleWatcherRefresh(refreshHistory)), DispatcherPriority.Background);
+        }
+
+        private bool IsGitMetadataPath(string path)
+        {
+            string workspace = watchedWorkspacePath;
+            if (String.IsNullOrWhiteSpace(path) || String.IsNullOrWhiteSpace(workspace)) return false;
+            string gitPath = Path.Combine(workspace, ".git").TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string normalizedPath = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return String.Equals(normalizedPath, gitPath, StringComparison.OrdinalIgnoreCase) ||
+                normalizedPath.StartsWith(gitPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                normalizedPath.StartsWith(gitPath + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsGitHistoryMetadataPath(string path)
+        {
+            string workspace = watchedWorkspacePath;
+            if (String.IsNullOrWhiteSpace(path) || String.IsNullOrWhiteSpace(workspace)) return false;
+            string gitPath = Path.Combine(workspace, ".git");
+            string relative = path.Substring(gitPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return String.Equals(relative, "HEAD", StringComparison.OrdinalIgnoreCase) ||
+                String.Equals(relative, "packed-refs", StringComparison.OrdinalIgnoreCase) ||
+                relative.StartsWith("refs" + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                relative.StartsWith("refs" + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                relative.StartsWith("logs" + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                relative.StartsWith("logs" + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsGitIndexPath(string path)
+        {
+            string workspace = watchedWorkspacePath;
+            if (String.IsNullOrWhiteSpace(path) || String.IsNullOrWhiteSpace(workspace)) return false;
+            return String.Equals(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                Path.Combine(workspace, ".git", "index"), StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void WorkspaceWatcher_Error(object sender, ErrorEventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                WatchWorkspace(WorkspacePath);
+                ScheduleWatcherRefresh(true);
+            }), DispatcherPriority.Background);
+        }
+
+        private void ScheduleWatcherRefresh(bool fullRefresh)
+        {
+            watcherNeedsFullRefresh |= fullRefresh;
+            watcherRefreshTimer.Stop();
+            watcherRefreshTimer.Start();
+        }
+
+        private void WatcherRefreshTimer_Tick(object sender, EventArgs e)
+        {
+            watcherRefreshTimer.Stop();
+            bool fullRefresh = watcherNeedsFullRefresh;
+            watcherNeedsFullRefresh = false;
+            if (fullRefresh) RefreshAsync(); else RefreshChangesAsync();
+        }
+
+        private async void RefreshChangesAsync()
+        {
+            if (String.IsNullOrWhiteSpace(WorkspacePath)) return;
+            if (watcherCancellation != null) watcherCancellation.Cancel();
+            watcherCancellation = new CancellationTokenSource();
+            CancellationToken token = watcherCancellation.Token;
+            string workspace = WorkspacePath;
+            try
+            {
+                GitRepositoryStatus updatedStatus = await git.GetStatusAsync(workspace, token);
+                if (token.IsCancellationRequested || !String.Equals(workspace, WorkspacePath, StringComparison.OrdinalIgnoreCase)) return;
+                status = updatedStatus;
+                BuildGroups();
+                StateText.Text = status.Changes.Count == 0 ? "No changes." : "";
+                ErrorText.Text = "";
+                UpdateCommitEnabled();
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                if (!token.IsCancellationRequested)
+                {
+                    StateText.Text = "Source Control unavailable.";
+                    ErrorText.Text = ex.Message;
+                }
+            }
+        }
+
+        private void SourceControlPanel_Unloaded(object sender, RoutedEventArgs e)
+        {
+            watcherRefreshTimer.Stop();
+            if (watcherCancellation != null) watcherCancellation.Cancel();
+            watchedWorkspacePath = null;
+            if (workspaceWatcher == null) return;
+            workspaceWatcher.EnableRaisingEvents = false;
+            workspaceWatcher.Dispose();
+            workspaceWatcher = null;
+        }
+
+        private void SourceControlPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (workspaceWatcher == null) WatchWorkspace(WorkspacePath);
+        }
 
         public async void RefreshAsync()
         {
+            if (watcherCancellation != null) watcherCancellation.Cancel();
             if (cancellation != null) cancellation.Cancel();
             cancellation = new CancellationTokenSource(); CancellationToken token = cancellation.Token;
             ChangeGroups.Clear(); CommitChangeGroups.Clear(); Commits.Clear(); ErrorText.Text = ""; StateText.Text = string.IsNullOrWhiteSpace(WorkspacePath) ? "Open a folder to use Source Control." : "Loading repository…";
