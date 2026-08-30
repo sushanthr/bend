@@ -4,6 +4,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="Transparent">
     <UserControl.Resources>
+        <!-- The default TreeViewItem template replaces Background with the system
+             inactive-selection brush when focus moves to the editor. Keep that
+             override local to this control and theme it for readable tree rows. -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
+                         Color="{DynamicResource TreeInactiveSelectionColor}" />
         <HierarchicalDataTemplate x:Key="NodeTemplate" ItemsSource="{Binding Children}">
             <Grid Height="22" ToolTip="{Binding FullPath}">
                 <Grid.ColumnDefinitions>

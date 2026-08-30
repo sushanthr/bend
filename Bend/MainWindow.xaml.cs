@@ -165,7 +165,11 @@ namespace Bend
             this.windowChrome.CaptionHeight = 40;
             this.windowChrome.GlassFrameThickness = new Thickness(1);
             this.windowChrome.CornerRadius = new CornerRadius(0);
-            this.windowChrome.NonClientFrameEdges = NonClientFrameEdges.None;
+            // Keep the bottom edge in the native non-client frame. WindowChrome's
+            // all-client resize path repeatedly clears the WPF surface during live
+            // sizing, which makes the XAML chrome flicker while HWND-hosted content
+            // (the editor and terminal) remains stable.
+            this.windowChrome.NonClientFrameEdges = NonClientFrameEdges.Bottom;
             WindowChrome.SetWindowChrome(this, this.windowChrome);
             this.isFullScreen = false;
             this.currentStatusType = StatusType.STATUS_OTHER;
@@ -228,6 +232,8 @@ namespace Bend
             Color shellForeground = PersistantStorage.StorageObject.CurrentTheme.ForegroundColor;
             bool isDarkTheme = (shellBackground.R + shellBackground.G + shellBackground.B) < 384;
             ThemeSettings currentTheme = PersistantStorage.StorageObject.CurrentTheme;
+            Application.Current.Resources["TreeInactiveSelectionColor"] =
+                BlendColor(shellBackground, shellForeground, isDarkTheme ? 0.12 : 0.08);
             Application.Current.Resources["TabBackgroundBrush"] = new SolidColorBrush(currentTheme.TabBackgroundColor.A > 0
                 ? currentTheme.TabBackgroundColor : currentTheme.BackgroundColor);
             Application.Current.Resources["ActivityBarBrush"] = new SolidColorBrush(currentTheme.ActivityBarColor.A > 0

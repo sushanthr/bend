@@ -10,6 +10,7 @@
         <SolidColorBrush x:Key="LogoForegroundBrush" Color="Black"/>
         <SolidColorBrush x:Key="LogoBackgroundBrush" Color="#FFF3F31A"/>
         <SolidColorBrush x:Key="MenuSelectedBackgroundBrush" Color="#DDDDDD" />
+        <Color x:Key="TreeInactiveSelectionColor">#292929</Color>
         <SolidColorBrush x:Key="EditorSurfaceBrush" Color="#141414" />
         <SolidColorBrush x:Key="TabBackgroundBrush" Color="#141414" />
         <SolidColorBrush x:Key="ActivityBarBrush" Color="#141414" />
