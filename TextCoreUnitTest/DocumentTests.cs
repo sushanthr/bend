@@ -30,6 +30,17 @@ namespace TextCoreUnitTest
         }
 
         [TestMethod]
+        public void LoadTextAcceptsRevisionPathThatIsInvalidOnWindows()
+        {
+            Document document = new Document();
+
+            document.LoadText("content", "folder/name\twith\"quote.cs");
+
+            Assert.AreEqual("content\0", document.Text);
+            Assert.IsFalse(document.HasUnsavedContent);
+        }
+
+        [TestMethod]
         public void InsertAndDeletePreserveTerminatorAndDirtyState()
         {
             Document document = new Document();

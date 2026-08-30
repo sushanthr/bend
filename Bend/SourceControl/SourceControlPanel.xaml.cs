@@ -31,13 +31,18 @@ namespace Bend.SourceControl
         public GitChange Change { get; set; }
         public string CommitPatch { get; set; }
         public string CommitKey { get; set; }
+        public bool IsAdded { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsRenamed { get; set; }
+        public string OriginalPath { get; set; }
         public ObservableCollection<ScmTreeNode> Children { get; private set; } = new ObservableCollection<ScmTreeNode>();
         public bool IsDirectory { get { return Change == null; } }
         private bool isExpanded = true;
         public bool IsExpanded { get { return isExpanded; } set { if (isExpanded == value) return; isExpanded = value; if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs("IsExpanded")); } }
         public event PropertyChangedEventHandler PropertyChanged;
         public string IconGlyph { get { return IsDirectory ? "\uEAF7" : "\uEA7B"; } }
-        public string StatusText { get { return CommitPatch != null ? null : (Change == null ? null : Change.StatusText); } }
+        public string StatusText { get { return CommitPatch != null ? (IsAdded ? "A" : (IsDeleted ? "D" : (IsRenamed ? "R" : null))) : (Change == null ? null : Change.StatusText); } }
+        public string DisplayToolTip { get { return IsRenamed ? "Renamed from " + OriginalPath : FullPath; } }
         public string ActionGlyph { get { return Change == null ? null : Change.ActionGlyph; } }
         public string ActionToolTip { get { return Change == null ? null : Change.ActionToolTip; } }
         public Visibility ActionVisibility { get { return Change == null || CommitPatch != null ? Visibility.Collapsed : Visibility.Visible; } }
@@ -273,21 +278,31 @@ namespace Bend.SourceControl
             CommitDescription.Text = commit.Subject;
             CommitMetadata.Text = commit.ShortHash + " · " + commit.Author + " · " + commit.Date.ToString("g");
             CommitChangeGroups.Clear();
-            List<KeyValuePair<string, string>> files = SplitCommitPatchByFile(patch);
+            List<CommitFileEntry> files = SplitCommitPatchByFile(patch);
             if (files.Count > 0)
             {
                 var group = new ChangeGroup { Name = "Files changed (" + files.Count + ")" };
-                foreach (KeyValuePair<string, string> file in files)
-                    AddCommitTreePath(group.Nodes, file.Key, file.Value, commit.Hash);
+                foreach (CommitFileEntry file in files)
+                    AddCommitTreePath(group.Nodes, file, commit.Hash);
                 SortTree(group.Nodes);
                 CommitChangeGroups.Add(group);
             }
             CommitMode.IsChecked = true;
         }
 
-        private static List<KeyValuePair<string, string>> SplitCommitPatchByFile(string patch)
+        private sealed class CommitFileEntry
         {
-            var result = new List<KeyValuePair<string, string>>();
+            public string Path { get; set; }
+            public string Patch { get; set; }
+            public bool IsAdded { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsRenamed { get; set; }
+            public string OriginalPath { get; set; }
+        }
+
+        private static List<CommitFileEntry> SplitCommitPatchByFile(string patch)
+        {
+            var result = new List<CommitFileEntry>();
             string normalized = (patch ?? String.Empty).Replace("\r\n", "\n");
             int start = normalized.IndexOf("diff --git ", StringComparison.Ordinal);
             while (start >= 0)
@@ -297,14 +312,21 @@ namespace Bend.SourceControl
                 DiffModel model = DiffModel.Parse(filePatch);
                 DiffFile file = model.Files.FirstOrDefault();
                 string path = file == null ? null : (file.NewPath == "/dev/null" ? file.OldPath : file.NewPath);
-                if (!String.IsNullOrWhiteSpace(path)) result.Add(new KeyValuePair<string, string>(path, filePatch));
+                if (!String.IsNullOrWhiteSpace(path))
+                    result.Add(new CommitFileEntry { Path = path, Patch = filePatch,
+                        IsAdded = file.OldPath == "/dev/null", IsDeleted = file.NewPath == "/dev/null",
+                        IsRenamed = !String.IsNullOrWhiteSpace(file.OldPath) && !String.IsNullOrWhiteSpace(file.NewPath) &&
+                            file.OldPath != "/dev/null" && file.NewPath != "/dev/null" &&
+                            !String.Equals(file.OldPath, file.NewPath, StringComparison.Ordinal),
+                        OriginalPath = file.OldPath });
                 start = next < 0 ? -1 : next + 1;
             }
             return result;
         }
 
-        private static void AddCommitTreePath(ObservableCollection<ScmTreeNode> roots, string filePath, string patch, string commitHash)
+        private static void AddCommitTreePath(ObservableCollection<ScmTreeNode> roots, CommitFileEntry fileEntry, string commitHash)
         {
+            string filePath = fileEntry.Path;
             string[] parts = filePath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             ObservableCollection<ScmTreeNode> level = roots;
             string path = "";
@@ -317,7 +339,9 @@ namespace Bend.SourceControl
                 {
                     node = new ScmTreeNode { Name = parts[index], FullPath = path,
                         Change = file ? new GitChange { Path = filePath, Layer = GitChangeLayer.Staged } : null,
-                        CommitPatch = file ? patch : null, CommitKey = file ? commitHash : null };
+                        CommitPatch = file ? fileEntry.Patch : null, CommitKey = file ? commitHash : null,
+                        IsAdded = file && fileEntry.IsAdded, IsDeleted = file && fileEntry.IsDeleted,
+                        IsRenamed = file && fileEntry.IsRenamed, OriginalPath = file ? fileEntry.OriginalPath : null };
                     level.Add(node);
                 }
                 level = node.Children;

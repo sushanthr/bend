@@ -58,6 +58,8 @@ namespace TextCoreControl
                 if (file == null) { file = new DiffFile(); model.Files.Add(file); }
                 if (raw.StartsWith("--- ")) { file.OldPath = NormalizePath(raw.Substring(4)); continue; }
                 if (raw.StartsWith("+++ ")) { file.NewPath = NormalizePath(raw.Substring(4)); continue; }
+                if (raw.StartsWith("rename from ")) { file.OldPath = DecodeGitPath(raw.Substring(12)); continue; }
+                if (raw.StartsWith("rename to ")) { file.NewPath = DecodeGitPath(raw.Substring(10)); continue; }
                 if (raw.StartsWith("Binary files ") || raw.StartsWith("GIT binary patch"))
                 {
                     file.IsBinary = true;
@@ -96,7 +98,65 @@ namespace TextCoreControl
         }
 
         private static void AddLine(DiffModel model, DiffHunk hunk, DiffLine line) { model.Lines.Add(line); if (hunk != null) hunk.Lines.Add(line); }
-        private static string NormalizePath(string path) { return path == "/dev/null" ? path : (path.StartsWith("a/") || path.StartsWith("b/") ? path.Substring(2) : path); }
+        private static string NormalizePath(string path)
+        {
+            // Git can append a tab delimiter to an unquoted ---/+++ path that
+            // contains spaces. It is header syntax, not part of the filename.
+            path = path.TrimEnd('\t');
+            path = DecodeGitPath(path);
+            return path == "/dev/null" ? path : (path.StartsWith("a/") || path.StartsWith("b/") ? path.Substring(2) : path);
+        }
+
+        private static string DecodeGitPath(string path)
+        {
+            if (String.IsNullOrEmpty(path) || path.Length < 2 || path[0] != '"' || path[path.Length - 1] != '"')
+                return path;
+
+            var decoded = new StringBuilder();
+            int end = path.Length - 1;
+            for (int index = 1; index < end; index++)
+            {
+                if (path[index] != '\\' || index + 1 >= end)
+                {
+                    decoded.Append(path[index]);
+                    continue;
+                }
+
+                char escaped = path[++index];
+                if (escaped >= '0' && escaped <= '7' && index + 2 < end &&
+                    path[index + 1] >= '0' && path[index + 1] <= '7' &&
+                    path[index + 2] >= '0' && path[index + 2] <= '7')
+                {
+                    var bytes = new List<byte>();
+                    while (index + 2 < end &&
+                        path[index] >= '0' && path[index] <= '7' &&
+                        path[index + 1] >= '0' && path[index + 1] <= '7' &&
+                        path[index + 2] >= '0' && path[index + 2] <= '7')
+                    {
+                        bytes.Add((byte)((path[index] - '0') * 64 + (path[index + 1] - '0') * 8 + path[index + 2] - '0'));
+                        index += 3;
+                        if (index + 3 >= end || path[index] != '\\') break;
+                        index++;
+                    }
+                    index--;
+                    decoded.Append(Encoding.UTF8.GetString(bytes.ToArray()));
+                    continue;
+                }
+
+                switch (escaped)
+                {
+                    case 'a': decoded.Append('\a'); break;
+                    case 'b': decoded.Append('\b'); break;
+                    case 't': decoded.Append('\t'); break;
+                    case 'n': decoded.Append('\n'); break;
+                    case 'v': decoded.Append('\v'); break;
+                    case 'f': decoded.Append('\f'); break;
+                    case 'r': decoded.Append('\r'); break;
+                    default: decoded.Append(escaped); break;
+                }
+            }
+            return decoded.ToString();
+        }
 
         private static void AlignReplacements(DiffModel model)
         {

@@ -126,7 +126,33 @@
     </Button>
    </Grid>
   </HierarchicalDataTemplate>
-  <HierarchicalDataTemplate DataType="{x:Type local:ScmTreeNode}" ItemsSource="{Binding Children}" xmlns:local="clr-namespace:Bend.SourceControl"><Grid Height="25" ToolTip="{Binding FullPath}"><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions><TextBlock Style="{StaticResource Codicon}" Text="{Binding IconGlyph}" Opacity=".82"/><TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding StatusText}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SourceControlStatusBrush}"/><Button Grid.Column="3" Tag="{Binding Change}" Visibility="{Binding ActionVisibility}" Style="{StaticResource ScmIconButton}" ToolTip="{Binding ActionToolTip}" Click="StageToggle_Click"><TextBlock Style="{StaticResource Codicon}" FontSize="13" Text="{Binding ActionGlyph}"/></Button></Grid></HierarchicalDataTemplate>
+  <HierarchicalDataTemplate DataType="{x:Type local:ScmTreeNode}" ItemsSource="{Binding Children}" xmlns:local="clr-namespace:Bend.SourceControl">
+   <Grid Height="25" ToolTip="{Binding DisplayToolTip}">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/><ColumnDefinition Width="26"/></Grid.ColumnDefinitions>
+    <TextBlock Style="{StaticResource Codicon}" Text="{Binding IconGlyph}" Opacity=".82"/>
+    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+     <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center">
+      <TextBlock.Style>
+       <Style TargetType="TextBlock">
+        <Style.Triggers>
+         <DataTrigger Binding="{Binding IsAdded}" Value="True"><Setter Property="Foreground" Value="{DynamicResource SourceControlStatusBrush}"/></DataTrigger>
+         <DataTrigger Binding="{Binding IsDeleted}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}"/><Setter Property="TextDecorations" Value="Strikethrough"/></DataTrigger>
+        </Style.Triggers>
+       </Style>
+      </TextBlock.Style>
+     </TextBlock>
+     <TextBlock Text="{Binding StatusText}" Margin="6,0,0,0" FontWeight="SemiBold" VerticalAlignment="Center">
+      <TextBlock.Style>
+       <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource SourceControlStatusBrush}"/>
+        <Style.Triggers><DataTrigger Binding="{Binding IsDeleted}" Value="True"><Setter Property="Foreground" Value="{DynamicResource ErrorForegroundBrush}"/></DataTrigger></Style.Triggers>
+       </Style>
+      </TextBlock.Style>
+     </TextBlock>
+    </StackPanel>
+    <Button Grid.Column="2" Tag="{Binding Change}" Visibility="{Binding ActionVisibility}" Style="{StaticResource ScmIconButton}" ToolTip="{Binding ActionToolTip}" Click="StageToggle_Click"><TextBlock Style="{StaticResource Codicon}" FontSize="13" Text="{Binding ActionGlyph}"/></Button>
+   </Grid>
+  </HierarchicalDataTemplate>
   <Style TargetType="TreeViewItem"><Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/><Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><EventSetter Event="Expanded" Handler="Folder_Expanded"/></Style>
  </UserControl.Resources>
  <Grid Margin="10,8"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="5"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>

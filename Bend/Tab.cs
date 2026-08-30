@@ -118,7 +118,8 @@ namespace Bend
                 textEditor.DiffMode = mode;
                 content = textEditor;
                 string normalizedName = String.IsNullOrWhiteSpace(fileName) ? null : fileName.Replace('/', System.IO.Path.DirectorySeparatorChar);
-                title.TitleText = String.IsNullOrWhiteSpace(normalizedName) ? titleText : System.IO.Path.GetFileName(normalizedName);
+                int lastSeparator = String.IsNullOrEmpty(normalizedName) ? -1 : Math.Max(normalizedName.LastIndexOf('/'), normalizedName.LastIndexOf('\\'));
+                title.TitleText = String.IsNullOrWhiteSpace(normalizedName) ? titleText : normalizedName.Substring(lastSeparator + 1);
                 title.ToolTip = titleText;
                 fullFileName = null;
             }

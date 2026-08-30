@@ -37,5 +37,43 @@ namespace TextCoreUnitTest
             Assert.IsTrue(model.Files[0].IsBinary);
             Assert.AreEqual("Binary files differ", model.Lines[0].NewText);
         }
+
+        [TestMethod]
+        public void ParseDecodesGitQuotedPaths()
+        {
+            DiffModel model = DiffModel.Parse(
+                "diff --git \"a/folder/name\\t\\342\\230\\203.cs\" \"b/folder/name\\t\\342\\230\\203.cs\"\n" +
+                "--- \"a/folder/name\\t\\342\\230\\203.cs\"\n" +
+                "+++ \"b/folder/name\\t\\342\\230\\203.cs\"\n" +
+                "@@ -1 +1 @@\n-old\n+new");
+
+            Assert.AreEqual("folder/name\t☃.cs", model.Files[0].OldPath);
+            Assert.AreEqual("folder/name\t☃.cs", model.Files[0].NewPath);
+        }
+
+        [TestMethod]
+        public void ParseRecognizesPureRenamePathsWithoutContentHunk()
+        {
+            DiffModel model = DiffModel.Parse(
+                "diff --git a/old.cs b/new.cs\n" +
+                "similarity index 100%\n" +
+                "rename from old.cs\n" +
+                "rename to new.cs");
+
+            Assert.AreEqual("old.cs", model.Files[0].OldPath);
+            Assert.AreEqual("new.cs", model.Files[0].NewPath);
+        }
+
+        [TestMethod]
+        public void ParseRemovesGitHeaderDelimiterAfterPathWithSpaces()
+        {
+            DiffModel model = DiffModel.Parse(
+                "diff --git a/Rose Pine.xml b/Rose Pine.xml\n" +
+                "--- /dev/null\n" +
+                "+++ b/Rose Pine.xml\t\n" +
+                "@@ -0,0 +1 @@\n+new");
+
+            Assert.AreEqual("Rose Pine.xml", model.Files[0].NewPath);
+        }
     }
 }

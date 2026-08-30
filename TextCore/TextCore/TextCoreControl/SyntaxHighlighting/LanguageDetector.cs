@@ -313,9 +313,15 @@ namespace TextCoreControl.SyntaxHighlighting
             if (newFileName == null)
                 return;
 
-            string newFilenameExtension = Path.GetExtension(newFileName);
-            if (newFilenameExtension.StartsWith("."))
-                newFilenameExtension = newFilenameExtension.Substring(1);
+            // Diff views can identify files from another platform or an older revision.
+            // Those names are not necessarily valid Windows paths, and Path.GetExtension
+            // throws for characters such as quotes.  Detection only needs the suffix, so
+            // extract it without applying local file-system validation.
+            int lastSeparator = Math.Max(newFileName.LastIndexOf('/'), newFileName.LastIndexOf('\\'));
+            int lastDot = newFileName.LastIndexOf('.');
+            string newFilenameExtension = lastDot > lastSeparator && lastDot < newFileName.Length - 1
+                ? newFileName.Substring(lastDot + 1)
+                : String.Empty;
 
             if (!String.Equals(newFilenameExtension, currentFilenameExtension, StringComparison.OrdinalIgnoreCase))
             {
