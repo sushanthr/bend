@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ThemeSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <BackgroundColor><A>255</A><R>8</R><G>27</G><B>42</B></BackgroundColor>
-  <BackgroundTerminalColor><A>255</A><R>11</R><G>34</G><B>53</B></BackgroundTerminalColor>
+  <BackgroundTerminalColor><A>255</A><R>6</R><G>24</G><B>36</B></BackgroundTerminalColor>
   <ForegroundColor><A>255</A><R>215</R><G>234</G><B>245</B></ForegroundColor>
   <ScrollButtonColor><A>255</A><R>74</R><G>116</G><B>141</B></ScrollButtonColor>
   <LogoForegroundColor><A>255</A><R>232</R><G>247</G><B>255</B></LogoForegroundColor>
@@ -34,7 +34,7 @@
   <SyntaxHighlightingString><A>255</A><R>131</R><G>227</G><B>164</B></SyntaxHighlightingString>
   <SyntaxHighlightingChar><A>255</A><R>117</R><G>230</G><B>223</B></SyntaxHighlightingChar>
   <TerminalColors><unsignedInt>399396</unsignedInt><unsignedInt>16743302</unsignedInt><unsignedInt>6476171</unsignedInt><unsignedInt>15054183</unsignedInt><unsignedInt>6080767</unsignedInt><unsignedInt>13081599</unsignedInt><unsignedInt>5363408</unsignedInt><unsignedInt>14150389</unsignedInt><unsignedInt>5797514</unsignedInt><unsignedInt>16751267</unsignedInt><unsignedInt>8643492</unsignedInt><unsignedInt>15911293</unsignedInt><unsignedInt>8640767</unsignedInt><unsignedInt>14203135</unsignedInt><unsignedInt>7726815</unsignedInt><unsignedInt>16777215</unsignedInt></TerminalColors>
-  <TerminalColorBackground>399396</TerminalColorBackground>
+  <TerminalColorBackground>2365446</TerminalColorBackground>
   <TerminalColorForeground>14150389</TerminalColorForeground>
   <TerminalColorSelectionBackground>1596032</TerminalColorSelectionBackground>
   <TerminalColorBackingBackground><A>255</A><R>6</R><G>24</G><B>36</B></TerminalColorBackingBackground>

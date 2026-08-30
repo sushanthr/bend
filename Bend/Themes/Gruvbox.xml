@@ -42,7 +42,7 @@
   <SyntaxHighlightingString><A>255</A><R>184</R><G>187</G><B>38</B></SyntaxHighlightingString>
   <SyntaxHighlightingChar><A>255</A><R>142</R><G>192</G><B>124</B></SyntaxHighlightingChar>
   <TerminalColors><unsignedInt>1908769</unsignedInt><unsignedInt>13378589</unsignedInt><unsignedInt>10000154</unsignedInt><unsignedInt>14129441</unsignedInt><unsignedInt>4556168</unsignedInt><unsignedInt>11625094</unsignedInt><unsignedInt>6856042</unsignedInt><unsignedInt>11049348</unsignedInt><unsignedInt>9601908</unsignedInt><unsignedInt>16468276</unsignedInt><unsignedInt>12106534</unsignedInt><unsignedInt>16432431</unsignedInt><unsignedInt>8627608</unsignedInt><unsignedInt>13862555</unsignedInt><unsignedInt>9355388</unsignedInt><unsignedInt>15457202</unsignedInt></TerminalColors>
-  <TerminalColorBackground>1579547</TerminalColorBackground>
+  <TerminalColorBackground>1776152</TerminalColorBackground>
   <TerminalColorForeground>15457202</TerminalColorForeground>
   <TerminalColorSelectionBackground>5261637</TerminalColorSelectionBackground>
   <TerminalColorBackingBackground><A>255</A><R>24</R><G>26</G><B>27</B></TerminalColorBackingBackground>
