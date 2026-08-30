@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="Bend.exe" version="3.0.4.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" type="win32" />
+  <asmv1:assemblyIdentity name="Bend.exe" version="3.0.5.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="amd64" type="win32" />
   <description asmv2:iconFile="Arrow.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Bend.exe" size="579072">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Bend.exe" size="580096">
       <assemblyIdentity name="Bend" version="1.0.0.0" language="neutral" processorArchitecture="amd64" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>bpi3mJVNf25PxlJnsASvOcv2O8k+oXW67sqwauTiw08=</dsig:DigestValue>
+        <dsig:DigestValue>cwDgSI9msn0T9Z7zKVYnrAH3xy6S3OTThsn6ntD+wtU=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -62,7 +62,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>OeXM5j25Wid8fiTvh0oBn7qmQX8CEZg1mBd3HyNDWhQ=</dsig:DigestValue>
+        <dsig:DigestValue>N7z4digH5u2keufl2VpVjbYuEiOIdh2zV+VyS6Zin74=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -110,7 +110,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>y6tgZ1+ahxtCOYmaUM4ZAWgpyppP4Da37G7sNbZJw5w=</dsig:DigestValue>
+        <dsig:DigestValue>YySXwoRQ2CsxtbIfqDu9NNKb4dnWMT9bRAhAcQjhNSI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -138,7 +138,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>f8PsfUXSyg9CVcTyJulzwQVkYIX5WoC/gqZuHE9oQgM=</dsig:DigestValue>
+      <dsig:DigestValue>Spk1fXuRpauNvDqsNVanuu7qrLU9wBGZrl9oayN7ov8=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Microsoft.Terminal.Control.dll" size="1989144">
@@ -483,6 +483,15 @@
       <dsig:DigestValue>frpya2xxkHuCTx9e1snVJaF1ptYUCDsgVkX2atRqjac=</dsig:DigestValue>
     </hash>
   </file>
+  <file name="Themes\Gruvbox.xml" size="4889">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>gYuZAmwaGgcHi+FiR8df0EaheU6ildF5mnXk8MHAfcE=</dsig:DigestValue>
+    </hash>
+  </file>
   <file name="Themes\Light.xml" size="7920">
     <hash>
       <dsig:Transforms>
@@ -501,6 +510,15 @@
       <dsig:DigestValue>sxseKQ2U2zud7eudX0Iw0bfeGmwmXmQconviVLf1MT4=</dsig:DigestValue>
     </hash>
   </file>
+  <file name="Themes\Rose Pine.xml" size="4907">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>mb90z9+xr5MACEnggVoG41h8rW4iBgrpRuQekjvPfwg=</dsig:DigestValue>
+    </hash>
+  </file>
   <file name="Themes\Sea Light.xml" size="4874">
     <hash>
       <dsig:Transforms>
@@ -508,6 +526,24 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>pa2VAy3yP5xwPndA1WLK/p2w43Fh7URzSxz7C/L1e9U=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Themes\Solarized Dark.xml" size="4861">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>lx2Q634R7yI+AXs177MWvV+rixqwFp4nRRRmXqzNht0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Themes\SynthWave.xml" size="4885">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>VZ62tRH8F6aB3AmPmsFTTZl6vBvGqN5K3HIDMnlq7z8=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>
