@@ -337,11 +337,14 @@ namespace TextCoreControl
                 displayManager.SetDiffLineKinds(null);
                 displayManager.SetDiffLineNumbers(null);
                 if (baseEditor != null) baseEditor.DisplayManager.SetDiffLineKinds(null);
+                diffHunkLines.Clear();
+                currentDiffHunk = -1;
                 return;
             }
             string currentText = document.Text;
             DiffAlignment alignment = DiffEngine.Compare(comparisonBaseDocument == null ? String.Empty : comparisonBaseDocument.Text, currentText);
             currentAlignment = alignment;
+            RebuildDiffHunks(alignment);
             displayManager.SetDiffLineKinds(alignment.CurrentLineKinds);
             displayManager.SetDiffLineNumbers(null);
             baseEditor.LoadText(alignment.BaseDisplayText, comparisonFileName);
@@ -349,6 +352,31 @@ namespace TextCoreControl
             baseEditor.DisplayManager.SetDiffLineNumbers(alignment.BaseDisplayLineNumbers);
             if (diffMode == DiffViewMode.SideBySide)
                 Dispatcher.BeginInvoke(new Action(SynchronizeBaseToCurrent), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        private void RebuildDiffHunks(DiffAlignment alignment)
+        {
+            diffHunkLines.Clear();
+            var changed = new bool[alignment.CurrentLineKinds.Count];
+            for (int line = 0; line < changed.Length; line++)
+                changed[line] = alignment.CurrentLineKinds[line] != DiffLineKind.Context;
+            for (int line = 0; line < alignment.BaseLineKinds.Count; line++)
+                if (alignment.BaseLineKinds[line] != DiffLineKind.Context && changed.Length > 0)
+                    changed[Math.Max(0, Math.Min(changed.Length - 1, alignment.BaseToCurrentLine[line]))] = true;
+            for (int line = 0; line < changed.Length; line++)
+                if (changed[line] && (line == 0 || !changed[line - 1])) diffHunkLines.Add(line);
+            currentDiffHunk = -1;
+        }
+
+        public int DiffHunkCount { get { return diffHunkLines.Count; } }
+        public int CurrentDiffHunkNumber { get { return currentDiffHunk < 0 ? 0 : currentDiffHunk + 1; } }
+        public bool NavigateDiffHunk(int direction)
+        {
+            if (diffHunkLines.Count == 0 || !DisplayManager.IsReady || !DisplayManager.ScrollBoundsAreEstimated) return false;
+            currentDiffHunk = currentDiffHunk < 0 ? (direction < 0 ? diffHunkLines.Count - 1 : 0)
+                : (currentDiffHunk + direction + diffHunkLines.Count) % diffHunkLines.Count;
+            DisplayManager.ScrollContentLineIntoView(diffHunkLines[currentDiffHunk]);
+            return true;
         }
 
         public EditorCapabilities Capabilities { get; private set; } = new EditorCapabilities();
@@ -366,6 +394,11 @@ namespace TextCoreControl
         public bool? WordWrapOverride { set { displayManager.SetWordWrapOverride(value); } }
 
         public event EventHandler VerticalScrollChanged;
+        public event EventHandler ScrollBoundsEstimated
+        {
+            add { displayManager.ScrollBoundsEstimated += value; }
+            remove { displayManager.ScrollBoundsEstimated -= value; }
+        }
         public double VerticalOffset { get { return vScrollBar.Value; } }
         public void SetVerticalOffset(double value)
         {
@@ -613,6 +646,8 @@ namespace TextCoreControl
         private DiffViewMode diffMode;
         private System.Windows.Threading.DispatcherTimer diffRefreshTimer;
         private DiffAlignment currentAlignment;
+        private readonly System.Collections.Generic.List<int> diffHunkLines = new System.Collections.Generic.List<int>();
+        private int currentDiffHunk = -1;
         private Document comparisonBaseDocument;
 
         public FindNavigationResult StartFind(FindQuery query) { return hasDiffBase ? comparisonFindSession.Start(query) : findSession.Start(query); }

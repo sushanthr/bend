@@ -24,6 +24,7 @@
         Drop="Window_Drop"
         Closing="Window_Closing"
         StateChanged="Window_StateChanged"
+        PreviewKeyDown="Window_PreviewKeyDown"
         AllowDrop="True">
     <Window.CommandBindings>
         <CommandBinding Command="Save"
@@ -168,6 +169,15 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style x:Key="StatusButton" TargetType="Button">
+            <Setter Property="Width" Value="26"/><Setter Property="Height" Value="20"/>
+            <Setter Property="Foreground" Value="{DynamicResource LogoForegroundBrush}"/><Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+                <Border x:Name="SegmentBorder" Background="{TemplateBinding Background}" Padding="4,1"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SegmentBorder" Property="Background" Value="#28FFFFFF"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value=".4"/></Trigger></ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
         </Style>
         <Style x:Key="FileMenuItemStyle"
                 TargetType="MenuItem">
@@ -870,6 +880,11 @@
                         Grid.Column="1"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center">
+                    <StackPanel x:Name="DiffHunkNavigation" Orientation="Horizontal" Margin="0,0,12,0" Visibility="Collapsed">
+                        <Button Style="{StaticResource StatusButton}" ToolTip="Previous change (Shift+F7)" Click="PreviousDiffHunk_Click"><TextBlock Text="↑" FontSize="14"/></Button>
+                        <TextBlock x:Name="DiffHunkPosition" Text="0 of 0" MinWidth="48" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource LogoForegroundBrush}"/>
+                        <Button Style="{StaticResource StatusButton}" ToolTip="Next change (F7)" Click="NextDiffHunk_Click"><TextBlock Text="↓" FontSize="14"/></Button>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,12,0" ToolTip="Diff presentation">
                         <RadioButton x:Name="DiffNoneButton" GroupName="AppDiffMode" Style="{StaticResource StatusSegment}" ToolTip="Hide diff" Checked="DiffMode_Checked">
                             <TextBlock Text="&#xEADD;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16"/>

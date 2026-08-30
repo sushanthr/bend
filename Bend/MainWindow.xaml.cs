@@ -2323,6 +2323,7 @@ namespace Bend
                 }
                 existing.TextEditor.DiffMode = e.Mode;
                 SwitchTabFocusTo(tab.IndexOf(existing));
+                ScheduleInitialDiffNavigation(existing);
                 UpdateLineEndingsOnlyStatus(onlyLineEndings);
                 this.treePreviewTab = e.IsPinned || targetWasDurable ? null : existing;
                 return;
@@ -2343,8 +2344,41 @@ namespace Bend
             diffTab.Content.Visibility = Visibility.Hidden;
             tab.Add(diffTab); TabBar.Children.Add(diffTab.Title); Editor.Children.Add(diffTab.Content);
             UpdateEditorChrome(); SwitchTabFocusTo(tab.Count - 1);
+            ScheduleInitialDiffNavigation(diffTab);
             UpdateLineEndingsOnlyStatus(onlyLineEndings);
             this.treePreviewTab = e.IsPinned ? null : diffTab;
+        }
+
+        private void PreviousDiffHunk_Click(object sender, RoutedEventArgs e) { NavigateDiffHunk(CurrentTab, -1); }
+        private void NextDiffHunk_Click(object sender, RoutedEventArgs e) { NavigateDiffHunk(CurrentTab, 1); }
+        private void ScheduleInitialDiffNavigation(Tab target)
+        {
+            if (target == null || CurrentTab != target) return;
+            if (NavigateDiffHunk(target, 1)) return;
+
+            EventHandler boundsReady = null;
+            boundsReady = (sender, args) =>
+            {
+                target.TextEditor.ScrollBoundsEstimated -= boundsReady;
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (CurrentTab == target) NavigateDiffHunk(target, 1);
+                }), DispatcherPriority.Loaded);
+            };
+            target.TextEditor.ScrollBoundsEstimated += boundsReady;
+        }
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.F7 || CurrentTab == null || !CurrentTab.IsDiff) return;
+            NavigateDiffHunk(CurrentTab, (Keyboard.Modifiers & ModifierKeys.Shift) != 0 ? -1 : 1);
+            e.Handled = true;
+        }
+        private bool NavigateDiffHunk(Tab target, int direction)
+        {
+            bool available = target != null && target.IsDiff && target.TextEditor.NavigateDiffHunk(direction);
+            DiffHunkNavigation.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
+            if (available) DiffHunkPosition.Text = target.TextEditor.CurrentDiffHunkNumber + " of " + target.TextEditor.DiffHunkCount;
+            return available;
         }
 
         private static bool IsOnlyLineEndingsChanged(DiffModel model)

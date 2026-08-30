@@ -44,6 +44,10 @@ namespace TextCoreControl
             this.textLayoutBuilder = new TextLayoutBuilder();
 
             this.scrollBoundsManager = new ScrollBoundsManager(vScrollBar, hScrollBar, this, renderHost, this.document);
+            this.scrollBoundsManager.BoundsEstimated += (sender, args) =>
+            {
+                if (ScrollBoundsEstimated != null) ScrollBoundsEstimated(this, EventArgs.Empty);
+            };
             vScrollBar.Scroll += new ScrollEventHandler(vScrollBar_Scroll);
             hScrollBar.Scroll += new ScrollEventHandler(hScrollBar_Scroll);
 
@@ -2152,8 +2156,8 @@ namespace TextCoreControl
             get { return this.visualLines == null ? 0 : this.visualLines.Count; }
         }
 
-        /// <summary>Places a zero-based content line at the top of the viewport, bounded by the document extent.</summary>
-        internal void ScrollContentLineToTop(int contentLineNumber)
+        /// <summary>Places a zero-based content line near the vertical center of the viewport.</summary>
+        internal void ScrollContentLineIntoView(int contentLineNumber)
         {
             if (contentLineManager == null || !IsReady) return;
             int lastLine = Math.Max(0, contentLineManager.MaxContentLines - 1);
@@ -2170,7 +2174,8 @@ namespace TextCoreControl
                 if (line.BeginOrdinal <= targetOrdinal && line.NextOrdinal > targetOrdinal)
                 {
                     // ScrollBoundsManager clamps this delta, so the final viewport cannot pass the document end.
-                    scrollBoundsManager.ScrollBy(line.Position.Y - scrollOffset.Height);
+                    double centeredTop = line.Position.Y - Math.Max(0, (AvailableHeight - line.Height) / 2.0);
+                    scrollBoundsManager.ScrollBy(centeredTop - scrollOffset.Height);
                     return;
                 }
             }
@@ -2224,6 +2229,7 @@ namespace TextCoreControl
             get { return contentLineManager == null || pageBeginOrdinal == Document.UNDEFINED_ORDINAL ? 0 : contentLineManager.GetLineNumber(document, pageBeginOrdinal); }
         }
         public bool IsReady { get { return hwndRenderTarget != null && caret != null && contentLineManager != null; } }
+        public bool ScrollBoundsAreEstimated { get { return scrollBoundsManager.BoundsAreEstimated; } }
 
         public void SetWordWrapOverride(bool? value)
         {
@@ -2350,6 +2356,7 @@ namespace TextCoreControl
 
         public event Caret_PositionChanged CaretPositionChanged;
         public event EventHandler VerticalScrollChanged;
+        public event EventHandler ScrollBoundsEstimated;
  
         void caret_CaretPositionChanged()
         {

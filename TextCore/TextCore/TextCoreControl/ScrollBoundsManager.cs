@@ -101,6 +101,7 @@ namespace TextCoreControl
 
         internal void InitializeVerticalScrollBounds(double width)
         {
+            boundsAreEstimated = false;
             lock (this)
             {
                 this.currentWidth = width;
@@ -237,8 +238,16 @@ namespace TextCoreControl
                 }
 
                 this.displayManager.MaxContentLines = maxContentLines;
+                if (!scrollLengthEstimator.IsBusy && !pendingCancellation)
+                {
+                    boundsAreEstimated = true;
+                    if (BoundsEstimated != null) BoundsEstimated(this, EventArgs.Empty);
+                }
             }
         }
+
+        internal event EventHandler BoundsEstimated;
+        internal bool BoundsAreEstimated { get { return boundsAreEstimated; } }
 
         void scrollLengthEstimator_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
@@ -398,6 +407,7 @@ namespace TextCoreControl
 
         bool hasSeenNonAsciiCharacters;
         bool pendingCancellation;
+        bool boundsAreEstimated;
         #endregion
     }
 }
