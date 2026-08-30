@@ -175,6 +175,9 @@ namespace Bend
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FindText, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(AgentButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(BackButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(SettingsMinButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(SettingsMaxButton, /*hitTestVisible*/true);
+            System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(SettingsQuitButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(FullscreenButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MaxButton, /*hitTestVisible*/true);
             System.Windows.Shell.WindowChrome.SetIsHitTestVisibleInChrome(MinButton, /*hitTestVisible*/true);
@@ -1434,9 +1437,12 @@ namespace Bend
                     ColorTable = PersistantStorage.StorageObject.CurrentTheme.TerminalColors,
                 };
                 Terminal.Theme = theme;
-                MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
                 Terminal.StartupCommandLine = terminalStartupCommand;
                 Terminal.WorkingDirectory = currentFolderPath;
+                // Making the panel visible raises the terminal's visibility event and can
+                // start ConPTY immediately. Configure its directory first; otherwise a
+                // ClickOnce launch inherits the deployment-cache working directory.
+                MainDockBottomPanel.Visibility = System.Windows.Visibility.Visible;
                 Terminal.StartTerminal();
                 EnsureTerminalTab(Terminal);
                 SelectTerminal(0);
