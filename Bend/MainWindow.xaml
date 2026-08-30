@@ -42,6 +42,8 @@
                 Executed="CommandGoto"/>
         <CommandBinding Command="Help"
                 Executed="CommandHelp"/>
+        <CommandBinding Command="{x:Static local:MainWindow.ToggleTerminalCommand}"
+                Executed="CommandToggleTerminal"/>
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Key="S"
@@ -64,6 +66,9 @@
                 Command="GoToPage"/>
         <KeyBinding Key="F5"
                 Command="Refresh"/>
+        <KeyBinding Key="J"
+                Modifiers="Control"
+                Command="{x:Static local:MainWindow.ToggleTerminalCommand}"/>
     </Window.InputBindings>
     <Window.Resources>
         <Style x:Key="PlainStyle"
@@ -800,7 +805,7 @@
                     <Button Width="47"
                             Style="{StaticResource ChromeButton}"
                             Click="TerminalToggle_Click"
-                            ToolTip="Expand terminal">
+                            ToolTip="Expand terminal (Ctrl+J)">
                         <Path Width="8"
                                 Height="5"
                                 Stroke="{DynamicResource ShellMutedBrush}"

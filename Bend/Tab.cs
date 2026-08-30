@@ -228,6 +228,15 @@ namespace Bend
             double originalOpacity = this.Title.Opacity;
             try
             {
+                // The watcher callback can run while SaveFile is still writing, before
+                // lastSavedWriteTimeUtc has been updated.  Recheck on the UI thread so
+                // a notification queued by Bend's own save does not trigger a reload.
+                long currentWriteTime = System.IO.File.Exists(fullFileName) ? System.IO.File.GetLastWriteTimeUtc(fullFileName).Ticks : 0;
+                if (currentWriteTime != 0 && currentWriteTime == System.Threading.Interlocked.Read(ref this.lastSavedWriteTimeUtc))
+                {
+                    return;
+                }
+
                 this.Title.Opacity = 0.2;
                 if (!System.IO.File.Exists(fullFileName))
                 {

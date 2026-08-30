@@ -28,6 +28,8 @@ namespace Bend
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static readonly RoutedCommand ToggleTerminalCommand = new RoutedCommand();
+
         private const int GWL_STYLE = -16;
         private const int WS_SYSMENU = 0x00080000;
 
@@ -2428,6 +2430,7 @@ namespace Bend
         }
         private void NewShell_Click(object sender, RoutedEventArgs e) { CommandNew(sender, null); }
         private void TerminalToggle_Click(object sender, RoutedEventArgs e) { ToggleBottomPanel_MouseDown(sender, null); }
+        private void CommandToggleTerminal(object sender, ExecutedRoutedEventArgs e) { ToggleBottomPanel_MouseDown(sender, null); }
         private void TerminalClose_Click(object sender, RoutedEventArgs e)
         {
             if (MainDockBottomPanel.Visibility != Visibility.Visible || currentTerminalIndex < 0) return;
@@ -2514,6 +2517,17 @@ namespace Bend
                 if (terminalTab != null) terminalTab.Opacity = i == index ? 1 : 0.65;
             }
             terminalSessions[index].Terminal.Focus();
+            ResizeBottomTerminalAfterLayout(terminalSessions[index]);
+        }
+
+        private void ResizeBottomTerminalAfterLayout(Console.TerminalControl terminal)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!terminalSessions.Contains(terminal) || terminal.Visibility != Visibility.Visible) return;
+                terminal.UpdateLayout();
+                terminal.ResizeToCurrentDimensions();
+            }), System.Windows.Threading.DispatcherPriority.ContextIdle);
         }
         private void TerminalTabClose_Click(object sender, MouseButtonEventArgs e)
         {
