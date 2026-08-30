@@ -12,13 +12,13 @@
   </BackgroundColor>
   <BackgroundTerminalColor>
     <A>255</A>
-    <R>40</R>
-    <G>40</G>
-    <B>40</B>
+    <R>30</R>
+    <G>30</G>
+    <B>30</B>
     <ScA>1</ScA>
-    <ScR>0.0149830325</ScR>
-    <ScG>0.0149830325</ScG>
-    <ScB>0.0149830325</ScB>
+    <ScR>0.0129830325</ScR>
+    <ScG>0.0129830325</ScG>
+    <ScB>0.0129830325</ScB>
   </BackgroundTerminalColor>
   <ForegroundColor>
     <A>255</A>
@@ -322,17 +322,17 @@
     <unsignedInt>6411990</unsignedInt>
     <unsignedInt>15921906</unsignedInt>
   </TerminalColors>
-  <TerminalColorBackground>789516</TerminalColorBackground>
+  <TerminalColorBackground>1973790</TerminalColorBackground>
   <TerminalColorForeground>13421772</TerminalColorForeground>
   <TerminalColorSelectionBackground>16777215</TerminalColorSelectionBackground>
   <TerminalColorBackingBackground>
     <A>255</A>
-    <R>26</R>
-    <G>26</G>
-    <B>26</B>
+    <R>30</R>
+    <G>30</G>
+    <B>30</B>
     <ScA>1</ScA>
-    <ScR>0.010329823</ScR>
-    <ScG>0.010329823</ScG>
-    <ScB>0.010329823</ScB>
+    <ScR>0.0129830325</ScR>
+    <ScG>0.0129830325</ScG>
+    <ScB>0.0129830325</ScB>
   </TerminalColorBackingBackground>
 </ThemeSettings>
