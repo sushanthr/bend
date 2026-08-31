@@ -509,7 +509,7 @@
                                 <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="48"/>
                                         <ColumnDefinition x:Name="SidePaneColumn" Width="0"/>
-                                        <ColumnDefinition Width="*" MinWidth="100"/>
+                                        <ColumnDefinition x:Name="EditorWorkspaceColumn" Width="*" MinWidth="100"/>
                                         <ColumnDefinition x:Name="AgentSplitterColumn" Width="0"/>
                                         <ColumnDefinition x:Name="AgentPaneColumn" Width="0"/>
                                 </Grid.ColumnDefinitions>
@@ -518,10 +518,11 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                    <Border Grid.RowSpan="5"
+                    <Border Grid.RowSpan="6"
                             Width="0.67"
                             HorizontalAlignment="Right"
                             Background="{DynamicResource ShellBorderBrush}"
@@ -561,7 +562,19 @@
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Center"/>
                     </Button>
-                    <Button Grid.Row="4"
+                    <Button Grid.Row="3"
+                            x:Name="LoopsTasksActivityButton"
+                            Style="{StaticResource ActivityButton}"
+                            Click="LoopsTasksActivity_Click"
+                            ToolTip="Loops and tasks">
+                        <TextBlock Text="&#xE8EE;"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="24"
+                                Foreground="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                    </Button>
+                    <Button Grid.Row="5"
                             x:Name="SettingsActivityButton"
                             Style="{StaticResource ActivityButton}"
                             Click="SettingsActivity_Click"
@@ -606,6 +619,8 @@
                                 Visibility="Collapsed"/>
                         <scm:SourceControlPanel x:Name="SourceControlPanel" Grid.RowSpan="2" Visibility="Collapsed"
                                 DiffRequested="SourceControlPanel_DiffRequested" DiffModeChanged="SourceControlPanel_DiffModeChanged"/>
+                        <local:LoopsTasksPanel x:Name="LoopsTasksPanel" Grid.RowSpan="2" Visibility="Collapsed"
+                                FileOpenRequested="LoopsTasksPanel_FileOpenRequested" AgentRequested="LoopsTasksPanel_AgentRequested"/>
                         <TextBlock x:Name="OtherSidePaneContent"
                                 Grid.Row="1"
                                 Margin="22"
@@ -670,7 +685,7 @@
                 <Grid x:Name="AgentPane" Grid.Column="4" Visibility="Collapsed" Background="{DynamicResource TerminalColorBrush}">
                     <Grid.RowDefinitions><RowDefinition Height="35.7"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid Grid.Row="0" Background="{DynamicResource ShellPanelBrush}">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/><ColumnDefinition Width="42"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions>
                         <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
                             <StackPanel x:Name="AgentTabBar" Orientation="Horizontal" Height="35.7"/>
                         </ScrollViewer>
@@ -678,7 +693,10 @@
                             <Button.ContextMenu><ContextMenu x:Name="AgentCliMenu"/></Button.ContextMenu>
                             <TextBlock Text="&#xEAB4;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
                         </Button>
-                        <Button Grid.Column="2" Style="{StaticResource ChromeButton}" Click="AgentClosePane_Click" ToolTip="Collapse right pane">
+                        <Button x:Name="AgentMaximizePaneButton" Grid.Column="2" Style="{StaticResource ChromeButton}" Click="AgentMaximizePane_Click" ToolTip="Maximize agent pane">
+                            <TextBlock x:Name="AgentMaximizePaneIcon" Text="&#xEB4C;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
+                        </Button>
+                        <Button Grid.Column="3" Style="{StaticResource ChromeButton}" Click="AgentClosePane_Click" ToolTip="Collapse right pane">
                             <TextBlock Text="&#xEC00;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="16" Foreground="{DynamicResource ShellMutedBrush}"/>
                         </Button>
                     </Grid>
@@ -881,9 +899,9 @@
                         Margin="0,0,8,0"
                         VerticalAlignment="Center">
                     <StackPanel x:Name="DiffHunkNavigation" Orientation="Horizontal" Margin="0,0,12,0" Visibility="Collapsed">
-                        <Button Style="{StaticResource StatusButton}" ToolTip="Previous change (Shift+F7)" Click="PreviousDiffHunk_Click"><TextBlock Text="↑" FontSize="14"/></Button>
+                        <Button Style="{StaticResource StatusButton}" ToolTip="Previous change (Shift+F7)" Click="PreviousDiffHunk_Click"><TextBlock Text="&#xEBFF;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="14"/></Button>
                         <TextBlock x:Name="DiffHunkPosition" Text="0 of 0" MinWidth="48" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource LogoForegroundBrush}"/>
-                        <Button Style="{StaticResource StatusButton}" ToolTip="Next change (F7)" Click="NextDiffHunk_Click"><TextBlock Text="↓" FontSize="14"/></Button>
+                        <Button Style="{StaticResource StatusButton}" ToolTip="Next change (F7)" Click="NextDiffHunk_Click"><TextBlock Text="&#xEBFC;" FontFamily="/Bend;component/Fonts/#codicon" FontSize="14"/></Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,12,0" ToolTip="Diff presentation">
                         <RadioButton x:Name="DiffNoneButton" GroupName="AppDiffMode" Style="{StaticResource StatusSegment}" ToolTip="Hide diff" Checked="DiffMode_Checked">

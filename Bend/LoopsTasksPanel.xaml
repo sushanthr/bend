@@ -1,0 +1,185 @@
+<UserControl x:Class="Bend.LoopsTasksPanel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Background="{DynamicResource ShellPanelBrush}"
+        Foreground="{DynamicResource ForegroundBrush}">
+    <UserControl.Resources>
+        <FontFamily x:Key="CodiconFontFamily">/Bend;component/Fonts/#codicon</FontFamily>
+        <Style x:Key="PaneIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource ShellMutedBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.38"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PaneActionButtonStyle" TargetType="Button" BasedOn="{StaticResource PaneIconButtonStyle}">
+            <Setter Property="MinWidth" Value="26"/>
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <Style x:Key="PaneFileButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Padding" Value="24,0,6,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="{DynamicResource ShellMutedBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PaneExpanderStyle" TargetType="Expander">
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <ToggleButton x:Name="HeaderButton" Height="30"
+                                    IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Foreground="{TemplateBinding Foreground}" Background="Transparent"
+                                    BorderThickness="0" HorizontalContentAlignment="Stretch">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HeaderSurface" Background="{TemplateBinding Background}">
+                                            <Grid Margin="9,0,8,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Path x:Name="Chevron" Width="5" Height="7" HorizontalAlignment="Left"
+                                                        Stroke="{DynamicResource ShellMutedBrush}" StrokeThickness="1.1" Data="M1,0 L4.5,3.5 L1,7"/>
+                                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"
+                                                        Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="HeaderSurface" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/></Trigger>
+                                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="Chevron" Property="Data" Value="M0,1 L3.5,4.5 L7,1"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Border x:Name="ContentBorder" Visibility="Collapsed" Padding="0,0,0,4"><ContentPresenter/></Border>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True"><Setter TargetName="ContentBorder" Property="Visibility" Value="Visible"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PaneFolderExpanderStyle" TargetType="Expander">
+            <Setter Property="Foreground" Value="{DynamicResource ShellMutedBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <ToggleButton Height="24" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Background="Transparent" BorderThickness="0" Foreground="{TemplateBinding Foreground}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="FolderSurface" Background="{TemplateBinding Background}">
+                                            <Grid Margin="23,0,7,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="13"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <Path x:Name="FolderChevron" Width="5" Height="7" HorizontalAlignment="Left" Stroke="{DynamicResource ShellMutedBrush}" StrokeThickness="1.1" Data="M1,0 L4.5,3.5 L1,7"/>
+                                                <Path Grid.Column="1" Width="11" Height="9" Stroke="{DynamicResource ShellMutedBrush}" StrokeThickness="1" Data="M1,2 L5,2 L6.5,4 L11,4 L11,10 L1,10 Z"/>
+                                                <ContentPresenter Grid.Column="2" VerticalAlignment="Center" Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="FolderSurface" Property="Background" Value="{DynamicResource MenuSelectedBackgroundBrush}"/></Trigger>
+                                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="FolderChevron" Property="Data" Value="M0,1 L3.5,4.5 L7,1"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Border x:Name="FolderContent" Visibility="Collapsed" Margin="13,0,0,0"><ContentPresenter/></Border>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True"><Setter TargetName="FolderContent" Property="Visibility" Value="Visible"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PaneProgressStyle" TargetType="ProgressBar">
+            <Setter Property="Height" Value="3"/>
+            <Setter Property="Background" Value="{DynamicResource ShellBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource LogoBackgroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid x:Name="PART_Track" Background="{TemplateBinding Background}">
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <DockPanel Grid.Row="0">
+            <Border DockPanel.Dock="Top" Height="34" Background="{DynamicResource ShellChromeBrush}">
+                <Grid Margin="10,0,5,0">
+                    <TextBlock Text="LOOPS" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"/>
+                    <Button x:Name="NewLoopButton" Style="{StaticResource PaneIconButtonStyle}" HorizontalAlignment="Right" Click="NewLoop_Click" ToolTip="New loop">
+                        <Path Width="12" Height="12" Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.2" Data="M6,0 L6,12 M0,6 L12,6"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="LoopsList"/></ScrollViewer>
+        </DockPanel>
+        <GridSplitter Grid.Row="1" Height="4" HorizontalAlignment="Stretch" Background="{DynamicResource ShellBorderBrush}" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"/>
+        <DockPanel Grid.Row="2">
+            <Border DockPanel.Dock="Top" Height="34" Background="{DynamicResource ShellChromeBrush}">
+                <Grid Margin="10,0,5,0">
+                    <TextBlock Text="TASKS" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"/>
+                    <Button x:Name="NewTaskButton" Style="{StaticResource PaneIconButtonStyle}" HorizontalAlignment="Right" Click="NewTask_Click" ToolTip="New task">
+                        <Path Width="12" Height="12" Stroke="{Binding Foreground,RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.2" Data="M6,0 L6,12 M0,6 L12,6"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel x:Name="TasksList"/></ScrollViewer>
+        </DockPanel>
+    </Grid>
+</UserControl>

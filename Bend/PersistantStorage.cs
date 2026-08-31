@@ -71,9 +71,11 @@ namespace Bend
         public string LastWorkspaceFolder;
         public double BottomTerminalHeight;
         public double LeftPaneWidth;
+        public double LoopsTasksPaneWidth;
         public double AgentPaneWidth;
         public string DefaultAgentCli;
         public string AdditionalAgentClis;
+        public string AgentCommandTemplates;
         public List<SavedTerminalCommand> PowerShellCommands;
         public List<SavedTerminalCommand> CommandPromptCommands;
 
@@ -118,9 +120,11 @@ namespace Bend
             LastWorkspaceFolder = null;
             BottomTerminalHeight = 300;
             LeftPaneWidth = 240;
+            LoopsTasksPaneWidth = 280;
             AgentPaneWidth = 360;
             DefaultAgentCli = "copilot";
             AdditionalAgentClis = String.Empty;
+            AgentCommandTemplates = "codex=codex exec {prompt}\r\ncopilot=copilot -c {prompt}\r\nclaude=claude {prompt}";
             PowerShellCommands = new List<SavedTerminalCommand>();
             CommandPromptCommands = new List<SavedTerminalCommand>();
         }

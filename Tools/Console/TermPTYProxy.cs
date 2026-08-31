@@ -66,7 +66,11 @@ namespace Console
             {
                 try
                 {
-                    var binding = new NetNamedPipeBinding() { MaxReceivedMessageSize = 1024 * 1024 };
+                    var binding = new NetNamedPipeBinding()
+                    {
+                        MaxReceivedMessageSize = 1024 * 1024,
+                        ReceiveTimeout = TimeSpan.MaxValue
+                    };
                     _factory = new DuplexChannelFactory<ITermPTYService>(
                         new InstanceContext(this),
                         binding,

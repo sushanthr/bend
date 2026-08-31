@@ -483,6 +483,7 @@ namespace Bend
             Diagnostics.IsChecked = persistantStorage.Diagnostics;
             DefaultAgentCli.Text = String.IsNullOrWhiteSpace(persistantStorage.DefaultAgentCli) ? "copilot" : persistantStorage.DefaultAgentCli;
             AdditionalAgentClis.Text = persistantStorage.AdditionalAgentClis ?? String.Empty;
+            AgentCommandTemplates.Text = String.IsNullOrWhiteSpace(persistantStorage.AgentCommandTemplates) ? "codex=codex exec {prompt}\r\ncopilot=copilot -c {prompt}\r\nclaude=claude {prompt}" : persistantStorage.AgentCommandTemplates;
             RefreshTerminalCommands();
 
             // Set up the font picker
@@ -689,6 +690,7 @@ namespace Bend
                 persistantStorage.Diagnostics = Diagnostics.IsChecked ?? true;
                 persistantStorage.DefaultAgentCli = String.IsNullOrWhiteSpace(DefaultAgentCli.Text) ? "copilot" : DefaultAgentCli.Text.Trim();
                 persistantStorage.AdditionalAgentClis = AdditionalAgentClis.Text == null ? String.Empty : AdditionalAgentClis.Text.Trim();
+                persistantStorage.AgentCommandTemplates = AgentCommandTemplates.Text == null ? String.Empty : AgentCommandTemplates.Text.Trim();
                 persistantStorage.SyntaxHighlighting = SyntaxHighlighting.IsChecked ?? true;
                 persistantStorage.TextWordWrap = TextWordWrap.IsChecked ?? true;
                 persistantStorage.SettingsPageAnimation = SettingsPageAnimation.IsChecked ?? true;

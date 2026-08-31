@@ -32,6 +32,9 @@ namespace Bend
 
         private const int GWL_STYLE = -16;
         private const int WS_SYSMENU = 0x00080000;
+        private const double ActivityBarWidth = 48;
+        private const double MinimumEditorWidth = 100;
+        private const double PreferredMinimumAgentPaneWidth = 320;
 
         [DllImport("user32.dll")]
         private extern static int SetWindowLong(IntPtr hwnd, int index, int value);
@@ -51,6 +54,8 @@ namespace Bend
         readonly List<Console.TerminalControl> agentTerminalSessions = new List<Console.TerminalControl>();
         int currentAgentTerminalIndex = -1;
         bool agentPaneExpanded;
+        bool agentPaneMaximized;
+        double agentPaneRestoreWidth;
 
         WindowChrome windowChrome;
 
@@ -74,6 +79,7 @@ namespace Bend
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private System.Threading.CancellationTokenSource diffBaseCancellation;
         private bool initializingDiffMode;
+        private System.Windows.Threading.DispatcherTimer scheduledTaskTimer;
         #endregion
 
         #region Public API
@@ -81,6 +87,7 @@ namespace Bend
         public MainWindow()
         {
             InitializeComponent();
+            SizeChanged += MainWindow_SizeChanged;
             terminalSessions = new List<Console.TerminalControl> { Terminal };
             EnsureTerminalTab(Terminal);
             FontFamily shellFont = new FontFamily("Segoe UI Variable Text");
@@ -395,6 +402,12 @@ namespace Bend
             interBendCommuncation = new InterBendCommunication(mainWindow);
             interBendCommuncation.RecivedFileNameEvent += new InterBendCommunication.RecivedFileNameEventHandler(RecivedFileNameEvent);
 
+            BendTaskScheduler.Reconcile();
+            scheduledTaskTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+            scheduledTaskTimer.Tick += async (timerSender, args) => await ScheduledTaskEngine.RunDueTasksAsync();
+            scheduledTaskTimer.Start();
+            _ = ScheduledTaskEngine.RunDueTasksAsync();
+
             this.QueryContinueDrag += TabDrag_QueryContinueDrag;
         }
         
@@ -455,8 +468,14 @@ namespace Bend
                     PersistantStorage.StorageObject.mainWindowHeight = this.Height;
                 }
                 if (BottomChrome.RowDefinitions[2].ActualHeight > 0) PersistantStorage.StorageObject.BottomTerminalHeight = BottomChrome.RowDefinitions[2].ActualHeight;
-                if (SidePaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
-                if (AgentPaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
+                if (SidePaneColumn.ActualWidth > 0)
+                {
+                    if (activeActivity == "loopsTasks") PersistantStorage.StorageObject.LoopsTasksPaneWidth = SidePaneColumn.ActualWidth;
+                    else PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
+                }
+                if (AgentPaneColumn.ActualWidth > 0)
+                    PersistantStorage.StorageObject.AgentPaneWidth = agentPaneMaximized && agentPaneRestoreWidth > 0
+                        ? agentPaneRestoreWidth : AgentPaneColumn.ActualWidth;
             }
             catch
             {
@@ -1489,12 +1508,16 @@ namespace Bend
         private void SidePaneSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
             if (SidePaneColumn.ActualWidth > 0)
-                PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
+            {
+                if (activeActivity == "loopsTasks") PersistantStorage.StorageObject.LoopsTasksPaneWidth = SidePaneColumn.ActualWidth;
+                else PersistantStorage.StorageObject.LeftPaneWidth = SidePaneColumn.ActualWidth;
+            }
             SavePaneLayout();
         }
 
         private void AgentPaneSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
         {
+            ConstrainAgentPaneWidth(AgentPaneColumn.ActualWidth);
             if (AgentPaneColumn.ActualWidth > 0)
                 PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
             SavePaneLayout();
@@ -2077,25 +2100,46 @@ namespace Bend
             {
                 SidePaneColumn.Width = new GridLength(0);
                 activeActivity = null;
+                if (agentPaneExpanded) ConstrainAgentPaneWidth(AgentPaneColumn.Width.Value);
                 return;
             }
             activeActivity = activity;
             SidePaneTitle.Text = title;
-            double savedPaneWidth = PersistantStorage.StorageObject.LeftPaneWidth;
+            double savedPaneWidth = activity == "loopsTasks" ? PersistantStorage.StorageObject.LoopsTasksPaneWidth : PersistantStorage.StorageObject.LeftPaneWidth;
+            if (activity == "loopsTasks")
+            {
+                if (savedPaneWidth < 140 || savedPaneWidth > 340) savedPaneWidth = 280;
+                SidePaneColumn.MaxWidth = 340;
+            }
+            else SidePaneColumn.MaxWidth = Double.PositiveInfinity;
             SidePaneColumn.Width = new GridLength(savedPaneWidth >= 140 ? savedPaneWidth : (activity == "source" ? 320 : 240));
+            if (agentPaneExpanded) ConstrainAgentPaneWidth(AgentPaneColumn.Width.Value);
             bool showFiles = activity == "files";
             bool showSearch = activity == "search";
             bool showSource = activity == "source";
+            bool showLoopsTasks = activity == "loopsTasks";
             FilesPanel.Visibility = showFiles ? Visibility.Visible : Visibility.Collapsed;
             SearchPanel.Visibility = showSearch ? Visibility.Visible : Visibility.Collapsed;
             SourceControlPanel.Visibility = showSource ? Visibility.Visible : Visibility.Collapsed;
-            OtherSidePaneContent.Visibility = (showFiles || showSearch || showSource) ? Visibility.Collapsed : Visibility.Visible;
+            LoopsTasksPanel.Visibility = showLoopsTasks ? Visibility.Visible : Visibility.Collapsed;
+            OtherSidePaneContent.Visibility = (showFiles || showSearch || showSource || showLoopsTasks) ? Visibility.Collapsed : Visibility.Visible;
             if (showSource) SourceControlPanel.RefreshAsync();
         }
 
         private void FilesActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("files", "FILES"); }
         private void SearchActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("search", "SEARCH"); }
         private void SourceControlActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("source", "SOURCE CONTROL"); }
+        private void LoopsTasksActivity_Click(object sender, RoutedEventArgs e) { ToggleActivityPane("loopsTasks", "LOOPS & TASKS"); LoopsTasksPanel.Refresh(); }
+
+        private void LoopsTasksPanel_FileOpenRequested(object sender, string path)
+        {
+            OpenDocumentFromTree(path, true);
+        }
+
+        private void LoopsTasksPanel_AgentRequested(object sender, string folder)
+        {
+            OpenAgentTerminal(GetDefaultAgentCommand(), folder);
+        }
 
         private void AgentButton_Click(object sender, RoutedEventArgs e)
         {
@@ -2119,11 +2163,12 @@ namespace Bend
                 if (!agentPaneExpanded)
                 {
                     double width = PersistantStorage.StorageObject.AgentPaneWidth;
-                    AgentPaneColumn.MinWidth = 320;
                     AgentSplitterColumn.Width = new GridLength(1);
-                    AgentPaneColumn.Width = new GridLength(width >= 320 ? width : 360);
                     AgentPaneSplitter.Visibility = Visibility.Visible;
                     AgentPane.Visibility = Visibility.Visible;
+                    agentPaneExpanded = true;
+                    ConstrainAgentPaneWidth(width >= PreferredMinimumAgentPaneWidth ? width : 360);
+                    agentPaneRestoreWidth = AgentPaneColumn.Width.Value;
                     AgentButton.Foreground = new SolidColorBrush(PersistantStorage.StorageObject.CurrentTheme.LogoBackgroundColor);
                 }
                 agentPaneExpanded = true;
@@ -2131,10 +2176,14 @@ namespace Bend
             }
             else
             {
-                if (AgentPaneColumn.ActualWidth > 0) PersistantStorage.StorageObject.AgentPaneWidth = AgentPaneColumn.ActualWidth;
+                double widthToSave = agentPaneMaximized && agentPaneRestoreWidth > 0
+                    ? agentPaneRestoreWidth : AgentPaneColumn.ActualWidth;
+                if (agentPaneMaximized) RestoreAgentPaneSize();
+                if (widthToSave > 0) PersistantStorage.StorageObject.AgentPaneWidth = widthToSave;
                 AgentPane.Visibility = Visibility.Collapsed;
                 AgentPaneSplitter.Visibility = Visibility.Collapsed;
                 AgentPaneColumn.MinWidth = 0;
+                AgentPaneColumn.MaxWidth = Double.PositiveInfinity;
                 AgentSplitterColumn.Width = new GridLength(0);
                 AgentPaneColumn.Width = new GridLength(0);
                 AgentButton.Foreground = MaxButton.Foreground;
@@ -2143,14 +2192,79 @@ namespace Bend
             }
         }
 
-        private void OpenAgentTerminal(string command)
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (agentPaneExpanded && !agentPaneMaximized)
+                ConstrainAgentPaneWidth(AgentPaneColumn.Width.Value, e.NewSize.Width);
+        }
+
+        private void ConstrainAgentPaneWidth(double requestedWidth, double workspaceWidth = Double.NaN)
+        {
+            if (!agentPaneExpanded || agentPaneMaximized) return;
+
+            if (Double.IsNaN(workspaceWidth) || workspaceWidth <= 0)
+                workspaceWidth = ClientAreaGrid.ActualWidth > 0 ? ClientAreaGrid.ActualWidth : ActualWidth;
+            if (Double.IsNaN(workspaceWidth) || workspaceWidth <= 0)
+                workspaceWidth = Width;
+
+            double sidePaneWidth = SidePaneColumn.Width.IsAbsolute ? SidePaneColumn.Width.Value : SidePaneColumn.ActualWidth;
+            double splitterWidth = AgentSplitterColumn.Width.IsAbsolute ? AgentSplitterColumn.Width.Value : AgentSplitterColumn.ActualWidth;
+            double maximumWidth = Math.Max(0, workspaceWidth - ActivityBarWidth - sidePaneWidth - splitterWidth - MinimumEditorWidth);
+            double minimumWidth = Math.Min(PreferredMinimumAgentPaneWidth, maximumWidth);
+
+            AgentPaneColumn.MinWidth = minimumWidth;
+            AgentPaneColumn.MaxWidth = maximumWidth;
+
+            if (Double.IsNaN(requestedWidth) || Double.IsInfinity(requestedWidth)) requestedWidth = minimumWidth;
+            AgentPaneColumn.Width = new GridLength(Math.Max(minimumWidth, Math.Min(requestedWidth, maximumWidth)));
+        }
+
+        private void AgentMaximizePane_Click(object sender, RoutedEventArgs e)
+        {
+            if (!agentPaneExpanded) return;
+            if (agentPaneMaximized) RestoreAgentPaneSize();
+            else MaximizeAgentPane();
+            e.Handled = true;
+        }
+
+        private void MaximizeAgentPane()
+        {
+            agentPaneRestoreWidth = AgentPaneColumn.ActualWidth > 0
+                ? AgentPaneColumn.ActualWidth : AgentPaneColumn.Width.Value;
+            agentPaneMaximized = true;
+            AgentPaneSplitter.Visibility = Visibility.Collapsed;
+            AgentSplitterColumn.Width = new GridLength(0);
+            EditorWorkspaceColumn.MinWidth = 0;
+            EditorWorkspaceColumn.Width = new GridLength(0);
+            AgentPaneColumn.MinWidth = 0;
+            AgentPaneColumn.MaxWidth = Double.PositiveInfinity;
+            AgentPaneColumn.Width = new GridLength(1, GridUnitType.Star);
+            AgentMaximizePaneIcon.Text = "\uEB4D";
+            AgentMaximizePaneButton.ToolTip = "Restore agent pane";
+            FocusAgentTerminalAfterLayout();
+        }
+
+        private void RestoreAgentPaneSize()
+        {
+            agentPaneMaximized = false;
+            EditorWorkspaceColumn.MinWidth = MinimumEditorWidth;
+            EditorWorkspaceColumn.Width = new GridLength(1, GridUnitType.Star);
+            AgentSplitterColumn.Width = new GridLength(1);
+            AgentPaneSplitter.Visibility = agentPaneExpanded ? Visibility.Visible : Visibility.Collapsed;
+            AgentMaximizePaneIcon.Text = "\uEB4C";
+            AgentMaximizePaneButton.ToolTip = "Maximize agent pane";
+            ConstrainAgentPaneWidth(agentPaneRestoreWidth >= PreferredMinimumAgentPaneWidth ? agentPaneRestoreWidth : 360);
+            FocusAgentTerminalAfterLayout();
+        }
+
+        private void OpenAgentTerminal(string command, string workingDirectory = null)
         {
             if (String.IsNullOrWhiteSpace(command)) return;
             string startupCommand = GetAgentStartupCommand(command.Trim());
             Console.TerminalControl terminal = new Console.TerminalControl
             {
                 StartupCommandLine = startupCommand,
-                WorkingDirectory = currentFolderPath,
+                WorkingDirectory = workingDirectory ?? currentFolderPath,
                 Win32InputMode = true,
                 InputCapture = Console.TerminalControl.INPUT_CAPTURE.TabKey | Console.TerminalControl.INPUT_CAPTURE.DirectionKeys,
                 Margin = new Thickness(5)

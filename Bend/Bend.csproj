@@ -171,6 +171,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SourceControl\SourceControlPanel.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="LoopsTasksPanel.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="SourceControl\CommitMessageDialog.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="SourceControl\RemoteBranchDialog.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="FileEncoding.xaml">
@@ -215,6 +216,7 @@
     <Compile Include="SourceControl\CommitMessageDialog.xaml.cs"><DependentUpon>CommitMessageDialog.xaml</DependentUpon></Compile>
     <Compile Include="SourceControl\RemoteBranchDialog.xaml.cs"><DependentUpon>RemoteBranchDialog.xaml</DependentUpon></Compile>
     <Compile Include="SourceControl\SourceControlPanel.xaml.cs"><DependentUpon>SourceControlPanel.xaml</DependentUpon></Compile>
+    <Compile Include="LoopsTasksPanel.xaml.cs"><DependentUpon>LoopsTasksPanel.xaml</DependentUpon></Compile>
     <Compile Include="SaveChangesMessageBox.xaml.cs">
       <DependentUpon>SaveChangesMessageBox.xaml</DependentUpon>
     </Compile>
@@ -225,6 +227,7 @@
       <DependentUpon>GotoLine.xaml</DependentUpon>
     </Compile>
     <Compile Include="PersistantStorage.cs" />
+    <Compile Include="LoopsTasks.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>

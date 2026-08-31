@@ -94,7 +94,11 @@ class Program
         using (parentProcess)
         {
             host.AddServiceEndpoint(typeof(ITermPTYService),
-                new NetNamedPipeBinding() { MaxReceivedMessageSize = 1024 * 1024 },
+                new NetNamedPipeBinding()
+                {
+                    MaxReceivedMessageSize = 1024 * 1024,
+                    ReceiveTimeout = TimeSpan.MaxValue
+                },
                 "net.pipe://localhost/Bend/TermPTYService/" + parentProcessId.ToString(CultureInfo.InvariantCulture));
 
             host.Open();
